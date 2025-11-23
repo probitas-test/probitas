@@ -1,0 +1,1035 @@
+export const snapshot = {};
+
+snapshot[`after onRunStart 1`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 1`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 1`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (2) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (2) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunEnd 1`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunStart 2`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 2`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 2`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepError - Step that fails (2-2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunEnd 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunStart 3`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 3`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 3`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (2) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (4) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (4) 1`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunEnd 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunStart 4`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 4`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 4`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepError - Step that fails (2-2) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (3) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (3) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (4) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (4) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (4) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (4) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (5) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (5) 1`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunEnd 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunStart 5`] = `
+"TAP version 14
+1..0
+"
+`;
+
+snapshot[`after onRunEnd 5`] = `
+"TAP version 14
+1..0
+"
+`;
+
+snapshot[`after onRunStart 6`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 5`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 5`] = `
+"TAP version 14
+1..3
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 5`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 5`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (2) 2`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2) 2`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2) 2`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (2) 2`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 4`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 4`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 4`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 4`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunEnd 6`] = `
+"TAP version 14
+1..3
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Simple passing scenario > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunStart 7`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 6`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 6`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepError - Step that fails (2-2) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 3`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 5`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 5`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 5`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 5`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunEnd 7`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onRunStart 8`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 7`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 7`] = `
+"TAP version 14
+1..4
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 7`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 7`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (2) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (2) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (3) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (3) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 6`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (4) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (4) 2`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunEnd 8`] = `
+"TAP version 14
+1..4
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 3 - Simple passing scenario > Step that passes
+ok 4 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunStart 9`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 8`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (1) 8`] = `
+"TAP version 14
+1..6
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (1) 8`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 8`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onStepError - Step that fails (2-2) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 4`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (3) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (3) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (4) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepStart - Step that passes (4) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onStepEnd - Step that passes (4) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (4) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+"
+`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (5) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (5) 2`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunEnd 9`] = `
+"TAP version 14
+1..6
+ok 1 - Simple passing scenario > Step that passes
+ok 2 - Scenario with failing step > Step that passes
+ok 3 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+ok 4 - Simple passing scenario > Step that passes
+ok 5 - Skipped scenario > Step that passes # SKIP Scenario is marked to skip
+"
+`;
+
+snapshot[`after onRunStart 10`] = `
+"TAP version 14
+1..0
+"
+`;
+
+snapshot[`after onRunEnd 10`] = `
+"TAP version 14
+1..0
+"
+`;

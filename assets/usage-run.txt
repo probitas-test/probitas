@@ -1,0 +1,77 @@
+probitas run - Run scenarios
+
+Usage: probitas run [options] [files...]
+
+Arguments:
+  [files...]  Scenario files, directories, or glob patterns
+              Defaults to "**/*.scenario.ts"
+
+Options:
+  -h, --help                Show help message
+  -s, --select <selector>   Select scenarios by selector (can be specified multiple times)
+  -x, --exclude <selector>  Exclude scenarios by selector (can be specified multiple times)
+  --reporter <name>         Reporter to use (dot, list, live, json, tap)
+                            Default: "list"
+  --max-concurrency <n>     Maximum parallel scenarios (default: unlimited)
+  -S, --sequential          Run scenarios sequentially (alias for --max-concurrency=1)
+  --max-failures <n>        Stop after N failures
+  -f, --fail-fast           Stop on first failure (alias for --max-failures=1)
+  --config <path>           Path to config file
+  -q, --quiet               Quiet output (errors only)
+  -v, --verbose             Verbose output
+  -d, --debug               Debug output (maximum detail)
+  --no-color                Disable colored output
+
+Selector Format:
+  [type:]value
+
+  Types:
+    tag   - Match by tag (e.g., tag:api)
+    name  - Match by scenario name (default, e.g., Login or name:Login)
+
+  Matching is case-insensitive (e.g., "login" matches "Login", "LOGIN", "login")
+  Multiple selectors with -s: OR logic
+  Comma-separated within selector: AND logic
+
+Examples:
+  probitas run                              Run all scenarios
+  probitas run examples/                    Run scenarios in examples/
+  probitas run test.scenario.ts             Run specific file
+
+  # Select by tag
+  probitas run -s tag:smoke                 Run scenarios with @smoke tag
+  probitas run -s tag:smoke -s tag:api      Run scenarios with @smoke OR @api tags
+
+  # Select by name
+  probitas run -s login                     Run scenarios matching "login"
+  probitas run -s "login" -s "logout"       Run matching "login" OR "logout"
+
+  # Combine (AND within selector)
+  probitas run -s "tag:api,tag:critical"    Run with @api AND @critical tags
+  probitas run -s "tag:api,User"            Run @api tag AND name containing "User"
+
+  # Exclude scenarios
+  probitas run -s tag:api -x tag:slow       Run @api tag, excluding @slow
+  probitas run -x wip                       Run all except matching "wip"
+
+  # File + selector
+  probitas run scenarios/auth/ -s tag:smoke Run smoke tests in auth/ directory
+
+  # Execution control
+  probitas run --max-concurrency 5          Run up to 5 scenarios in parallel
+  probitas run -S                           Run scenarios sequentially
+  probitas run --sequential                 Run scenarios sequentially
+  probitas run --max-failures 1             Stop on first failure
+  probitas run -f                           Stop on first failure (alias)
+
+  # Output control
+  probitas run -v                           Verbose output
+  probitas run --verbose                    Verbose output (same as -v)
+  probitas run -q                           Quiet output
+  probitas run --quiet                      Quiet output (same as -q)
+  probitas run -d                           Debug output
+  probitas run --debug                      Debug output (same as -d)
+
+Environment Variables:
+  NO_COLOR         Disable colored output
+  PROBITAS_CONFIG  Path to config file

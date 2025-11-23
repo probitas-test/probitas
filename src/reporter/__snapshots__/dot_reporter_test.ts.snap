@@ -1,0 +1,343 @@
+export const snapshot = {};
+
+snapshot[`after onRunStart 1`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 1`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 1`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 1`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that passes (2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (2) 1`] = `"[32m.[39m[32m.[39m"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 1`] = `"[32m.[39m[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that passes (3) 1`] = `"[32m.[39m[32m.[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (3) 1`] = `"[32m.[39m[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 1`] = `"[32m.[39m[32m.[39m[32m.[39m"`;
+
+snapshot[`after onRunEnd 1`] = `
+"[32m.[39m[32m.[39m[32m.[39m
+
+3 scenarios passed, 0 scenarios failed, 0 scenarios skipped (45ms)
+"
+`;
+
+snapshot[`after onRunStart 2`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 2`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 2`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 2`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onStepError - Step that fails (2-2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 2`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onStepStart - Step that passes (3) 2`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (3) 2`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 2`] = `"[32m.[39m[31mF[39m[32m.[39m"`;
+
+snapshot[`after onRunEnd 2`] = `
+"[32m.[39m[31mF[39m[32m.[39m
+
+2 scenarios passed, 1 scenarios failed, 0 scenarios skipped (35ms)
+
+[1mFailed Tests[22m
+  [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
+"
+`;
+
+snapshot[`after onRunStart 3`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 3`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 3`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 3`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 3`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (2) 1`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (2) 1`] = `"[32m.[39m[33mS[39m"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 3`] = `"[32m.[39m[33mS[39m"`;
+
+snapshot[`after onStepStart - Step that passes (3) 3`] = `"[32m.[39m[33mS[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (3) 3`] = `"[32m.[39m[33mS[39m"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 3`] = `"[32m.[39m[33mS[39m[32m.[39m"`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (4) 1`] = `"[32m.[39m[33mS[39m[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (4) 1`] = `"[32m.[39m[33mS[39m[32m.[39m[33mS[39m"`;
+
+snapshot[`after onRunEnd 3`] = `
+"[32m.[39m[33mS[39m[32m.[39m[33mS[39m
+
+2 scenarios passed, 0 scenarios failed, 2 scenarios skipped (20ms)
+
+[1mSkipped Tests[22m
+  [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario marked as skipped[39m
+  [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario marked as skipped[39m
+"
+`;
+
+snapshot[`after onRunStart 4`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 4`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 4`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 4`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 4`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onStepError - Step that fails (2-2) 2`] = `"[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (3) 1`] = `"[32m.[39m[31mF[39m"`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (3) 1`] = `"[32m.[39m[31mF[39m[33mS[39m"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (4) 1`] = `"[32m.[39m[31mF[39m[33mS[39m"`;
+
+snapshot[`after onStepStart - Step that passes (4) 1`] = `"[32m.[39m[31mF[39m[33mS[39m"`;
+
+snapshot[`after onStepEnd - Step that passes (4) 1`] = `"[32m.[39m[31mF[39m[33mS[39m"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (4) 1`] = `"[32m.[39m[31mF[39m[33mS[39m[32m.[39m"`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (5) 1`] = `"[32m.[39m[31mF[39m[33mS[39m[32m.[39m"`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (5) 1`] = `"[32m.[39m[31mF[39m[33mS[39m[32m.[39m[33mS[39m"`;
+
+snapshot[`after onRunEnd 4`] = `
+"[32m.[39m[31mF[39m[33mS[39m[32m.[39m[33mS[39m
+
+2 scenarios passed, 1 scenarios failed, 2 scenarios skipped (55ms)
+
+[1mFailed Tests[22m
+  [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
+
+[1mSkipped Tests[22m
+  [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario marked as skipped[39m
+  [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario marked as skipped[39m
+"
+`;
+
+snapshot[`after onRunStart 5`] = `""`;
+
+snapshot[`after onRunEnd 5`] = `
+"
+
+0 scenarios passed, 0 scenarios failed, 0 scenarios skipped (0ms)
+"
+`;
+
+snapshot[`after onRunStart 6`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 5`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 5`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 5`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 5`] = `"."`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (2) 2`] = `"."`;
+
+snapshot[`after onStepStart - Step that passes (2) 2`] = `"."`;
+
+snapshot[`after onStepEnd - Step that passes (2) 2`] = `"."`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (2) 2`] = `".."`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 4`] = `".."`;
+
+snapshot[`after onStepStart - Step that passes (3) 4`] = `".."`;
+
+snapshot[`after onStepEnd - Step that passes (3) 4`] = `".."`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 4`] = `"..."`;
+
+snapshot[`after onRunEnd 6`] = `
+"...
+
+3 scenarios passed, 0 scenarios failed, 0 scenarios skipped (45ms)
+"
+`;
+
+snapshot[`after onRunStart 7`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 6`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 6`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 6`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 6`] = `"."`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 3`] = `"."`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 3`] = `"."`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 3`] = `"."`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 3`] = `"."`;
+
+snapshot[`after onStepError - Step that fails (2-2) 3`] = `"."`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 3`] = `".F"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 5`] = `".F"`;
+
+snapshot[`after onStepStart - Step that passes (3) 5`] = `".F"`;
+
+snapshot[`after onStepEnd - Step that passes (3) 5`] = `".F"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 5`] = `".F."`;
+
+snapshot[`after onRunEnd 7`] = `
+".F.
+
+2 scenarios passed, 1 scenarios failed, 0 scenarios skipped (35ms)
+
+Failed Tests
+  ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
+"
+`;
+
+snapshot[`after onRunStart 8`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 7`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 7`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 7`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 7`] = `"."`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (2) 2`] = `"."`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (2) 2`] = `".S"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (3) 6`] = `".S"`;
+
+snapshot[`after onStepStart - Step that passes (3) 6`] = `".S"`;
+
+snapshot[`after onStepEnd - Step that passes (3) 6`] = `".S"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (3) 6`] = `".S."`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (4) 2`] = `".S."`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (4) 2`] = `".S.S"`;
+
+snapshot[`after onRunEnd 8`] = `
+".S.S
+
+2 scenarios passed, 0 scenarios failed, 2 scenarios skipped (20ms)
+
+Skipped Tests
+  ⊝ Skipped scenario (test.scenario.ts:50) # Scenario marked as skipped
+  ⊝ Skipped scenario (test.scenario.ts:50) # Scenario marked as skipped
+"
+`;
+
+snapshot[`after onRunStart 9`] = `""`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (1) 8`] = `""`;
+
+snapshot[`after onStepStart - Step that passes (1) 8`] = `""`;
+
+snapshot[`after onStepEnd - Step that passes (1) 8`] = `""`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (1) 8`] = `"."`;
+
+snapshot[`after onScenarioStart - Scenario with failing step (2) 4`] = `"."`;
+
+snapshot[`after onStepStart - Step that passes (2-1) 4`] = `"."`;
+
+snapshot[`after onStepEnd - Step that passes (2-1) 4`] = `"."`;
+
+snapshot[`after onStepStart - Step that fails (2-2) 4`] = `"."`;
+
+snapshot[`after onStepError - Step that fails (2-2) 4`] = `"."`;
+
+snapshot[`after onScenarioEnd - Scenario with failing step (2) 4`] = `".F"`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (3) 2`] = `".F"`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (3) 2`] = `".FS"`;
+
+snapshot[`after onScenarioStart - Simple passing scenario (4) 2`] = `".FS"`;
+
+snapshot[`after onStepStart - Step that passes (4) 2`] = `".FS"`;
+
+snapshot[`after onStepEnd - Step that passes (4) 2`] = `".FS"`;
+
+snapshot[`after onScenarioEnd - Simple passing scenario (4) 2`] = `".FS."`;
+
+snapshot[`after onScenarioSkip - Skipped scenario (5) 2`] = `".FS."`;
+
+snapshot[`after onScenarioEnd - Skipped scenario (5) 2`] = `".FS.S"`;
+
+snapshot[`after onRunEnd 9`] = `
+".FS.S
+
+2 scenarios passed, 1 scenarios failed, 2 scenarios skipped (55ms)
+
+Failed Tests
+  ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
+
+Skipped Tests
+  ⊝ Skipped scenario (test.scenario.ts:50) # Scenario marked as skipped
+  ⊝ Skipped scenario (test.scenario.ts:50) # Scenario marked as skipped
+"
+`;
+
+snapshot[`after onRunStart 10`] = `""`;
+
+snapshot[`after onRunEnd 10`] = `
+"
+
+0 scenarios passed, 0 scenarios failed, 0 scenarios skipped (0ms)
+"
+`;

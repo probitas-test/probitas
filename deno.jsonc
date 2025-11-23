@@ -2,7 +2,16 @@
   "name": "@lambdalisue/probitas",
   "version": "0.0.0",
   "exports": {
-    ".": "./mod.ts"
+    ".": "./mod.ts",
+    "./builder": "./src/builder/mod.ts",
+    "./cli": "./cli/mod.ts",
+    "./client": "./src/client/mod.ts",
+    "./helper": "./src/helper/mod.ts",
+    "./helper/defer": "./src/helper/defer.ts",
+    "./helper/env": "./src/helper/env.ts",
+    "./helper/expect": "./src/helper/expect.ts",
+    "./reporter": "./src/reporter/mod.ts",
+    "./runner": "./src/runner/mod.ts"
   },
   "publish": {
     "include": [
@@ -21,12 +30,36 @@
     ".coverage/**"
   ],
   "tasks": {
+    "cli": "deno run -A ./cli/mod.ts",
     "check": "deno check ./**/*.ts",
-    "test": "deno test -A --parallel --shuffle --doc",
+    "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
     "coverage": "deno coverage .coverage --include='/(src|cli|mod\\.ts)/'"
   },
   "imports": {
-    "probitas": "./mod.ts"
+    "outdent": "jsr:@cspotcode/outdent@^0.8.0",
+    "@core/errorutil": "jsr:@core/errorutil@^1.2.1",
+    "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
+    "@std/assert": "jsr:@std/assert@^1.0.16",
+    "@std/async": "jsr:@std/async@^1.0.15",
+    "@std/cli": "jsr:@std/cli@^1.0.24",
+    "@std/dotenv": "jsr:@std/dotenv@^0.225.5",
+    "@std/expect": "jsr:@std/expect@^1.0.17",
+    "@std/fmt": "jsr:@std/fmt@^1.0.8",
+    "@std/fs": "jsr:@std/fs@^1.0.20",
+    "@std/jsonc": "jsr:@std/jsonc@^1.0.2",
+    "@std/path": "jsr:@std/path@^1.1.3",
+    "@std/semver": "jsr:@std/semver@^1.0.7",
+    "@std/streams": "jsr:@std/streams@^1.0.14",
+    "@std/testing": "jsr:@std/testing@^1.0.16",
+    "probitas": "./mod.ts",
+    "probitas/builder": "./src/builder/mod.ts",
+    "probitas/cli": "./cli/mod.ts",
+    "probitas/client": "./src/client/mod.ts",
+    "probitas/helper/defer": "./src/helper/defer.ts",
+    "probitas/helper/env": "./src/helper/env.ts",
+    "probitas/helper/expect": "./src/helper/expect.ts",
+    "probitas/reporter": "./src/reporter/mod.ts",
+    "probitas/runner": "./src/runner/mod.ts"
   }
 }

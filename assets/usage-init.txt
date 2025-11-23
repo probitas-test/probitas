@@ -1,0 +1,16 @@
+probitas init - Initialize a new Probitas project
+
+Usage: probitas init [options]
+
+Generates the following files:
+  probitas.config.ts          Project configuration
+  scenarios/deno.jsonc        Import maps for scenarios
+  scenarios/example.scenario.ts  Sample scenario
+
+Options:
+  -h, --help     Show help message
+  --force        Overwrite existing files
+
+Examples:
+  probitas init           Initialize new project
+  probitas init --force   Overwrite existing files
