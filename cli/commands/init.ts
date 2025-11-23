@@ -81,7 +81,7 @@ export async function initCommand(
 
     // Create scenarios/deno.jsonc
     const denoJsoncPath = resolve(scenariosDir, "deno.jsonc");
-    const version = await getVersion();
+    const version = getVersion();
     const denoJsoncContent = (await readTemplate("deno.jsonc"))
       .replace("{{VERSION}}", version);
 

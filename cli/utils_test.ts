@@ -285,10 +285,10 @@ describe("utils", () => {
   });
 
   describe("getVersion", () => {
-    it("reads version from deno.jsonc", async () => {
-      const version = await getVersion();
+    it("reads version from deno.jsonc", () => {
+      const version = getVersion();
       assertEquals(typeof version, "string");
-      // Should be a version or "0.1.0"
+      // Should be a version or "unknown"
     });
   });
 

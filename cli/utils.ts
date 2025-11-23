@@ -4,7 +4,6 @@
  * @module
  */
 
-import { parse as parseJsonc } from "@std/jsonc";
 import {
   DotReporter,
   JSONReporter,
@@ -135,21 +134,16 @@ export async function readAsset(path: string): Promise<string> {
 }
 
 /**
- * Get version from deno.jsonc
+ * Get version from import.meta.url
  *
  * @returns Version string from deno.jsonc or "unknown" if unable to read
- * @requires --allow-read Permission to read deno.jsonc
  */
-export async function getVersion(): Promise<string> {
-  try {
-    const denoJsonPath = new URL("../deno.jsonc", import.meta.url);
-    const resp = await fetch(denoJsonPath);
-    const content = await resp.text();
-    const config = parseJsonc(content) as { version?: string };
-    return config.version || "0.1.0";
-  } catch {
-    return "0.1.0";
+export function getVersion(): string {
+  const prefix = "https://jsr.io/@lambdalisue/probitas/";
+  if (import.meta.url.startsWith(prefix)) {
+    return import.meta.url.slice(prefix.length).split("/").at(0) ?? "unknown";
   }
+  return "unknown";
 }
 
 /**
