@@ -20,8 +20,9 @@
       "**/*.ts"
     ],
     "exclude": [
-      "*_test.ts",
-      "*_bench.ts",
+      "**/*_test.ts",
+      "**/*_bench.ts",
+      "tests/**/*",
       "example/**/*"
     ]
   },
