@@ -275,7 +275,7 @@ probitas run --exclude tag:wip --exclude tag:slow
 
 Specifies the Reporter type.
 
-- Only built-in Reporters (dot, list, live, json, tap) are available
+- Only built-in Reporters (dot, list, json, tap) are available
 - If not specified, uses the `reporter` field from configuration file, or `list`
   as default
 
@@ -285,9 +285,6 @@ probitas run --reporter list
 
 # Dot format
 probitas run --reporter dot
-
-# Live update format
-probitas run --reporter live
 
 # JSON format (for CI/CD)
 probitas run --reporter json > results.json
@@ -840,8 +837,7 @@ export default {
 
 **Notes**:
 
-- String names can only be used for built-in Reporters (dot, list, live, json,
-  tap)
+- String names can only be used for built-in Reporters (dot, list, json, tap)
 - Set Reporter instance directly when custom configuration is needed
 - When instance is set, it can be overridden with `--reporter` option
 
@@ -987,9 +983,6 @@ probitas run --reporter json > results.json
 
 # TAP format
 probitas run --reporter tap
-
-# Live update format
-probitas run --reporter live
 ```
 
 ### Failure Strategies

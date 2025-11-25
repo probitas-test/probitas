@@ -185,17 +185,6 @@ Reporter that outputs each event in real-time using JSONLine format.
 - Easy for machine parsing
 - Optimal for integration with log collection and analysis tools
 
-### LiveReporter
-
-Reporter that manages the entire screen, supporting parallel execution.
-
-**Features**:
-
-- Readable output even during parallel execution
-- Separate display of running and completed tests
-- Visualizes progress with spinner animation
-- Dynamically updates entire screen
-
 ### DotReporter
 
 Reporter that displays progress in simple dot (`.`) format.
@@ -251,16 +240,6 @@ const reporter = new ListReporter({
 ```typescript
 const reporter = new ListReporter({
   theme: customTheme,
-});
-```
-
-### For Parallel Execution
-
-```typescript
-const reporter = new LiveReporter();
-await runner.run(scenarios, {
-  reporter,
-  maxConcurrency: 5,
 });
 ```
 

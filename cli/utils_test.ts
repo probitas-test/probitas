@@ -27,7 +27,6 @@ import {
   DotReporter,
   JSONReporter,
   ListReporter,
-  LiveReporter,
   TAPReporter,
 } from "../src/reporter/mod.ts";
 
@@ -46,11 +45,6 @@ describe("utils", () => {
     it("resolves 'json' to JSONReporter", () => {
       const reporter = resolveReporter("json");
       assertEquals(reporter instanceof JSONReporter, true);
-    });
-
-    it("resolves 'live' to LiveReporter", () => {
-      const reporter = resolveReporter("live");
-      assertEquals(reporter instanceof LiveReporter, true);
     });
 
     it("resolves 'tap' to TAPReporter", () => {

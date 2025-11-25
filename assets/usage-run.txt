@@ -10,7 +10,7 @@ Options:
   -h, --help                Show help message
   -s, --select <selector>   Select scenarios by selector (can be specified multiple times)
   -x, --exclude <selector>  Exclude scenarios by selector (can be specified multiple times)
-  --reporter <name>         Reporter to use (dot, list, live, json, tap)
+  --reporter <name>         Reporter to use (dot, list, json, tap)
                             Default: "list"
   --max-concurrency <n>     Maximum parallel scenarios (default: unlimited)
   -S, --sequential          Run scenarios sequentially (alias for --max-concurrency=1)

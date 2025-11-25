@@ -46,10 +46,10 @@ export default migrationScenario;
 
 // Run directly with Deno
 if (import.meta.main) {
-  const { ScenarioRunner, LiveReporter } = await import("probitas");
+  const { ScenarioRunner, ListReporter } = await import("probitas");
   const runner = new ScenarioRunner();
   const summary = await runner.run([migrationScenario], {
-    reporter: new LiveReporter(),
+    reporter: new ListReporter(),
   });
 
   console.log(

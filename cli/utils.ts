@@ -8,7 +8,6 @@ import {
   DotReporter,
   JSONReporter,
   ListReporter,
-  LiveReporter,
   TAPReporter,
 } from "../src/reporter/mod.ts";
 import type { ReporterOptions } from "../src/reporter/types.ts";
@@ -35,7 +34,6 @@ export function resolveReporter(
       "list": (opts) => new ListReporter(opts),
       "dot": (opts) => new DotReporter(opts),
       "json": (opts) => new JSONReporter(opts),
-      "live": (opts) => new LiveReporter(opts),
       "tap": (opts) => new TAPReporter(opts),
     };
 

@@ -101,7 +101,6 @@ probitas run --max-failures 3
 ```bash
 probitas run --reporter list    # Detailed list (default)
 probitas run --reporter dot     # Compact dots
-probitas run --reporter live    # Real-time progress
 probitas run --reporter json    # Machine-readable JSON
 probitas run --reporter tap     # TAP format
 ```
