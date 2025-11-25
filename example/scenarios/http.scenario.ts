@@ -21,7 +21,7 @@ const basicGetScenario = scenario("Basic HTTP GET", {
   tags: ["http", "get"],
 })
   .step("Create HTTP client", () => {
-    return client.http("https://httpbin.org");
+    return client.http("http://localhost:8080");
   })
   .step("Make GET request", async (ctx) => {
     const api = ctx.previous;
@@ -40,7 +40,7 @@ const postScenario = scenario("HTTP POST with headers", {
   tags: ["http", "post"],
 })
   .step("Create HTTP client", () => {
-    return client.http("https://httpbin.org");
+    return client.http("http://localhost:8080");
   })
   .step("Make POST request", async (ctx) => {
     const api = ctx.previous;
@@ -69,7 +69,7 @@ const responseBodyScenario = scenario("HTTP response body parsing", {
   tags: ["http", "response"],
 })
   .step("Create HTTP client", () => {
-    return client.http("https://httpbin.org");
+    return client.http("http://localhost:8080");
   })
   .step("Fetch JSON response", async (ctx) => {
     const api = ctx.previous;
@@ -94,7 +94,7 @@ const multipleRequestsScenario = scenario("Multiple HTTP requests", {
   tags: ["http", "multiple"],
 })
   .step("Create HTTP client", () => {
-    return client.http("https://httpbin.org");
+    return client.http("http://localhost:8080");
   })
   .step("First GET request", async (ctx) => {
     const api = ctx.previous;
@@ -118,7 +118,7 @@ const errorHandlingScenario = scenario("HTTP error handling", {
   tags: ["http", "error"],
 })
   .step("Create HTTP client", () => {
-    return client.http("https://httpbin.org");
+    return client.http("http://localhost:8080");
   })
   .step("Request non-existent endpoint", async (ctx) => {
     const api = ctx.previous;
@@ -143,7 +143,7 @@ const timeoutScenario = scenario("HTTP with timeout", {
   tags: ["http", "timeout"],
 })
   .step("Create HTTP client with timeout", () => {
-    const api = client.http("https://httpbin.org");
+    const api = client.http("http://localhost:8080");
     api.setTimeout(5000); // 5 second timeout
     return api;
   })

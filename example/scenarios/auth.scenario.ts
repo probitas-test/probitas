@@ -14,7 +14,7 @@
 import { client, expect, scenario } from "probitas";
 
 // Create HTTP client at script root for session persistence
-await using api = client.http("https://httpbin.org");
+await using api = client.http("http://localhost:8080");
 
 const authScenario = scenario("Authentication Flow", {
   tags: ["auth", "session", "example"],

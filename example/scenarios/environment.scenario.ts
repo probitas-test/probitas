@@ -14,7 +14,7 @@
 import { client, env, expect, scenario } from "probitas";
 
 // Use environment variable for base URL
-const API_BASE = env.get("API_URL", "https://httpbin.org");
+const API_BASE = env.get("API_URL", "http://localhost:8080");
 const TEST_ENV = env.get("TEST_ENV", "development");
 
 await using api = client.http(API_BASE);
@@ -101,9 +101,6 @@ const envConfigScenario = scenario("Environment Configuration", {
 // Conditional timeout based on environment
 const timeoutScenario = scenario("Environment-Based Timeout", {
   tags: ["environment", "timeout", "example"],
-  stepOptions: {
-    timeout: TEST_ENV === "production" ? 10000 : 30000,
-  },
 })
   .step("Test with Environment Timeout", async () => {
     const result = await api.get("/delay/1");

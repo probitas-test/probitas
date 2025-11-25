@@ -173,7 +173,7 @@ Deno.test(
   async () => {
     const definition = scenario("HTTP Test")
       .step("Create HTTP client", () => {
-        return client.http("https://httpbin.org");
+        return client.http("http://localhost:8080");
       })
       .step("Make GET request", async (ctx) => {
         const api = ctx.previous;

@@ -13,7 +13,7 @@
 
 import { client, expect, retry, scenario } from "probitas";
 
-await using api = client.http("https://httpbin.org");
+await using api = client.http("http://localhost:8080");
 
 const retryScenario = scenario("Retry Logic", {
   tags: ["retry", "resilience", "example"],

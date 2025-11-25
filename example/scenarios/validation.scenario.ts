@@ -13,7 +13,7 @@
 
 import { client, expect, scenario } from "probitas";
 
-await using api = client.http("https://httpbin.org");
+await using api = client.http("http://localhost:8080");
 
 const validationScenario = scenario("Data Validation", {
   tags: ["validation", "schema", "example"],
@@ -86,7 +86,7 @@ const validationScenario = scenario("Data Validation", {
 
     // Validate common headers exist
     expect(headers).toHaveProperty("Host");
-    expect(headers.Host).toBe("httpbin.org");
+    expect(headers.Host).toBe("localhost:8080");
 
     // Validate header values are strings
     Object.entries(headers).forEach(([key, value]) => {
@@ -101,7 +101,7 @@ const validationScenario = scenario("Data Validation", {
 
     const url = result.json.url;
     expect(url).toMatch(/^https?:\/\//);
-    expect(url).toContain("httpbin.org");
+    expect(url).toContain("localhost");
     expect(url).toContain("foo=bar");
     expect(url).toContain("page=1");
   })

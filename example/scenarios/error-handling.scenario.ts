@@ -13,7 +13,7 @@
 
 import { client, expect, scenario } from "probitas";
 
-await using api = client.http("https://httpbin.org");
+await using api = client.http("http://localhost:8080");
 
 const errorHandlingScenario = scenario("Error Handling", {
   tags: ["error", "validation", "example"],
