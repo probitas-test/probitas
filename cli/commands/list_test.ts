@@ -9,7 +9,7 @@
  * @module
  */
 
-import outdent from "outdent";
+import outdent from "@cspotcode/outdent";
 import { assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { stub } from "@std/testing/mock";

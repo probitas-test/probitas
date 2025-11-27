@@ -6,7 +6,7 @@
  * @module
  */
 
-import outdent from "outdent";
+import outdent from "@cspotcode/outdent";
 import { assertEquals, assertRejects } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { sandbox } from "@lambdalisue/sandbox";
