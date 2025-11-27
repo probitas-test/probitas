@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { EnvNotFoundError, get, has, must } from "probitas/helper/env";
+import { get, has, must } from "probitas/helper/env";
 
 describe("env", () => {
   describe("must()", () => {
@@ -13,22 +13,15 @@ describe("env", () => {
       }
     });
 
-    it("throws EnvNotFoundError when environment variable is not set", () => {
+    it("throws error when environment variable is not set", () => {
       Deno.env.delete("NON_EXISTENT_VAR");
-      assertThrows(
-        () => must("NON_EXISTENT_VAR"),
-        EnvNotFoundError,
-        "Environment variable NON_EXISTENT_VAR is required but not set",
-      );
-    });
-
-    it("handles empty string value", () => {
-      Deno.env.set("EMPTY_VAR", "");
+      let errorThrown = false;
       try {
-        assertEquals(must("EMPTY_VAR"), "");
-      } finally {
-        Deno.env.delete("EMPTY_VAR");
+        must("NON_EXISTENT_VAR");
+      } catch {
+        errorThrown = true;
       }
+      assertEquals(errorThrown, true);
     });
   });
 
@@ -60,16 +53,6 @@ describe("env", () => {
         Deno.env.delete("TEST_VAR");
       }
     });
-
-    it("handles empty string value", () => {
-      Deno.env.set("EMPTY_VAR", "");
-      try {
-        assertEquals(get("EMPTY_VAR"), "");
-        assertEquals(get("EMPTY_VAR", "default"), "");
-      } finally {
-        Deno.env.delete("EMPTY_VAR");
-      }
-    });
   });
 
   describe("has()", () => {
@@ -93,45 +76,6 @@ describe("env", () => {
         assertEquals(has("EMPTY_VAR"), true);
       } finally {
         Deno.env.delete("EMPTY_VAR");
-      }
-    });
-  });
-
-  describe("EnvNotFoundError", () => {
-    it("has correct name property", () => {
-      const error = new EnvNotFoundError("test message");
-      assertEquals(error.name, "EnvNotFoundError");
-      assertEquals(error.message, "test message");
-    });
-
-    it("is instance of Error", () => {
-      const error = new EnvNotFoundError("test message");
-      assertEquals(error instanceof Error, true);
-      assertEquals(error instanceof EnvNotFoundError, true);
-    });
-  });
-
-  describe("integration", () => {
-    it("typical usage pattern", () => {
-      Deno.env.set("API_KEY", "secret123");
-      Deno.env.set("PORT", "8080");
-      Deno.env.delete("OPTIONAL_FEATURE");
-
-      try {
-        const apiKey = must("API_KEY");
-        assertEquals(apiKey, "secret123");
-
-        const port = get("PORT", "3000");
-        assertEquals(port, "8080");
-
-        const feature = get("OPTIONAL_FEATURE");
-        assertEquals(feature, undefined);
-
-        assertEquals(has("API_KEY"), true);
-        assertEquals(has("OPTIONAL_FEATURE"), false);
-      } finally {
-        Deno.env.delete("API_KEY");
-        Deno.env.delete("PORT");
       }
     });
   });

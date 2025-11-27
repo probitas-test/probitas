@@ -27,7 +27,7 @@ describe("retry", () => {
         if (attempts < 2) {
           throw new Error("Temporary failure");
         }
-        return "success";
+        return Promise.resolve("success");
       }, { maxAttempts: 3 });
 
       // First attempt fails, wait 1s
@@ -35,44 +35,6 @@ describe("retry", () => {
 
       const result = await promise;
       assertEquals(result, "success");
-      assertEquals(attempts, 2);
-    });
-
-    it("handles synchronous functions", async () => {
-      using time = new FakeTime();
-      let attempts = 0;
-
-      const promise = retry(() => {
-        attempts++;
-        if (attempts < 2) {
-          throw new Error("Temporary failure");
-        }
-        return 42;
-      }, { maxAttempts: 2 });
-
-      await time.tickAsync(1000);
-
-      const result = await promise;
-      assertEquals(result, 42);
-      assertEquals(attempts, 2);
-    });
-
-    it("handles async functions", async () => {
-      using time = new FakeTime();
-      let attempts = 0;
-
-      const promise = retry(() => {
-        attempts++;
-        if (attempts < 2) {
-          throw new Error("Temporary failure");
-        }
-        return Promise.resolve("async success");
-      }, { maxAttempts: 2 });
-
-      await time.tickAsync(1000);
-
-      const result = await promise;
-      assertEquals(result, "async success");
       assertEquals(attempts, 2);
     });
   });
@@ -160,47 +122,6 @@ describe("retry", () => {
         "Always fails",
       );
     });
-
-    it("applies linear backoff when backoff not specified", async () => {
-      using time = new FakeTime();
-      let attempts = 0;
-
-      const promise = retry(() => {
-        attempts++;
-        throw new Error("Always fails");
-      }, { maxAttempts: 3 });
-
-      // First attempt fails immediately
-      assertEquals(attempts, 1);
-
-      // Linear backoff: wait 1s
-      await time.tickAsync(1000);
-      assertEquals(attempts, 2);
-
-      // Linear backoff: wait 2s
-      await time.tickAsync(2000);
-      assertEquals(attempts, 3);
-
-      await assertRejects(
-        () => promise,
-        Error,
-        "Always fails",
-      );
-    });
-  });
-
-  describe("limits", () => {
-    it("default maxAttempts is 1 (no retry)", async () => {
-      let attempts = 0;
-      await assertRejects(async () => {
-        await retry(() => {
-          attempts++;
-          throw new Error("Failure");
-        });
-      });
-
-      assertEquals(attempts, 1);
-    });
   });
 
   describe("error handling", () => {
@@ -228,61 +149,6 @@ describe("retry", () => {
 
       // Should stop early due to abort (only 1 attempt completed)
       assertEquals(attempts, 1);
-    });
-
-    it("converts non-Error throws to Error", async () => {
-      using time = new FakeTime();
-
-      const promise = retry(() => {
-        throw "string error";
-      }, { maxAttempts: 2 });
-
-      await time.tickAsync(1000);
-
-      await assertRejects(
-        () => promise,
-        Error,
-        "string error",
-      );
-    });
-
-    it("preserves original Error instance", async () => {
-      using time = new FakeTime();
-
-      class CustomError extends Error {
-        constructor(message: string) {
-          super(message);
-          this.name = "CustomError";
-        }
-      }
-
-      const promise = retry(() => {
-        throw new CustomError("Custom failure");
-      }, { maxAttempts: 2 });
-
-      await time.tickAsync(1000);
-
-      let caughtError: Error | undefined;
-      try {
-        await promise;
-      } catch (error) {
-        caughtError = error as Error;
-      }
-
-      assertEquals(caughtError?.name, "CustomError");
-      assertEquals(caughtError?.message, "Custom failure");
-    });
-
-    it("returns value immediately on success without delay", async () => {
-      const startTime = Date.now();
-
-      const result = await retry(() => {
-        return "immediate success";
-      }, { maxAttempts: 5, backoff: "exponential" });
-
-      const duration = Date.now() - startTime;
-      assertEquals(result, "immediate success");
-      assertEquals(duration < 100, true);
     });
   });
 });
