@@ -11,9 +11,9 @@ import type { ReporterOptions } from "../../src/reporter/types.ts";
 import { EXIT_CODE } from "../constants.ts";
 import { loadConfig } from "../config.ts";
 import { loadScenarios } from "../loader.ts";
+import { applySelectors } from "../selector.ts";
 import type { ProbitasConfig } from "../types.ts";
 import {
-  applySelectors,
   parseMaxConcurrency,
   parseMaxFailures,
   readAsset,
@@ -26,7 +26,6 @@ import {
 export interface RunCommandOptions {
   files?: string[];
   selectors?: string[];
-  excludes?: string[];
   reporter?: string;
   maxConcurrency?: string | number;
   maxFailures?: string | number;
@@ -51,7 +50,13 @@ export async function runCommand(
   try {
     // Parse command-line arguments
     const parsed = parseArgs(args, {
-      string: ["reporter", "config", "max-concurrency", "max-failures"],
+      string: [
+        "selector",
+        "reporter",
+        "config",
+        "max-concurrency",
+        "max-failures",
+      ],
       boolean: [
         "help",
         "no-color",
@@ -61,11 +66,10 @@ export async function runCommand(
         "sequential",
         "fail-fast",
       ],
-      collect: ["select", "exclude"],
+      collect: ["selector"],
       alias: {
         h: "help",
-        s: "select",
-        x: "exclude",
+        s: "selector",
         S: "sequential",
         f: "fail-fast",
         v: "verbose",
@@ -73,8 +77,7 @@ export async function runCommand(
         d: "debug",
       },
       default: {
-        select: [],
-        exclude: [],
+        selector: [],
       },
     });
 
@@ -112,8 +115,7 @@ export async function runCommand(
     // Priority: CLI args > env vars > defaults
     const options: RunCommandOptions = {
       files: files.length > 0 ? files.map(String) : undefined,
-      selectors: parsed.select as string[],
-      excludes: parsed.exclude as string[],
+      selectors: parsed.selector,
       reporter: parsed.reporter,
       maxConcurrency: parsed.sequential ? 1 : parsed["max-concurrency"],
       maxFailures: parsed["fail-fast"] ? 1 : parsed["max-failures"],
@@ -149,11 +151,8 @@ export async function runCommand(
     const selectors = options.selectors && options.selectors.length > 0
       ? options.selectors
       : mergedConfig.selectors || [];
-    const excludes = options.excludes && options.excludes.length > 0
-      ? options.excludes
-      : mergedConfig.excludeSelectors || [];
 
-    const filteredScenarios = applySelectors(scenarios, selectors, excludes);
+    const filteredScenarios = applySelectors(scenarios, selectors);
 
     if (filteredScenarios.length === 0) {
       console.error("No scenarios matched the filter");

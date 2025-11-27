@@ -301,7 +301,7 @@ const data2 = result.json; // Error!
 
 3. Skip slow tests during development:
    ```bash
-   probitas run -x tag:slow
+   probitas run -s "!tag:slow"
    ```
 
 4. Use faster reporter:

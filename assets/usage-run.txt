@@ -8,8 +8,8 @@ Arguments:
 
 Options:
   -h, --help                Show help message
-  -s, --select <selector>   Select scenarios by selector (can be specified multiple times)
-  -x, --exclude <selector>  Exclude scenarios by selector (can be specified multiple times)
+  -s, --selector <selector> Select scenarios by selector (can be specified multiple times)
+                            Supports ! prefix for negation
   --reporter <name>         Reporter to use (dot, list, json, tap)
                             Default: "list"
   --max-concurrency <n>     Maximum parallel scenarios (default: unlimited)
@@ -23,7 +23,7 @@ Options:
   --no-color                Disable colored output
 
 Selector Format:
-  [type:]value
+  [!][type:]value
 
   Types:
     tag   - Match by tag (e.g., tag:api)
@@ -32,6 +32,7 @@ Selector Format:
   Matching is case-insensitive (e.g., "login" matches "Login", "LOGIN", "login")
   Multiple selectors with -s: OR logic
   Comma-separated within selector: AND logic
+  ! prefix: Negation (exclude matching scenarios)
 
 Examples:
   probitas run                              Run all scenarios
@@ -50,9 +51,13 @@ Examples:
   probitas run -s "tag:api,tag:critical"    Run with @api AND @critical tags
   probitas run -s "tag:api,User"            Run @api tag AND name containing "User"
 
-  # Exclude scenarios
-  probitas run -s tag:api -x tag:slow       Run @api tag, excluding @slow
-  probitas run -x wip                       Run all except matching "wip"
+  # Exclude scenarios using negation
+  probitas run -s "!tag:slow"               Run all except @slow tag
+  probitas run -s "!wip"                    Run all except matching "wip"
+  probitas run -s "tag:api,!tag:slow"       Run @api excluding @slow
+
+  # Combined with positive selectors
+  probitas run -s "tag:smoke" -s "!tag:skip" Run @smoke OR (NOT @skip)
 
   # File + selector
   probitas run scenarios/auth/ -s tag:smoke Run smoke tests in auth/ directory

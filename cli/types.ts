@@ -20,6 +20,9 @@ export interface Selector {
 
   /** Value to match (string or RegExp) */
   readonly value: string | RegExp;
+
+  /** Negation flag - if true, matches scenarios that do NOT match the selector */
+  readonly negated: boolean;
 }
 
 /**
@@ -41,9 +44,6 @@ export interface ProbitasConfig
   /** Verbosity level */
   readonly verbosity?: "quiet" | "normal" | "verbose" | "debug";
 
-  /** Selectors for filtering scenarios (CLI-specific) */
+  /** Selectors for filtering scenarios (CLI-specific, supports ! prefix for negation) */
   readonly selectors?: readonly string[];
-
-  /** Exclude selectors for filtering scenarios (CLI-specific) */
-  readonly excludeSelectors?: readonly string[];
 }

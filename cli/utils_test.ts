@@ -11,9 +11,7 @@ import {
   assertThrows,
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import type { ScenarioDefinition } from "../src/runner/types.ts";
 import {
-  applySelectors,
   getVersion,
   parseMaxConcurrency,
   parseMaxFailures,
@@ -136,89 +134,6 @@ describe("utils", () => {
       const version = getVersion();
       assertEquals(typeof version, "string");
       // Should be a version or "unknown"
-    });
-  });
-
-  // Test helper to create scenario
-  const createScenario = (
-    name: string,
-    tags: string[] = [],
-  ): ScenarioDefinition => ({
-    name,
-    options: {
-      tags,
-      skip: null,
-      setup: null,
-      teardown: null,
-      stepOptions: {
-        timeout: 5000,
-        retry: { maxAttempts: 1, backoff: "linear" },
-      },
-    },
-    steps: [],
-  });
-
-  describe("applySelectors", () => {
-    const scenarios = [
-      createScenario("Login Test", ["api", "auth"]),
-      createScenario("Logout Test", ["api"]),
-      createScenario("User API Test", ["api", "user"]),
-      createScenario("Smoke Test", ["smoke"]),
-    ];
-
-    it("applies single tag selector (OR)", () => {
-      const result = applySelectors(scenarios, ["tag:smoke"], []);
-      assertEquals(result.length, 1);
-      assertEquals(result[0].name, "Smoke Test");
-    });
-
-    it("applies multiple tag selectors (OR)", () => {
-      const result = applySelectors(scenarios, ["tag:auth", "tag:smoke"], []);
-      assertEquals(result.length, 2);
-      assertEquals(result.map((s) => s.name).sort(), [
-        "Login Test",
-        "Smoke Test",
-      ]);
-    });
-
-    it("applies combined selectors (AND within selector)", () => {
-      const result = applySelectors(scenarios, ["tag:api,tag:auth"], []);
-      assertEquals(result.length, 1);
-      assertEquals(result[0].name, "Login Test");
-    });
-
-    it("applies name selector", () => {
-      const result = applySelectors(scenarios, ["User"], []);
-      assertEquals(result.length, 1);
-      assertEquals(result[0].name, "User API Test");
-    });
-
-    it("applies exclude selector", () => {
-      const result = applySelectors(scenarios, ["tag:api"], ["tag:auth"]);
-      assertEquals(result.length, 2);
-      assertEquals(result.map((s) => s.name).sort(), [
-        "Logout Test",
-        "User API Test",
-      ]);
-    });
-
-    it("applies both select and exclude", () => {
-      const result = applySelectors(scenarios, ["tag:api"], ["Logout"]);
-      assertEquals(result.length, 2);
-      assertEquals(result.map((s) => s.name).sort(), [
-        "Login Test",
-        "User API Test",
-      ]);
-    });
-
-    it("returns all scenarios when no selectors", () => {
-      const result = applySelectors(scenarios, [], []);
-      assertEquals(result.length, 4);
-    });
-
-    it("applies exclude only", () => {
-      const result = applySelectors(scenarios, [], ["tag:smoke"]);
-      assertEquals(result.length, 3);
     });
   });
 });

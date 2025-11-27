@@ -72,9 +72,9 @@ probitas run -s tag:smoke -s tag:critical
 probitas run -s login
 probitas run -s name:checkout
 
-# Exclude scenarios
-probitas run -x tag:slow
-probitas run -x flaky
+# Exclude scenarios using negation
+probitas run -s "!tag:slow"
+probitas run -s "!flaky"
 
 # Combine filters (AND logic with comma)
 probitas run -s tag:api,tag:critical
@@ -223,7 +223,7 @@ probitas run -s tag:smoke
 **Run all except slow tests:**
 
 ```bash
-probitas run -x tag:slow
+probitas run -s "!tag:slow"
 ```
 
 **Debug a failing scenario:**

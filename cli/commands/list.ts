@@ -9,15 +9,15 @@ import type { ScenarioDefinition } from "../../src/runner/types.ts";
 import { EXIT_CODE } from "../constants.ts";
 import { loadConfig } from "../config.ts";
 import { loadScenarios } from "../loader.ts";
+import { applySelectors } from "../selector.ts";
 import type { ProbitasConfig } from "../types.ts";
-import { applySelectors, readAsset } from "../utils.ts";
+import { readAsset } from "../utils.ts";
 
 /**
  * Options for the list command
  */
 export interface ListCommandOptions {
   selectors?: string[];
-  excludes?: string[];
   json?: boolean;
   config?: string;
 }
@@ -38,17 +38,12 @@ export async function listCommand(
   try {
     // Parse command-line arguments
     const parsed = parseArgs(args, {
-      string: ["config"],
+      string: ["config", "selector"],
       boolean: ["help", "json"],
-      collect: ["select", "exclude"],
+      collect: ["selector"],
       alias: {
         h: "help",
-        s: "select",
-        x: "exclude",
-      },
-      default: {
-        select: [],
-        exclude: [],
+        s: "selector",
       },
     });
 
@@ -72,8 +67,7 @@ export async function listCommand(
 
     // Priority: CLI args > env vars > defaults
     const options: ListCommandOptions = {
-      selectors: parsed.select as string[],
-      excludes: parsed.exclude as string[],
+      selectors: parsed.selector,
       json: parsed.json,
       config: parsed.config || envConfig.config,
     };
@@ -92,11 +86,8 @@ export async function listCommand(
     const selectors = options.selectors && options.selectors.length > 0
       ? options.selectors
       : mergedConfig.selectors || [];
-    const excludes = options.excludes && options.excludes.length > 0
-      ? options.excludes
-      : mergedConfig.excludeSelectors || [];
 
-    const filteredScenarios = applySelectors(scenarios, selectors, excludes);
+    const filteredScenarios = applySelectors(scenarios, selectors);
 
     // Output results
     if (options.json) {

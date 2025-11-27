@@ -3,14 +3,14 @@ probitas list - List available scenarios
 Usage: probitas list [options]
 
 Options:
-  -h, --help              Show help message
-  -s, --select <selector> Select scenarios by selector (can be specified multiple times)
-  -x, --exclude <selector> Exclude scenarios by selector (can be specified multiple times)
-  --json                  Output in JSON format
-  --config <path>         Path to config file
+  -h, --help                 Show help message
+  -s, --selector <selector>  Select scenarios by selector (can be specified multiple times)
+                             Supports ! prefix for negation
+  --json                     Output in JSON format
+  --config <path>            Path to config file
 
 Selector Format:
-  [type:]value
+  [!][type:]value
 
   Types:
     tag   - Match by tag (e.g., tag:api)
@@ -19,6 +19,7 @@ Selector Format:
   Matching is case-insensitive (e.g., "login" matches "Login", "LOGIN", "login")
   Multiple selectors with -s: OR logic
   Comma-separated within selector: AND logic
+  ! prefix: Negation (exclude matching scenarios)
 
 Examples:
   probitas list                                 List all scenarios
@@ -35,9 +36,13 @@ Examples:
   probitas list -s "tag:api,tag:critical"       List @api AND @critical tags
   probitas list -s "tag:api,User"               List @api tag AND name containing "User"
 
-  # Exclude scenarios
-  probitas list -s tag:api -x tag:slow          List @api excluding @slow
-  probitas list -x wip                          List all except matching "wip"
+  # Exclude scenarios using negation
+  probitas list -s "!tag:slow"                  List all except @slow tag
+  probitas list -s "!wip"                       List all except matching "wip"
+  probitas list -s "tag:api,!tag:slow"          List @api excluding @slow
+
+  # Combined with positive selectors
+  probitas list -s "tag:smoke" -s "!tag:skip"   List @smoke OR (NOT @skip)
 
   # JSON output
   probitas list --json                          Output as JSON
