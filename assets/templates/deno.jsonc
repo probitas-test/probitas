@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "probitas": "jsr:@lambdalisue/probitas@^{{VERSION}}"
-  }
-}

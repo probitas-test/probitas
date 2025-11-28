@@ -75,11 +75,13 @@ deno install -A -g -f -n probitas jsr:@lambdalisue/probitas/cli
    export default myScenario; // Must export default
    ```
 
-3. Check `probitas.config.ts` includes pattern:
-   ```typescript
-   export default {
-     includes: ["scenarios/**/*.scenario.ts"],
-   } satisfies ProbitasConfig;
+3. Check `deno.json` includes pattern:
+   ```json
+   {
+     "probitas": {
+       "includes": ["scenarios/**/*.scenario.ts"]
+     }
+   }
    ```
 
 ### Timeout Errors
@@ -96,12 +98,14 @@ deno install -A -g -f -n probitas jsr:@lambdalisue/probitas/cli
    ```
 
 2. Increase default timeout in config:
-   ```typescript
-   export default {
-     stepOptions: {
-       timeout: 60000,
-     },
-   } satisfies ProbitasConfig;
+   ```json
+   {
+     "probitas": {
+       "stepOptions": {
+         "timeout": 60000
+       }
+     }
+   }
    ```
 
 3. For debugging, disable timeout temporarily:
@@ -241,22 +245,23 @@ const data2 = result.json; // Error!
 
 **Solution**:
 
-1. Ensure file is named `probitas.config.ts` (not `.js`)
+1. Ensure file is named `deno.json` or `deno.jsonc`
 
 2. Verify file is in project root
 
-3. Check TypeScript syntax is correct:
-   ```typescript
-   import type { ProbitasConfig } from "probitas/cli";
-
-   export default {
-     // config
-   } satisfies ProbitasConfig;
+3. Check JSON syntax is correct:
+   ```json
+   {
+     "probitas": {
+       "reporter": "list",
+       "includes": ["**/*.scenario.ts"]
+     }
+   }
    ```
 
 4. Specify config explicitly:
    ```bash
-   probitas run --config probitas.config.ts
+   probitas run --config deno.json
    ```
 
 ### Selectors Not Working

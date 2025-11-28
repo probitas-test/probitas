@@ -14,7 +14,12 @@ import { loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "../discover.ts";
 import { loadScenarios } from "../loader.ts";
 import { applySelectors } from "../selector.ts";
-import { parsePositiveInteger, readAsset, resolveReporter } from "../utils.ts";
+import {
+  findDenoConfigFile,
+  parsePositiveInteger,
+  readAsset,
+  resolveReporter,
+} from "../utils.ts";
 
 /**
  * Execute the run command
@@ -92,8 +97,10 @@ export async function runCommand(
       : "normal";
 
     // Load configuration
-    const configFile = parsed.config ?? Deno.env.get("PROBITAS_CONFIG");
-    const config = await loadConfig(cwd, configFile);
+    const configPath = parsed.config ??
+      Deno.env.get("PROBITAS_CONFIG") ??
+      await findDenoConfigFile(cwd, { parentLookup: true });
+    const config = configPath ? await loadConfig(configPath) : {};
 
     // Determine includes/excludes: CLI > config
     const includes = parsed.include ?? config?.includes;
@@ -129,7 +136,7 @@ export async function runCommand(
     const noColor = parsed["no-color"] || Deno.noColor;
     const reporterOptions: ReporterOptions = {
       noColor,
-      verbosity: verbosity ?? config?.verbosity ?? "normal",
+      verbosity,
     };
 
     const reporter = resolveReporter(

@@ -13,7 +13,7 @@ Options:
   -s, --selector <selector>  Select scenarios by selector (can be specified multiple times)
                              Supports ! prefix for negation
   --json                     Output in JSON format
-  --config <path>            Path to config file
+  --config <path>            Path to config file (deno.json/deno.jsonc)
 
 Selector Format:
   [!][type:]value

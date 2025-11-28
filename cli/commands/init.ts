@@ -4,10 +4,28 @@
  * @module
  */
 
+import { alterElse } from "@core/errorutil/alter-else";
+import { ensure, is } from "@core/unknownutil";
 import { parseArgs } from "@std/cli";
+import { parse as parseJsonc } from "@std/jsonc";
 import { resolve } from "@std/path";
 import { EXIT_CODE } from "../constants.ts";
-import { getVersion, readAsset, readTemplate } from "../utils.ts";
+import {
+  findDenoConfigFile,
+  getVersion,
+  readAsset,
+  readTemplate,
+} from "../utils.ts";
+import expectedConfigTemplate from "../../assets/templates/deno.json" with {
+  type: "json",
+};
+
+/**
+ * Check if file has comments (simple heuristic)
+ */
+function hasComments(content: string): boolean {
+  return content.includes("//") || content.includes("/*");
+}
 
 /**
  * Execute the init command
@@ -46,54 +64,100 @@ export async function initCommand(
     }
 
     const force = parsed.force ?? false;
+    const version = getVersion();
 
-    // Create probitas.config.ts
-    const configPath = resolve(cwd, "probitas.config.ts");
-    const configContent = await readTemplate("probitas.config.ts");
+    // Prepare expected config from template
+    const versionSpec = version ? `@^${version}` : "";
+    const expectedConfig = {
+      ...expectedConfigTemplate,
+      imports: {
+        ...expectedConfigTemplate.imports,
+        probitas: expectedConfigTemplate.imports.probitas.replaceAll(
+          "{{VERSION}}",
+          versionSpec,
+        ),
+      },
+    };
 
-    if (!force) {
-      try {
-        await Deno.stat(configPath);
+    // Find existing deno.json/deno.jsonc
+    const existingPath = await findDenoConfigFile(cwd);
+
+    if (!existingPath) {
+      // No deno.json exists - create new deno.json
+      const denoJsonPath = resolve(cwd, "deno.json");
+      await Deno.writeTextFile(
+        denoJsonPath,
+        JSON.stringify(expectedConfig, null, 2) + "\n",
+      );
+      console.log("Created deno.json");
+    } else {
+      // deno.json or deno.jsonc exists
+      const content = await Deno.readTextFile(existingPath);
+      const isJsonc = existingPath.endsWith(".jsonc");
+
+      // Check for comments in .jsonc files
+      if (isJsonc && hasComments(content) && !force) {
         console.error(
-          "probitas.config.ts already exists. Use --force to overwrite.",
+          `${existingPath} contains comments which would be lost. Use --force to overwrite.`,
         );
         return EXIT_CODE.USAGE_ERROR;
-      } catch {
-        // File doesn't exist, continue
       }
-    }
 
-    await Deno.writeTextFile(configPath, configContent);
-    console.log("Created probitas.config.ts");
+      // Parse existing config
+      const existing = alterElse(
+        () => ensure(parseJsonc(content), is.Record),
+        (err) => {
+          const m = err instanceof Error ? err.message : String(err);
+          throw new Error(
+            `${existingPath} is not valid deno.json/deno.jsonc: ${m}`,
+          );
+        },
+      );
+
+      // Check if probitas section already exists
+      if (existing.probitas && !force) {
+        console.error(
+          `probitas configuration already exists in ${existingPath}. Use --force to overwrite.`,
+        );
+        return EXIT_CODE.USAGE_ERROR;
+      }
+
+      // Add/update imports.probitas if not exists
+      if (!existing.imports) {
+        existing.imports = {};
+      }
+      const imports = alterElse(
+        () => ensure(existing.imports, is.RecordOf(is.String)),
+        (err) => {
+          const m = err instanceof Error ? err.message : String(err);
+          throw new Error(
+            `imports attribute in ${examplePath} is not valid: ${m}`,
+          );
+        },
+      );
+      if (!imports.probitas) {
+        imports.probitas = expectedConfig.imports.probitas;
+      }
+
+      // Add probitas section (only if not exists or force)
+      if (!existing.probitas || force) {
+        existing.probitas = expectedConfig.probitas;
+      }
+
+      // Write back
+      await Deno.writeTextFile(
+        existingPath,
+        JSON.stringify(existing, null, 2) + "\n",
+      );
+      console.log(`Updated ${existingPath}`);
+    }
 
     // Create scenarios directory
     const scenariosDir = resolve(cwd, "scenarios");
     await Deno.mkdir(scenariosDir, { recursive: true });
 
-    // Create scenarios/deno.jsonc
-    const denoJsoncPath = resolve(scenariosDir, "deno.jsonc");
-    const version = getVersion();
-    const denoJsoncContent = (await readTemplate("deno.jsonc"))
-      .replace("{{VERSION}}", version);
-
-    if (!force) {
-      try {
-        await Deno.stat(denoJsoncPath);
-        console.error(
-          "scenarios/deno.jsonc already exists. Use --force to overwrite.",
-        );
-        return EXIT_CODE.USAGE_ERROR;
-      } catch {
-        // File doesn't exist, continue
-      }
-    }
-
-    await Deno.writeTextFile(denoJsoncPath, denoJsoncContent);
-    console.log("Created scenarios/deno.jsonc");
-
     // Create scenarios/example.scenario.ts
     const examplePath = resolve(scenariosDir, "example.scenario.ts");
-    const exampleContent = await readTemplate("example.scenario.ts");
 
     if (!force) {
       try {
@@ -107,6 +171,7 @@ export async function initCommand(
       }
     }
 
+    const exampleContent = await readTemplate("example.scenario.ts");
     await Deno.writeTextFile(examplePath, exampleContent);
     console.log("Created scenarios/example.scenario.ts");
 

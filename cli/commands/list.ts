@@ -12,7 +12,7 @@ import { loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "../discover.ts";
 import { loadScenarios } from "../loader.ts";
 import { applySelectors } from "../selector.ts";
-import { readAsset } from "../utils.ts";
+import { findDenoConfigFile, readAsset } from "../utils.ts";
 
 /**
  * Execute the list command
@@ -58,8 +58,10 @@ export async function listCommand(
     }
 
     // Load configuration
-    const configFile = parsed.config ?? Deno.env.get("PROBITAS_CONFIG");
-    const config = await loadConfig(cwd, configFile);
+    const configPath = parsed.config ??
+      Deno.env.get("PROBITAS_CONFIG") ??
+      await findDenoConfigFile(cwd, { parentLookup: true });
+    const config = configPath ? await loadConfig(configPath) : {};
 
     // Determine includes/excludes: CLI > config
     const includes = parsed.include ?? config?.includes;

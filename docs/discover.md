@@ -134,13 +134,15 @@ probitas run api/ --include "**/*.test.ts" --exclude "**/*.skip.ts"
 
 ### Configuration File
 
-Define default patterns in `probitas.config.ts`:
+Define default patterns in `deno.json`:
 
-```typescript
-export default {
-  includes: ["scenarios/**/*.scenario.ts"],
-  excludes: ["**/*.skip.ts", "**/.wip.ts"],
-};
+```json
+{
+  "probitas": {
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": ["**/*.skip.ts", "**/.wip.ts"]
+  }
+}
 ```
 
 CLI options override configuration:

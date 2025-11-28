@@ -6,7 +6,6 @@
  * @module
  */
 
-import outdent from "@cspotcode/outdent";
 import { assertEquals, assertRejects } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { sandbox } from "@lambdalisue/sandbox";
@@ -14,88 +13,166 @@ import { loadConfig } from "./config.ts";
 
 describe("config loader", () => {
   describe("loadConfig", () => {
-    it("returns null when no config file exists", async () => {
+    it("loads probitas section from deno.json", async () => {
       await using sbox = await sandbox();
 
-      const result = await loadConfig(sbox.path);
-      assertEquals(result, null);
-    });
-
-    it("loads probitas.config.ts when exists", async () => {
-      await using sbox = await sandbox();
-
-      const configPath = sbox.resolve("probitas.config.ts");
-      const configContent = outdent`
-        export default {
-          reporter: "list",
-          verbosity: "normal",
-        };
-      `;
-      await Deno.writeTextFile(configPath, configContent);
-
-      const result = await loadConfig(sbox.path);
-      assertEquals(result?.reporter, "list");
-      assertEquals(result?.verbosity, "normal");
-    });
-
-    it("loads probitas.config.js when exists", async () => {
-      await using sbox = await sandbox();
-
-      const configPath = sbox.resolve("probitas.config.js");
-      const configContent = outdent`
-        export default {
-          reporter: "dot",
-          verbosity: "verbose",
-        };
-      `;
-      await Deno.writeTextFile(configPath, configContent);
-
-      const result = await loadConfig(sbox.path);
-      assertEquals(result?.reporter, "dot");
-      assertEquals(result?.verbosity, "verbose");
-    });
-
-    it("loads config from specified path", async () => {
-      await using sbox = await sandbox();
-
-      const subDir = sbox.resolve("config");
-      await Deno.mkdir(subDir, { recursive: true });
-
-      const configPath = sbox.resolve("config/custom.config.ts");
+      const configPath = sbox.resolve("deno.json");
       await Deno.writeTextFile(
         configPath,
-        "export default { reporter: 'json' };",
+        JSON.stringify({
+          probitas: {
+            reporter: "dot",
+            includes: ["**/*.test.ts"],
+          },
+        }),
       );
 
-      const result = await loadConfig(sbox.path, "config/custom.config.ts");
-      assertEquals(result?.reporter, "json");
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.reporter, "dot");
+      assertEquals(config.includes, ["**/*.test.ts"]);
     });
 
-    it("throws error when specified config file does not exist", async () => {
+    it("loads probitas section from deno.jsonc with comments", async () => {
       await using sbox = await sandbox();
 
+      const configPath = sbox.resolve("deno.jsonc");
+      await Deno.writeTextFile(
+        configPath,
+        `{
+          // Probitas configuration
+          "probitas": {
+            "reporter": "json",
+            "maxConcurrency": 4
+          }
+        }`,
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.reporter, "json");
+      assertEquals(config.maxConcurrency, 4);
+    });
+
+    it("returns empty config when no probitas section exists", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({ imports: {} }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config, {});
+    });
+
+    it("handles all valid config fields", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          probitas: {
+            reporter: "list",
+            includes: ["**/*.scenario.ts"],
+            excludes: ["**/*.skip.ts"],
+            selectors: ["tag:smoke", "!tag:slow"],
+            maxConcurrency: 5,
+            maxFailures: 3,
+          },
+        }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.reporter, "list");
+      assertEquals(config.includes, ["**/*.scenario.ts"]);
+      assertEquals(config.excludes, ["**/*.skip.ts"]);
+      assertEquals(config.selectors, ["tag:smoke", "!tag:slow"]);
+      assertEquals(config.maxConcurrency, 5);
+      assertEquals(config.maxFailures, 3);
+    });
+
+    it("validates reporter values", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          probitas: {
+            reporter: "invalid-reporter",
+          },
+        }),
+      );
+
       await assertRejects(
-        async () => {
-          await loadConfig(sbox.path, "nonexistent.config.ts");
-        },
+        async () => await loadConfig(configPath),
         Error,
-        "Failed to load config file",
       );
     });
 
-    it("throws error for invalid config syntax", async () => {
+    it("validates array fields", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("probitas.config.ts");
-      const invalidContent = "export default { invalid: syntax here";
-      await Deno.writeTextFile(configPath, invalidContent);
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          probitas: {
+            includes: "not-an-array",
+          },
+        }),
+      );
 
       await assertRejects(
-        async () => {
-          await loadConfig(sbox.path);
-        },
+        async () => await loadConfig(configPath),
         Error,
-        "Failed to load config file",
+      );
+    });
+
+    it("allows partial config with only some fields", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          probitas: {
+            reporter: "dot",
+          },
+        }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.reporter, "dot");
+      assertEquals(config.includes, undefined);
+      assertEquals(config.excludes, undefined);
+    });
+
+    it("throws error for invalid JSON syntax", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        configPath,
+        "{ invalid json",
+      );
+
+      await assertRejects(
+        async () => await loadConfig(configPath),
+        Error,
+      );
+    });
+
+    it("throws error for non-existent file", async () => {
+      await assertRejects(
+        async () => await loadConfig("/nonexistent/deno.json"),
+        Error,
       );
     });
   });

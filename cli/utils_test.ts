@@ -11,7 +11,9 @@ import {
   assertThrows,
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
+import { sandbox } from "@lambdalisue/sandbox";
 import {
+  findDenoConfigFile,
   getVersion,
   parsePositiveInteger,
   readAsset,
@@ -106,11 +108,9 @@ describe("utils", () => {
 
   describe("readTemplate", () => {
     it("reads template files", async () => {
-      const config = await readTemplate("probitas.config.ts");
-      assertStringIncludes(config, "ProbitasConfig");
-
-      const denoJson = await readTemplate("deno.jsonc");
+      const denoJson = await readTemplate("deno.json");
       assertStringIncludes(denoJson, "imports");
+      assertStringIncludes(denoJson, "probitas");
 
       const example = await readTemplate("example.scenario.ts");
       assertStringIncludes(example, "Example Scenario");
@@ -128,10 +128,102 @@ describe("utils", () => {
   });
 
   describe("getVersion", () => {
-    it("reads version from deno.jsonc", () => {
+    it("returns version string or undefined", () => {
       const version = getVersion();
-      assertEquals(typeof version, "string");
-      // Should be a version or "unknown"
+      // Should be a version string or undefined
+      if (version !== undefined) {
+        assertEquals(typeof version, "string");
+      }
+    });
+  });
+
+  describe("findDenoConfigFile", () => {
+    it("finds deno.json in current directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.json"), "{}");
+
+      const result = await findDenoConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("deno.json"));
+    });
+
+    it("finds deno.jsonc in current directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.jsonc"), "{}");
+
+      const result = await findDenoConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("deno.jsonc"));
+    });
+
+    it("prefers deno.json over deno.jsonc", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.json"), "{}");
+      await Deno.writeTextFile(sbox.resolve("deno.jsonc"), "{}");
+
+      const result = await findDenoConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("deno.json"));
+    });
+
+    it("returns undefined when no config file exists", async () => {
+      await using sbox = await sandbox();
+
+      const result = await findDenoConfigFile(sbox.path);
+
+      assertEquals(result, undefined);
+    });
+
+    it("finds config in parent directory with parentLookup", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.json"), "{}");
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+
+      const result = await findDenoConfigFile(sbox.resolve("subdir"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, sbox.resolve("deno.json"));
+    });
+
+    it("finds config in nested parent directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.json"), "{}");
+      await Deno.mkdir(sbox.resolve("a/b/c"), { recursive: true });
+
+      const result = await findDenoConfigFile(sbox.resolve("a/b/c"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, sbox.resolve("deno.json"));
+    });
+
+    it("does not look up parent without parentLookup option", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("deno.json"), "{}");
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+
+      const result = await findDenoConfigFile(sbox.resolve("subdir"));
+
+      assertEquals(result, undefined);
+    });
+
+    it("stops at filesystem root with parentLookup", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+
+      const result = await findDenoConfigFile(sbox.resolve("subdir"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, undefined);
     });
   });
 });

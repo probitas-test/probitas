@@ -117,7 +117,7 @@ probitas run --no-color         # Disable colors
 **Using a config file:**
 
 ```bash
-probitas run --config probitas.config.ts
+probitas run --config deno.json
 ```
 
 ### `list`
@@ -145,47 +145,38 @@ probitas init --force           # Overwrite existing files
 
 This creates:
 
-- `probitas.config.ts` - Project configuration
-- `scenarios/deno.jsonc` - Import maps
+- `deno.json` - Project configuration with import maps
 - `scenarios/example.scenario.ts` - Example scenario
 
 ## Configuration
 
-Create a `probitas.config.ts` file in your project root:
+Add Probitas configuration to your `deno.json` or `deno.jsonc` file:
 
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  // File patterns to include
-  includes: ["scenarios/**/*.scenario.ts"],
-
-  // File patterns to exclude
-  excludes: ["**/skip.scenario.ts"],
-
-  // Default reporter
-  reporter: "list",
-
-  // Default verbosity
-  verbosity: "normal",
-
-  // Concurrency (undefined = unlimited)
-  maxConcurrency: undefined,
-
-  // Stop after N failures (undefined = continue all)
-  maxFailures: undefined,
-
-  // Default filters
-  selectors: ["tag:smoke"],
-  excludeSelectors: ["tag:slow"],
-
-  // Default step options
-  stepOptions: {
-    timeout: 30000,
-    retry: { maxAttempts: 1, backoff: "linear" },
+```json
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas"
   },
-} satisfies ProbitasConfig;
+  "probitas": {
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": ["**/skip.scenario.ts"],
+    "reporter": "list",
+    "maxConcurrency": 4,
+    "maxFailures": 3,
+    "selectors": ["tag:smoke", "!tag:slow"]
+  }
+}
 ```
+
+Configuration options:
+
+- `includes` - File patterns to include (array of strings)
+- `excludes` - File patterns to exclude (array of strings)
+- `reporter` - Default reporter: "list", "dot", "json", or "tap"
+- `maxConcurrency` - Concurrency limit (number, omit for unlimited)
+- `maxFailures` - Stop after N failures (number, omit to continue all)
+- `selectors` - Default filters (array of selector strings with ! prefix
+  support)
 
 ## Environment Variables
 

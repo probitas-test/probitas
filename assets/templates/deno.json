@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas{{VERSION}}"
+  },
+  "probitas": {
+    "reporter": "list",
+    "includes": [
+      "**/*.scenario.ts"
+    ],
+    "excludes": [
+      "**/node_modules/**",
+      "**/.git/**"
+    ]
+  }
+}

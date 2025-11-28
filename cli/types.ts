@@ -4,8 +4,6 @@
  * @module
  */
 
-import type { Reporter, RunOptions } from "../src/runner/types.ts";
-
 /**
  * Selector type for filtering scenarios
  */
@@ -26,24 +24,26 @@ export interface Selector {
 }
 
 /**
- * ProbitasConfig - Configuration type for CLI
+ * ProbitasConfig - Configuration loaded from deno.json/deno.jsonc
  *
- * Extends RunOptions with CLI-specific settings for file patterns and reporter names.
+ * Configuration is stored in the "probitas" section of deno.json.
  */
-export interface ProbitasConfig
-  extends Omit<RunOptions, "reporter" | "signal"> {
-  /** Include patterns (glob) */
+export interface ProbitasConfig {
+  /** Default reporter (dot/list/json/tap) */
+  readonly reporter?: "dot" | "list" | "json" | "tap";
+
+  /** File discovery patterns (glob) */
   readonly includes?: readonly string[];
 
   /** Exclude patterns (glob) */
   readonly excludes?: readonly string[];
 
-  /** Reporter (string name or Reporter instance) */
-  readonly reporter?: string | Reporter;
-
-  /** Verbosity level */
-  readonly verbosity?: "quiet" | "normal" | "verbose" | "debug";
-
-  /** Selectors for filtering scenarios (CLI-specific, supports ! prefix for negation) */
+  /** Default selectors (supports ! prefix for negation) */
   readonly selectors?: readonly string[];
+
+  /** Maximum concurrent scenarios */
+  readonly maxConcurrency?: number;
+
+  /** Maximum failures before stopping */
+  readonly maxFailures?: number;
 }

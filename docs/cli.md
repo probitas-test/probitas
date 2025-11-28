@@ -381,10 +381,10 @@ Specifies the configuration file path.
 
 ```bash
 # Custom configuration file
-probitas run --config ./custom.config.ts
+probitas run --config ./custom.deno.json
 
 # Another example
-probitas run --config ./config/test.config.js
+probitas run --config ./config/test.deno.jsonc
 ```
 
 #### Filtering
@@ -437,14 +437,19 @@ In the configuration file's `selectors` field:
 
 Example:
 
-```typescript
-selectors: [
-  "tag:smoke", // Smoke tests
-  "tag:api,!tag:slow", // API tests but not slow (AND with negation)
-  "!tag:wip", // Exclude WIP
-];
-// => (smoke) OR (api AND NOT slow) OR (NOT wip)
+```json
+{
+  "probitas": {
+    "selectors": [
+      "tag:smoke",
+      "tag:api,!tag:slow",
+      "!tag:wip"
+    ]
+  }
+}
 ```
+
+This evaluates as: (smoke) OR (api AND NOT slow) OR (NOT wip)
 
 ### `probitas list`
 
@@ -522,23 +527,24 @@ probitas init
 
 **Generated Files**:
 
-- `probitas.config.ts` - Project configuration file
+- `deno.json` - Project configuration file with probitas settings
 - `scenarios/example.scenario.ts` - Sample scenario
-- `scenarios/deno.jsonc` - Deno configuration for scenarios directory
 
 #### Options
 
 - `--force` - Overwrite existing files
 
-**probitas.config.ts**:
+**deno.json**:
 
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  reporter: "list",
-  verbosity: "normal",
-} satisfies ProbitasConfig;
+```json
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas@^0.1.0"
+  },
+  "probitas": {
+    "reporter": "list"
+  }
+}
 ```
 
 Contains minimal configuration only. Other settings use default values.
@@ -571,60 +577,30 @@ export default scenario("Example Scenario")
   .build();
 ```
 
-**scenarios/deno.jsonc**:
-
-```jsonc
-{
-  "imports": {
-    "probitas": "jsr:@lambdalisue/probitas@^0.1.0"
-  }
-}
-```
-
-Contains minimal import maps only. You can add subpath mappings
-(`"probitas/": "jsr:@lambdalisue/probitas/"`) or other configurations as needed.
-
 **Directory Structure After Initialization**:
 
 ```
 my-project/
-├── probitas.config.ts
+├── deno.json
 └── scenarios/
-    ├── deno.jsonc
     └── example.scenario.ts
 ```
 
 ### Generated File Details
 
-#### `probitas.config.ts`
+#### `deno.json`
 
-Project Probitas configuration file. Contains minimal settings (reporter and
-verbosity) only. Other settings use default values.
+Project Deno configuration file with Probitas settings in the `probitas`
+section. Contains minimal settings (reporter) only. Other settings use default
+values.
+
+The `imports` section defines the `probitas` import map to enable simple import
+statements in scenario files.
 
 #### `scenarios/example.scenario.ts`
 
 Executable sample scenario file. Demonstrates basic step writing and context
-usage examples.
-
-#### `scenarios/deno.jsonc`
-
-Deno configuration file dedicated to the scenarios directory. Defines `probitas`
-import map to enable simple import statements.
-
-**Benefits**:
-
-- Enables shortened imports (`probitas`, etc.) in scenario files
-- Managed independently from project root configuration
-- Can apply scenarios directory-specific settings (type checking, lint, etc.)
-
-**Purpose**:
-
-- **Import maps definition**: Enable importing dependencies using shortened
-  forms like `probitas`
-- **Independent configuration management**: Manage scenarios directory-specific
-  configuration separately from project root's `deno.json`
-- **Scenario file simplification**: Use shortened forms instead of long JSR
-  paths, improving readability
+usage examples
 
 ### Project Initialization Example
 
@@ -639,13 +615,12 @@ probitas run
 The following files are created:
 
 ```
-probitas.config.ts          # Project configuration
+deno.json                  # Project configuration with probitas settings
 scenarios/
-  deno.jsonc               # Deno configuration for scenarios
   example.scenario.ts      # Sample scenario
 ```
 
-`scenarios/deno.jsonc` enables concise imports in scenario files like:
+`deno.json` enables concise imports in scenario files like:
 
 ```typescript
 import { scenario } from "probitas";
@@ -653,35 +628,27 @@ import { scenario } from "probitas";
 
 ## Configuration File
 
-Default settings can be defined by placing `probitas.config.ts` or
-`probitas.config.js` in the project root directory.
+Default settings can be defined in the `probitas` section of `deno.json` or
+`deno.jsonc` in the project root directory.
 
 ### File Name Priority
 
-1. `probitas.config.ts`
-2. `probitas.config.js`
+1. `deno.json`
+2. `deno.jsonc`
 3. File specified by command-line option (`--config`)
 
 ### Configuration File Structure
 
-The configuration file extends `RunOptions` to add CLI-specific configuration
-items.
+The configuration is defined in the `probitas` section of `deno.json` or
+`deno.jsonc`.
 
 ### ProbitasConfig Type
 
-Type definition for configuration file exported from `probitas/cli`.
+The `probitas` section supports the following configuration fields:
 
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-```
-
-`ProbitasConfig` extends `RunOptions` and adds the following CLI-specific
-fields:
-
-- `includes`: Include patterns (glob, files, directories, regular expressions)
-- `excludes`: Exclude patterns (glob, files, directories, regular expressions)
-- `reporter`: Default Reporter (string name or Reporter instance)
-- `verbosity`: Verbosity level
+- `includes`: Include patterns (glob patterns as strings)
+- `excludes`: Exclude patterns (glob patterns as strings)
+- `reporter`: Default Reporter (string name: "list", "dot", "json", or "tap")
 - `maxConcurrency`: Maximum concurrent scenarios (0 or undefined = unlimited)
 - `maxFailures`: Maximum failures before stopping (0 or undefined = continue
   all)
@@ -690,110 +657,92 @@ fields:
 
 **Notes**:
 
-- `RunOptions`' `reporter` only accepts `Reporter` type, but `ProbitasConfig`
-  also accepts string names
-- CLI converts strings to Reporter instances
-- `maxConcurrency` and `maxFailures` are inherited from `RunOptions`
+- Configuration is in JSON format within `deno.json`
+- Regular expressions are not supported (use glob patterns as strings)
+- Reporter instances cannot be used (only string names)
+- `maxConcurrency` and `maxFailures` control execution behavior
 - Selector configuration uses `selectors` field with support for `!` prefix
 
-TypeScript (recommended):
+Example (`deno.json`):
 
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  // File patterns
-  includes: ["scenarios/**/*.scenario.ts"],
-  excludes: ["**/*.skip.scenario.ts", /.*\.wip\.scenario\.ts$/],
-
-  // Default Reporter
-  reporter: "list",
-
-  // Verbosity level
-  verbosity: "normal",
-
-  // Concurrency control
-  maxConcurrency: 4, // Limit to 4 parallel scenarios
-  // maxConcurrency: 1,  // Sequential execution
-  // maxConcurrency: 0,  // Unlimited parallel (default)
-
-  // Failure handling (default is to execute all scenarios)
-  // maxFailures: 1,  // Stop at first failure (failFast)
-  // maxFailures: 3,  // Stop after 3 failures
-
-  // Scenario selector configuration
-  selectors: [
-    // OR logic between items
-    "tag:smoke", // Smoke tests
-    "tag:api,!tag:slow", // API tests but not slow (AND with negation)
-    "!tag:wip", // Exclude WIP
-  ],
-} satisfies ProbitasConfig;
+```json
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas"
+  },
+  "probitas": {
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": ["**/*.skip.scenario.ts"],
+    "reporter": "list",
+    "maxConcurrency": 4,
+    "selectors": [
+      "tag:smoke",
+      "tag:api,!tag:slow",
+      "!tag:wip"
+    ]
+  }
+}
 ```
 
-JavaScript:
+Example with comments (`deno.jsonc`):
 
-```javascript
-export default {
-  includes: ["scenarios/**/*.scenario.js"],
-  excludes: ["**/*.skip.scenario.js"],
-  reporter: "dot",
-  verbosity: "normal",
+```jsonc
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas"
+  },
+  "probitas": {
+    // File patterns
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": ["**/*.skip.scenario.ts"],
 
-  maxConcurrency: 4,
-  // maxFailures: 3,
-};
+    // Default Reporter
+    "reporter": "list",
+
+    // Concurrency control
+    "maxConcurrency": 4, // Limit to 4 parallel scenarios
+    // "maxConcurrency": 1,  // Sequential execution
+    // "maxConcurrency": 0,  // Unlimited parallel (default)
+
+    // Failure handling (default is to execute all scenarios)
+    // "maxFailures": 1,  // Stop at first failure (failFast)
+    // "maxFailures": 3,  // Stop after 3 failures
+
+    // Scenario selector configuration (OR logic between items)
+    "selectors": [
+      "tag:smoke", // Smoke tests
+      "tag:api,!tag:slow", // API tests but not slow (AND with negation)
+      "!tag:wip" // Exclude WIP
+    ]
+  }
+}
 ```
 
-### Using Custom Reporters
+### Using Reporters
 
-In TypeScript configuration files, Reporters can be specified as string names or
-instances:
+In the configuration file, Reporters can only be specified by their string
+names:
 
-#### Specify by String Name
-
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  includes: ["scenarios/**/*.scenario.ts"],
-  excludes: ["**/*.skip.scenario.ts"],
-
-  // Specify built-in Reporter by name
-  reporter: "list",
-
-  maxConcurrency: 8,
-} satisfies ProbitasConfig;
-```
-
-#### Set Reporter Instance Directly
-
-When custom configuration is needed, set the instance directly in the `reporter`
-field:
-
-```typescript
-import { ListReporter } from "probitas/reporter";
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  includes: ["scenarios/**/*.scenario.ts"],
-  excludes: ["**/*.skip.scenario.ts"],
-
-  // Reporter instance with custom configuration
-  reporter: new ListReporter({
-    verbosity: "verbose",
-    noColor: false,
-  }),
-
-  maxConcurrency: 8,
-} satisfies ProbitasConfig;
+```json
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas"
+  },
+  "probitas": {
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": ["**/*.skip.scenario.ts"],
+    "reporter": "list",
+    "maxConcurrency": 8
+  }
+}
 ```
 
 **Notes**:
 
-- String names can only be used for built-in Reporters (dot, list, json, tap)
-- Set Reporter instance directly when custom configuration is needed
-- When instance is set, it can be overridden with `--reporter` option
+- Only built-in Reporter names are supported: "dot", "list", "json", "tap"
+- Reporter instances cannot be used in JSON configuration
+- Configuration can be overridden with `--reporter` command-line option
+- Use CLI flags (`-q`, `-v`, `-d`) to control output verbosity
 
 ### Configuration Priority
 
@@ -927,8 +876,7 @@ probitas run  # Automatically disabled if NO_COLOR is set
 
 1. `--no-color` option (command-line)
 2. `NO_COLOR` environment variable
-3. Configuration file's `verbosity` setting
-4. Default (color enabled)
+3. Default (color enabled)
 
 ### Custom Reporters
 
@@ -1000,40 +948,39 @@ test:
 
 ### Using Configuration File
 
-`probitas.config.ts`:
+`deno.json`:
 
-```typescript
-import type { ProbitasConfig } from "probitas/cli";
-
-export default {
-  includes: ["scenarios/**/*.scenario.ts"],
-  excludes: [],
-  reporter: "list",
-  verbosity: "normal",
-
-  maxConcurrency: 5, // Limit parallel execution to 5 scenarios
-  maxFailures: 3, // Stop after 3 failures
-
-  // Scenario selector configuration (optional)
-  selectors: [
-    "tag:smoke", // Smoke tests (OR)
-    "tag:api,!tag:slow", // API tests but not slow (AND with negation)
-    "!tag:wip", // Exclude WIP
-  ],
-} satisfies ProbitasConfig;
+```json
+{
+  "imports": {
+    "probitas": "jsr:@lambdalisue/probitas"
+  },
+  "probitas": {
+    "includes": ["scenarios/**/*.scenario.ts"],
+    "excludes": [],
+    "reporter": "list",
+    "maxConcurrency": 5,
+    "maxFailures": 3,
+    "selectors": [
+      "tag:smoke",
+      "tag:api,!tag:slow",
+      "!tag:wip"
+    ]
+  }
+}
 ```
 
 Execution:
 
 ```bash
-# Use probitas.config.ts
+# Use deno.json
 probitas run
 
 # Override part of configuration file
 probitas run --reporter json
 
 # Specify specific configuration file
-probitas run --config custom.config.ts
+probitas run --config custom.deno.json
 ```
 
 ## Environment Variables
@@ -1059,7 +1006,7 @@ Specifies the default config file path.
 
 ```bash
 # Use custom config file
-PROBITAS_CONFIG=custom.config.ts probitas run
+PROBITAS_CONFIG=custom.deno.json probitas run
 ```
 
 ## Exit Codes

@@ -104,15 +104,17 @@ probitas run -s "!wip,!tag:skip"
 
 ## Configuration File Usage
 
-Default selectors can be configured in `probitas.config.ts`:
+Default selectors can be configured in `deno.json`:
 
-```typescript
-export default {
-  selectors: [
-    "!tag:skip",
-    "!wip",
-  ],
-};
+```json
+{
+  "probitas": {
+    "selectors": [
+      "!tag:skip",
+      "!wip"
+    ]
+  }
+}
 ```
 
 CLI options take precedence over configuration file.
