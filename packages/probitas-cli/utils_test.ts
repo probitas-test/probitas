@@ -12,6 +12,7 @@ import {
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { sandbox } from "@lambdalisue/sandbox";
+import { toFileUrl } from "@std/path";
 import {
   createTempSubprocessConfig,
   findDenoConfigFile,
@@ -283,7 +284,7 @@ describe("utils", () => {
       assertEquals(typeof config.imports.probitas, "string");
     });
 
-    it("resolves relative paths to absolute paths", async () => {
+    it("resolves relative paths to file:// URLs", async () => {
       await using sbox = await sandbox();
       await using stack = new AsyncDisposableStack();
 
@@ -308,11 +309,14 @@ describe("utils", () => {
       const text = await Deno.readTextFile(configPath);
       const config = JSON.parse(text);
 
-      // Relative paths should be resolved to absolute paths
-      assertEquals(config.imports["my-lib"], sbox.resolve("lib/mod.ts"));
+      // Relative paths should be resolved to file:// URLs
+      assertEquals(
+        config.imports["my-lib"],
+        toFileUrl(sbox.resolve("lib/mod.ts")).href,
+      );
       assertEquals(
         config.imports["my-utils"],
-        sbox.resolve("../utils/mod.ts"),
+        toFileUrl(sbox.resolve("../utils/mod.ts")).href,
       );
 
       // Non-relative paths should be preserved as-is

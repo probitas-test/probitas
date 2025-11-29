@@ -7,7 +7,7 @@
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { exists } from "@std/fs/exists";
 import { parse as parseJsonc } from "@std/jsonc";
-import { dirname, resolve } from "@std/path";
+import { dirname, resolve, toFileUrl } from "@std/path";
 import {
   DotReporter,
   JSONReporter,
@@ -169,25 +169,29 @@ export async function findDenoConfigFile(
 }
 
 /**
- * Resolve relative paths in import map to absolute paths
+ * Get user dependencies from their deno.json
  *
- * Converts relative paths (starting with ./ or ../) to absolute paths
- * based on the config file's directory. This allows the temporary
- * subprocess config to be placed anywhere while preserving correct
- * path resolution.
+ * Reads the user's config file and resolves relative paths to file:// URLs.
+ * This ensures imports work correctly when the temporary subprocess config
+ * is placed in a different directory.
  *
- * @param imports - Import map entries
- * @param baseDir - Directory to resolve relative paths from
- * @returns Import map with relative paths resolved to absolute paths
+ * @param userConfigPath - Path to user's deno.json/deno.jsonc
+ * @returns Record of dependencies with resolved paths
  */
-function resolveRelativeImports(
-  imports: Record<string, string>,
-  baseDir: string,
-): Record<string, string> {
+async function getUserDependencies(
+  userConfigPath: string | undefined,
+): Promise<Record<string, string>> {
+  if (!userConfigPath) {
+    return {};
+  }
+  const text = await Deno.readTextFile(userConfigPath);
+  const denoJson = ensure(parseJsonc(text), isDenoConfig);
+  const imports = denoJson.imports ?? {};
+  const baseDir = dirname(userConfigPath);
   return Object.fromEntries(
     Object.entries(imports).map(([key, value]) => {
       if (value.startsWith("./") || value.startsWith("../")) {
-        return [key, resolve(baseDir, value)];
+        return [key, toFileUrl(resolve(baseDir, value)).href];
       }
       return [key, value];
     }),
@@ -197,17 +201,25 @@ function resolveRelativeImports(
 /**
  * Get probitas dependencies by reading the CLI package's deno.json
  *
- * This reads the deno.json bundled with the CLI package to get all dependencies.
- * Works in both development (workspace) and production (JSR) environments.
+ * Reads the deno.json bundled with the CLI package and resolves probitas
+ * package imports (jsr:@probitas/*) to absolute URLs using import.meta.resolve().
+ * External dependencies are kept as JSR specifiers for Deno to resolve directly.
  *
  * @returns Record of dependencies for import map
  */
 async function getProbitasDependencies(): Promise<Record<string, string>> {
-  // Read CLI package's deno.json (relative to this file)
   const denoJsonUrl = new URL("./deno.json", import.meta.url);
   const resp = await fetch(denoJsonUrl);
-  const denoJson = await resp.json() as { imports?: Record<string, string> };
-  return denoJson.imports ?? {};
+  const denoJson = ensure(await resp.json(), isDenoConfig);
+  const imports = denoJson.imports ?? {};
+  return Object.fromEntries(
+    Object.entries(imports).map(([key, value]) => {
+      if (value.startsWith("jsr:@probitas/")) {
+        return [key, import.meta.resolve(value)];
+      }
+      return [key, value];
+    }),
+  );
 }
 
 /**
@@ -219,26 +231,14 @@ async function getProbitasDependencies(): Promise<Record<string, string>> {
 export async function createTempSubprocessConfig(
   userConfigPath?: string | undefined,
 ): Promise<string> {
-  // Read user's deno.json to preserve their imports
-  let userImports: Record<string, string> = {};
-  if (userConfigPath) {
-    const text = await Deno.readTextFile(userConfigPath);
-    const userDenoConfig = ensure(parseJsonc(text), isDenoConfig);
-    // Resolve relative paths to absolute paths based on config location
-    userImports = resolveRelativeImports(
-      userDenoConfig.imports ?? {},
-      dirname(userConfigPath),
-    );
-  }
-
-  // Get probitas dependencies from CLI package's deno.json
-  const deps = await getProbitasDependencies();
+  const userDeps = await getUserDependencies(userConfigPath);
+  const probitasDeps = await getProbitasDependencies();
 
   // Merge user imports with probitas deps (probitas deps override user's)
-  const mergedConfig = {
+  const denoJson = {
     imports: {
-      ...userImports,
-      ...deps,
+      ...userDeps,
+      ...probitasDeps,
     },
   };
 
@@ -246,7 +246,7 @@ export async function createTempSubprocessConfig(
   const tempConfigPath = await Deno.makeTempFile({ suffix: ".json" });
   await Deno.writeTextFile(
     tempConfigPath,
-    JSON.stringify(mergedConfig, null, 2),
+    JSON.stringify(denoJson, null, 2),
   );
 
   return tempConfigPath;
