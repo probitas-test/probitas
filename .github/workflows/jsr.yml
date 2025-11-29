@@ -16,12 +16,14 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
+
       - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ env.DENO_VERSION }}
-      - name: Publish
-        run: |
-          deno run -A jsr:@david/publish-on-tag@0.2.0
+
+      - name: Set version from tag
+        run: deno run -A .scripts/bump_versions.ts ${{ github.ref_name }}
+
+      - name: Publish to JSR
+        run: deno publish --allow-dirty

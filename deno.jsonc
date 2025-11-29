@@ -1,37 +1,25 @@
 {
-  "name": "@lambdalisue/probitas",
-  "exports": {
-    ".": "./mod.ts",
-    "./builder": "./src/builder/mod.ts",
-    "./cli": "./cli/mod.ts",
-    "./reporter": "./src/reporter/mod.ts",
-    "./runner": "./src/runner/mod.ts"
-  },
-  "publish": {
-    "include": [
-      "LICENSE",
-      "README.md",
-      "assets/**/*",
-      "**/*.ts"
-    ],
-    "exclude": [
-      "**/*_test.ts",
-      "**/*_bench.ts",
-      "tests/**/*",
-      "example/**/*"
-    ]
-  },
+  "workspace": [
+    "./packages/probitas",
+    "./packages/probitas-scenario",
+    "./packages/probitas-runner",
+    "./packages/probitas-builder",
+    "./packages/probitas-reporter",
+    "./packages/probitas-discover",
+    "./packages/probitas-cli"
+  ],
   "exclude": [
     ".coverage/**"
   ],
   "tasks": {
-    "cli": "deno run -A ./cli/mod.ts",
+    "cli": "deno run -A ./packages/probitas-cli/mod.ts",
     "check": "deno check ./**/*.ts",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
-    "coverage": "deno coverage .coverage --include='/(src|cli|mod\\.ts)/'"
+    "coverage": "deno coverage .coverage --include='/packages/'"
   },
   "imports": {
+    // JSR dependencies (shared across workspace)
     "@core/errorutil": "jsr:@core/errorutil@^1.2.1",
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@cspotcode/outdent": "jsr:@cspotcode/outdent@^0.8.0",
@@ -49,10 +37,17 @@
     "@std/semver": "jsr:@std/semver@^1.0.7",
     "@std/streams": "jsr:@std/streams@^1.0.14",
     "@std/testing": "jsr:@std/testing@^1.0.16",
-    "probitas": "./mod.ts",
-    "probitas/builder": "./src/builder/mod.ts",
-    "probitas/cli": "./cli/mod.ts",
-    "probitas/reporter": "./src/reporter/mod.ts",
-    "probitas/runner": "./src/runner/mod.ts"
+
+    // Override JSR packages with local paths for development
+    "jsr:@lambdalisue/probitas@^0": "./packages/probitas/mod.ts",
+    "jsr:@lambdalisue/probitas-scenario@^0": "./packages/probitas-scenario/mod.ts",
+    "jsr:@lambdalisue/probitas-runner@^0": "./packages/probitas-runner/mod.ts",
+    "jsr:@lambdalisue/probitas-builder@^0": "./packages/probitas-builder/mod.ts",
+    "jsr:@lambdalisue/probitas-reporter@^0": "./packages/probitas-reporter/mod.ts",
+    "jsr:@lambdalisue/probitas-discover@^0": "./packages/probitas-discover/mod.ts",
+    "jsr:@lambdalisue/probitas-cli@^0": "./packages/probitas-cli/mod.ts",
+
+    // Convenience aliases
+    "probitas": "./packages/probitas/mod.ts"
   }
 }

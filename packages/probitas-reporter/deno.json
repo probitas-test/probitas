@@ -1,0 +1,15 @@
+{
+  "name": "@lambdalisue/probitas-reporter",
+  "version": "0.0.0",
+  "exports": "./mod.ts",
+  "publish": {
+    "exclude": [
+      "**/*_test.ts",
+      "**/*_bench.ts"
+    ]
+  },
+  "imports": {
+    "@lambdalisue/probitas-scenario": "jsr:@lambdalisue/probitas-scenario@^0",
+    "@lambdalisue/probitas-runner": "jsr:@lambdalisue/probitas-runner@^0"
+  }
+}
