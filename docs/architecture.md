@@ -1,26 +1,24 @@
 # Probitas Architecture
 
-Probitas is a scenario-based testing framework designed with a 5-layer
+Probitas is a scenario-based testing framework designed with a 4-layer
 architecture that achieves separation of concerns.
 
 ## Overview
 
-Probitas 5-layer architecture:
+Probitas 4-layer architecture:
 
 ```mermaid
 graph TD
     User[User Code] --> Builder
     Builder --> Runner
     Runner --> Reporter
-    Runner --> Client
-    Client --> External[External Resources]
     Reporter --> Theme
     Theme --> Output[Test Output]
 ```
 
 Each layer has a single responsibility, achieving separation of concerns.
 
-## 5 Core Layers
+## 4 Core Layers
 
 ### 1. Builder Layer
 
@@ -66,7 +64,7 @@ users in various formats.
 
 - Receives lifecycle events from Runner
 - Uses Theme layer to format output semantically
-- Supports multiple output formats (List, TAP, JSON, Live, Dot)
+- Supports multiple output formats (List, TAP, JSON, Dot)
 - Enables custom reporters
 
 See [Reporter Specification](./reporter.md) for detailed API and usage examples.
@@ -87,22 +85,6 @@ customizable output.
 
 See [Theme Specification](./theme.md) for detailed API and usage examples.
 
-### 5. Client Layer
-
-**Responsibility**: Ergonomic access to external resources
-
-The Client layer provides high-level, type-safe APIs for interacting with
-external resources.
-
-**Key Capabilities**:
-
-- Provides high-level APIs for common operations
-- Manages resource lifecycle (connection, cleanup)
-- Implements explicit resource management (AsyncDisposable)
-- Provides type-safe interfaces
-
-See [Client Specification](./client.md) for detailed API and usage examples.
-
 ## Execution Flow
 
 ```mermaid
@@ -111,7 +93,6 @@ sequenceDiagram
     participant Builder
     participant Runner
     participant Reporter
-    participant Client
 
     User->>Builder: Define scenario
     Builder->>Builder: Build immutable definition
@@ -121,8 +102,6 @@ sequenceDiagram
         Runner->>Reporter: onScenarioStart()
         loop Each Step
             Runner->>Reporter: onStepStart()
-            Runner->>Client: Access resources
-            Client-->>Runner: Return data
             Runner->>Reporter: onStepEnd()
         end
         Runner->>Reporter: onScenarioEnd()
@@ -134,9 +113,7 @@ sequenceDiagram
 1. **Definition**: User creates scenario definitions with Builder layer
 2. **Execution**: Runner receives definitions and executes steps
 3. **Reporting**: Runner sends lifecycle events to Reporter layer
-4. **Resource Access**: Steps use Client layer to interact with external
-   resources
-5. **Display**: Reporter uses Theme layer to format and display results
+4. **Display**: Reporter uses Theme layer to format and display results
 
 ## Layer Interaction
 
@@ -148,7 +125,6 @@ graph TB
 
     subgraph "Execution Phase"
         Runner[Runner Layer]
-        Client[Client Layer]
     end
 
     subgraph "Presentation Phase"
@@ -158,7 +134,6 @@ graph TB
 
     Builder -->|ScenarioDefinition| Runner
     Runner -->|Events| Reporter
-    Runner -.->|Uses| Client
     Reporter -->|Semantic colors| Theme
 ```
 
@@ -172,7 +147,6 @@ graph TB
 | Runner   | Test Execution  | Lifecycle orchestration | Execution flexibility     |
 | Reporter | Test Output     | Event-based formatting  | Multiple output formats   |
 | Theme    | Output Coloring | Semantic abstraction    | Flexible UI customization |
-| Client   | Resource Access | High-level abstraction  | Reusable integrations     |
 
 ### Key Principles
 
@@ -181,8 +155,7 @@ graph TB
 3. **Immutability**: Scenario definitions are immutable after building
 4. **Semantic Design**: Theme layer prevents Reporters from depending on color
    implementation details
-5. **Extensibility**: Supports custom reporters, themes, clients, and execution
-   strategies
+5. **Extensibility**: Supports custom reporters and themes
 6. **Resource Management**: Automatic cleanup through explicit resource
    management
 7. **Composability**: Small, focused components that work together
@@ -195,8 +168,6 @@ Each layer supports customization through well-defined interfaces:
   [Reporter Specification](./reporter.md#customizationextension)
 - **Custom Theme**: Implement the `Theme` interface - see
   [Theme Specification](./theme.md#customizationextension)
-- **Custom Client**: Implement `AsyncDisposable` - see
-  [Client Specification](./client.md#customizationextension)
 
 ## Quick Start
 
@@ -208,7 +179,7 @@ import { scenario, ScenarioRunner } from "probitas";
 // 1. Define scenario (Builder layer)
 const definition = scenario("User Flow")
   .step("Get User ID", () => 123)
-  .step("Fetch User", (ctx) => ({ id: ctx.previous, name: "John" }))
+  .step("Process User", (ctx) => ({ id: ctx.previous, name: "John" }))
   .build();
 
 // 2. Execute (Runner layer)
@@ -221,19 +192,14 @@ console.log(`${summary.passed}/${summary.total} passed`);
 ### Advanced Usage
 
 ```typescript
-import { client, ListReporter, scenario, ScenarioRunner } from "probitas";
+import { ListReporter, scenario, ScenarioRunner } from "probitas";
 
-// With custom reporter, parallel execution, and HTTP client
-const definition = scenario("API Test")
-  .step("Create User", async () => {
-    await using api = client.http("https://api.example.com");
-    const result = await api.post("/users", { json: { name: "John" } });
-    return result.json.id;
-  })
-  .step("Fetch User", async (ctx) => {
-    await using api = client.http("https://api.example.com");
-    const result = await api.get(`/users/${ctx.previous}`);
-    return result.json;
+// With custom reporter and parallel execution
+const definition = scenario("Data Test")
+  .resource("db", async () => await connectDB())
+  .step("Query", async (ctx) => {
+    const result = await ctx.resources.db.query("SELECT 1");
+    return result;
   })
   .build();
 
@@ -241,7 +207,7 @@ const runner = new ScenarioRunner();
 const summary = await runner.run([definition], {
   reporter: new ListReporter(),
   maxConcurrency: 5, // Limit parallel execution to 5 scenarios
-  maxFailures: 0, // Continue all (0 means no limit, 1 = fail fast, N = stop after N failures)
+  maxFailures: 0, // Continue all (0 means no limit, 1 = fail fast)
 });
 ```
 
@@ -253,4 +219,3 @@ For detailed information about each layer:
 - [Runner Specification](./runner.md) - Test execution engine
 - [Reporter Specification](./reporter.md) - Test result output
 - [Theme Specification](./theme.md) - Coloring and UI customization
-- [Client Specification](./client.md) - External resource access

@@ -78,15 +78,15 @@ resource<K extends string, R>(
 **Example**:
 
 ```typescript
-scenario("API Test")
-  .step("Get config", () => ({ url: "http://localhost:8080" }))
-  .resource("api", (ctx) => {
+scenario("DB Test")
+  .step("Get config", () => ({ connectionString: "postgres://..." }))
+  .resource("db", (ctx) => {
     // Can access the result of the previous step
-    return client.http(ctx.previous.url);
+    return connectDB(ctx.previous.connectionString);
   })
-  .step("Fetch", (ctx) => {
-    // ctx.resources.api is typed and available
-    return ctx.resources.api.get("/data");
+  .step("Query", (ctx) => {
+    // ctx.resources.db is typed and available
+    return ctx.resources.db.query("SELECT 1");
   });
 ```
 
@@ -308,8 +308,7 @@ scenario("User Flow")
 ### 3. Use `.resource()` for Disposables
 
 For any object with a cleanup action that fits the `Disposable` or
-`AsyncDisposable` pattern (like DB connections or HTTP clients), prefer using
-`.resource()`.
+`AsyncDisposable` pattern (like DB connections), prefer using `.resource()`.
 
 ```typescript
 // Good: Manages lifecycle automatically

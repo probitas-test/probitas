@@ -4,11 +4,6 @@
     ".": "./mod.ts",
     "./builder": "./src/builder/mod.ts",
     "./cli": "./cli/mod.ts",
-    "./client": "./src/client/mod.ts",
-    "./helper": "./src/helper/mod.ts",
-    "./helper/defer": "./src/helper/defer.ts",
-    "./helper/env": "./src/helper/env.ts",
-    "./helper/expect": "./src/helper/expect.ts",
     "./reporter": "./src/reporter/mod.ts",
     "./runner": "./src/runner/mod.ts"
   },
@@ -57,10 +52,6 @@
     "probitas": "./mod.ts",
     "probitas/builder": "./src/builder/mod.ts",
     "probitas/cli": "./cli/mod.ts",
-    "probitas/client": "./src/client/mod.ts",
-    "probitas/helper/defer": "./src/helper/defer.ts",
-    "probitas/helper/env": "./src/helper/env.ts",
-    "probitas/helper/expect": "./src/helper/expect.ts",
     "probitas/reporter": "./src/reporter/mod.ts",
     "probitas/runner": "./src/runner/mod.ts"
   }
