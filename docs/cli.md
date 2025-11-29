@@ -141,11 +141,10 @@ CLI options override configuration.
 
 Probitas runs scenarios in a subprocess with:
 
-- Project's `deno.json` configuration (import maps)
-- Dependency isolation via Deno scopes
+- Merged import map (user's imports + probitas dependencies)
 - Automatic temporary config cleanup
 
-This ensures user dependencies don't conflict with Probitas internals.
+Probitas dependencies override user's to ensure correct resolution.
 
 ## Related
 

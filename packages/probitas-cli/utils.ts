@@ -18,14 +18,10 @@ import type { Reporter, ReporterOptions } from "@probitas/reporter";
 
 type DenoConfig = {
   imports?: Record<string, string>;
-  scopes?: Record<string, Record<string, string>>;
 };
 
 const isDenoConfig = is.ObjectOf({
   imports: as.Optional(is.RecordOf(is.String, is.String)),
-  scopes: as.Optional(
-    is.RecordOf(is.RecordOf(is.String, is.String), is.String),
-  ),
 }) satisfies Predicate<DenoConfig>;
 
 const reporterMap: Record<string, (opts?: ReporterOptions) => Reporter> = {
@@ -173,6 +169,26 @@ export async function findDenoConfigFile(
 }
 
 /**
+ * Remove JSR alias imports from an import map
+ *
+ * Workspace root deno.jsonc may contain aliases like:
+ *   "jsr:@probitas/std@^0": "./packages/probitas-std/mod.ts"
+ * These override JSR resolution with local paths for development.
+ * When creating subprocess config, we filter these out so that
+ * JSR packages resolve correctly from the registry.
+ *
+ * @param imports - Import map entries
+ * @returns Filtered import map without jsr: alias keys
+ */
+function removeJsrAliasImports(
+  imports: Record<string, string>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(imports).filter(([k]) => !k.startsWith("jsr:")),
+  );
+}
+
+/**
  * Get probitas dependencies by reading the CLI package's deno.json
  *
  * This reads the deno.json bundled with the CLI package to get all dependencies.
@@ -185,36 +201,7 @@ async function getProbitasDependencies(): Promise<Record<string, string>> {
   const denoJsonUrl = new URL("./deno.json", import.meta.url);
   const resp = await fetch(denoJsonUrl);
   const denoJson = await resp.json() as { imports?: Record<string, string> };
-
-  const deps: Record<string, string> = {};
-
-  // Include all imports from the CLI package's deno.json
-  if (denoJson.imports) {
-    for (const [key, value] of Object.entries(denoJson.imports)) {
-      // For @probitas/* packages, use import.meta.resolve to get the actual URL
-      // (handles both development workspace and JSR environments)
-      // For other packages, keep the original JSR specifier so Deno can resolve submodules
-      if (key.startsWith("@probitas/")) {
-        try {
-          deps[key] = import.meta.resolve(key);
-        } catch {
-          deps[key] = value;
-        }
-      } else {
-        // Keep JSR specifiers as-is for proper submodule resolution
-        deps[key] = value;
-      }
-    }
-  }
-
-  // Always include probitas alias
-  try {
-    deps["probitas"] = import.meta.resolve("@probitas/std");
-  } catch {
-    // Not available
-  }
-
-  return deps;
+  return denoJson.imports ?? {};
 }
 
 /**
@@ -226,7 +213,7 @@ async function getProbitasDependencies(): Promise<Record<string, string>> {
 export async function createTempSubprocessConfig(
   userConfigPath?: string | undefined,
 ): Promise<string> {
-  // Read user's raw deno.json to preserve imports/scopes
+  // Read user's deno.json to preserve their imports
   let userDenoConfig: DenoConfig | undefined;
   if (userConfigPath) {
     const text = await Deno.readTextFile(userConfigPath);
@@ -236,23 +223,13 @@ export async function createTempSubprocessConfig(
   // Get probitas dependencies from CLI package's deno.json
   const deps = await getProbitasDependencies();
 
-  // Determine probitas scope key
-  const probitasStdUrl = deps["probitas"] ?? deps["@probitas/std"];
-  // Scope key should be the directory containing probitas-std
-  const probitasScope = probitasStdUrl?.replace(/mod\.ts$/, "") ?? "";
-
-  // Only include imports and scopes from user config
-  // Exclude workspace, tasks, exclude, etc. as they use relative paths
+  // Merge user imports with probitas deps (probitas deps override user's)
+  // Filter out jsr: alias keys that may exist in workspace root config
   const mergedConfig = {
-    imports: {
+    imports: removeJsrAliasImports({
       ...(userDenoConfig?.imports ?? {}),
-      ...deps, // All probitas dependencies
-    },
-    scopes: {
-      ...(userDenoConfig?.scopes ?? {}),
-      // Probitas dependencies scoped to probitas-std directory
-      ...(probitasScope ? { [probitasScope]: deps } : {}),
-    },
+      ...deps,
+    }),
   };
 
   // Create temporary config file

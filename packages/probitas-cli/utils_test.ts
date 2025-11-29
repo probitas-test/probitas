@@ -229,7 +229,7 @@ describe("utils", () => {
   });
 
   describe("createTempSubprocessConfig", () => {
-    it("creates config with probitas import and scopes", async () => {
+    it("creates config with probitas imports", async () => {
       await using stack = new AsyncDisposableStack();
 
       const configPath = await createTempSubprocessConfig(undefined);
@@ -244,21 +244,16 @@ describe("utils", () => {
       assertEquals(typeof config.imports.probitas, "string");
       assertStringIncludes(config.imports.probitas, "probitas");
 
-      // Verify scopes exist
-      assertEquals(typeof config.scopes, "object");
+      // Verify other probitas packages exist
+      assertEquals(typeof config.imports["@probitas/scenario"], "string");
+      assertEquals(typeof config.imports["@probitas/runner"], "string");
 
-      // Should have probitas scope
-      const scopeKeys = Object.keys(config.scopes);
-      assertEquals(scopeKeys.length > 0, true);
-
-      // Scope should contain probitas packages and external dependencies
-      const firstScope = config.scopes[scopeKeys[0]];
-      assertEquals(typeof firstScope["@probitas/scenario"], "string");
-      assertEquals(typeof firstScope["@core/unknownutil"], "string");
-      assertEquals(typeof firstScope["@std/cli"], "string");
+      // Verify external dependencies exist
+      assertEquals(typeof config.imports["@core/unknownutil"], "string");
+      assertEquals(typeof config.imports["@std/cli"], "string");
     });
 
-    it("merges user's imports and scopes", async () => {
+    it("merges user's imports", async () => {
       await using sbox = await sandbox();
       await using stack = new AsyncDisposableStack();
 
@@ -269,11 +264,6 @@ describe("utils", () => {
         JSON.stringify({
           imports: {
             "my-lib": "jsr:@my/lib@^1",
-          },
-          scopes: {
-            "jsr:@my/lib/": {
-              "some-dep": "jsr:@some/dep@^1",
-            },
           },
         }),
       );
@@ -291,18 +281,37 @@ describe("utils", () => {
 
       // Probitas import should be added
       assertEquals(typeof config.imports.probitas, "string");
+    });
 
-      // User's scopes should be preserved
-      assertEquals(
-        config.scopes["jsr:@my/lib/"]["some-dep"],
-        "jsr:@some/dep@^1",
+    it("filters out jsr: alias imports from user config", async () => {
+      await using sbox = await sandbox();
+      await using stack = new AsyncDisposableStack();
+
+      // Create user's deno.json with jsr: alias (from workspace root)
+      const userConfigPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(
+        userConfigPath,
+        JSON.stringify({
+          imports: {
+            "my-lib": "jsr:@my/lib@^1",
+            "jsr:@probitas/std@^0": "./packages/probitas-std/mod.ts",
+          },
+        }),
       );
 
-      // Probitas scopes should be added
-      const probitasScopes = Object.keys(config.scopes).filter((k) =>
-        k.includes("probitas")
-      );
-      assertEquals(probitasScopes.length > 0, true);
+      const configPath = await createTempSubprocessConfig(userConfigPath);
+      stack.defer(async () => {
+        await Deno.remove(configPath);
+      });
+
+      const text = await Deno.readTextFile(configPath);
+      const config = JSON.parse(text);
+
+      // jsr: alias should be filtered out
+      assertEquals(config.imports["jsr:@probitas/std@^0"], undefined);
+
+      // Regular imports should be preserved
+      assertEquals(config.imports["my-lib"], "jsr:@my/lib@^1");
     });
 
     it("overrides user's probitas import with correct version", async () => {
