@@ -159,26 +159,6 @@ Add to `deno.json` or `deno.jsonc`:
 
 All options can be overridden via CLI flags.
 
-## Programmatic Usage
-
-```typescript
-import { ListReporter, scenario, ScenarioRunner } from "probitas";
-
-const definition = scenario("Test")
-  .step("Step 1", () => ({ value: 1 }))
-  .step("Step 2", (ctx) => ({ doubled: ctx.previous.value * 2 }))
-  .build();
-
-const runner = new ScenarioRunner();
-const summary = await runner.run([definition], {
-  reporter: new ListReporter(),
-  maxConcurrency: 4,
-  maxFailures: 1,
-});
-
-console.log(`${summary.passed}/${summary.total} passed`);
-```
-
 ## Context Properties
 
 The `ctx` object passed to step/resource/setup functions:

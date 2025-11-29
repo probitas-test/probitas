@@ -58,7 +58,7 @@ Discovers scenario files from the given paths.
 **Requires:** `--allow-read` permission.
 
 ```typescript
-import { discoverScenarioFiles } from "./src/discover.ts";
+import { discoverScenarioFiles } from "@probitas/discover";
 
 // Discover from current directory
 const files = await discoverScenarioFiles(["."]);
