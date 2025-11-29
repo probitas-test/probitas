@@ -36,17 +36,17 @@ prevents test `console.log` calls from interfering with formatted output.
 
 ### Reporter Interface
 
-All reporters implement these event methods:
+All event methods are optional. Implement only the ones you need:
 
-| Method            | When Called                  |
-| ----------------- | ---------------------------- |
-| `onRunStart`      | Before any scenario executes |
-| `onScenarioStart` | Before a scenario executes   |
-| `onStepStart`     | Before a step executes       |
-| `onStepEnd`       | After a step succeeds        |
-| `onStepError`     | After a step fails           |
-| `onScenarioEnd`   | After a scenario completes   |
-| `onRunEnd`        | After all scenarios complete |
+| Method             | When Called                  |
+| ------------------ | ---------------------------- |
+| `onRunStart?`      | Before any scenario executes |
+| `onScenarioStart?` | Before a scenario executes   |
+| `onStepStart?`     | Before a step executes       |
+| `onStepEnd?`       | After a step succeeds        |
+| `onStepError?`     | After a step fails           |
+| `onScenarioEnd?`   | After a scenario completes   |
+| `onRunEnd?`        | After all scenarios complete |
 
 ### ReporterOptions
 
@@ -114,7 +114,7 @@ Key considerations:
 
 1. **Real-time output** - Write immediately, don't buffer
 2. **Use Theme** - Call `this.theme.success()` not color codes
-3. **Handle all events** - Even if some are no-ops
+3. **Implement only needed methods** - All event methods are optional
 
 ## Best Practices
 

@@ -52,7 +52,7 @@ export class JSONReporter extends BaseReporter {
    *
    * @param scenario The scenario being executed
    */
-  override async onScenarioStart(scenario: ScenarioDefinition): Promise<void> {
+  async onScenarioStart(scenario: ScenarioDefinition): Promise<void> {
     await this.write(
       JSON.stringify({
         type: "scenarioStart",
@@ -67,7 +67,7 @@ export class JSONReporter extends BaseReporter {
    * @param step The step being executed
    * @param scenario The scenario being executed
    */
-  override async onStepStart(
+  async onStepStart(
     step: StepDefinition,
     scenario: ScenarioDefinition,
   ): Promise<void> {
@@ -87,7 +87,7 @@ export class JSONReporter extends BaseReporter {
    * @param result The step execution result
    * @param scenario The scenario being executed
    */
-  override async onStepEnd(
+  async onStepEnd(
     step: StepDefinition,
     result: StepResult,
     scenario: ScenarioDefinition,
@@ -109,7 +109,7 @@ export class JSONReporter extends BaseReporter {
    * @param error The error that occurred
    * @param scenario The scenario being executed
    */
-  override async onStepError(
+  async onStepError(
     step: StepDefinition,
     error: Error,
     scenario: ScenarioDefinition,
@@ -133,7 +133,7 @@ export class JSONReporter extends BaseReporter {
    * @param scenario The scenario definition
    * @param result The scenario execution result
    */
-  override async onScenarioEnd(
+  async onScenarioEnd(
     scenario: ScenarioDefinition,
     result: ScenarioResult,
   ): Promise<void> {

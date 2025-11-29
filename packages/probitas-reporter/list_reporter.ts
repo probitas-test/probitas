@@ -12,7 +12,6 @@ import type {
   ReporterOptions,
   RunSummary,
   ScenarioDefinition,
-  ScenarioResult,
   StepDefinition,
   StepResult,
 } from "./types.ts";
@@ -31,22 +30,13 @@ export class ListReporter extends BaseReporter {
   }
 
   /**
-   * Called when scenario starts
-   *
-   * @param _scenario The scenario being executed
-   */
-  override onScenarioStart(_scenario: ScenarioDefinition): Promise<void> {
-    return Promise.resolve();
-  }
-
-  /**
    * Called when step completes - output result line
    *
    * @param _step The step definition
    * @param result The step execution result
    * @param scenario The scenario being executed
    */
-  override async onStepEnd(
+  async onStepEnd(
     _step: StepDefinition,
     result: StepResult,
     scenario: ScenarioDefinition,
@@ -74,7 +64,7 @@ export class ListReporter extends BaseReporter {
    * @param error The error that occurred
    * @param scenario The scenario being executed
    */
-  override async onStepError(
+  async onStepError(
     step: StepDefinition,
     error: Error,
     scenario: ScenarioDefinition,
@@ -147,20 +137,5 @@ export class ListReporter extends BaseReporter {
     );
 
     await super.onRunEnd(summary);
-  }
-
-  // No-op methods for unneeded events
-  override async onStepStart(
-    _step: StepDefinition,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onScenarioEnd(
-    _scenario: ScenarioDefinition,
-    _result: ScenarioResult,
-  ): Promise<void> {
-    // no-op
   }
 }

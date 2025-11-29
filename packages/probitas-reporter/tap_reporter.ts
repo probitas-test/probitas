@@ -11,7 +11,6 @@ import { BaseReporter } from "./base_reporter.ts";
 import type {
   ReporterOptions,
   ScenarioDefinition,
-  ScenarioResult,
   StepDefinition,
   StepResult,
 } from "./types.ts";
@@ -53,22 +52,13 @@ export class TAPReporter extends BaseReporter {
   }
 
   /**
-   * Called when scenario starts
-   *
-   * @param _scenario The scenario being executed
-   */
-  override onScenarioStart(_scenario: ScenarioDefinition): Promise<void> {
-    return Promise.resolve();
-  }
-
-  /**
    * Called when step completes - output TAP result
    *
    * @param _step The step definition
    * @param result The step execution result
    * @param scenario The scenario being executed
    */
-  override async onStepEnd(
+  async onStepEnd(
     _step: StepDefinition,
     result: StepResult,
     scenario: ScenarioDefinition,
@@ -103,28 +93,5 @@ export class TAPReporter extends BaseReporter {
 
       await this.write("  ...\n");
     }
-  }
-
-  // No-op methods for unneeded events
-  override async onStepStart(
-    _step: StepDefinition,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onStepError(
-    _step: StepDefinition,
-    _error: Error,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onScenarioEnd(
-    _scenario: ScenarioDefinition,
-    _result: ScenarioResult,
-  ): Promise<void> {
-    // no-op
   }
 }

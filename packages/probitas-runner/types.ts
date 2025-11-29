@@ -118,12 +118,12 @@ export interface Reporter {
   /**
    * Called when test run starts
    */
-  onRunStart(scenarios: readonly ScenarioDefinition[]): void | Promise<void>;
+  onRunStart?(scenarios: readonly ScenarioDefinition[]): void | Promise<void>;
 
   /**
    * Called when scenario starts
    */
-  onScenarioStart(scenario: ScenarioDefinition): void | Promise<void>;
+  onScenarioStart?(scenario: ScenarioDefinition): void | Promise<void>;
 
   /**
    * Called when step starts
@@ -131,7 +131,7 @@ export interface Reporter {
    * @param step - The step definition being executed
    * @param scenario - The scenario containing the step (for parallel-safe reporting)
    */
-  onStepStart(
+  onStepStart?(
     step: StepDefinition,
     scenario: ScenarioDefinition,
   ): void | Promise<void>;
@@ -143,7 +143,7 @@ export interface Reporter {
    * @param result - The step execution result
    * @param scenario - The scenario containing the step (for parallel-safe reporting)
    */
-  onStepEnd(
+  onStepEnd?(
     step: StepDefinition,
     result: StepResult,
     scenario: ScenarioDefinition,
@@ -156,7 +156,7 @@ export interface Reporter {
    * @param error - The error that occurred
    * @param scenario - The scenario containing the step (for parallel-safe reporting)
    */
-  onStepError(
+  onStepError?(
     step: StepDefinition,
     error: Error,
     scenario: ScenarioDefinition,
@@ -165,7 +165,7 @@ export interface Reporter {
   /**
    * Called when scenario completes
    */
-  onScenarioEnd(
+  onScenarioEnd?(
     scenario: ScenarioDefinition,
     result: ScenarioResult,
   ): void | Promise<void>;
@@ -173,7 +173,7 @@ export interface Reporter {
   /**
    * Called when test run completes
    */
-  onRunEnd(summary: RunSummary): void | Promise<void>;
+  onRunEnd?(summary: RunSummary): void | Promise<void>;
 }
 
 /**

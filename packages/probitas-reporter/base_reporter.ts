@@ -16,9 +16,6 @@ import type {
   ReporterOptions,
   RunSummary,
   ScenarioDefinition,
-  ScenarioResult,
-  StepDefinition,
-  StepResult,
   Theme,
 } from "./types.ts";
 
@@ -26,7 +23,7 @@ import type {
  * Abstract base class for all reporters
  *
  * Provides common functionality for output management and console control.
- * Subclasses must implement the abstract methods.
+ * Subclasses override only the methods they need.
  */
 export abstract class BaseReporter implements Reporter {
   protected output: WritableStream;
@@ -151,56 +148,6 @@ export abstract class BaseReporter implements Reporter {
     this.suppressConsole();
     return Promise.resolve();
   }
-
-  /**
-   * Called when scenario starts (to be implemented by subclass)
-   */
-  abstract onScenarioStart(scenario: ScenarioDefinition): void | Promise<void>;
-
-  /**
-   * Called when step starts (to be implemented by subclass)
-   *
-   * @param step - The step definition being executed
-   * @param scenario - The scenario containing the step (for parallel-safe reporting)
-   */
-  abstract onStepStart(
-    step: StepDefinition,
-    scenario: ScenarioDefinition,
-  ): void | Promise<void>;
-
-  /**
-   * Called when step completes successfully (to be implemented by subclass)
-   *
-   * @param step - The step definition that completed
-   * @param result - The step execution result
-   * @param scenario - The scenario containing the step (for parallel-safe reporting)
-   */
-  abstract onStepEnd(
-    step: StepDefinition,
-    result: StepResult,
-    scenario: ScenarioDefinition,
-  ): void | Promise<void>;
-
-  /**
-   * Called when step fails (to be implemented by subclass)
-   *
-   * @param step - The step definition that failed
-   * @param error - The error that occurred
-   * @param scenario - The scenario containing the step (for parallel-safe reporting)
-   */
-  abstract onStepError(
-    step: StepDefinition,
-    error: Error,
-    scenario: ScenarioDefinition,
-  ): void | Promise<void>;
-
-  /**
-   * Called when scenario completes (to be implemented by subclass)
-   */
-  abstract onScenarioEnd(
-    scenario: ScenarioDefinition,
-    result: ScenarioResult,
-  ): void | Promise<void>;
 
   /**
    * Called when test run completes

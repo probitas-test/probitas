@@ -13,8 +13,6 @@ import type {
   RunSummary,
   ScenarioDefinition,
   ScenarioResult,
-  StepDefinition,
-  StepResult,
 } from "./types.ts";
 
 /**
@@ -36,7 +34,7 @@ export class DotReporter extends BaseReporter {
    * @param _scenario The scenario definition
    * @param result The scenario execution result
    */
-  override async onScenarioEnd(
+  async onScenarioEnd(
     _scenario: ScenarioDefinition,
     result: ScenarioResult,
   ): Promise<void> {
@@ -85,39 +83,5 @@ export class DotReporter extends BaseReporter {
     }
 
     await super.onRunEnd(summary);
-  }
-
-  // No-op methods for unneeded events
-  override async onRunStart(
-    _scenarios: readonly ScenarioDefinition[],
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onScenarioStart(_scenario: ScenarioDefinition): Promise<void> {
-    // no-op
-  }
-
-  override async onStepStart(
-    _step: StepDefinition,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onStepEnd(
-    _step: StepDefinition,
-    _result: StepResult,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
-  }
-
-  override async onStepError(
-    _step: StepDefinition,
-    _error: Error,
-    _scenario: ScenarioDefinition,
-  ): Promise<void> {
-    // no-op
   }
 }
