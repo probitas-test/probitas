@@ -42,7 +42,7 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "runStart",
-        scenarios: scenarios.length,
+        scenarios,
       }) + "\n",
     );
   }
@@ -56,9 +56,7 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "scenarioStart",
-        name: scenario.name,
-        location: scenario.location,
-        tags: scenario.options.tags,
+        scenario,
       }) + "\n",
     );
   }
@@ -76,9 +74,8 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "stepStart",
-        scenario: scenario.name,
-        name: step.name,
-        location: step.location,
+        step,
+        scenario,
       }) + "\n",
     );
   }
@@ -91,17 +88,16 @@ export class JSONReporter extends BaseReporter {
    * @param scenario The scenario being executed
    */
   override async onStepEnd(
-    _step: StepDefinition,
+    step: StepDefinition,
     result: StepResult,
     scenario: ScenarioDefinition,
   ): Promise<void> {
     await this.write(
       JSON.stringify({
         type: "stepEnd",
-        scenario: scenario.name,
-        name: result.metadata.name,
-        status: result.status,
-        duration: result.duration,
+        step,
+        result,
+        scenario,
       }) + "\n",
     );
   }
@@ -121,8 +117,8 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "stepError",
-        scenario: scenario.name,
-        name: step.name,
+        step,
+        scenario,
         error: {
           message: error.message,
           stack: error.stack ? this.sanitizeStack(error.stack) : undefined,
@@ -144,9 +140,8 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "scenarioEnd",
-        name: scenario.name,
-        status: result.status,
-        duration: result.duration,
+        scenario,
+        result,
       }) + "\n",
     );
   }
@@ -160,12 +155,7 @@ export class JSONReporter extends BaseReporter {
     await this.write(
       JSON.stringify({
         type: "runEnd",
-        summary: {
-          total: summary.total,
-          passed: summary.passed,
-          failed: summary.failed,
-          duration: summary.duration,
-        },
+        summary,
       }) + "\n",
     );
     await super.onRunEnd(summary);
