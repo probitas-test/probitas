@@ -17,4 +17,4 @@ Environment Variables:
 
 Run 'probitas <command> -h' for more information on a command.
 
-Documentation: https://github.com/js-probitas/probitas
+Documentation: https://github.com/jsr-probitas/probitas
