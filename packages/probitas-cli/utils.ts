@@ -230,8 +230,9 @@ export async function createTempSubprocessConfig(
   // Get probitas internal dependencies
   const internalDeps = await getProbitasInternalDependencies();
 
+  // Only include imports and scopes from user config
+  // Exclude workspace, tasks, exclude, etc. as they use relative paths
   const mergedConfig = {
-    ...userDenoConfig,
     imports: {
       ...(userDenoConfig?.imports ?? {}),
       ...internalDeps, // All probitas internal dependencies
