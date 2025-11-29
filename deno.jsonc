@@ -47,5 +47,10 @@
     "jsr:@probitas/cli@^0": "./packages/probitas-cli/mod.ts",
     // Convenience aliases (required for type-checking example/ directory)
     "probitas": "./packages/probitas-std/mod.ts"
+  },
+  "probitas": {
+    "excludes": [
+      "**/templates/**/*.scenario.ts"
+    ]
   }
 }
