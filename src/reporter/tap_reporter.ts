@@ -45,7 +45,7 @@ export class TAPReporter extends BaseReporter {
 
     // Calculate total number of steps
     this.#totalSteps = scenarios.reduce(
-      (sum, s) => sum + s.steps.length,
+      (sum, s) => sum + s.entries.filter((e) => e.kind === "step").length,
       0,
     );
 
@@ -74,11 +74,13 @@ export class TAPReporter extends BaseReporter {
     reason: string,
   ): Promise<void> {
     // Mark all steps in scenario as skipped
-    for (const step of scenario.steps) {
-      this.#testNumber++;
-      await this.write(
-        `ok ${this.#testNumber} - ${scenario.name} > ${step.name} # SKIP ${reason}\n`,
-      );
+    for (const entry of scenario.entries) {
+      if (entry.kind === "step") {
+        this.#testNumber++;
+        await this.write(
+          `ok ${this.#testNumber} - ${scenario.name} > ${entry.value.name} # SKIP ${reason}\n`,
+        );
+      }
     }
   }
 

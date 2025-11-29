@@ -113,6 +113,7 @@ export default apiTest;
 - [Runner Layer](docs/runner.md)
 - [Reporter Layer](docs/reporter.md)
 - [Client Layer](docs/client.md)
+- [Resource Management](docs/resources.md)
 - [CLI Layer](docs/cli.md)
 
 ## Key Concepts

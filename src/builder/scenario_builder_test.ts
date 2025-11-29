@@ -4,33 +4,73 @@
  * @module
  */
 
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertExists } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { FakeTime } from "@std/testing/time";
-import { ScenarioBuilder } from "./scenario_builder.ts";
+import type { Entry } from "../runner/types.ts";
+import { scenario } from "./scenario_builder.ts";
+
+type StepEntry = Extract<Entry, { kind: "step" }>;
+type ResourceEntry = Extract<Entry, { kind: "resource" }>;
+type SetupEntry = Extract<Entry, { kind: "setup" }>;
+
+function isStepEntry(entry: Entry): entry is StepEntry {
+  return entry.kind === "step";
+}
+
+function isResourceEntry(entry: Entry): entry is ResourceEntry {
+  return entry.kind === "resource";
+}
+
+function isSetupEntry(entry: Entry): entry is SetupEntry {
+  return entry.kind === "setup";
+}
+
+// Helper to extract steps from entries
+function getSteps(entries: readonly Entry[]) {
+  return entries.filter(isStepEntry).map((entry) => entry.value);
+}
+
+// Helper to extract resources from entries
+function getResources(entries: readonly Entry[]) {
+  return entries.filter(isResourceEntry).map((entry) => entry.value);
+}
+
+// Helper to extract setups from entries
+function getSetups(entries: readonly Entry[]) {
+  return entries.filter(isSetupEntry).map((entry) => entry.value);
+}
 
 describe("ScenarioBuilder", () => {
   describe("creation", () => {
     it("builds scenario definition with name", () => {
-      const definition = new ScenarioBuilder("My Scenario").build();
+      const definition = scenario("My Scenario").build();
       assertEquals(definition.name, "My Scenario");
+    });
+
+    it("captures scenario location at build time", () => {
+      const definition = scenario("Test").build();
+      assertExists(definition.location);
+      // Location should point to the test file where build() was called
+      assertEquals(
+        definition.location.file.includes("scenario_builder_test.ts"),
+        true,
+      );
     });
   });
 
   describe("options", () => {
     it("applies default options to scenario", () => {
-      const definition = new ScenarioBuilder("Test").build();
+      const definition = scenario("Test").build();
       assertEquals(definition.options.tags.length, 0);
       assertEquals(definition.options.skip, null);
-      assertEquals(definition.options.setup, null);
-      assertEquals(definition.options.teardown, null);
       assertEquals(definition.options.stepOptions.timeout, 30000);
       assertEquals(definition.options.stepOptions.retry.maxAttempts, 1);
       assertEquals(definition.options.stepOptions.retry.backoff, "linear");
     });
 
     it("allows partial scenario options override", () => {
-      const definition = new ScenarioBuilder("Test", {
+      const definition = scenario("Test", {
         tags: ["api", "integration"],
       }).build();
       assertEquals(definition.options.tags.length, 2);
@@ -39,50 +79,54 @@ describe("ScenarioBuilder", () => {
     });
 
     it("applies default step options", () => {
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step("Test Step", () => {})
         .build();
-      assertEquals(definition.steps[0].options.timeout, 30000);
-      assertEquals(definition.steps[0].options.retry.maxAttempts, 1);
-      assertEquals(definition.steps[0].options.retry.backoff, "linear");
+      const steps = getSteps(definition.entries);
+      assertEquals(steps[0].options.timeout, 30000);
+      assertEquals(steps[0].options.retry.maxAttempts, 1);
+      assertEquals(steps[0].options.retry.backoff, "linear");
     });
 
     it("allows step-level options override", () => {
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step("Test Step", () => {}, {
           timeout: 5000,
           retry: { maxAttempts: 3, backoff: "exponential" },
         })
         .build();
-      assertEquals(definition.steps[0].options.timeout, 5000);
-      assertEquals(definition.steps[0].options.retry.maxAttempts, 3);
-      assertEquals(definition.steps[0].options.retry.backoff, "exponential");
+      const steps = getSteps(definition.entries);
+      assertEquals(steps[0].options.timeout, 5000);
+      assertEquals(steps[0].options.retry.maxAttempts, 3);
+      assertEquals(steps[0].options.retry.backoff, "exponential");
     });
   });
 
   describe("step addition", () => {
     it("supports named step addition", () => {
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step("First Step", () => 42)
         .build();
-      assertEquals(definition.steps.length, 1);
-      assertEquals(definition.steps[0].name, "First Step");
+      const steps = getSteps(definition.entries);
+      assertEquals(steps.length, 1);
+      assertEquals(steps[0].name, "First Step");
     });
 
     it("supports unnamed step addition with auto-naming", () => {
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step(() => 1)
         .step(() => 2)
         .build();
-      assertEquals(definition.steps.length, 2);
-      assertEquals(definition.steps[0].name, "Step 1");
-      assertEquals(definition.steps[1].name, "Step 2");
+      const steps = getSteps(definition.entries);
+      assertEquals(steps.length, 2);
+      assertEquals(steps[0].name, "Step 1");
+      assertEquals(steps[1].name, "Step 2");
     });
   });
 
   describe("skip conditions", () => {
     it("supports skip option as boolean", () => {
-      const definition = new ScenarioBuilder("Test", {
+      const definition = scenario("Test", {
         skip: true,
       }).build();
       assertEquals(definition.options.skip, true);
@@ -93,7 +137,7 @@ describe("ScenarioBuilder", () => {
     it("step functions receive typed context", () => {
       const results: unknown[] = [];
 
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step("Step 1", () => 42)
         .step("Step 2", (ctx) => {
           results.push({
@@ -104,14 +148,15 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      assertEquals(definition.steps.length, 2);
-      assertEquals(definition.steps[0].name, "Step 1");
-      assertEquals(definition.steps[1].name, "Step 2");
+      const steps = getSteps(definition.entries);
+      assertEquals(steps.length, 2);
+      assertEquals(steps[0].name, "Step 1");
+      assertEquals(steps[1].name, "Step 2");
     });
 
     it("supports async step functions", async () => {
       using time = new FakeTime();
-      const definition = new ScenarioBuilder("Test")
+      const definition = scenario("Test")
         .step("Async", () => {
           return new Promise((resolve) => {
             setTimeout(() => resolve("done"), 10);
@@ -119,18 +164,280 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const promise = definition.steps[0].fn({
+      const steps = getSteps(definition.entries);
+      const promise = steps[0].fn({
         index: 0,
         previous: undefined,
         results: [],
         store: new Map(),
         signal: new AbortController().signal,
+        resources: {},
       });
 
       await time.tickAsync(10);
       const result = await promise;
 
       assertEquals(result, "done");
+    });
+  });
+
+  describe("setup method", () => {
+    it("setup method adds setup entry", () => {
+      const setupFn = () => {};
+      const definition = scenario("Test")
+        .setup(setupFn)
+        .build();
+
+      const setups = getSetups(definition.entries);
+      assertEquals(setups.length, 1);
+      assertEquals(typeof setups[0].fn, "function");
+    });
+
+    it("setup can be called multiple times", () => {
+      const definition = scenario("Test")
+        .setup(() => {})
+        .step("Step 1", () => 42)
+        .setup(() => {})
+        .build();
+
+      const setups = getSetups(definition.entries);
+      assertEquals(setups.length, 2);
+    });
+
+    it("setup can be chained with steps", () => {
+      const setupFn = () => {};
+
+      const definition = scenario("Test")
+        .setup(setupFn)
+        .step("Step 1", () => 42)
+        .build();
+
+      const setups = getSetups(definition.entries);
+      const steps = getSteps(definition.entries);
+      assertEquals(setups.length, 1);
+      assertEquals(steps.length, 1);
+    });
+
+    it("setup and step can be called in any order", () => {
+      const definition = scenario("Test")
+        .step("Step 1", () => 42)
+        .setup(() => {})
+        .step("Step 2", () => "hello")
+        .build();
+
+      const steps = getSteps(definition.entries);
+      const setups = getSetups(definition.entries);
+      assertEquals(steps.length, 2);
+      assertEquals(setups.length, 1);
+    });
+
+    it("setup supports async functions", () => {
+      const asyncSetup = async () => {
+        await Promise.resolve();
+      };
+
+      const definition = scenario("Test")
+        .setup(asyncSetup)
+        .step("Step 1", () => 42)
+        .build();
+
+      const setups = getSetups(definition.entries);
+      assertEquals(setups.length, 1);
+    });
+
+    it("step can be called directly without setup", () => {
+      const definition = scenario("Test")
+        .step("Step 1", () => 42)
+        .build();
+
+      const setups = getSetups(definition.entries);
+      const steps = getSteps(definition.entries);
+      assertEquals(setups.length, 0);
+      assertEquals(steps.length, 1);
+    });
+  });
+
+  describe("branching", () => {
+    it("allows branching from a common base", () => {
+      const base = scenario("Base")
+        .setup(() => {})
+        .step("Common step 1", () => 1)
+        .step("Common step 2", () => 2);
+
+      const scenarioA = base
+        .step("A specific step", () => 3)
+        .build();
+
+      const scenarioB = base
+        .step("B specific step", () => 4)
+        .build();
+
+      assertEquals(scenarioA.name, "Base");
+      const stepsA = getSteps(scenarioA.entries);
+      assertEquals(stepsA.length, 3);
+      assertEquals(stepsA[2].name, "A specific step");
+
+      assertEquals(scenarioB.name, "Base");
+      const stepsB = getSteps(scenarioB.entries);
+      assertEquals(stepsB.length, 3);
+      assertEquals(stepsB[2].name, "B specific step");
+    });
+
+    it("does not mutate the original builder", () => {
+      const base = scenario("Test")
+        .step("Step 1", () => 1);
+
+      const branch1 = base.step("Step 2a", () => 2);
+      const branch2 = base.step("Step 2b", () => 3);
+
+      const defBase = base.build();
+      const def1 = branch1.build();
+      const def2 = branch2.build();
+
+      const stepsBase = getSteps(defBase.entries);
+      assertEquals(stepsBase.length, 1);
+      assertEquals(stepsBase[0].name, "Step 1");
+
+      const steps1 = getSteps(def1.entries);
+      assertEquals(steps1.length, 2);
+      assertEquals(steps1[1].name, "Step 2a");
+
+      const steps2 = getSteps(def2.entries);
+      assertEquals(steps2.length, 2);
+      assertEquals(steps2[1].name, "Step 2b");
+    });
+
+    it("allows branching from setup", () => {
+      const baseWithSetup = scenario("Test").setup(() => {});
+
+      const withStep1 = baseWithSetup.step("Step A", () => 1);
+      const withStep2 = baseWithSetup.step("Step B", () => 2);
+
+      const def1 = withStep1.build();
+      const def2 = withStep2.build();
+
+      const setups1 = getSetups(def1.entries);
+      const steps1 = getSteps(def1.entries);
+      assertEquals(setups1.length, 1);
+      assertEquals(steps1.length, 1);
+      assertEquals(steps1[0].name, "Step A");
+
+      const setups2 = getSetups(def2.entries);
+      const steps2 = getSteps(def2.entries);
+      assertEquals(setups2.length, 1);
+      assertEquals(steps2.length, 1);
+      assertEquals(steps2[0].name, "Step B");
+    });
+
+    it("allows complex branching scenarios", () => {
+      const common = scenario("API Test")
+        .setup(() => {})
+        .step("Login", () => ({ token: "abc" }))
+        .step("Setup data", () => ({ dataId: 123 }));
+
+      const successCase = common
+        .step("Perform valid action", () => ({ status: 200 }))
+        .step("Verify success", () => {});
+
+      const errorCase = common
+        .step("Perform invalid action", () => ({ status: 400 }))
+        .step("Verify error", () => {});
+
+      const defSuccess = successCase.build();
+      const defError = errorCase.build();
+
+      const setupsSuccess = getSetups(defSuccess.entries);
+      const stepsSuccess = getSteps(defSuccess.entries);
+      assertEquals(setupsSuccess.length, 1);
+      assertEquals(stepsSuccess.length, 4);
+      assertEquals(stepsSuccess[2].name, "Perform valid action");
+
+      const setupsError = getSetups(defError.entries);
+      const stepsError = getSteps(defError.entries);
+      assertEquals(setupsError.length, 1);
+      assertEquals(stepsError.length, 4);
+      assertEquals(stepsError[2].name, "Perform invalid action");
+    });
+  });
+
+  describe("resource management", () => {
+    it("registers resources", () => {
+      const definition = scenario("Test")
+        .resource("api", () => ({
+          name: "api",
+          [Symbol.dispose]() {},
+        }))
+        .step("Use", (ctx) => {
+          const _api = ctx.resources.api;
+        })
+        .build();
+
+      const resources = getResources(definition.entries);
+      assertEquals(resources.length, 1);
+      assertEquals(resources[0].name, "api");
+    });
+
+    it("supports multiple resources", () => {
+      const definition = scenario("Test")
+        .resource("api", () => ({ [Symbol.dispose]() {} }))
+        .resource("db", () => ({ [Symbol.dispose]() {} }))
+        .step("Use", (ctx) => {
+          const _api = ctx.resources.api;
+          const _db = ctx.resources.db;
+        })
+        .build();
+
+      const resources = getResources(definition.entries);
+      assertEquals(resources.length, 2);
+    });
+
+    it("allows resource dependencies", () => {
+      const definition = scenario("Test")
+        .resource("pool", () => ({
+          type: "pool",
+          [Symbol.dispose]() {},
+        }))
+        .resource("api", ({ resources }) => ({
+          type: "api",
+          pool: resources.pool,
+          [Symbol.dispose]() {},
+        }))
+        .step("Check", (ctx) => {
+          const _pool = ctx.resources.pool;
+          const _api = ctx.resources.api;
+        })
+        .build();
+
+      const resources = getResources(definition.entries);
+      assertEquals(resources.length, 2);
+    });
+
+    it("allows resource() before setup()", () => {
+      const definition = scenario("Test")
+        .resource("api", () => ({ [Symbol.dispose]() {} }))
+        .setup((ctx) => {
+          const _api = ctx.resources.api;
+        })
+        .step("Test", () => {})
+        .build();
+
+      const resources = getResources(definition.entries);
+      const setups = getSetups(definition.entries);
+      assertEquals(resources.length, 1);
+      assertEquals(setups.length, 1);
+    });
+
+    it("allows resource() at any point", () => {
+      const definition = scenario("Test")
+        .resource("api", () => ({ [Symbol.dispose]() {} }))
+        .step("Test", (ctx) => {
+          const _api = ctx.resources.api;
+        })
+        .resource("db", () => ({ [Symbol.dispose]() {} }))
+        .build();
+
+      const resources = getResources(definition.entries);
+      assertEquals(resources.length, 2);
     });
   });
 });

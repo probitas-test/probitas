@@ -19,14 +19,12 @@ describe("selector", () => {
     options: {
       tags,
       skip: null,
-      setup: null,
-      teardown: null,
       stepOptions: {
         timeout: 5000,
         retry: { maxAttempts: 1, backoff: "linear" },
       },
     },
-    steps: [],
+    entries: [],
   });
 
   describe("parseSelector", () => {

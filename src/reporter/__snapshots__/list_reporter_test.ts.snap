@@ -118,7 +118,7 @@ snapshot[`after onStepError - Step that fails (2-2) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -129,7 +129,7 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -140,7 +140,7 @@ snapshot[`after onScenarioStart - Simple passing scenario (3) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -151,7 +151,7 @@ snapshot[`after onStepStart - Step that passes (3) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -162,7 +162,7 @@ snapshot[`after onStepEnd - Step that passes (3) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
@@ -174,7 +174,7 @@ snapshot[`after onScenarioEnd - Simple passing scenario (3) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
@@ -186,7 +186,7 @@ snapshot[`after onRunEnd 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:596:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:616:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
@@ -327,7 +327,7 @@ snapshot[`after onStepError - Step that fails (2-2) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -338,7 +338,7 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 "
@@ -349,7 +349,7 @@ snapshot[`after onScenarioSkip - Skipped scenario (3) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -361,7 +361,7 @@ snapshot[`after onScenarioEnd - Skipped scenario (3) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -373,7 +373,7 @@ snapshot[`after onScenarioStart - Simple passing scenario (4) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -385,7 +385,7 @@ snapshot[`after onStepStart - Step that passes (4) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -397,7 +397,7 @@ snapshot[`after onStepEnd - Step that passes (4) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -410,7 +410,7 @@ snapshot[`after onScenarioEnd - Simple passing scenario (4) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -423,7 +423,7 @@ snapshot[`after onScenarioSkip - Skipped scenario (5) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -437,7 +437,7 @@ snapshot[`after onScenarioEnd - Skipped scenario (5) 1`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -451,7 +451,7 @@ snapshot[`after onRunEnd 4`] = `
 [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [90m[10.000ms][39m
 [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
   [31mAssertion failed[39m
-  [90mat Object.<anonymous> (src/reporter/testkit.ts:795:11)[39m
+  [90mat Object.<anonymous> (src/reporter/testkit.ts:815:11)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)[39m
   [90mat async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)[39m
 [33m⊝[39m Skipped scenario [90m(test.scenario.ts:50)[39m [90m# Scenario is marked to skip[39m
@@ -597,7 +597,7 @@ snapshot[`after onStepError - Step that fails (2-2) 3`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -608,7 +608,7 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 3`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -619,7 +619,7 @@ snapshot[`after onScenarioStart - Simple passing scenario (3) 5`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -630,7 +630,7 @@ snapshot[`after onStepStart - Step that passes (3) 5`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -641,7 +641,7 @@ snapshot[`after onStepEnd - Step that passes (3) 5`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
@@ -653,7 +653,7 @@ snapshot[`after onScenarioEnd - Simple passing scenario (3) 5`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
@@ -665,7 +665,7 @@ snapshot[`after onRunEnd 7`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1035:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1055:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
@@ -806,7 +806,7 @@ snapshot[`after onStepError - Step that fails (2-2) 4`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -817,7 +817,7 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 4`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 "
@@ -828,7 +828,7 @@ snapshot[`after onScenarioSkip - Skipped scenario (3) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -840,7 +840,7 @@ snapshot[`after onScenarioEnd - Skipped scenario (3) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -852,7 +852,7 @@ snapshot[`after onScenarioStart - Simple passing scenario (4) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -864,7 +864,7 @@ snapshot[`after onStepStart - Step that passes (4) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -876,7 +876,7 @@ snapshot[`after onStepEnd - Step that passes (4) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -889,7 +889,7 @@ snapshot[`after onScenarioEnd - Simple passing scenario (4) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -902,7 +902,7 @@ snapshot[`after onScenarioSkip - Skipped scenario (5) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -916,7 +916,7 @@ snapshot[`after onScenarioEnd - Skipped scenario (5) 2`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip
@@ -930,7 +930,7 @@ snapshot[`after onRunEnd 9`] = `
 ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
   Assertion failed
-  at Object.<anonymous> (src/reporter/testkit.ts:1234:11)
+  at Object.<anonymous> (src/reporter/testkit.ts:1254:11)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:429:7)
   at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.16/_test_suite.ts:417:9)
 ⊝ Skipped scenario (test.scenario.ts:50) # Scenario is marked to skip

@@ -45,32 +45,24 @@ export const scenarioOptions = {
   default: {
     tags: [],
     skip: null,
-    setup: null,
-    teardown: null,
     stepOptions: defaultStepOptions,
   },
 
   withTags: {
     tags: ["@smoke", "@api"],
     skip: null,
-    setup: null,
-    teardown: null,
     stepOptions: defaultStepOptions,
   },
 
   skipped: {
     tags: [],
     skip: true,
-    setup: null,
-    teardown: null,
     stepOptions: defaultStepOptions,
   },
 
   skippedWithReason: {
     tags: ["@wip"],
     skip: "Not yet implemented",
-    setup: null,
-    teardown: null,
     stepOptions: defaultStepOptions,
   },
 } as const satisfies Record<string, ScenarioOptions>;
@@ -160,17 +152,17 @@ export const scenarioDefinitions = {
     name: "Simple passing scenario",
     options: scenarioOptions.default,
     location: sourceLocations.scenario1,
-    steps: [stepDefinitions.passing],
+    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
   },
 
   withMultipleSteps: {
     name: "Scenario with multiple steps",
     options: scenarioOptions.default,
     location: sourceLocations.scenario1,
-    steps: [
-      stepDefinitions.passing,
-      stepDefinitions.passing,
-      stepDefinitions.passing,
+    entries: [
+      { kind: "step" as const, value: stepDefinitions.passing },
+      { kind: "step" as const, value: stepDefinitions.passing },
+      { kind: "step" as const, value: stepDefinitions.passing },
     ],
   },
 
@@ -178,9 +170,9 @@ export const scenarioDefinitions = {
     name: "Scenario with failing step",
     options: scenarioOptions.default,
     location: sourceLocations.scenario1,
-    steps: [
-      stepDefinitions.passing,
-      stepDefinitions.failing,
+    entries: [
+      { kind: "step" as const, value: stepDefinitions.passing },
+      { kind: "step" as const, value: stepDefinitions.failing },
     ],
   },
 
@@ -188,21 +180,21 @@ export const scenarioDefinitions = {
     name: "Tagged scenario",
     options: scenarioOptions.withTags,
     location: sourceLocations.scenario2,
-    steps: [stepDefinitions.passing],
+    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
   },
 
   skipped: {
     name: "Skipped scenario",
     options: scenarioOptions.skipped,
     location: sourceLocations.scenario2,
-    steps: [stepDefinitions.passing],
+    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
   },
 
   skippedWithReason: {
     name: "Skipped scenario with reason",
     options: scenarioOptions.skippedWithReason,
     location: sourceLocations.scenario2,
-    steps: [stepDefinitions.passing],
+    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
   },
 } as const satisfies Record<string, ScenarioDefinition>;
 
@@ -217,11 +209,15 @@ export const scenarioResults = {
         skip: null,
         stepOptions: defaultStepOptions,
       },
-      steps: [
+      entries: [
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
       ],
     },
@@ -239,21 +235,33 @@ export const scenarioResults = {
         skip: null,
         stepOptions: defaultStepOptions,
       },
-      steps: [
+      entries: [
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
       ],
     },
@@ -271,16 +279,24 @@ export const scenarioResults = {
         skip: null,
         stepOptions: defaultStepOptions,
       },
-      steps: [
+      entries: [
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
         {
-          name: "Step that fails",
-          options: defaultStepOptions,
-          location: sourceLocations.step2,
+          kind: "step" as const,
+          value: {
+            name: "Step that fails",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step2,
+          },
         },
       ],
     },
@@ -299,7 +315,7 @@ export const scenarioResults = {
         skip: true,
         stepOptions: defaultStepOptions,
       },
-      steps: [],
+      entries: [],
     },
     status: "skipped" as const,
     duration: 0,
@@ -315,11 +331,15 @@ export const scenarioResults = {
         skip: null,
         stepOptions: defaultStepOptions,
       },
-      steps: [
+      entries: [
         {
-          name: "Step that passes",
-          options: defaultStepOptions,
-          location: sourceLocations.step1,
+          kind: "step" as const,
+          value: {
+            name: "Step that passes",
+            fn: () => {},
+            options: defaultStepOptions,
+            location: sourceLocations.step1,
+          },
         },
       ],
     },

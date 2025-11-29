@@ -25,27 +25,114 @@ Creates a new scenario builder instance.
 ```typescript
 function scenario(
   name: string,
-  options?: ScenarioOptions,
-): ScenarioBuilder<unknown, readonly []>;
+  options?: { tags?: string[]; skip?: boolean | string | (() => boolean) },
+): ScenarioBuilderInit<unknown, readonly [], Record<string, never>>;
 ```
 
 **Parameters**:
 
 - `name` - Human-readable scenario name
-- `options` - Optional configuration
+- `options` - Optional configuration (tags and skip only)
 
-**Returns**: `ScenarioBuilder` with empty result chain
+**Returns**: `ScenarioBuilderInit` with empty result chain and no resources
 
-### ScenarioBuilder<P, A>
+## Flexible Chaining API
 
-Fluent Builder with generic type parameters:
+The builder provides a flexible, fluent API where scenario entries can be
+chained in any order. The methods `.step()`, `.resource()`, and `.setup()` can
+be interleaved to construct the exact execution flow needed for a test.
+
+This replaces the previous state-based model, giving you more freedom to
+structure your scenarios.
+
+**Generic type parameters**:
 
 - `P` - Result type of the previous step
 - `A` - Tuple of all accumulated results
+- `Resources` - Accumulated resource types
 
-#### Methods
+### Methods
 
-##### .step(name, fn, options?)
+#### .resource(name, factory)
+
+Adds a resource entry to the scenario. The resource is initialized at its
+position in the chain. If it implements `AsyncDisposable` or `Disposable`, it
+will be automatically disposed at the end of the scenario.
+
+```typescript
+resource<K extends string, R>(
+  name: K,
+  factory: (ctx: StepContext<P, A, Resources>) => R | Promise<R>
+): ScenarioBuilder<P, A, Resources & Record<K, R>>
+```
+
+**Parameters**:
+
+- `name` - Unique resource name (string literal for type inference)
+- `factory` - Function to create the resource. It receives the full
+  `StepContext` at its point in the execution chain, so it can use results from
+  previous steps.
+
+**Returns**: The same builder instance with an updated `Resources` type.
+
+**Example**:
+
+```typescript
+scenario("API Test")
+  .step("Get config", () => ({ url: "http://localhost:8080" }))
+  .resource("api", (ctx) => {
+    // Can access the result of the previous step
+    return client.http(ctx.previous.url);
+  })
+  .step("Fetch", (ctx) => {
+    // ctx.resources.api is typed and available
+    return ctx.resources.api.get("/data");
+  });
+```
+
+#### .setup(name, fn)
+
+Adds a setup entry to the scenario. This is for procedural logic that may have
+side effects and require corresponding cleanup. The function can optionally
+return a cleanup function or a `Disposable`/`AsyncDisposable` object, which will
+be run at the end of the scenario.
+
+```typescript
+setup(
+  name: string,
+  fn: (ctx: StepContext<P, A, Resources>) => SetupCleanup | Promise<SetupCleanup>
+): ScenarioBuilder<P, A, Resources>
+```
+
+**Parameters**:
+
+- `name` - A descriptive name for the setup block.
+- `fn` - The setup function. It receives the full `StepContext` and can return a
+  cleanup action.
+
+**Returns**: The same builder instance.
+
+**Example**:
+
+```typescript
+scenario("User Test")
+  .resource("db", () => connectToDb())
+  .setup("Create test user", async (ctx) => {
+    const { db } = ctx.resources;
+    const userId = await db.createUser({ name: "test" });
+    ctx.store.set("userId", userId);
+
+    // Return a cleanup function
+    return async () => {
+      await db.deleteUser(userId);
+    };
+  })
+  .step("Read user", async (ctx) => {
+    // ...
+  });
+```
+
+#### .step(name, fn, options?)
 
 Adds a named step to the scenario.
 
@@ -54,7 +141,7 @@ step<T>(
   name: string,
   fn: StepFunction<P, T, A>,
   options?: StepOptions
-): ScenarioBuilder<T, readonly [...A, T]>
+): ScenarioBuilderInSteps<T, readonly [...A, T]>
 ```
 
 **Type Inference**:
@@ -62,7 +149,7 @@ step<T>(
 - Input: `P` (previous result type)
 - Output: New builder with `P = T` and `T` added to `A`
 
-##### .step(fn, options?)
+#### .step(fn, options?)
 
 Adds an anonymous step (uses auto-generated name in "Step N" format, e.g., "Step
 1", "Step 2").
@@ -71,12 +158,13 @@ Adds an anonymous step (uses auto-generated name in "Step N" format, e.g., "Step
 step<T>(
   fn: StepFunction<P, T, A>,
   options?: StepOptions
-): ScenarioBuilder<T, readonly [...A, T]>
+): ScenarioBuilderInSteps<T, readonly [...A, T]>
 ```
 
-##### .build()
+#### .build()
 
-Finalizes and returns an immutable scenario definition.
+Finalizes and returns an immutable scenario definition. Can be called from any
+builder state.
 
 ```typescript
 build(): ScenarioDefinition
@@ -98,17 +186,22 @@ type StepFunction<
 > = (ctx: StepContext<P, A>) => T | Promise<T>;
 ```
 
-#### StepContext<P, A>
+#### StepContext<P, A, R>
 
-Context available to each step.
+Context available to each entry's function.
 
 ```typescript
-interface StepContext<P, A extends readonly unknown[]> {
-  index: number; // Step index (0-based)
+interface StepContext<
+  P, // Previous step result type
+  A extends readonly unknown[], // Accumulated result tuple
+  R extends Record<string, unknown>, // Accumulated resources
+> {
+  index: number; // Entry index (0-based)
   previous: P; // Previous step result (typed)
   results: A; // All accumulated results (typed tuple)
   store: Map<string, unknown>; // Shared storage
   signal: AbortSignal; // Abort signal
+  resources: R; // Record of initialized resources
 }
 ```
 
@@ -128,7 +221,7 @@ For complete option definitions with all fields, see
 
 ## Usage Examples
 
-### Basic Usage
+### Basic Chaining
 
 ```typescript
 const definition = scenario("Example")
@@ -149,45 +242,35 @@ const runner = new ScenarioRunner();
 await runner.run([definition]);
 ```
 
-### Type Inference Example
+### Interleaving Entries
+
+This example shows how `.step()`, `.resource()`, and `.setup()` can be
+interleaved to create a clear and logical test flow.
 
 ```typescript
-const builder = scenario("Flow")
-  .step("A", () => 1)
-  // builder type: ScenarioBuilder<number, readonly [number]>
-
-  .step("B", (ctx) => {
-    console.log(`Step ${ctx.index + 1}`); // "Step 2"
-    const prev: number = ctx.previous; // Inferred
-    const [a]: readonly [number] = ctx.results; // Inferred
-    return "hello";
-  })
-  // builder type: ScenarioBuilder<string, readonly [number, string]>
-
-  .step("C", (ctx) => {
-    console.log(`Step ${ctx.index + 1}`); // "Step 3"
-    const prev: string = ctx.previous; // Inferred
-    const [a, b]: readonly [number, string] = ctx.results; // Inferred
-  });
-// builder type: ScenarioBuilder<void, readonly [number, string, void]>
-```
-
-### With Setup/Teardown
-
-```typescript
-const definition = scenario("Database Test", {
-  setup: async (ctx) => {
+const definition = scenario("Database Test")
+  // 1. Define a resource for the database connection
+  .resource("db", async () => {
     const db = await connectDB();
-    ctx.store.set("db", db);
-  },
-  teardown: async (ctx) => {
-    const db = ctx.store.get("db");
-    await db.close();
-  }
-})
-  .step("Insert", async (ctx) => {
-    const db = ctx.store.get("db");
-    await db.insert(...);
+    await db.connect();
+    return db; // Automatically disposed if it implements AsyncDisposable
+  })
+  // 2. Add a setup entry to seed the database
+  .setup("Seed data", async (ctx) => {
+    // Access resources defined so far
+    const userId = await ctx.resources.db.seed({ users: 1 });
+    ctx.store.set("seededUserId", userId);
+    // Return a cleanup function to run at the end
+    return async () => {
+      await ctx.resources.db.deleteUser(userId);
+    };
+  })
+  // 3. Run a step to test the seeded data
+  .step("Read record", async (ctx) => {
+    const userId = ctx.store.get("seededUserId");
+    const user = await ctx.resources.db.getUser(userId);
+    expect(user).toBeDefined();
+    return user;
   })
   .build();
 ```
@@ -219,16 +302,12 @@ scenario("Example")
   });
 ```
 
-### 2. Extract Step Functions
+### 2. Extract Entry Functions
 
-For complex logic, extract step functions:
+For complex logic, extract functions for your entries:
 
 ```typescript
-const getUserId = (): number => {
-  // Complex logic
-  return 123;
-};
-
+const getUserId = (): number => 123;
 const fetchUser = (ctx: StepContext<number, [number]>) => {
   return { id: ctx.previous, name: "John" };
 };
@@ -238,29 +317,38 @@ scenario("User Flow")
   .step("Fetch", fetchUser);
 ```
 
-### 3. Shared Resource Management
+### 3. Use `.resource()` for Disposables
 
-Use setup/teardown to manage shared resources:
+For any object with a cleanup action that fits the `Disposable` or
+`AsyncDisposable` pattern (like DB connections or HTTP clients), prefer using
+`.resource()`.
 
 ```typescript
-const definition = scenario("Test", {
-  setup: async (ctx) => {
-    ctx.store.set("resource", await setupResource());
-  },
-  teardown: async (ctx) => {
-    await cleanupResource(ctx.store.get("resource"));
-  },
-})
-  .step("Use Resource", async (ctx) => {
-    const resource = ctx.store.get("resource");
-    // Use resource
-  })
-  .build();
+// Good: Manages lifecycle automatically
+scenario("Test")
+  .resource("db", () => new DatabaseConnection());
 ```
 
-### 4. Error Handling
+### 4. Use `.setup()` for Procedural Cleanup
 
-The builder validates at compile time:
+For setup actions that don't involve a single "resource" object, like creating a
+temporary file or seeding a database, use `.setup()` and return a cleanup
+function.
+
+```typescript
+// Good: Clear and co-located logic
+scenario("Test")
+  .setup("Create temp file", () => {
+    Deno.writeTextFileSync("temp.txt", "hello");
+    return () => {
+      Deno.removeSync("temp.txt");
+    };
+  });
+```
+
+### 5. Error Handling
+
+The builder validates types at compile time:
 
 ```typescript
 const definition = scenario("Example")

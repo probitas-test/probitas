@@ -8,6 +8,7 @@
 
 import type {
   ScenarioOptions,
+  SetupCleanup,
   StepContext,
   StepOptions,
 } from "../runner/types.ts";
@@ -32,12 +33,69 @@ export type DeepPartial<T> = T extends (...args: any[]) => any ? T
  * @template P - Type of the previous step result
  * @template T - Type of this step's return value
  * @template A - Tuple type of accumulated results
+ * @template Resources - Available resources
  */
 export type StepFunction<
   P = unknown,
   T = unknown,
   A extends readonly unknown[] = readonly [],
-> = (ctx: StepContext<P, A>) => T | Promise<T>;
+  Resources extends Record<string, unknown> = Record<string, never>,
+> = (ctx: StepContext<P, A, Resources>) => T | Promise<T>;
+
+/**
+ * Context for resource factory functions
+ *
+ * Resource factories receive the same StepContext as steps/setups,
+ * allowing access to previous step results, shared store, and signal.
+ *
+ * @template ExistingResources - Already registered resources
+ */
+export type ResourceFactoryContext<
+  P = unknown,
+  A extends readonly unknown[] = readonly [],
+  ExistingResources extends Record<string, unknown> = Record<string, never>,
+> = StepContext<P, A, ExistingResources>;
+
+/**
+ * Resource factory function
+ *
+ * @template T - Type of resource to create
+ * @template P - Type of the previous step result
+ * @template A - Tuple type of accumulated results
+ * @template ExistingResources - Already registered resources available to this factory
+ */
+export type ResourceFactory<
+  T,
+  P = unknown,
+  A extends readonly unknown[] = readonly [],
+  ExistingResources extends Record<string, unknown> = Record<string, never>,
+> = (ctx: ResourceFactoryContext<P, A, ExistingResources>) => T | Promise<T>;
+
+/**
+ * Setup hook function with strongly typed resources
+ *
+ * @template P - Type of the previous step result
+ * @template A - Tuple type of accumulated results
+ * @template Resources - Available resources
+ */
+export type SetupHook<
+  P = unknown,
+  A extends readonly unknown[] = readonly [],
+  Resources extends Record<string, unknown> = Record<string, never>,
+> = (
+  ctx: StepContext<P, A, Resources>,
+) => SetupCleanup | Promise<SetupCleanup>;
+
+/**
+ * Resource definition
+ *
+ * @template T - Type of the resource
+ */
+export interface ResourceDefinition<T = unknown> {
+  name: string;
+  // deno-lint-ignore no-explicit-any
+  factory: ResourceFactory<T, any>; // Type erasure for storage
+}
 
 /**
  * Partial scenario options used during building (all fields and nested fields optional)

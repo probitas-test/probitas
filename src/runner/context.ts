@@ -17,24 +17,30 @@ import type {
  *
  * @param scenario The scenario definition
  * @param signal Abort signal for cancellation
+ * @param resources Initialized resources
  * @returns A new ScenarioContext
  *
  * @example
  * ```ts
  * const signal = new AbortController().signal;
- * const ctx = createScenarioContext(scenario, signal);
+ * const resources = {};
+ * const ctx = createScenarioContext(scenario, signal, resources);
  * ```
  */
-export function createScenarioContext(
+export function createScenarioContext<
+  Resources extends Record<string, unknown> = Record<string, never>,
+>(
   scenario: ScenarioDefinition,
   signal: AbortSignal,
-): ScenarioContext {
+  resources: Resources = {} as Resources,
+): ScenarioContext<Resources> {
   return {
     name: scenario.name,
     options: scenario.options,
     results: [],
     store: new Map(),
     signal,
+    resources,
   };
 }
 
@@ -43,6 +49,7 @@ export function createScenarioContext(
  *
  * @template P - Type of the previous step result
  * @template A - Type of accumulated results array
+ * @template Resources - Available resources
  * @param props Context properties
  * @returns A new StepContext
  *
@@ -54,24 +61,28 @@ export function createScenarioContext(
  *   results: [],
  *   store: new Map(),
  *   signal: abortSignal,
+ *   resources: {},
  * });
  * ```
  */
 export function createStepContext<
   P = unknown,
   A extends readonly unknown[] = readonly [],
+  Resources extends Record<string, unknown> = Record<string, never>,
 >(props: {
   readonly index: number;
   readonly previous: P;
   readonly results: A;
   readonly store: Map<string, unknown>;
   readonly signal: AbortSignal;
-}): StepContext<P, A> {
+  readonly resources: Resources;
+}): StepContext<P, A, Resources> {
   return {
     index: props.index,
     previous: props.previous,
     results: props.results,
     store: props.store,
     signal: props.signal,
+    resources: props.resources,
   };
 }

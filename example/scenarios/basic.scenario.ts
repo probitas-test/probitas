@@ -2,7 +2,7 @@
  * Basic scenario example
  *
  * This example demonstrates the fundamental features of Probitas:
- * - Creating scenarios with setup and teardown
+ * - Creating scenarios with setup (and cleanup via returned function)
  * - Defining steps with type-safe result passing
  * - Using helper functions (defer, expect)
  * - Accessing shared state via context.store
@@ -19,16 +19,16 @@ import { defer, expect, scenario } from "probitas";
 // Create a basic scenario
 const basicScenario = scenario("Basic Example", {
   tags: ["example", "basic"],
-
-  setup: (ctx) => {
+})
+  .setup((ctx) => {
+    // Initialize store
     ctx.store.set("startTime", Date.now());
     ctx.store.set("counter", 0);
-  },
-
-  teardown: (_ctx) => {
-    // Cleanup if needed
-  },
-})
+    // Return cleanup function (runs after all steps)
+    return () => {
+      // Cleanup logic here
+    };
+  })
   .step("Initialize data", () => {
     return {
       value: 42,

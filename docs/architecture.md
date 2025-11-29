@@ -48,7 +48,7 @@ lifecycle.
 **Key Capabilities**:
 
 - Receives scenario definitions from Builder
-- Manages execution lifecycle (setup → steps → teardown)
+- Executes scenario entries (steps, resources, setups) in order
 - Controls parallel/sequential execution
 - Provides abort/timeout control
 - Coordinates with Reporter for output

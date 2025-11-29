@@ -21,8 +21,8 @@ describe("scenario loader", () => {
       const content = outdent`
         export default {
           name: "Test Scenario",
-          options: { tags: [], skip: null, setup: null, teardown: null, stepOptions: {} },
-          steps: [{ name: "step", fn: () => {}, options: {} }],
+          options: { tags: [], skip: null, stepOptions: {} },
+          entries: [{ kind: "step", value: { name: "step", fn: () => {}, options: {} } }],
           location: { file: "${scenarioPath}" }
         };
       `;
@@ -42,14 +42,14 @@ describe("scenario loader", () => {
         export default [
           {
             name: "Scenario 1",
-            options: { tags: [], skip: null, setup: null, teardown: null, stepOptions: {} },
-            steps: [],
+            options: { tags: [], skip: null, stepOptions: {} },
+            entries: [],
             location: { file: "${scenarioPath}" }
           },
           {
             name: "Scenario 2",
-            options: { tags: [], skip: null, setup: null, teardown: null, stepOptions: {} },
-            steps: [],
+            options: { tags: [], skip: null, stepOptions: {} },
+            entries: [],
             location: { file: "${scenarioPath}" }
           }
         ];
@@ -73,8 +73,8 @@ describe("scenario loader", () => {
         outdent`
         export default {
           name: "${name}",
-          options: { tags: [], skip: null, setup: null, teardown: null, stepOptions: {} },
-          steps: [],
+          options: { tags: [], skip: null, stepOptions: {} },
+          entries: [],
           location: { file: "${path}" }
         };
       `;

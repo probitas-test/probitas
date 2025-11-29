@@ -22,12 +22,15 @@ const createScenario = (name: string, file: string, tags: string[] = []) =>
       name: "${name}",
       options: { tags: ${
     JSON.stringify(tags)
-  }, skip: null, setup: null, teardown: null, stepOptions: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } } },
-      steps: [
+  }, skip: null, stepOptions: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } } },
+      entries: [
         {
-          name: "Step 1",
-          fn: () => ({}),
-          options: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } }
+          kind: "step",
+          value: {
+            name: "Step 1",
+            fn: () => ({}),
+            options: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } }
+          }
         }
       ],
       location: { file: "${file}" }

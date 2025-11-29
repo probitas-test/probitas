@@ -57,12 +57,6 @@ interface ScenarioOptions {
     | (() => boolean | string | Promise<boolean | string>)
     | null;
 
-  /** Setup hook */
-  setup: ((ctx: ScenarioContext) => void | Promise<void>) | null;
-
-  /** Teardown hook */
-  teardown: ((ctx: ScenarioContext) => void | Promise<void>) | null;
-
   /** Default options for all steps */
   stepOptions: StepOptions;
 }
@@ -140,12 +134,53 @@ interface ScenarioDefinition {
   /** Scenario options (final form) */
   options: ScenarioOptions;
 
-  /** Array of step definitions */
-  steps: readonly StepDefinition[];
+  /** Array of entries to execute in order */
+  entries: readonly Entry[];
 
   /** Source file location (for debugging) */
   location?: SourceLocation;
 }
+```
+
+### Entry Types
+
+A scenario is composed of different types of entries.
+
+```typescript
+type Entry =
+  | { kind: "step"; value: StepDefinition }
+  | { kind: "resource"; value: ResourceDefinition }
+  | { kind: "setup"; value: SetupDefinition };
+
+interface StepDefinition {
+  name: string;
+  fn: AnyStepFunction;
+  options: StepOptions;
+  location?: SourceLocation;
+}
+
+interface ResourceDefinition {
+  name: string;
+  factory: RunnerResourceFactory;
+}
+
+interface SetupDefinition {
+  fn: RunnerSetupFunction;
+  location?: SourceLocation;
+}
+
+// Runtime function signatures
+type RunnerResourceFactory = (ctx: StepContext) => unknown | Promise<unknown>;
+type RunnerSetupFunction = (
+  ctx: StepContext,
+) => SetupCleanup | Promise<SetupCleanup>;
+
+// Cleanup type returned by setup functions
+type SetupCleanup =
+  | void
+  | (() => void | Promise<void>)
+  | Disposable
+  | AsyncDisposable;
 ```
 
 ### StepDefinition
@@ -253,14 +288,12 @@ interface ScenarioMetadata {
     skip: boolean | null;
     stepOptions: StepOptions;
   };
-  steps: readonly StepMetadata[];
+  entries: readonly Entry[];
 }
 ```
 
-Note: This is a simplified version of ScenarioDefinition where:
-
-- `skip` is normalized to boolean or null (function results are evaluated)
-- `setup` and `teardown` are excluded (not needed in results)
+Note: This is a simplified version of ScenarioDefinition where `skip` is
+normalized to a boolean or null.
 
 ### ScenarioResult
 
@@ -277,7 +310,7 @@ interface ScenarioResult {
   /** Execution time (milliseconds) */
   duration: number;
 
-  /** Result of each step */
+  /** Result of each step entry */
   steps: StepResult[];
 
   /** Error (on failure) */
@@ -311,17 +344,24 @@ interface RunSummary {
 }
 ```
 
-### ScenarioContext
+### StepContext
 
-Created once per scenario and passed to setup/teardown.
+Created for each entry and passed to the entry's function (`fn` or `factory`).
 
 ```typescript
-interface ScenarioContext {
-  name: string;
-  options: ScenarioOptions;
-  results: unknown[]; // Accumulated step results
-  store: Map<string, unknown>; // Shared storage
-  signal: AbortSignal; // For cancellation
+interface StepContext<P = unknown, R extends readonly unknown[] = unknown[]> {
+  /** The index of the current entry */
+  readonly index: number;
+  /** The value returned by the previous step entry */
+  readonly previous: P;
+  /** An array of all previously returned step values */
+  readonly results: R;
+  /** A key-value store for sharing data across entries */
+  readonly store: Map<string, unknown>;
+  /** An abort signal for cancellation */
+  readonly signal: AbortSignal;
+  /** A record of all initialized resources */
+  readonly resources: Record<string, unknown>;
 }
 ```
 
@@ -442,14 +482,23 @@ Balance between slow tests and false positives.
 
 ### 3. Resource Cleanup
 
-Always use teardown hooks to clean up resources:
+Use `.resource()` for `Disposable` objects or return a cleanup function from a
+`.setup()` entry for guaranteed cleanup.
 
 ```typescript
-scenario("Test", {
-  teardown: async (ctx) => {
-    // Always executed (even on error)
-  },
-});
+// For disposable objects
+scenario("Test")
+  .resource("db", () => new Database()); // Implements Disposable
+
+// For procedural cleanup
+scenario("Test")
+  .setup("Create user", async (ctx) => {
+    const userId = await createUser();
+    ctx.store.set("userId", userId);
+    return async () => {
+      await deleteUser(userId);
+    };
+  });
 ```
 
 ### 4. Signal Handling

@@ -32,6 +32,7 @@ const createTestStepContext = (): StepContext =>
     results: [],
     store: new Map(),
     signal: new AbortController().signal,
+    resources: {},
   });
 
 describe("executor", () => {

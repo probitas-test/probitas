@@ -24,34 +24,49 @@ export default myScenario;
 
 ## Scenario Options
 
-```typescript
+````typescript
 scenario("Scenario Name", {
   // Tags for filtering
   tags: ["api", "smoke"],
 
   // Skip this scenario
   skip: false, // or true, or "reason", or () => boolean
-
-  // Setup before scenario starts
-  setup: (ctx) => {
-    ctx.store.set("token", "abc123");
-  },
-
-  // Teardown after scenario (always runs)
-  teardown: (ctx) => {
-    // cleanup
-  },
-
-  // Default options for all steps in this scenario
-  stepOptions: {
-    timeout: 30000, // 30 seconds
-    retry: {
-      maxAttempts: 1, // no retry by default
-      backoff: "linear", // or "exponential"
-    },
-  },
-});
+})
+  // ... steps
+  .build();
 ```
+
+## Setup and Cleanup
+
+You can insert setup and cleanup logic anywhere in your scenario execution flow
+using the `.setup()` method.
+
+A setup function can optionally return a **cleanup function** or a
+**Disposable/AsyncDisposable** object. All returned cleanup functions and
+disposers are guaranteed to run at the end of the scenario, in the reverse
+order they were defined.
+
+```typescript
+import { scenario } from "probitas";
+
+scenario("My Scenario")
+  .setup("Initialize config", (ctx) => {
+    ctx.store.set("config", { url: "https://api.test" });
+
+    // Return a cleanup function
+    return () => {
+      console.log("Scenario finished, cleaning up config...");
+    };
+  })
+  .step("My Step", (ctx) => {
+    const config = ctx.store.get("config");
+    // ... use config
+  })
+  .build();
+```
+
+This provides a flexible way to manage lifecycle within a scenario, replacing
+the legacy `.setup()` and `.teardown()` methods.
 
 ## Writing Steps
 
@@ -62,7 +77,7 @@ scenario("Scenario Name", {
   // Your code here
   return { result: 42 };
 })
-```
+````
 
 ### Accessing Previous Result
 
@@ -90,11 +105,10 @@ scenario("Scenario Name", {
 ### Using Shared Store
 
 ```typescript
-scenario("With Store", {
-  setup: (ctx) => {
+scenario("With Store")
+  .setup((ctx) => {
     ctx.store.set("config", { url: "https://api.test" });
-  },
-})
+  })
   .step("Use config", (ctx) => {
     const config = ctx.store.get("config");
     // use config
@@ -203,33 +217,37 @@ const loginFlow = scenario("Login Flow", { tags: ["api", "auth"] })
 export default loginFlow;
 ```
 
-### Alternative: Setup/Teardown Pattern
+### Resource Management with `.resource()`
 
-If you need to create the client dynamically:
+For automatic lifecycle management and type-safe access, the recommended way to
+handle clients is with the `.resource()` method. This adds a resource entry to
+the scenario.
+
+Probitas will automatically manage the client's lifecycle, ensuring it is
+created before any steps that need it and disposed of after the scenario
+completes.
 
 ```typescript
 import { client, expect, scenario } from "probitas";
 
-const dynamicScenario = scenario("Dynamic API Test", {
-  tags: ["api"],
-  setup: (ctx) => {
-    const api = client.http("https://api.example.com");
-    ctx.store.set("api", api);
-  },
-  teardown: async (ctx) => {
-    const api = ctx.store.get("api");
-    if (api) await api[Symbol.asyncDispose]();
-  },
-})
+const resourceScenario = scenario("API Test with Resources", { tags: ["api"] })
+  .resource("api", () => {
+    return client.http("https://api.example.com");
+  })
   .step("Use API", async (ctx) => {
-    const api = ctx.store.get("api");
-    const result = await api.get("/data");
+    // Type-safe resource access
+    const result = await ctx.resources.api.get("/data");
     expect(result.status).toBe(200);
   })
   .build();
+// The `api` client is automatically disposed after the scenario.
 
-export default dynamicScenario;
+export default resourceScenario;
 ```
+
+Use the `.setup()` method for procedural setup that might _use_ a resource, for
+example, to seed a database before a test. See the "Setup and Cleanup" and
+"Resource Management" sections for more details.
 
 ### HTTP Methods
 
@@ -329,6 +347,62 @@ The `retry` function provides:
 - Configurable max attempts
 - Linear or exponential backoff
 - AbortSignal support for cancellation
+
+## Resource Management
+
+A scenario is a sequence of **entries** that are executed in the order they are
+defined. Entries can be steps, resources, or setups. This allows for a flexible
+structure where resources can be initialized exactly when they are needed, even
+using the results of previous steps.
+
+All resources that are `Disposable` or `AsyncDisposable` are automatically
+registered for cleanup. Additionally, `setup` entries can return cleanup
+functions. At the end of the scenario, all cleanup functions and resource
+disposers are executed in the reverse order of their definition.
+
+### Dynamic Resource Initialization
+
+Here is an example where a resource (`db`) depends on the result of a previous
+step (`Get config`).
+
+```typescript
+import { client, scenario } from "probitas";
+
+const apiScenario = scenario("API Test")
+  .step("Get config", async () => {
+    // This could be from a config file, an API call, etc.
+    const dbUrl = "postgres://user:pass@host:port/db";
+    return { dbUrl };
+  })
+  .resource("db", (ctx) => {
+    // This resource is initialized after the "Get config" step.
+    // It can access the result of the previous step via `ctx.previous`.
+    return connectToDb(ctx.previous.dbUrl);
+  })
+  .setup("Seed database", async (ctx) => {
+    // This setup block runs after the `db` resource is ready.
+    // It can access the resource via `ctx.resources`.
+    await ctx.resources.db.seed({ users: 10 });
+    // Return a cleanup function to tear down the seeded data.
+    return async () => {
+      await ctx.resources.db.cleanup();
+    };
+  })
+  .step("Query users", async (ctx) => {
+    const users = await ctx.resources.db.query("SELECT * FROM users");
+    return users;
+  })
+  .build();
+```
+
+### Execution Lifecycle
+
+1. **Entries Execution**: `step`, `resource`, and `setup` entries are executed
+   in the exact order they are defined in the scenario chain.
+2. **Cleanup Execution**: After all entries have been executed (or the scenario
+   is aborted due to a failure), all registered cleanup functions (from
+   `.setup()` entries) and resource disposers (from `.resource()` entries) are
+   executed in **reverse** order of their definition.
 
 ## Resource Cleanup
 
@@ -431,30 +505,31 @@ const crudScenario = scenario("User CRUD", { tags: ["api", "users"] })
 export default crudScenario;
 ```
 
-### Multi-Step Setup
+### Managing Multiple Resources
+
+To manage multiple resources, simply chain `.resource()` calls. Each resource is
+initialized in order, and later resources can even depend on earlier ones. All
+are disposed of automatically at the end.
 
 ```typescript
-scenario("Complex Test", {
-  tags: ["integration"],
-  setup: async (ctx) => {
-    const db = await connectDB();
-    const api = client.http("https://api.test");
-    ctx.store.set("db", db);
-    ctx.store.set("api", api);
-  },
-  teardown: async (ctx) => {
-    const db = ctx.store.get("db");
-    const api = ctx.store.get("api");
-    await db?.close();
-    if (api) await api[Symbol.asyncDispose]();
-  },
-})
+import { client, scenario } from "probitas";
+
+scenario("Complex Test", { tags: ["integration"] })
+  .resource("db", async () => {
+    return await connectDB();
+  })
+  .resource("api", (ctx) => {
+    // You can access previously defined resources via the context
+    const dbConnectionString = ctx.resources.db.connectionString;
+    return client.http(`https://api.test?db=${dbConnectionString}`);
+  })
   .step("Test operation", async (ctx) => {
-    const api = ctx.store.get("api");
-    const db = ctx.store.get("db");
+    const api = ctx.resources.api;
+    const db = ctx.resources.db;
     // Use both resources
     const result = await api.get("/data");
     await db.insert("logs", result.json);
+    return result.json;
   })
   .build();
 ```

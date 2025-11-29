@@ -166,37 +166,165 @@ export class ScenarioRunner {
       await reporter.onScenarioStart(scenario);
     }
 
-    // Create scenario context
-    const scenarioCtx = createScenarioContext(scenario, signal);
+    // Use AsyncDisposableStack for resource and setup cleanup management
+    await using stack = new AsyncDisposableStack();
 
     // Use a container to capture partial results if an error occurs
     const resultsContainer: { data: StepResult[] } = { data: [] };
     let scenarioError: Error | undefined;
 
     try {
-      // Execute setup
-      if (scenario.options.setup) {
-        await scenario.options.setup(scenarioCtx);
-      }
-
-      // Execute steps
-      resultsContainer.data = await this.#executeStepsWithErrorHandling(
-        scenario.steps,
-        scenarioCtx,
-        resultsContainer,
-        reporter,
+      // Initialize resources and create scenario context
+      const resources: Record<string, unknown> = {};
+      const scenarioCtx = createScenarioContext(
+        scenario,
+        signal,
+        resources,
       );
+      const createEntryContext = () => {
+        const stepValues = scenarioCtx.results as unknown[];
+        const previousValue = stepValues.length > 0
+          ? stepValues[stepValues.length - 1]
+          : undefined;
+
+        return createStepContext({
+          index: stepValues.length,
+          previous: previousValue,
+          results: stepValues as readonly unknown[],
+          store: scenarioCtx.store,
+          signal: scenarioCtx.signal,
+          resources: scenarioCtx.resources,
+        });
+      };
+
+      // Execute entries in order
+      for (const entry of scenario.entries) {
+        try {
+          switch (entry.kind) {
+            case "resource": {
+              // Initialize resource
+              const resourceCtx = createEntryContext();
+              const resource = await entry.value.factory(resourceCtx);
+              resources[entry.value.name] = resource;
+
+              // Register resource for disposal if it's Disposable
+              if (
+                resource &&
+                typeof resource === "object" &&
+                (Symbol.asyncDispose in resource || Symbol.dispose in resource)
+              ) {
+                stack.use(resource as AsyncDisposable | Disposable);
+              }
+              break;
+            }
+
+            case "setup": {
+              // Execute setup function
+              const setupCtx = createEntryContext();
+              const result = await entry.value.fn(setupCtx);
+
+              // Register cleanup if function/Disposable/AsyncDisposable returned
+              if (result) {
+                if (typeof result === "function") {
+                  stack.defer(result);
+                } else if (
+                  typeof result === "object" &&
+                  (Symbol.asyncDispose in result || Symbol.dispose in result)
+                ) {
+                  stack.use(result as AsyncDisposable | Disposable);
+                }
+              }
+              break;
+            }
+
+            case "step": {
+              // Execute step
+              const stepDef = entry.value;
+              const stepResults = resultsContainer.data;
+
+              const stepCtx = createEntryContext();
+
+              const stepStartTime = performance.now();
+
+              // Notify reporter of step start
+              if (reporter?.onStepStart) {
+                await reporter.onStepStart(stepDef);
+              }
+
+              let error: Error | undefined;
+              let value: unknown;
+
+              try {
+                value = await executeStepWithRetry(stepDef, stepCtx);
+                // Accumulate result
+                (scenarioCtx.results as unknown[]).push(value);
+              } catch (e) {
+                error = e instanceof Error ? e : new Error(String(e));
+              }
+
+              const stepDuration = performance.now() - stepStartTime;
+
+              const stepResult: StepResult = {
+                metadata: this.#stepToMetadata(stepDef),
+                status: error ? "failed" : "passed",
+                duration: stepDuration,
+                retries: 0,
+                value: error ? undefined : value,
+                error,
+              };
+
+              stepResults.push(stepResult);
+              resultsContainer.data = stepResults;
+
+              // Notify reporter about result
+              if (error) {
+                if (reporter?.onStepError) {
+                  await reporter.onStepError(stepDef, error);
+                }
+                // Stop executing remaining entries
+                throw error;
+              } else if (reporter?.onStepEnd) {
+                await reporter.onStepEnd(stepDef, stepResult);
+              }
+              break;
+            }
+          }
+        } catch (error) {
+          // Entry execution failed
+          scenarioError = error instanceof Error
+            ? error
+            : new Error(String(error));
+          throw error;
+        }
+      }
     } catch (error) {
       scenarioError = error instanceof Error ? error : new Error(String(error));
-    } finally {
-      // Always execute teardown
-      if (scenario.options.teardown) {
-        await scenario.options.teardown(scenarioCtx);
+
+      // Mark remaining steps as skipped when a step fails
+      if (!scenarioError.message?.includes("aborted")) {
+        // Find remaining step entries that haven't been executed
+        let stepCount = 0;
+        for (const entry of scenario.entries) {
+          if (entry.kind === "step") {
+            if (stepCount >= resultsContainer.data.length) {
+              // This step wasn't executed, mark it as skipped
+              const skippedResult: StepResult = {
+                metadata: this.#stepToMetadata(entry.value),
+                status: "skipped",
+                duration: 0,
+                retries: 0,
+                value: undefined,
+                error: undefined,
+              };
+              resultsContainer.data.push(skippedResult);
+            }
+            stepCount++;
+          }
+        }
       }
     }
 
     const stepResults = resultsContainer.data;
-
     const duration = performance.now() - startTime;
 
     // Determine scenario status
@@ -217,103 +345,6 @@ export class ScenarioRunner {
     }
 
     return result;
-  }
-
-  /**
-   * Execute steps with error handling that preserves partial results
-   */
-  async #executeStepsWithErrorHandling(
-    steps: readonly StepDefinition[],
-    scenarioCtx: ReturnType<typeof createScenarioContext>,
-    resultsContainer: { data: StepResult[] },
-    reporter?: Reporter,
-  ): Promise<StepResult[]> {
-    const results: StepResult[] = [];
-
-    try {
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i];
-
-        // Create step context
-        const stepCtx = createStepContext({
-          index: i,
-          previous: results.length > 0
-            ? results[results.length - 1].value
-            : undefined,
-          results: scenarioCtx.results as unknown[],
-          store: scenarioCtx.store,
-          signal: scenarioCtx.signal,
-        });
-
-        const startTime = performance.now();
-
-        // Notify reporter of step start
-        if (reporter?.onStepStart) {
-          await reporter.onStepStart(step);
-        }
-
-        let error: Error | undefined;
-        let value: unknown;
-        const retries = 0;
-
-        try {
-          value = await executeStepWithRetry(step, stepCtx);
-          // Accumulate result
-          (scenarioCtx.results as unknown[]).push(value);
-        } catch (e) {
-          error = e instanceof Error ? e : new Error(String(e));
-        }
-
-        const duration = performance.now() - startTime;
-
-        const stepResult: StepResult = {
-          metadata: this.#stepToMetadata(step),
-          status: error ? "failed" : "passed",
-          duration,
-          retries,
-          value: error ? undefined : value,
-          error,
-        };
-
-        results.push(stepResult);
-        resultsContainer.data = results; // Keep container updated
-
-        // Notify reporter about result
-        if (error) {
-          if (reporter?.onStepError) {
-            await reporter.onStepError(step, error);
-          }
-
-          // Mark remaining steps as skipped
-          for (let j = i + 1; j < steps.length; j++) {
-            const skippedStep = steps[j];
-            const skippedResult: StepResult = {
-              metadata: this.#stepToMetadata(skippedStep),
-              status: "skipped",
-              duration: 0,
-              retries: 0,
-            };
-            results.push(skippedResult);
-            resultsContainer.data = results;
-
-            // Notify reporter of skipped step
-            if (reporter?.onStepEnd) {
-              await reporter.onStepEnd(skippedStep, skippedResult);
-            }
-          }
-
-          // Throw the original error
-          throw error;
-        } else if (reporter?.onStepEnd) {
-          await reporter.onStepEnd(step, stepResult);
-        }
-      }
-    } catch (error) {
-      // Results have been saved to container before throwing
-      throw error;
-    }
-
-    return results;
   }
 
   /**
@@ -366,7 +397,7 @@ export class ScenarioRunner {
         skip: isSkipped ? true : null,
         stepOptions: scenario.options.stepOptions,
       },
-      steps: scenario.steps.map((step) => this.#stepToMetadata(step)),
+      entries: scenario.entries,
       location: scenario.location,
     };
   }
@@ -375,7 +406,7 @@ export class ScenarioRunner {
    * Convert step to metadata (serializable form)
    */
   #stepToMetadata(
-    step: ScenarioDefinition["steps"][number],
+    step: StepDefinition,
   ): StepMetadata {
     return {
       name: step.name,

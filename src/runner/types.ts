@@ -31,12 +31,6 @@ export interface ScenarioOptions {
     | (() => boolean | string | Promise<boolean | string>)
     | null;
 
-  /** Setup hook run before scenario steps */
-  readonly setup: ((ctx: ScenarioContext) => void | Promise<void>) | null;
-
-  /** Teardown hook run after scenario steps (always runs) */
-  readonly teardown: ((ctx: ScenarioContext) => void | Promise<void>) | null;
-
   /** Default options applied to all steps in scenario */
   readonly stepOptions: StepOptions;
 }
@@ -58,8 +52,11 @@ export interface StepOptions {
 /**
  * Function signature for a step
  */
-// deno-lint-ignore no-explicit-any
-export type AnyStepFunction = (ctx: StepContext<any, readonly any[]>) => any;
+export type AnyStepFunction = (
+  // deno-lint-ignore no-explicit-any
+  ctx: StepContext<any, readonly any[], any>,
+  // deno-lint-ignore no-explicit-any
+) => any;
 
 /**
  * Definition of a scenario (immutable)
@@ -71,8 +68,8 @@ export interface ScenarioDefinition {
   /** Scenario options (final, with defaults applied) */
   readonly options: ScenarioOptions;
 
-  /** Steps to execute */
-  readonly steps: readonly StepDefinition[];
+  /** Entries to execute (steps, resources, setups) in order */
+  readonly entries: readonly Entry[];
 
   /** Source location for debugging */
   readonly location?: SourceLocation;
@@ -96,6 +93,60 @@ export interface StepDefinition {
 }
 
 /**
+ * Cleanup returned by setup functions
+ */
+export type SetupCleanup =
+  | void
+  | (() => void | Promise<void>)
+  | Disposable
+  | AsyncDisposable;
+
+/**
+ * Runtime signature for setup hooks
+ */
+export type RunnerSetupFunction = (
+  ctx: StepContext<unknown, readonly unknown[], Record<string, unknown>>,
+) => SetupCleanup | Promise<SetupCleanup>;
+
+/**
+ * Definition of a setup hook (immutable)
+ */
+export interface SetupDefinition {
+  /** Setup function to execute */
+  readonly fn: RunnerSetupFunction;
+
+  /** Source location for debugging */
+  readonly location?: SourceLocation;
+}
+
+/**
+ * Entry in a scenario - can be a step, resource, or setup
+ */
+export type Entry =
+  | { kind: "step"; value: StepDefinition }
+  | { kind: "resource"; value: ResourceDefinition }
+  | { kind: "setup"; value: SetupDefinition };
+
+/**
+ * Resource definition (simplified version for runtime)
+ * Note: The builder layer exports the full typed version.
+ * This is an internal type for the runner layer.
+ */
+interface ResourceDefinition {
+  /** Resource name */
+  readonly name: string;
+  /** Resource factory function */
+  readonly factory: RunnerResourceFactory;
+}
+
+/**
+ * Runtime signature for resource factories
+ */
+export type RunnerResourceFactory = (
+  ctx: StepContext<unknown, readonly unknown[], Record<string, unknown>>,
+) => unknown | Promise<unknown>;
+
+/**
  * Metadata for a step (serializable, without function)
  */
 export type StepMetadata = Omit<StepDefinition, "fn">;
@@ -106,24 +157,26 @@ export type StepMetadata = Omit<StepDefinition, "fn">;
 export type ScenarioMetadata =
   & Omit<
     ScenarioDefinition,
-    "steps" | "options"
+    "entries" | "options"
   >
   & {
     readonly options:
       & Omit<
         ScenarioOptions,
-        "skip" | "setup" | "teardown"
+        "skip"
       >
       & {
         readonly skip: boolean | null;
       };
-    readonly steps: readonly StepMetadata[];
+    readonly entries: readonly Entry[];
   };
 
 /**
  * Context provided to scenario setup/teardown
  */
-export interface ScenarioContext {
+export interface ScenarioContext<
+  Resources extends Record<string, unknown> = Record<string, never>,
+> {
   /** Scenario name */
   readonly name: string;
 
@@ -138,6 +191,9 @@ export interface ScenarioContext {
 
   /** Abort signal for cancellation */
   readonly signal: AbortSignal;
+
+  /** Available resources */
+  readonly resources: Resources;
 }
 
 /**
@@ -146,6 +202,7 @@ export interface ScenarioContext {
 export interface StepContext<
   P = unknown,
   A extends readonly unknown[] = readonly [],
+  Resources extends Record<string, unknown> = Record<string, never>,
 > {
   /** Step index (0-based) */
   readonly index: number;
@@ -161,6 +218,9 @@ export interface StepContext<
 
   /** Abort signal (combines timeout + manual abort) */
   readonly signal: AbortSignal;
+
+  /** Available resources */
+  readonly resources: Resources;
 }
 
 /**
