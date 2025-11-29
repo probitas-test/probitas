@@ -59,7 +59,7 @@ export class ListReporter extends BaseReporter {
         )
       }`
       : "";
-    const time = ` ${this.theme.dim(`[${result.duration.toFixed(3)}ms]`)}`;
+    const time = ` ${this.theme.info(`[${result.duration.toFixed(3)}ms]`)}`;
 
     await this.write(
       `${icon} ${scenario.name} ${this.theme.dim(">")} ` +
@@ -142,7 +142,7 @@ export class ListReporter extends BaseReporter {
 
     await this.write(
       `  ${this.theme.dim(`  ${summary.total} scenarios total`)} ${
-        this.theme.dim(`[${summary.duration.toFixed(3)}ms]`)
+        this.theme.info(`[${summary.duration.toFixed(3)}ms]`)
       }\n`,
     );
 
