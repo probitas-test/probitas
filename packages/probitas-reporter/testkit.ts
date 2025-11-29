@@ -317,19 +317,37 @@ export const runSummaries = {
 } as const satisfies Record<string, RunSummary>;
 
 /**
+ * Normalize file paths in stack traces for snapshot testing
+ *
+ * Replaces absolute file:// URLs with a placeholder to ensure snapshots
+ * are portable across different machines and CI environments.
+ */
+function normalizeStackPaths(output: string): string {
+  // Replace file:// URLs with <file> placeholder
+  // Matches patterns like: file:///Users/name/project/src/file.ts:123:45
+  // Also matches patterns like: file:///home/runner/work/project/src/file.ts:123:45
+  return output.replace(
+    /file:\/\/\/[^\s:)]+/g,
+    "<file>",
+  );
+}
+
+/**
  * Helper function to extract text output from Buffer, removing ANSI color codes
  */
 function getBufferOutputNoColor(buffer: Buffer): string {
   const output = new TextDecoder().decode(buffer.bytes());
   // deno-lint-ignore no-control-regex
-  return output.replace(/\x1b\[[0-9;]*m/g, "");
+  const noColor = output.replace(/\x1b\[[0-9;]*m/g, "");
+  return normalizeStackPaths(noColor);
 }
 
 /**
  * Helper function to extract raw text output from Buffer preserving ANSI color codes
  */
 function getRawBufferOutput(buffer: Buffer): string {
-  return new TextDecoder().decode(buffer.bytes());
+  const output = new TextDecoder().decode(buffer.bytes());
+  return normalizeStackPaths(output);
 }
 
 /**
