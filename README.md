@@ -48,9 +48,15 @@ This creates:
 Create `scenarios/hello.scenario.ts`:
 
 ```typescript
-import { scenario } from "probitas";
+import { scenario, Skip } from "probitas";
 
 export default scenario("Hello Probitas", { tags: ["example"] })
+  .step(() => {
+    // Unnamed steps are auto-named as "Step N"
+    if (!Deno.env.get("RUN_EXAMPLE")) {
+      throw new Skip("Example skipped");
+    }
+  })
   .step("Greet", () => {
     return { message: "Hello, World!" };
   })
