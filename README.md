@@ -175,6 +175,23 @@ Add to `deno.json` or `deno.jsonc`:
 - [CLI Reference](docs/cli.md) - Command-line options
 - [Architecture](docs/architecture.md) - Design overview
 
+## Development Environment
+
+A Nix flake is available to provision the Deno toolchain without global
+installs.
+
+```bash
+# Enter the development shell
+nix develop
+
+# Optional: auto-activate with direnv
+echo "use flake" > .envrc
+direnv allow
+```
+
+Run project tasks such as `deno task verify` from within the Nix shell for
+consistent tooling.
+
 ## Packages
 
 | Package                                                 | Description                              | Version                                                                               |
