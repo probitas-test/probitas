@@ -14,6 +14,7 @@ Options:
                              Supports ! prefix for negation
   --json                     Output in JSON format
   --config <path>            Path to config file (deno.json/deno.jsonc)
+  -r, --reload               Reload dependencies before running
 
 Selector Format:
   [!][type:]value
@@ -63,5 +64,6 @@ Examples:
 
   # JSON output
   probitas list --json                          Output as JSON
+  probitas list --reload                        Reload dependencies before listing
 
 Note: Uses patterns from config file or defaults to "**/*.scenario.ts"

@@ -32,11 +32,12 @@ export async function listCommand(
     // Parse command-line arguments
     const parsed = parseArgs(args, {
       string: ["config", "include", "exclude", "selector"],
-      boolean: ["help", "json"],
+      boolean: ["help", "json", "reload"],
       collect: ["include", "exclude", "selector"],
       alias: {
         h: "help",
         s: "selector",
+        r: "reload",
       },
       default: {
         include: undefined,
@@ -110,6 +111,7 @@ export async function listCommand(
       "-A", // All permissions
       "--config",
       subprocessConfigPath,
+      ...(parsed.reload ? ["--reload"] : []),
       subprocessPath,
     ];
 

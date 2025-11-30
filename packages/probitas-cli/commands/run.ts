@@ -44,6 +44,7 @@ export async function runCommand(
       boolean: [
         "help",
         "no-color",
+        "reload",
         "quiet",
         "verbose",
         "debug",
@@ -59,6 +60,7 @@ export async function runCommand(
         v: "verbose",
         q: "quiet",
         d: "debug",
+        r: "reload",
       },
       default: {
         include: undefined,
@@ -166,6 +168,7 @@ export async function runCommand(
       "-A", // All permissions
       "--config",
       subprocessConfigPath,
+      ...(parsed.reload ? ["--reload"] : []),
       subprocessPath,
     ];
 
