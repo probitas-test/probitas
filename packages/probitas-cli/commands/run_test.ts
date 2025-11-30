@@ -15,6 +15,7 @@ import { describe, it } from "@std/testing/bdd";
 import { stub } from "@std/testing/mock";
 import { sandbox } from "@lambdalisue/sandbox";
 import { EXIT_CODE } from "../constants.ts";
+import { stubDenoCommand } from "./_test_utils.ts";
 import { runCommand } from "./run.ts";
 
 const createScenario = (name: string, file: string, failing = false) =>
@@ -199,6 +200,37 @@ describe("run command", () => {
       ], sbox.path);
 
       assertEquals(exitCode, EXIT_CODE.SUCCESS);
+    });
+  });
+
+  describe("reload option", () => {
+    it("forwards --reload to subprocess", async () => {
+      await using sbox = await sandbox();
+
+      const scenarioPath = sbox.resolve("reload.scenario.ts");
+      await Deno.writeTextFile(
+        scenarioPath,
+        createScenario("Reload Test", scenarioPath),
+      );
+
+      const commandArgs: string[][] = [];
+      using _commandStub = stubDenoCommand((args) => {
+        commandArgs.push(args);
+      });
+
+      const exitCode = await runCommand(["--reload"], sbox.path);
+
+      assertEquals(exitCode, EXIT_CODE.SUCCESS);
+      const args = commandArgs[0] ?? [];
+      const subprocessPath = new URL(
+        "./run/subprocess.ts",
+        import.meta.url,
+      ).href;
+      assertEquals(args.includes("--reload"), true);
+      assertEquals(
+        args.indexOf("--reload") < args.indexOf(subprocessPath),
+        true,
+      );
     });
   });
 });

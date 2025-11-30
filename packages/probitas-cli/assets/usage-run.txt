@@ -19,6 +19,7 @@ Options:
   --max-failures <n>        Stop after N failures
   -f, --fail-fast           Stop on first failure (alias for --max-failures=1)
   --config <path>           Path to config file (deno.json/deno.jsonc)
+  -r, --reload              Reload dependencies before running
   -q, --quiet               Quiet output (errors only)
   -v, --verbose             Verbose output
   -d, --debug               Debug output (maximum detail)
@@ -78,6 +79,7 @@ Examples:
   probitas run --sequential                 Run scenarios sequentially
   probitas run --max-failures 1             Stop on first failure
   probitas run -f                           Stop on first failure (alias)
+  probitas run --reload                     Reload dependencies before running
 
   # Output control
   probitas run -v                           Verbose output
