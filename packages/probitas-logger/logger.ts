@@ -12,6 +12,7 @@ import {
   type LogLevel,
   reset,
 } from "@logtape/logtape";
+import { getPrettyFormatter } from "@logtape/pretty";
 
 /**
  * Configure the logging system with the specified log level.
@@ -35,7 +36,13 @@ export async function configureLogging(
 ): Promise<void> {
   await configure({
     sinks: {
-      console: getConsoleSink(),
+      console: getConsoleSink({
+        formatter: getPrettyFormatter({
+          timestamp: "date-time",
+          colors: true,
+          properties: true,
+        }),
+      }),
     },
     filters: {
       levelFilter: level,

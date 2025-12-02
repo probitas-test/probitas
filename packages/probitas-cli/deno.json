@@ -20,6 +20,7 @@
     "@core/errorutil": "jsr:@core/errorutil@^1.2.1",
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@logtape/logtape": "jsr:@logtape/logtape@^1.2.2",
+    "@logtape/pretty": "jsr:@logtape/pretty@^1.2.2",
     "@std/async": "jsr:@std/async@^1.0.15",
     "@std/cli": "jsr:@std/cli@^1.0.24",
     "@std/fmt": "jsr:@std/fmt@^1.0.8",
