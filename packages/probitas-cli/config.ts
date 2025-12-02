@@ -6,7 +6,10 @@
 
 import { parse as parseJsonc } from "@std/jsonc";
 import { ensure, is } from "@core/unknownutil";
+import { getLogger } from "@probitas/logger";
 import type { ProbitasConfig } from "./types.ts";
+
+const logger = getLogger("probitas", "cli", "config");
 
 const isStringArray = is.ArrayOf(is.String);
 const isReporter = is.LiteralOneOf(["dot", "list", "json", "tap"] as const);
@@ -34,13 +37,23 @@ const isProbitasConfig = is.PartialOf(is.ObjectOf({
 export async function loadConfig(
   configPath: string,
 ): Promise<ProbitasConfig> {
+  logger.debug("Loading config file", { configPath });
+
   const content = await Deno.readTextFile(configPath);
   const parsed = ensure(parseJsonc(content), is.Record);
   const probitasSection = parsed.probitas;
 
   if (probitasSection === undefined) {
+    logger.debug("No probitas section in config", { configPath });
     return {};
   }
 
-  return ensure(probitasSection, isProbitasConfig);
+  const config = ensure(probitasSection, isProbitasConfig);
+
+  logger.debug("Config loaded", {
+    configPath,
+    config,
+  });
+
+  return config;
 }

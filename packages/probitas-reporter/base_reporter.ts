@@ -10,6 +10,7 @@
  * @module
  */
 
+import { getLogger } from "@probitas/logger";
 import { defaultTheme, noColorTheme } from "./theme.ts";
 import type {
   Reporter,
@@ -18,6 +19,8 @@ import type {
   ScenarioDefinition,
   Theme,
 } from "./types.ts";
+
+const logger = getLogger("probitas", "reporter");
 
 /**
  * Abstract base class for all reporters
@@ -49,6 +52,11 @@ export abstract class BaseReporter implements Reporter {
     };
 
     this.theme = options.theme ?? (noColor ? noColorTheme : defaultTheme);
+
+    logger.debug("Reporter initialized", {
+      reporterType: this.constructor.name,
+      options: this.options,
+    });
   }
 
   /**
@@ -60,10 +68,20 @@ export abstract class BaseReporter implements Reporter {
    * @param text Text to write
    */
   protected async write(text: string): Promise<void> {
+    logger.debug("Queueing write operation", {
+      byteLength: text.length,
+      queueDepth: this.#writeQueue === Promise.resolve() ? 0 : 1,
+    });
+
     this.#writeQueue = this.#writeQueue.then(async () => {
+      logger.debug("Writing to stream", { byteLength: text.length });
       const writer = this.output.getWriter();
       try {
         await writer.write(new TextEncoder().encode(text));
+        logger.debug("Write completed", { byteLength: text.length });
+      } catch (error) {
+        logger.error("Write failed", { error, byteLength: text.length });
+        throw error;
       } finally {
         writer.releaseLock();
       }
@@ -96,6 +114,10 @@ export abstract class BaseReporter implements Reporter {
    * @param _scenarios All scenarios to be run
    */
   onRunStart(_scenarios: readonly ScenarioDefinition[]): Promise<void> {
+    logger.debug("onRunStart event received", {
+      scenarioCount: _scenarios.length,
+      scenarios: _scenarios.map((s) => s.name),
+    });
     return Promise.resolve();
   }
 
@@ -105,6 +127,9 @@ export abstract class BaseReporter implements Reporter {
    * @param _summary Summary of test execution
    */
   onRunEnd(_summary: RunSummary): Promise<void> {
+    logger.debug("onRunEnd event received", {
+      summary: _summary,
+    });
     return Promise.resolve();
   }
 }

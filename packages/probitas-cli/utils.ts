@@ -8,6 +8,7 @@ import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { exists } from "@std/fs/exists";
 import { parse as parseJsonc } from "@std/jsonc";
 import { dirname, resolve, toFileUrl } from "@std/path";
+import { getLogger } from "@probitas/logger";
 import {
   DotReporter,
   JSONReporter,
@@ -15,6 +16,8 @@ import {
   TAPReporter,
 } from "@probitas/reporter";
 import type { Reporter, ReporterOptions } from "@probitas/reporter";
+
+const logger = getLogger("probitas", "cli", "utils");
 
 type DenoConfig = {
   imports?: Record<string, string>;
@@ -42,15 +45,28 @@ export function resolveReporter(
   reporter: string | undefined,
   options?: ReporterOptions,
 ): Reporter {
+  const reporterName = reporter ?? "list";
+
+  logger.debug("Resolving reporter", {
+    reporterName,
+    options,
+  });
+
   if (!reporter) {
+    logger.debug("Using default reporter", { reporter: "list" });
     return new ListReporter(options);
   }
 
   const factory = reporterMap[reporter];
   if (!factory) {
+    logger.error("Unknown reporter", {
+      reporter,
+      availableReporters: Object.keys(reporterMap),
+    });
     throw new Error(`Unknown reporter: ${reporter}`);
   }
 
+  logger.debug("Reporter resolved", { reporter });
   return factory(options);
 }
 
@@ -139,6 +155,11 @@ export async function findDenoConfigFile(
   path: string,
   options?: FindDenoConfigFileOptions,
 ): Promise<string | undefined> {
+  logger.debug("Searching for deno config file", {
+    startPath: path,
+    parentLookup: options?.parentLookup ?? false,
+  });
+
   let currentDir = resolve(path);
 
   while (true) {
@@ -149,18 +170,21 @@ export async function findDenoConfigFile(
 
     for (const searchPath of searchPaths) {
       if (await exists(searchPath)) {
+        logger.debug("Found deno config file", { configPath: searchPath });
         return searchPath;
       }
     }
 
     // Stop if parentLookup is disabled or we've reached the root
     if (!options?.parentLookup) {
+      logger.debug("Config file not found, parentLookup disabled");
       return undefined;
     }
 
     const parent = dirname(currentDir);
     if (parent === currentDir) {
       // Reached filesystem root
+      logger.debug("Config file not found, reached filesystem root");
       return undefined;
     }
 
