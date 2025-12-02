@@ -4,7 +4,10 @@
  * @module
  */
 
+import { getLogger } from "@probitas/logger";
 import type { ScenarioDefinition } from "./types.ts";
+
+const logger = getLogger("probitas", "scenario", "selector");
 
 /**
  * Selector type for filtering scenarios
@@ -128,19 +131,85 @@ export function applySelectors(
   selectorInputs: readonly string[],
 ): ScenarioDefinition[] {
   if (selectorInputs.length === 0) {
+    logger.debug("No selectors to apply, returning all scenarios");
     return scenarios;
   }
 
-  return scenarios.filter((scenario) => {
-    // OR between selector strings
-    return selectorInputs.some((input) => {
-      const selectors = parseSelector(input);
-      // AND within each string
-      return selectors.every((selector) => {
-        const matches = matchesSelector(scenario, selector);
-        // Apply negation
-        return selector.negated ? !matches : matches;
-      });
-    });
+  logger.debug("Applying selectors", {
+    selectorCount: selectorInputs.length,
+    selectors: selectorInputs,
+    scenarioCount: scenarios.length,
   });
+
+  const filtered = scenarios.filter((scenario) => {
+    logger.debug("Evaluating scenario against selectors", {
+      scenario: scenario.name,
+      tags: scenario.options.tags,
+    });
+
+    // OR between selector strings
+    const matched = selectorInputs.some((input) => {
+      const selectors = parseSelector(input);
+      logger.debug("Parsed selector input", {
+        input,
+        selectors: selectors.map((s) => ({
+          type: s.type,
+          pattern: s.value.source,
+          negated: s.negated,
+        })),
+      });
+
+      // AND within each string
+      const result = selectors.every((selector) => {
+        const matches = matchesSelector(scenario, selector);
+        const finalResult = selector.negated ? !matches : matches;
+
+        logger.debug("Selector match result", {
+          scenario: scenario.name,
+          selectorType: selector.type,
+          selectorPattern: selector.value.source,
+          negated: selector.negated,
+          rawMatch: matches,
+          finalResult,
+        });
+
+        return finalResult;
+      });
+
+      if (result) {
+        logger.debug("Scenario matched selector (AND condition satisfied)", {
+          scenario: scenario.name,
+          selector: input,
+        });
+      } else {
+        logger.debug("Scenario did not match selector (AND condition failed)", {
+          scenario: scenario.name,
+          selector: input,
+        });
+      }
+
+      return result;
+    });
+
+    if (!matched) {
+      logger.debug("Scenario filtered out (no selector matched)", {
+        scenario: scenario.name,
+        tags: scenario.options.tags,
+      });
+    } else {
+      logger.debug("Scenario included (at least one selector matched)", {
+        scenario: scenario.name,
+      });
+    }
+
+    return matched;
+  });
+
+  logger.debug("Selector filtering completed", {
+    originalCount: scenarios.length,
+    filteredCount: filtered.length,
+    filtered: filtered.map((s) => s.name),
+  });
+
+  return filtered;
 }

@@ -3,13 +3,14 @@
  *
  * Provides common functionality for all Reporter implementations:
  * - Output stream management
- * - Console suppression/restoration based on verbosity
+ * - Console suppression/restoration based on log level
  * - NO_COLOR environment variable support
  * - Color function selection
  *
  * @module
  */
 
+import { getLogger } from "@probitas/logger";
 import { defaultTheme, noColorTheme } from "./theme.ts";
 import type {
   Reporter,
@@ -18,6 +19,8 @@ import type {
   ScenarioDefinition,
   Theme,
 } from "./types.ts";
+
+const logger = getLogger("probitas", "reporter");
 
 /**
  * Abstract base class for all reporters
@@ -29,14 +32,6 @@ export abstract class BaseReporter implements Reporter {
   protected output: WritableStream;
   protected theme: Theme;
   protected options: ReporterOptions;
-
-  #originalConsole = {
-    error: console.error,
-    warn: console.warn,
-    log: console.log,
-    info: console.info,
-    debug: console.debug,
-  };
 
   #writeQueue: Promise<void> = Promise.resolve();
 
@@ -52,11 +47,16 @@ export abstract class BaseReporter implements Reporter {
 
     this.options = {
       output: this.output,
-      verbosity: options.verbosity ?? "normal",
+      logLevel: options.logLevel ?? "warning",
       noColor: noColor,
     };
 
     this.theme = options.theme ?? (noColor ? noColorTheme : defaultTheme);
+
+    logger.debug("Reporter initialized", {
+      reporterType: this.constructor.name,
+      options: this.options,
+    });
   }
 
   /**
@@ -68,54 +68,25 @@ export abstract class BaseReporter implements Reporter {
    * @param text Text to write
    */
   protected async write(text: string): Promise<void> {
+    logger.debug("Queueing write operation", {
+      byteLength: text.length,
+      queueDepth: this.#writeQueue === Promise.resolve() ? 0 : 1,
+    });
+
     this.#writeQueue = this.#writeQueue.then(async () => {
+      logger.debug("Writing to stream", { byteLength: text.length });
       const writer = this.output.getWriter();
       try {
         await writer.write(new TextEncoder().encode(text));
+        logger.debug("Write completed", { byteLength: text.length });
+      } catch (error) {
+        logger.error("Write failed", { error, byteLength: text.length });
+        throw error;
       } finally {
         writer.releaseLock();
       }
     });
     await this.#writeQueue;
-  }
-
-  /**
-   * Suppress console output based on verbosity level
-   *
-   * - "quiet": Suppress all console output
-   * - "normal": Suppress log/info/debug, allow error/warn
-   * - "verbose": Suppress debug, allow error/warn/log/info
-   * - "debug": Allow all console output
-   */
-  protected suppressConsole(): void {
-    const verbosity = this.options.verbosity ?? "normal";
-
-    switch (verbosity) {
-      case "quiet":
-        console.error =
-          console.warn =
-          console.log =
-          console.info =
-          console.debug =
-            () => {};
-        break;
-      case "normal":
-        console.log = console.info = console.debug = () => {};
-        break;
-      case "verbose":
-        console.debug = () => {};
-        break;
-      case "debug":
-        // Do not suppress anything
-        break;
-    }
-  }
-
-  /**
-   * Restore console output to original functions
-   */
-  protected restoreConsole(): void {
-    Object.assign(console, this.#originalConsole);
   }
 
   /**
@@ -140,24 +111,25 @@ export abstract class BaseReporter implements Reporter {
   /**
    * Called when test run starts
    *
-   * Subclasses should call super.onRunStart() to ensure console suppression
-   *
    * @param _scenarios All scenarios to be run
    */
   onRunStart(_scenarios: readonly ScenarioDefinition[]): Promise<void> {
-    this.suppressConsole();
+    logger.debug("onRunStart event received", {
+      scenarioCount: _scenarios.length,
+      scenarios: _scenarios.map((s) => s.name),
+    });
     return Promise.resolve();
   }
 
   /**
    * Called when test run completes
    *
-   * Subclasses should call super.onRunEnd() to ensure console restoration
-   *
    * @param _summary Summary of test execution
    */
   onRunEnd(_summary: RunSummary): Promise<void> {
-    this.restoreConsole();
+    logger.debug("onRunEnd event received", {
+      summary: _summary,
+    });
     return Promise.resolve();
   }
 }

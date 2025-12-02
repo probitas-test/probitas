@@ -5,11 +5,14 @@
  */
 
 import { parseArgs } from "@std/cli";
+import { getLogger } from "@probitas/logger";
 import { EXIT_CODE } from "./constants.ts";
 import { initCommand } from "./commands/init.ts";
 import { listCommand } from "./commands/list.ts";
 import { runCommand } from "./commands/run.ts";
 import { getVersion, readAsset } from "./utils.ts";
+
+const logger = getLogger("probitas", "cli");
 
 /**
  * Main CLI handler
@@ -49,8 +52,7 @@ export async function main(args: string[]): Promise<number> {
       console.log(helpText);
       return EXIT_CODE.SUCCESS;
     } catch (err: unknown) {
-      const m = err instanceof Error ? err.message : String(err);
-      console.error(`Error reading help file: ${m}`);
+      logger.error("Failed to read help file", { error: err });
       return EXIT_CODE.USAGE_ERROR;
     }
   }
@@ -71,8 +73,8 @@ export async function main(args: string[]): Promise<number> {
       return await initCommand(commandArgs, cwd);
 
     default:
-      console.error(`Unknown command: ${command}`);
-      console.error("Run 'probitas --help' for usage information");
+      logger.error("Unknown command", { command });
+      logger.error("Run 'probitas --help' for usage information");
       return EXIT_CODE.USAGE_ERROR;
   }
 }

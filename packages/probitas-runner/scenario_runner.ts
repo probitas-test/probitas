@@ -7,6 +7,7 @@
  * @module
  */
 
+import { getLogger } from "@probitas/logger";
 import type {
   Reporter,
   RunOptions,
@@ -21,6 +22,8 @@ import type {
 import { createScenarioContext, createStepContext } from "./context.ts";
 import { executeStepWithRetry } from "./executor.ts";
 import { Skip } from "./skip.ts";
+
+const logger = getLogger("probitas", "runner");
 
 /**
  * Main scenario runner
@@ -51,6 +54,12 @@ export class ScenarioRunner {
   ): Promise<RunSummary> {
     const startTime = performance.now();
     const reporter = options?.reporter;
+
+    logger.info("Starting scenario run", {
+      scenarioCount: scenarios.length,
+      maxConcurrency: options?.maxConcurrency ?? 0,
+      maxFailures: options?.maxFailures ?? 0,
+    });
 
     // Notify reporter of run start
     if (reporter?.onRunStart) {
@@ -85,6 +94,14 @@ export class ScenarioRunner {
       duration,
       scenarios: scenarioResults,
     };
+
+    logger.info("Scenario run completed", {
+      total: summary.total,
+      passed: summary.passed,
+      failed: summary.failed,
+      skipped: summary.skipped,
+      duration: summary.duration,
+    });
 
     // Notify reporter of run end
     if (reporter?.onRunEnd) {
@@ -147,6 +164,11 @@ export class ScenarioRunner {
   ): Promise<ScenarioResult> {
     const startTime = performance.now();
 
+    logger.debug("Starting scenario", {
+      name: scenario.name,
+      file: scenario.location?.file,
+    });
+
     // Notify reporter of scenario start
     if (reporter?.onScenarioStart) {
       await reporter.onScenarioStart(scenario);
@@ -185,6 +207,37 @@ export class ScenarioRunner {
       };
 
       // Execute entries in order
+      // Log resource initialization phase
+      const resourceCount = scenario.entries.filter((e) =>
+        e.kind === "resource"
+      ).length;
+      if (resourceCount > 0) {
+        logger.debug("Initializing resources", {
+          scenario: scenario.name,
+          resourceCount,
+        });
+      }
+
+      // Log setup functions phase
+      const setupCount = scenario.entries.filter((e) => e.kind === "setup")
+        .length;
+      if (setupCount > 0) {
+        logger.debug("Running setup functions", {
+          scenario: scenario.name,
+          setupCount,
+        });
+      }
+
+      // Log steps execution phase
+      const stepCount = scenario.entries.filter((e) => e.kind === "step")
+        .length;
+      if (stepCount > 0) {
+        logger.debug("Executing steps", {
+          scenario: scenario.name,
+          stepCount,
+        });
+      }
+
       for (const entry of scenario.entries) {
         try {
           switch (entry.kind) {
@@ -199,6 +252,12 @@ export class ScenarioRunner {
                 const resourceCtx = createEntryContext();
                 const resource = await entry.value.factory(resourceCtx);
                 resources[entry.value.name] = resource;
+
+                logger.debug("Resource initialized", {
+                  resource: entry.value.name,
+                  scenario: scenario.name,
+                  resourceValue: resource,
+                });
 
                 // Register resource for disposal if it's Disposable
                 if (
@@ -220,6 +279,11 @@ export class ScenarioRunner {
                   throw e;
                 }
                 const error = e instanceof Error ? e : new Error(String(e));
+                logger.error("Resource initialization failed", {
+                  name: entry.value.name,
+                  scenario: scenario.name,
+                  error: error.message,
+                });
                 if (reporter?.onResourceError) {
                   await reporter.onResourceError(entry.value, error, scenario);
                 }
@@ -238,6 +302,10 @@ export class ScenarioRunner {
                 // Execute setup function
                 const setupCtx = createEntryContext();
                 const result = await entry.value.fn(setupCtx);
+
+                logger.debug("Setup function completed", {
+                  scenario: scenario.name,
+                });
 
                 // Register cleanup if function/Disposable/AsyncDisposable returned
                 if (result) {
@@ -261,6 +329,10 @@ export class ScenarioRunner {
                   throw e;
                 }
                 const error = e instanceof Error ? e : new Error(String(e));
+                logger.error("Setup function failed", {
+                  scenario: scenario.name,
+                  error: error.message,
+                });
                 if (reporter?.onSetupError) {
                   await reporter.onSetupError(entry.value, error, scenario);
                 }
@@ -276,7 +348,22 @@ export class ScenarioRunner {
 
               const stepCtx = createEntryContext();
 
+              logger.debug("Step context", {
+                scenario: scenario.name,
+                step: stepDef.name,
+                index: stepResults.length,
+                previousValue: stepCtx.previous,
+                storeKeys: Object.keys(stepCtx.store),
+                resourceKeys: Object.keys(stepCtx.resources),
+              });
+
               const stepStartTime = performance.now();
+
+              logger.debug("Executing step", {
+                scenario: scenario.name,
+                step: stepDef.name,
+                index: stepResults.length,
+              });
 
               // Notify reporter of step start
               if (reporter?.onStepStart) {
@@ -290,6 +377,12 @@ export class ScenarioRunner {
                 value = await executeStepWithRetry(stepDef, stepCtx);
                 // Accumulate result
                 (scenarioCtx.results as unknown[]).push(value);
+
+                logger.debug("Step return value", {
+                  scenario: scenario.name,
+                  step: stepDef.name,
+                  returnValue: value,
+                });
               } catch (e) {
                 // Skip should not be treated as step error - propagate immediately
                 if (e instanceof Skip) {
@@ -311,8 +404,20 @@ export class ScenarioRunner {
               stepResults.push(stepResult);
               resultsContainer.data = stepResults;
 
+              logger.debug("Step completed", {
+                scenario: scenario.name,
+                step: stepDef.name,
+                status: stepResult.status,
+                duration: stepResult.duration,
+              });
+
               // Notify reporter about result
               if (error) {
+                logger.error("Step failed", {
+                  scenario: scenario.name,
+                  step: stepDef.name,
+                  error: error.message,
+                });
                 if (reporter?.onStepError) {
                   await reporter.onStepError(
                     stepDef,
@@ -340,6 +445,10 @@ export class ScenarioRunner {
     } catch (error) {
       if (error instanceof Skip) {
         skipReason = error.reason;
+        logger.info("Scenario skipped", {
+          name: scenario.name,
+          reason: error.reason,
+        });
       } else {
         scenarioError = error instanceof Error
           ? error
@@ -376,6 +485,12 @@ export class ScenarioRunner {
     if (reporter?.onScenarioEnd) {
       await reporter.onScenarioEnd(scenario, result);
     }
+
+    logger.debug("Scenario completed", {
+      name: scenario.name,
+      status: result.status,
+      duration: result.duration,
+    });
 
     return result;
   }

@@ -6,6 +6,7 @@
 
 import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
+import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { EXIT_CODE } from "../constants.ts";
 import { loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
@@ -15,6 +16,8 @@ import {
   parsePositiveInteger,
   readAsset,
 } from "../utils.ts";
+
+const logger = getLogger("probitas", "cli", "run");
 
 /**
  * Execute the run command
@@ -76,6 +79,7 @@ export async function runCommand(
         console.log(helpText);
         return EXIT_CODE.SUCCESS;
       } catch (error) {
+        // Use console.error here since logging is not yet configured
         console.error(
           "Error reading help file:",
           error instanceof Error ? error.message : String(error),
@@ -84,14 +88,22 @@ export async function runCommand(
       }
     }
 
-    // Determine verbosity level
-    const verbosity = parsed.debug
+    // Determine log level
+    const logLevel: LogLevel = parsed.debug
       ? "debug"
       : parsed.verbose
-      ? "verbose"
+      ? "info"
       : parsed.quiet
-      ? "quiet"
-      : "normal";
+      ? "fatal"
+      : "warning";
+
+    // Configure logging with determined log level
+    try {
+      await configureLogging(logLevel);
+      logger.debug("Run command started", { args, cwd, logLevel });
+    } catch {
+      // Silently ignore logging configuration errors (e.g., in test environments)
+    }
 
     // Load configuration
     const configPath = parsed.config ??
@@ -117,9 +129,14 @@ export async function runCommand(
     );
 
     if (scenarioFiles.length === 0) {
-      console.error("No scenarios found");
+      logger.error("No scenarios found", { paths, includes, excludes });
       return EXIT_CODE.NOT_FOUND;
     }
+
+    logger.info("Discovered scenario files", {
+      count: scenarioFiles.length,
+      files: scenarioFiles,
+    });
 
     // Build subprocess input
     const selectors = parsed.selector ?? config?.selectors ?? [];
@@ -142,7 +159,7 @@ export async function runCommand(
       selectors,
       reporter: parsed.reporter ?? config?.reporter,
       noColor,
-      verbosity,
+      logLevel,
       maxConcurrency,
       maxFailures,
     };
@@ -193,13 +210,14 @@ export async function runCommand(
     // Wait for subprocess to complete
     const result = await child.status;
 
+    logger.debug("Subprocess completed", { exitCode: result.code });
+
     // Map exit code
     if (result.code === 0) return EXIT_CODE.SUCCESS;
     if (result.code === 4) return EXIT_CODE.NOT_FOUND;
     return EXIT_CODE.FAILURE;
   } catch (err: unknown) {
-    const m = err instanceof Error ? err.message : String(err);
-    console.error(`Unexpected error: ${m}`);
+    logger.error("Unexpected error in run command", { error: err });
     return EXIT_CODE.USAGE_ERROR;
   }
 }

@@ -6,13 +6,14 @@
     "./packages/probitas-builder",
     "./packages/probitas-reporter",
     "./packages/probitas-discover",
+    "./packages/probitas-logger",
     "./packages/probitas-cli"
   ],
   "exclude": [
     ".coverage/**"
   ],
   "tasks": {
-    "cli": "deno run -A ./packages/probitas-cli/mod.ts",
+    "probitas": "deno run -A ./packages/probitas-cli/mod.ts",
     "check": "deno check ./**/*.ts",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
@@ -25,6 +26,8 @@
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@cspotcode/outdent": "jsr:@cspotcode/outdent@^0.8.0",
     "@lambdalisue/sandbox": "jsr:@lambdalisue/sandbox@^3.0.1",
+    "@logtape/logtape": "jsr:@logtape/logtape@^1.2.2",
+    "@logtape/pretty": "jsr:@logtape/pretty@^1.2.2",
     "@std/assert": "jsr:@std/assert@^1.0.16",
     "@std/async": "jsr:@std/async@^1.0.15",
     "@std/cli": "jsr:@std/cli@^1.0.24",
@@ -45,6 +48,7 @@
     "jsr:@probitas/builder@^0": "./packages/probitas-builder/mod.ts",
     "jsr:@probitas/reporter@^0": "./packages/probitas-reporter/mod.ts",
     "jsr:@probitas/discover@^0": "./packages/probitas-discover/mod.ts",
+    "jsr:@probitas/logger@^0": "./packages/probitas-logger/mod.ts",
     "jsr:@probitas/cli@^0": "./packages/probitas-cli/mod.ts",
     // Convenience aliases (required for type-checking example/ directory)
     "probitas": "./packages/probitas-std/mod.ts"

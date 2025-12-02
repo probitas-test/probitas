@@ -6,6 +6,7 @@
 
 import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
+import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { discoverScenarioFiles } from "@probitas/discover";
 import { EXIT_CODE } from "../constants.ts";
 import { loadConfig } from "../config.ts";
@@ -14,6 +15,8 @@ import {
   findDenoConfigFile,
   readAsset,
 } from "../utils.ts";
+
+const logger = getLogger("probitas", "cli", "list");
 
 /**
  * Execute the list command
@@ -32,12 +35,15 @@ export async function listCommand(
     // Parse command-line arguments
     const parsed = parseArgs(args, {
       string: ["config", "include", "exclude", "selector"],
-      boolean: ["help", "json", "reload"],
+      boolean: ["help", "json", "reload", "quiet", "verbose", "debug"],
       collect: ["include", "exclude", "selector"],
       alias: {
         h: "help",
         s: "selector",
         r: "reload",
+        v: "verbose",
+        q: "quiet",
+        d: "debug",
       },
       default: {
         include: undefined,
@@ -52,11 +58,31 @@ export async function listCommand(
         const helpText = await readAsset("usage-list.txt");
         console.log(helpText);
         return EXIT_CODE.SUCCESS;
-      } catch (err: unknown) {
-        const m = err instanceof Error ? err.message : String(err);
-        console.error(`Error reading help file: ${m}`);
+      } catch (error) {
+        // Use console.error here since logging is not yet configured
+        console.error(
+          "Error reading help file:",
+          error instanceof Error ? error.message : String(error),
+        );
         return EXIT_CODE.USAGE_ERROR;
       }
+    }
+
+    // Determine log level
+    const logLevel: LogLevel = parsed.debug
+      ? "debug"
+      : parsed.verbose
+      ? "info"
+      : parsed.quiet
+      ? "fatal"
+      : "warning";
+
+    // Configure logging with determined log level
+    try {
+      await configureLogging(logLevel);
+      logger.debug("List command started", { args, cwd, logLevel });
+    } catch {
+      // Silently ignore logging configuration errors (e.g., in test environments)
     }
 
     // Load configuration
@@ -82,12 +108,18 @@ export async function listCommand(
       },
     );
 
+    logger.info("Discovered scenario files", {
+      count: scenarioFiles.length,
+      files: scenarioFiles,
+    });
+
     // Build subprocess input
     const selectors = parsed.selector ?? config?.selectors ?? [];
     const subprocessInput = {
       files: scenarioFiles,
       selectors,
       json: parsed.json,
+      logLevel,
     };
 
     // Prepare config file for subprocess with scopes
@@ -136,10 +168,11 @@ export async function listCommand(
     // Wait for subprocess to complete
     const result = await child.status;
 
+    logger.debug("Subprocess completed", { exitCode: result.code });
+
     return result.code === 0 ? EXIT_CODE.SUCCESS : EXIT_CODE.FAILURE;
   } catch (err: unknown) {
-    const m = err instanceof Error ? err.message : String(err);
-    console.error(`Unexpected error: ${m}`);
+    logger.error("Unexpected error in list command", { error: err });
     return EXIT_CODE.USAGE_ERROR;
   }
 }

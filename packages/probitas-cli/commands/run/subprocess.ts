@@ -11,7 +11,10 @@ import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { applySelectors, loadScenarios } from "@probitas/scenario";
 import type { ReporterOptions } from "@probitas/reporter";
 import { ScenarioRunner } from "@probitas/runner";
+import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { resolveReporter } from "../../utils.ts";
+
+const logger = getLogger("probitas", "cli", "run", "subprocess");
 
 /**
  * Input configuration passed via stdin
@@ -25,8 +28,8 @@ interface SubprocessInput {
   reporter?: string;
   /** Disable color output */
   noColor?: boolean;
-  /** Verbosity level */
-  verbosity?: "quiet" | "normal" | "verbose" | "debug";
+  /** Log level */
+  logLevel?: LogLevel;
   /** Maximum concurrent scenario execution */
   maxConcurrency?: number;
   /** Maximum number of failures before stopping */
@@ -38,8 +41,8 @@ const isSubprocessInput = is.ObjectOf({
   selectors: as.Optional(is.ArrayOf(is.String)),
   reporter: as.Optional(is.String),
   noColor: as.Optional(is.Boolean),
-  verbosity: as.Optional(is.LiteralOneOf(
-    ["quiet", "normal", "verbose", "debug"] as const,
+  logLevel: as.Optional(is.LiteralOneOf(
+    ["debug", "info", "warning", "error", "fatal", "trace"] as const,
   )),
   maxConcurrency: as.Optional(is.Number),
   maxFailures: as.Optional(is.Number),
@@ -64,43 +67,68 @@ async function main(): Promise<number> {
     selectors,
     reporter: reporterName,
     noColor,
-    verbosity,
+    logLevel,
     maxConcurrency,
     maxFailures,
   } = input;
 
+  // Configure logging
+  try {
+    await configureLogging(input.logLevel ?? "warning");
+  } catch (err: unknown) {
+    const m = err instanceof Error ? err.message : String(err);
+    console.error(`Warning: Failed to configure logging: ${m}`);
+  }
+
+  logger.debug("Subprocess started", { input });
+
   if (!files || files.length === 0) {
+    logger.error("No scenario files specified");
     console.error("Error: No scenario files specified");
     return 1;
   }
 
   try {
     // Load scenarios
+    logger.info("Loading scenarios", { fileCount: files.length });
+
     let scenarios = await loadScenarios(files, {
       onImportError: (file, err) => {
         const m = err instanceof Error ? err.message : String(err);
         throw new Error(`Failed to load scenario from ${file}: ${m}`);
       },
     });
+
+    logger.debug("Scenarios loaded", { scenarioCount: scenarios.length });
+
     if (scenarios.length === 0) {
+      logger.error("No scenarios found in specified files");
       console.error("Error: No scenarios found in specified files");
       return 1;
     }
 
     // Apply selectors to filter scenarios
     if (selectors && selectors.length > 0) {
+      logger.debug("Applying selectors", { selectors });
       scenarios = applySelectors(scenarios, selectors);
     }
 
     if (scenarios.length === 0) {
+      logger.error("No scenarios matched the filter", { selectors });
       console.error("Error: No scenarios matched the filter");
       return 4; // NOT_FOUND
     }
 
+    logger.info("Running scenarios", {
+      scenarioCount: scenarios.length,
+      maxConcurrency,
+      maxFailures,
+    });
+
     // Setup reporter
     const reporterOptions: ReporterOptions = {
       noColor: noColor ?? false,
-      verbosity: verbosity ?? "normal",
+      logLevel: logLevel ?? "warning",
     };
     const reporter = resolveReporter(reporterName, reporterOptions);
 
@@ -112,10 +140,18 @@ async function main(): Promise<number> {
       maxFailures,
     });
 
+    logger.info("Scenarios completed", {
+      total: summary.total,
+      passed: summary.passed,
+      failed: summary.failed,
+      skipped: summary.skipped,
+    });
+
     // Return exit code
     return summary.failed > 0 ? 1 : 0;
   } catch (err: unknown) {
     const m = err instanceof Error ? err.message : String(err);
+    logger.error("Subprocess execution failed", { error: err });
     console.error(`Error: ${m}`);
     return 1;
   }

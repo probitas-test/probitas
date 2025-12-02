@@ -6,6 +6,8 @@
  * @module
  */
 
+import type { LogLevel } from "@probitas/logger";
+
 /**
  * Theme function for terminal output
  */
@@ -48,14 +50,14 @@ export interface ReporterOptions {
   readonly output?: WritableStream;
 
   /**
-   * Verbosity level for console output suppression
+   * Log level for console output suppression
    *
-   * - "quiet": Suppress all output
-   * - "normal": Show error/warn only (default)
-   * - "verbose": Show error/warn/log/info
-   * - "debug": Show all including debug
+   * - "fatal": Suppress all output (only critical failures)
+   * - "warning": Show warnings and errors (default)
+   * - "info": Show informational messages, warnings, and errors
+   * - "debug": Show all including debug messages
    */
-  readonly verbosity?: "quiet" | "normal" | "verbose" | "debug";
+  readonly logLevel?: LogLevel;
 
   /**
    * Disable colored output
