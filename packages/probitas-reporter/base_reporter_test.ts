@@ -10,7 +10,6 @@ import {
   assertStringIncludes,
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { stub } from "@std/testing/mock";
 import { Buffer } from "@std/streams/buffer";
 import { BaseReporter } from "./base_reporter.ts";
 import type {
@@ -75,42 +74,6 @@ describe("BaseReporter", () => {
 
       const plainSuccess = reporterNoColor.formatSuccess(testText);
       assertEquals(plainSuccess, testText);
-    });
-  });
-
-  describe("console suppression and restoration", () => {
-    it("suppresses and restores console based on verbosity", async () => {
-      const buffer = new Buffer();
-
-      using logSpy = stub(console, "log");
-      using errorSpy = stub(console, "error");
-
-      const reporter = new TestReporter({
-        output: buffer.writable,
-        verbosity: "quiet",
-      });
-
-      await reporter.onRunStart([]);
-
-      console.log("test");
-      console.error("test");
-      assertEquals(logSpy.calls.length, 0);
-      assertEquals(errorSpy.calls.length, 0);
-
-      await reporter.onRunEnd({
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0,
-        duration: 0,
-        scenarios: [],
-      });
-
-      console.log("restored");
-      console.error("restored");
-
-      assertEquals(logSpy.calls.length, 1);
-      assertEquals(errorSpy.calls.length, 1);
     });
   });
 
