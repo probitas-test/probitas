@@ -9,6 +9,7 @@ import { ensure, is } from "@core/unknownutil";
 import { parseArgs } from "@std/cli";
 import { parse as parseJsonc } from "@std/jsonc";
 import { resolve } from "@std/path";
+import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { EXIT_CODE } from "../constants.ts";
 import {
   findDenoConfigFile,
@@ -19,6 +20,8 @@ import {
 import expectedConfigTemplate from "../assets/templates/deno.json" with {
   type: "json",
 };
+
+const logger = getLogger("probitas", "cli", "init");
 
 /**
  * Check if file has comments (simple heuristic)
@@ -43,10 +46,13 @@ export async function initCommand(
   try {
     // Parse command-line arguments
     const parsed = parseArgs(args, {
-      boolean: ["help", "force"],
+      boolean: ["help", "force", "quiet", "verbose", "debug"],
       alias: {
         h: "help",
         f: "force",
+        v: "verbose",
+        q: "quiet",
+        d: "debug",
       },
     });
 
@@ -56,11 +62,31 @@ export async function initCommand(
         const helpText = await readAsset("usage-init.txt");
         console.log(helpText);
         return EXIT_CODE.SUCCESS;
-      } catch (err: unknown) {
-        const m = err instanceof Error ? err.message : String(err);
-        console.error(`Error reading help file: ${m}`);
+      } catch (error) {
+        // Use console.error here since logging is not yet configured
+        console.error(
+          "Error reading help file:",
+          error instanceof Error ? error.message : String(error),
+        );
         return EXIT_CODE.USAGE_ERROR;
       }
+    }
+
+    // Determine log level
+    const logLevel: LogLevel = parsed.debug
+      ? "debug"
+      : parsed.verbose
+      ? "info"
+      : parsed.quiet
+      ? "fatal"
+      : "warning";
+
+    // Configure logging with determined log level
+    try {
+      await configureLogging(logLevel);
+      logger.debug("Init command started", { args, cwd, logLevel });
+    } catch {
+      // Silently ignore logging configuration errors (e.g., in test environments)
     }
 
     const force = parsed.force ?? false;
@@ -89,6 +115,7 @@ export async function initCommand(
         denoJsonPath,
         JSON.stringify(expectedConfig, null, 2) + "\n",
       );
+      logger.info("Created deno.json", { path: denoJsonPath });
       console.log("Created deno.json");
     } else {
       // deno.json or deno.jsonc exists
@@ -97,6 +124,10 @@ export async function initCommand(
 
       // Check for comments in .jsonc files
       if (isJsonc && hasComments(content) && !force) {
+        logger.error(
+          "Config file contains comments which would be lost",
+          { path: existingPath },
+        );
         console.error(
           `${existingPath} contains comments which would be lost. Use --force to overwrite.`,
         );
@@ -107,6 +138,10 @@ export async function initCommand(
       const existing = alterElse(
         () => ensure(parseJsonc(content), is.Record),
         (err) => {
+          logger.error("Failed to parse config file", {
+            path: existingPath,
+            error: err,
+          });
           const m = err instanceof Error ? err.message : String(err);
           throw new Error(
             `${existingPath} is not valid deno.json/deno.jsonc: ${m}`,
@@ -116,6 +151,9 @@ export async function initCommand(
 
       // Check if probitas section already exists
       if (existing.probitas && !force) {
+        logger.error("Probitas configuration already exists", {
+          path: existingPath,
+        });
         console.error(
           `probitas configuration already exists in ${existingPath}. Use --force to overwrite.`,
         );
@@ -129,6 +167,10 @@ export async function initCommand(
       const imports = alterElse(
         () => ensure(existing.imports, is.RecordOf(is.String)),
         (err) => {
+          logger.error("Invalid imports attribute in config file", {
+            path: existingPath,
+            error: err,
+          });
           const m = err instanceof Error ? err.message : String(err);
           throw new Error(
             `imports attribute in ${existingPath} is not valid: ${m}`,
@@ -149,12 +191,14 @@ export async function initCommand(
         existingPath,
         JSON.stringify(existing, null, 2) + "\n",
       );
+      logger.info("Updated config file", { path: existingPath });
       console.log(`Updated ${existingPath}`);
     }
 
     // Create scenarios directory
     const scenariosDir = resolve(cwd, "scenarios");
     await Deno.mkdir(scenariosDir, { recursive: true });
+    logger.debug("Created scenarios directory", { path: scenariosDir });
 
     // Create scenarios/example.scenario.ts
     const examplePath = resolve(scenariosDir, "example.scenario.ts");
@@ -162,6 +206,9 @@ export async function initCommand(
     if (!force) {
       try {
         await Deno.stat(examplePath);
+        logger.error("Example scenario already exists", {
+          path: examplePath,
+        });
         console.error(
           "scenarios/example.scenario.ts already exists. Use --force to overwrite.",
         );
@@ -173,14 +220,18 @@ export async function initCommand(
 
     const exampleContent = await readTemplate("example.scenario.ts");
     await Deno.writeTextFile(examplePath, exampleContent);
+    logger.info("Created example scenario", { path: examplePath });
     console.log("Created scenarios/example.scenario.ts");
 
     console.log(
       "\nInitialization complete! Run 'probitas run' to execute the example scenario.",
     );
 
+    logger.info("Initialization completed successfully");
+
     return EXIT_CODE.SUCCESS;
   } catch (err: unknown) {
+    logger.error("Unexpected error in init command", { error: err });
     const m = err instanceof Error ? err.message : String(err);
     console.error(`Unexpected error: ${m}`);
     return EXIT_CODE.USAGE_ERROR;
