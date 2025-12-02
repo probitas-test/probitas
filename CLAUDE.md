@@ -115,7 +115,7 @@ Follow test-driven development principles:
 
 - Example scenarios for documentation and manual testing
 - Files named `*.scenario.ts`
-- Run with `deno task cli run`
+- Run with `deno task probitas run`
 
 ## Commands
 
@@ -125,7 +125,7 @@ deno task verify      # Run format, lint, type check and tests
 deno task test        # Run tests (parallel, shuffled)
 deno task test:coverage  # Run tests with coverage
 deno task coverage    # Generate coverage report
-deno task cli         # Run the CLI (e.g., deno task cli run)
+deno task probitas    # Run the CLI (e.g., deno task probitas run)
 ```
 
 ## Development Environment
