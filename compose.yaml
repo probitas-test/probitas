@@ -1,0 +1,143 @@
+services:
+  # HTTP echo server for integration testing
+  echo-http:
+    image: ghcr.io/jsr-probitas/echo-http:latest
+    ports:
+      - "18080:80"
+
+  # gRPC echo server with reflection support for integration testing
+  echo-grpc:
+    image: ghcr.io/jsr-probitas/echo-grpc:latest
+    ports:
+      - "50051:50051"
+
+  # ConnectRPC echo server for integration testing
+  echo-connectrpc:
+    image: ghcr.io/jsr-probitas/echo-connectrpc:latest
+    ports:
+      - "18082:8080"
+
+  # GraphQL echo server for integration testing
+  echo-graphql:
+    image: ghcr.io/jsr-probitas/echo-graphql:latest
+    ports:
+      - "14000:8080"
+
+  # PostgreSQL server for integration testing
+  postgres:
+    image: postgres:16
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MySQL server for integration testing
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+    healthcheck:
+      test: [
+        "CMD",
+        "mysqladmin",
+        "ping",
+        "-h",
+        "localhost",
+        "-u",
+        "root",
+        "-prootpassword",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Deno KV server for integration testing
+  denokv:
+    image: ghcr.io/denoland/denokv
+    ports:
+      - "4512:4512"
+    command:
+      - --sqlite-path
+      - ":memory:"
+      - serve
+      - --access-token
+      - testtoken1234
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4512"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Redis server for integration testing
+  redis:
+    image: redis:7
+    ports:
+      - "16379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MongoDB server for integration testing (replica set mode for transaction support)
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: testdb
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: >
+        mongosh --eval "
+          try {
+            rs.status().ok
+          } catch(e) {
+            rs.initiate({_id:'rs0', members:[{_id:0, host:'localhost:27017'}]});
+            1
+          }
+        "
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  # RabbitMQ server for integration testing
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # LocalStack for AWS services (SQS) integration testing
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sqs
+      DEBUG: 0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

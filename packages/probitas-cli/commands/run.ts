@@ -183,6 +183,8 @@ export async function runCommand(
     const subprocessArgs = [
       "run",
       "-A", // All permissions
+      "--no-lock",
+      "--unstable-kv",
       "--config",
       subprocessConfigPath,
       ...(parsed.reload ? ["--reload"] : []),

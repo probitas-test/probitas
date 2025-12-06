@@ -141,6 +141,7 @@ export async function listCommand(
     const subprocessArgs = [
       "run",
       "-A", // All permissions
+      "--no-lock",
       "--config",
       subprocessConfigPath,
       ...(parsed.reload ? ["--reload"] : []),
