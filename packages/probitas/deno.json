@@ -1,6 +1,6 @@
 {
-  "name": "@probitas/std",
-  "version": "0.0.0",
+  "name": "@probitas/probitas",
+  "version": "0.2.2",
   "exports": "./mod.ts",
   "publish": {
     "exclude": [

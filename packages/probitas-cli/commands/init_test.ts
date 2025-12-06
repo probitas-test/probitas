@@ -32,7 +32,7 @@ describe("init command", () => {
       assertEquals(typeof config.imports.probitas, "string");
       assertStringIncludes(
         config.imports.probitas,
-        "jsr:@probitas/std",
+        "jsr:@probitas/probitas",
       );
 
       // Has probitas section
@@ -69,7 +69,7 @@ describe("init command", () => {
       // Adds probitas import
       assertStringIncludes(
         config.imports.probitas,
-        "jsr:@probitas/std",
+        "jsr:@probitas/probitas",
       );
     });
 
@@ -81,7 +81,7 @@ describe("init command", () => {
         denoJsonPath,
         JSON.stringify(
           {
-            imports: { "probitas": "jsr:@probitas/std@^1.0.0" },
+            imports: { "probitas": "jsr:@probitas/probitas@^0" },
           },
           null,
           2,
@@ -96,7 +96,7 @@ describe("init command", () => {
       const config = JSON.parse(content);
 
       // Should keep existing version
-      assertEquals(config.imports.probitas, "jsr:@probitas/std@^1.0.0");
+      assertEquals(config.imports.probitas, "jsr:@probitas/probitas@^0");
     });
 
     it("adds probitas section when not exists", async () => {
@@ -107,7 +107,7 @@ describe("init command", () => {
         denoJsonPath,
         JSON.stringify(
           {
-            imports: { "probitas": "jsr:@probitas/std@^1.0.0" },
+            imports: { "probitas": "jsr:@probitas/probitas@^0" },
           },
           null,
           2,
@@ -133,7 +133,7 @@ describe("init command", () => {
         denoJsonPath,
         JSON.stringify(
           {
-            imports: { "probitas": "jsr:@probitas/std" },
+            imports: { "probitas": "jsr:@probitas/probitas" },
             probitas: { reporter: "dot", maxConcurrency: 10 },
           },
           null,
@@ -160,7 +160,7 @@ describe("init command", () => {
         denoJsonPath,
         JSON.stringify(
           {
-            imports: { "probitas": "jsr:@probitas/std" },
+            imports: { "probitas": "jsr:@probitas/probitas" },
             probitas: { reporter: "dot", maxConcurrency: 10 },
           },
           null,

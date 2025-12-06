@@ -70,7 +70,7 @@ describe("CLI package dependencies", () => {
       true,
       `Missing "probitas" alias in packages/probitas-cli/deno.json.\n` +
         `User scenarios typically use 'import { scenario } from "probitas"'.\n` +
-        `Add '"probitas": "jsr:@probitas/std@^0"' to the "imports" section.`,
+        `Add '"probitas": "jsr:@probitas/probitas@^0"' to the "imports" section.`,
     );
   });
 

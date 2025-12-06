@@ -1,6 +1,6 @@
 {
   "name": "@probitas/cli",
-  "version": "0.0.0",
+  "version": "0.2.2",
   "exports": "./mod.ts",
   "publish": {
     "exclude": [
@@ -9,8 +9,8 @@
     ]
   },
   "imports": {
-    "probitas": "jsr:@probitas/std@^0",
-    "@probitas/std": "jsr:@probitas/std@^0",
+    "probitas": "jsr:@probitas/probitas@^0",
+    "@probitas/std": "jsr:@probitas/probitas@^0",
     "@probitas/scenario": "jsr:@probitas/scenario@^0",
     "@probitas/runner": "jsr:@probitas/runner@^0",
     "@probitas/builder": "jsr:@probitas/builder@^0",

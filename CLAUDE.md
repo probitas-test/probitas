@@ -14,7 +14,7 @@ Scenario-based testing and workflow execution framework for Deno.
 probitas/
 ├── deno.jsonc                    # Root workspace config
 ├── packages/
-│   ├── probitas-std/             # @probitas/std - Standard library (user-facing API)
+│   ├── probitas/             # @probitas/probitas - Primary library (user-facing API)
 │   ├── probitas-builder/         # @probitas/builder - Type-safe scenario definition
 │   ├── probitas-runner/          # @probitas/runner - Scenario execution engine
 │   ├── probitas-reporter/        # @probitas/reporter - Output formatters
@@ -52,7 +52,7 @@ graph TD
 ```json
 {
   "name": "@probitas/{package-name}",
-  "version": "0.0.0",
+  "version": "0.2.2",
   "exports": "./mod.ts",
   "publish": {
     "exclude": ["**/*_test.ts", "**/*_bench.ts"]
@@ -76,7 +76,7 @@ graph TD
 
 ### User-Facing API
 
-The `@probitas/std` package is the primary user-facing API:
+The `@probitas/probitas` package is the primary user-facing API:
 
 ```typescript
 import { scenario, Skip } from "probitas";
@@ -89,7 +89,7 @@ export default scenario("My Test")
   .build();
 ```
 
-Key exports from `@probitas/std`:
+Key exports from `@probitas/probitas`:
 
 - `scenario` - Scenario builder function (from `@probitas/builder`)
 - `Skip` - Skip class for conditional skipping (from `@probitas/runner`)

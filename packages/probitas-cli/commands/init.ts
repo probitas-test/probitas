@@ -90,7 +90,7 @@ export async function initCommand(
     }
 
     const force = parsed.force ?? false;
-    const version = getVersion();
+    const version = await getVersion();
 
     // Prepare expected config from template
     const versionSpec = version ? `@^${version}` : "";

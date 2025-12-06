@@ -157,7 +157,7 @@ Add to `deno.json` or `deno.jsonc`:
 ```json
 {
   "imports": {
-    "probitas": "jsr:@probitas/std"
+    "probitas": "jsr:@probitas/probitas"
   },
   "probitas": {
     "includes": ["scenarios/**/*.scenario.ts"],
@@ -196,7 +196,7 @@ consistent tooling.
 
 | Package                                                 | Description                              | Version                                                                               |
 | ------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------- |
-| [@probitas/std](https://jsr.io/@probitas/std)           | Standard library for writing scenarios   | [![JSR](https://jsr.io/badges/@probitas/std)](https://jsr.io/@probitas/std)           |
+| [@probitas/probitas](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios    | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) |
 | [@probitas/cli](https://jsr.io/@probitas/cli)           | Command-line interface                   | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           |
 | [@probitas/builder](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API        | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   |
 | [@probitas/runner](https://jsr.io/@probitas/runner)     | Scenario execution engine                | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     |

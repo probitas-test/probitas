@@ -1422,7 +1422,7 @@
           "jsr:@probitas/reporter@0",
           "jsr:@probitas/runner@0",
           "jsr:@probitas/scenario@0",
-          "jsr:@probitas/std@0",
+          "jsr:@probitas/probitas@0",
           "jsr:@std/async@^1.0.15",
           "jsr:@std/cli@^1.0.24",
           "jsr:@std/fmt@^1.0.8",

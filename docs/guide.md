@@ -170,7 +170,7 @@ Add to `deno.json` or `deno.jsonc`:
 ```json
 {
   "imports": {
-    "probitas": "jsr:@probitas/std"
+    "probitas": "jsr:@probitas/probitas"
   },
   "probitas": {
     "includes": ["scenarios/**/*.scenario.ts"],
