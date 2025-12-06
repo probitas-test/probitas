@@ -218,7 +218,7 @@ export async function initCommand(
       }
     }
 
-    const exampleContent = await readTemplate("example.scenario.ts");
+    const exampleContent = await readTemplate("example.scenario.ts.tpl");
     await Deno.writeTextFile(examplePath, exampleContent);
     logger.info("Created example scenario", { path: examplePath });
     console.log("Created scenarios/example.scenario.ts");
