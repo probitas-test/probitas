@@ -4,24 +4,20 @@
  * Uses in-memory database for testing (no external dependencies required).
  * For file-based database, set path to a file path like "./example/assets/test.db"
  */
-import { scenario } from "probitas";
-import {
-  createSqliteClient,
-  expectSqlQueryResult,
-} from "@probitas/client-sql-sqlite";
+import { client, expect, outdent, scenario } from "probitas";
 
 export default scenario("SQLite Client Example", {
   tags: ["integration", "sql", "sqlite"],
 })
   .resource("sqlite", () =>
-    createSqliteClient({
+    client.sql.sqlite.createSqliteClient({
       // Use in-memory database for testing
       path: ":memory:",
     }))
   .setup(async (ctx) => {
     const { sqlite } = ctx.resources;
     // Create test table
-    await sqlite.query(`
+    await sqlite.query(outdent`
       CREATE TABLE IF NOT EXISTS test_books (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -44,7 +40,7 @@ export default scenario("SQLite Client Example", {
       ["The Pragmatic Programmer", "David Thomas", "978-0135957059", 2019],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -61,7 +57,7 @@ export default scenario("SQLite Client Example", {
       ["Design Patterns", "Gang of Four", "978-0201633610", 1994],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -72,7 +68,7 @@ export default scenario("SQLite Client Example", {
       ["David Thomas"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ title: "The Pragmatic Programmer" });
@@ -85,7 +81,7 @@ export default scenario("SQLite Client Example", {
       `SELECT id, title, author FROM test_books ORDER BY id`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(3);
   })
@@ -96,7 +92,7 @@ export default scenario("SQLite Client Example", {
       [2020, "978-0135957059"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -114,7 +110,7 @@ export default scenario("SQLite Client Example", {
       ["978-0134757599"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ title: "Refactoring" });
@@ -138,7 +134,7 @@ export default scenario("SQLite Client Example", {
       ["978-0000000000"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(0);
   })
@@ -149,7 +145,7 @@ export default scenario("SQLite Client Example", {
       ["978-0134757599"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })

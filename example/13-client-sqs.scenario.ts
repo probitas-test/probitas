@@ -4,42 +4,24 @@
  * Target: localstack service on port 4566 (compose.yaml)
  * Uses LocalStack for AWS SQS emulation
  */
-import { scenario } from "probitas";
-import { createSqsClient, expectSqsResult } from "@probitas/client-sqs";
-import { CreateQueueCommand, SQSClient } from "@aws-sdk/client-sqs";
-
-const QUEUE_NAME = "test-queue";
-const ENDPOINT = "http://localhost:4566";
-const QUEUE_URL = `${ENDPOINT}/000000000000/${QUEUE_NAME}`;
+import { client, expect, scenario } from "probitas";
 
 export default scenario("SQS Client Example", {
   tags: ["integration", "sqs", "aws"],
 })
-  .setup(async () => {
-    const client = new SQSClient({
-      region: "us-east-1",
-      endpoint: ENDPOINT,
-      credentials: {
-        accessKeyId: "test",
-        secretAccessKey: "test",
-      },
-    });
-    try {
-      await client.send(new CreateQueueCommand({ QueueName: QUEUE_NAME }));
-    } finally {
-      client.destroy();
-    }
-  })
   .resource("sqs", () =>
-    createSqsClient({
+    client.sqs.createSqsClient({
+      endpoint: "http://localhost:4566",
       region: "us-east-1",
-      endpoint: ENDPOINT,
-      queueUrl: QUEUE_URL,
       credentials: {
         accessKeyId: "test",
         secretAccessKey: "test",
       },
     }))
+  .setup(async (ctx) => {
+    const { sqs } = ctx.resources;
+    await sqs.ensureQueue("test-queue");
+  })
   .step("Send message", async (ctx) => {
     const { sqs } = ctx.resources;
     const result = await sqs.send(JSON.stringify({
@@ -47,7 +29,7 @@ export default scenario("SQS Client Example", {
       value: 42,
     }));
 
-    expectSqsResult(result)
+    expect(result)
       .ok()
       .hasMessageId();
   })
@@ -63,7 +45,7 @@ export default scenario("SQS Client Example", {
       },
     );
 
-    expectSqsResult(result)
+    expect(result)
       .ok()
       .hasMessageId();
   })
@@ -75,7 +57,7 @@ export default scenario("SQS Client Example", {
       { id: "3", body: JSON.stringify({ index: 3 }) },
     ];
     const result = await sqs.sendBatch(messages);
-    expectSqsResult(result).ok().successfulCount(3);
+    expect(result).ok().successfulCount(3);
   })
   .step("Receive messages", async (ctx) => {
     const { sqs } = ctx.resources;
@@ -84,7 +66,7 @@ export default scenario("SQS Client Example", {
       waitTimeSeconds: 1,
     });
 
-    expectSqsResult(result)
+    expect(result)
       .ok()
       .countAtLeast(1);
   })
@@ -119,7 +101,7 @@ export default scenario("SQS Client Example", {
       { delaySeconds: 1 },
     );
 
-    expectSqsResult(result)
+    expect(result)
       .ok()
       .hasMessageId();
   })
@@ -134,7 +116,7 @@ export default scenario("SQS Client Example", {
       waitTimeSeconds: 1,
     });
 
-    expectSqsResult(result)
+    expect(result)
       .ok()
       .noContent();
   })

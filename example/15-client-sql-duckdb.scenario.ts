@@ -6,24 +6,20 @@
  *
  * For file-based database, set path like "./example/assets/analytics.duckdb"
  */
-import { scenario } from "probitas";
-import {
-  createDuckDbClient,
-  expectSqlQueryResult,
-} from "@probitas/client-sql-duckdb";
+import { client, expect, outdent, scenario } from "probitas";
 
 export default scenario("DuckDB Client Example", {
   tags: ["integration", "sql", "duckdb"],
 })
   .resource("duckdb", () =>
-    createDuckDbClient({
+    client.sql.duckdb.createDuckDbClient({
       // Use in-memory database for testing
       // path: ":memory:" is the default
     }))
   .setup(async (ctx) => {
     const { duckdb } = ctx.resources;
     // Create test table for analytics-style data
-    await duckdb.query(`
+    await duckdb.query(outdent`
       CREATE TABLE IF NOT EXISTS sales_events (
         id INTEGER PRIMARY KEY,
         event_date DATE NOT NULL,
@@ -54,7 +50,7 @@ export default scenario("DuckDB Client Example", {
         (6, '2024-01-20', 'Widget C', 'Electronics', 12, 39.99, 'North')
     `);
 
-    expectSqlQueryResult(result).ok();
+    expect(result).ok();
   })
   .step("Simple aggregation query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -67,7 +63,7 @@ export default scenario("DuckDB Client Example", {
        ORDER BY total_quantity DESC`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(2);
   })
@@ -87,7 +83,7 @@ export default scenario("DuckDB Client Example", {
        ORDER BY event_date`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(6);
   })
@@ -100,7 +96,7 @@ export default scenario("DuckDB Client Example", {
       ["North"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(2);
   })
@@ -121,7 +117,7 @@ export default scenario("DuckDB Client Example", {
        ORDER BY total_revenue DESC`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(4);
   })
@@ -132,7 +128,7 @@ export default scenario("DuckDB Client Example", {
       [25, 1],
     );
 
-    expectSqlQueryResult(result).ok();
+    expect(result).ok();
   })
   .step("Transaction - commit", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -149,7 +145,7 @@ export default scenario("DuckDB Client Example", {
       [7],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ product_name: "TxProduct" });
@@ -174,7 +170,7 @@ export default scenario("DuckDB Client Example", {
       [999],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(0);
   })
@@ -185,6 +181,6 @@ export default scenario("DuckDB Client Example", {
       [7],
     );
 
-    expectSqlQueryResult(result).ok();
+    expect(result).ok();
   })
   .build();

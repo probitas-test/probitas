@@ -4,14 +4,13 @@
  * Target: mongodb service on port 27017 (compose.yaml)
  * Database: testdb (replica set mode for transactions)
  */
-import { scenario } from "probitas";
-import { createMongoClient, expectMongoResult } from "@probitas/client-mongodb";
+import { client, expect, scenario } from "probitas";
 
 export default scenario("MongoDB Client Example", {
   tags: ["integration", "mongodb"],
 })
   .resource("mongo", () =>
-    createMongoClient({
+    client.mongodb.createMongoClient({
       uri: "mongodb://localhost:27017/?replicaSet=rs0",
       database: "testdb",
     }))
@@ -31,7 +30,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection<{ name: string; age: number }>("test_users");
     const result = await users.insertOne({ name: "Alice", age: 30 });
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .hasInsertedId();
   })
@@ -44,7 +43,7 @@ export default scenario("MongoDB Client Example", {
       { name: "Diana", age: 28 },
     ]);
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .insertedCount(3);
   })
@@ -53,7 +52,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection<{ name: string; age: number }>("test_users");
     const result = await users.findOne({ name: "Alice" });
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .docContains({ name: "Alice" });
   })
@@ -62,7 +61,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection<{ name: string; age: number }>("test_users");
     const result = await users.find({ age: { $gte: 30 } });
 
-    expectMongoResult(result).ok().docs(2);
+    expect(result).ok().docs(2);
   })
   .step("Find with sort and limit", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -72,7 +71,7 @@ export default scenario("MongoDB Client Example", {
       limit: 2,
     });
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .docs(2)
       .docMatch((docs) => {
@@ -89,7 +88,7 @@ export default scenario("MongoDB Client Example", {
       { $set: { age: 31 } },
     );
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .modifiedCount(1);
   })
@@ -102,7 +101,7 @@ export default scenario("MongoDB Client Example", {
     );
 
     // NOTE: modifiedAtLeast is not available in current API
-    expectMongoResult(result).ok();
+    expect(result).ok();
     if (result.modifiedCount < 1) {
       throw new Error("Expected at least 1 modified document");
     }
@@ -112,7 +111,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection<{ name: string; age: number }>("test_users");
     const result = await users.countDocuments({ age: { $gte: 25 } });
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .countAtLeast(3);
   })
@@ -126,14 +125,14 @@ export default scenario("MongoDB Client Example", {
     // NOTE: findOne returns T | undefined directly
     const users = mongo.collection<{ name: string }>("test_users");
     const result = await users.findOne({ name: "TxUser" });
-    expectMongoResult(result).ok();
+    expect(result).ok();
   })
   .step("Delete one document", async (ctx) => {
     const { mongo } = ctx.resources;
     const users = mongo.collection("test_users");
     const result = await users.deleteOne({ name: "TxUser" });
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .deletedCount(1);
   })
@@ -142,7 +141,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection("test_users");
     const result = await users.deleteMany({});
 
-    expectMongoResult(result)
+    expect(result)
       .ok()
       .deletedAtLeast(1);
   })

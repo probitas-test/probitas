@@ -4,17 +4,13 @@
  * Target: mysql service on port 13306 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { scenario } from "probitas";
-import {
-  createMySqlClient,
-  expectSqlQueryResult,
-} from "@probitas/client-sql-mysql";
+import { client, expect, outdent, scenario } from "probitas";
 
 export default scenario("MySQL Client Example", {
   tags: ["integration", "sql", "mysql"],
 })
   .resource("mysql", () =>
-    createMySqlClient({
+    client.sql.mysql.createMySqlClient({
       connection: {
         host: "localhost",
         port: 13306,
@@ -26,7 +22,7 @@ export default scenario("MySQL Client Example", {
   .setup(async (ctx) => {
     const { mysql } = ctx.resources;
     // Create test table
-    await mysql.query(`
+    await mysql.query(outdent`
       CREATE TABLE IF NOT EXISTS test_products (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
@@ -47,7 +43,7 @@ export default scenario("MySQL Client Example", {
       ["Widget", 19.99],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -58,7 +54,7 @@ export default scenario("MySQL Client Example", {
       ["Gadget", 29.99, "Gizmo", 39.99],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(2);
   })
@@ -69,7 +65,7 @@ export default scenario("MySQL Client Example", {
       ["Widget"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ name: "Widget" });
@@ -82,7 +78,7 @@ export default scenario("MySQL Client Example", {
       `SELECT id, name, price FROM test_products ORDER BY id`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(3);
   })
@@ -93,7 +89,7 @@ export default scenario("MySQL Client Example", {
       [24.99, "Widget"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -111,7 +107,7 @@ export default scenario("MySQL Client Example", {
       ["TxProduct"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ name: "TxProduct" });
@@ -123,7 +119,7 @@ export default scenario("MySQL Client Example", {
       ["TxProduct"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })

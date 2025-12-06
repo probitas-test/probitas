@@ -3,16 +3,12 @@
  *
  * Uses in-memory Deno KV storage for testing.
  */
-import { scenario } from "probitas";
-import {
-  createDenoKvClient,
-  expectDenoKvResult,
-} from "@probitas/client-deno-kv";
+import { client, expect, scenario } from "probitas";
 
 export default scenario("Deno KV Client Example", {
   tags: ["integration", "deno-kv"],
 })
-  .resource("kv", () => createDenoKvClient())
+  .resource("kv", () => client.deno_kv.createDenoKvClient())
   .setup((ctx) => {
     const { kv } = ctx.resources;
     // Return cleanup function to delete all test keys
@@ -28,13 +24,13 @@ export default scenario("Deno KV Client Example", {
   .step("Set string value", async (ctx) => {
     const { kv } = ctx.resources;
     const result = await kv.set(["test", "string"], "hello world");
-    expectDenoKvResult(result).ok();
+    expect(result).ok();
   })
   .step("Get string value", async (ctx) => {
     const { kv } = ctx.resources;
     const result = await kv.get<string>(["test", "string"]);
 
-    expectDenoKvResult(result)
+    expect(result)
       .ok()
       .value("hello world");
   })
@@ -49,7 +45,7 @@ export default scenario("Deno KV Client Example", {
       "object",
     ]);
 
-    expectDenoKvResult(result)
+    expect(result)
       .ok()
       .hasContent()
       .valueContains({ name: "Alice" });
@@ -66,7 +62,7 @@ export default scenario("Deno KV Client Example", {
       prefix: ["users"],
     });
 
-    expectDenoKvResult(result)
+    expect(result)
       .ok()
       .countAtLeast(3);
   })
@@ -77,7 +73,7 @@ export default scenario("Deno KV Client Example", {
       { limit: 2 },
     );
 
-    expectDenoKvResult(result)
+    expect(result)
       .ok()
       .count(2);
   })
@@ -85,7 +81,7 @@ export default scenario("Deno KV Client Example", {
     const { kv } = ctx.resources;
     const result = await kv.get(["nonexistent", "key"]);
 
-    expectDenoKvResult(result)
+    expect(result)
       .ok()
       .noContent();
   })
@@ -97,7 +93,7 @@ export default scenario("Deno KV Client Example", {
     atomic.check({ key: ["counter"], versionstamp: current.versionstamp });
     atomic.set(["counter"], 1);
     const result = await atomic.commit();
-    expectDenoKvResult(result).ok();
+    expect(result).ok();
   })
   .step("Atomic operation - increment", async (ctx) => {
     const { kv } = ctx.resources;
@@ -109,17 +105,17 @@ export default scenario("Deno KV Client Example", {
     await atomic.commit();
 
     const updated = await kv.get<number>(["counter"]);
-    expectDenoKvResult(updated).ok().value(2);
+    expect(updated).ok().value(2);
   })
   .step("Delete key", async (ctx) => {
     const { kv } = ctx.resources;
     const result = await kv.delete(["test", "string"]);
-    expectDenoKvResult(result).ok();
+    expect(result).ok();
   })
   .step("Verify deletion", async (ctx) => {
     const { kv } = ctx.resources;
     const result = await kv.get(["test", "string"]);
 
-    expectDenoKvResult(result).ok().noContent();
+    expect(result).ok().noContent();
   })
   .build();
