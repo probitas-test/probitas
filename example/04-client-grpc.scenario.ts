@@ -4,14 +4,13 @@
  * Target: echo-grpc service on port 50051 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-grpc/docs/api.md
  */
-import { scenario } from "probitas";
-import { createGrpcClient, expectGrpcResponse } from "@probitas/client-grpc";
+import { client, expect, scenario } from "probitas";
 
 export default scenario("gRPC Client Example", {
   tags: ["integration", "grpc"],
 })
   .resource("grpc", () =>
-    createGrpcClient({
+    client.grpc.createGrpcClient({
       address: "localhost:50051",
     }))
   .step("Echo - simple message", async (ctx) => {
@@ -20,7 +19,7 @@ export default scenario("gRPC Client Example", {
       message: "Hello from probitas",
     });
 
-    expectGrpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ message: "Hello from probitas" });
   })
@@ -31,7 +30,7 @@ export default scenario("gRPC Client Example", {
       delayMs: 100,
     });
 
-    expectGrpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ message: "delayed" })
       .durationLessThan(5000);
@@ -45,7 +44,7 @@ export default scenario("gRPC Client Example", {
       { throwOnError: false },
     );
 
-    expectGrpcResponse(res)
+    expect(res)
       .notOk()
       .code(5);
   })
@@ -58,7 +57,7 @@ export default scenario("gRPC Client Example", {
       { throwOnError: false },
     );
 
-    expectGrpcResponse(res)
+    expect(res)
       .notOk()
       .code(3);
   })
@@ -71,7 +70,7 @@ export default scenario("gRPC Client Example", {
       { metadata: { "x-custom-header": "custom-value" } },
     );
 
-    expectGrpcResponse(res).ok();
+    expect(res).ok();
   })
   .step("EchoLargePayload - generate bytes", async (ctx) => {
     const { grpc } = ctx.resources;
@@ -80,7 +79,7 @@ export default scenario("gRPC Client Example", {
       pattern: "X",
     });
 
-    expectGrpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ actualSize: 1024 });
   })
@@ -93,7 +92,7 @@ export default scenario("gRPC Client Example", {
       { timeout: 10000 },
     );
 
-    expectGrpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ message: "deadline test", hasDeadline: true });
   })
@@ -103,7 +102,7 @@ export default scenario("gRPC Client Example", {
       service: "",
     });
 
-    expectGrpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ status: 1 });
   })

@@ -4,17 +4,13 @@
  * Target: echo-connectrpc service on port 18082 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-connectrpc/docs/api.md
  */
-import { scenario } from "probitas";
-import {
-  createConnectRpcClient,
-  expectConnectRpcResponse,
-} from "@probitas/client-connectrpc";
+import { client, expect, scenario } from "probitas";
 
 export default scenario("ConnectRPC Client Example", {
   tags: ["integration", "connectrpc"],
 })
   .resource("rpc", () =>
-    createConnectRpcClient({
+    client.connectrpc.createConnectRpcClient({
       address: "localhost:18082",
     }))
   .step("Echo - simple message", async (ctx) => {
@@ -23,7 +19,7 @@ export default scenario("ConnectRPC Client Example", {
       message: "Hello ConnectRPC",
     });
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ message: "Hello ConnectRPC" });
   })
@@ -34,7 +30,7 @@ export default scenario("ConnectRPC Client Example", {
       delayMs: 100,
     });
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ message: "delayed" });
   })
@@ -47,7 +43,7 @@ export default scenario("ConnectRPC Client Example", {
       { throwOnError: false },
     );
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .notOk()
       .code(5);
   })
@@ -60,7 +56,7 @@ export default scenario("ConnectRPC Client Example", {
       { throwOnError: false },
     );
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .notOk()
       .code(16);
   })
@@ -73,7 +69,7 @@ export default scenario("ConnectRPC Client Example", {
       { metadata: { authorization: "Bearer my-token" } },
     );
 
-    expectConnectRpcResponse(res).ok();
+    expect(res).ok();
   })
   .step("EchoLargePayload - payload generation", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -82,7 +78,7 @@ export default scenario("ConnectRPC Client Example", {
       pattern: "ABC",
     });
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ actualSize: 2048 });
   })
@@ -95,7 +91,7 @@ export default scenario("ConnectRPC Client Example", {
       { timeout: 5000 },
     );
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ hasDeadline: true });
   })
@@ -105,7 +101,7 @@ export default scenario("ConnectRPC Client Example", {
       service: "",
     });
 
-    expectConnectRpcResponse(res)
+    expect(res)
       .ok()
       .dataContains({ status: 1 });
   })

@@ -4,18 +4,13 @@
  * Target: echo-graphql service on port 14000 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-graphql/docs/api.md
  */
-import { scenario } from "probitas";
-import {
-  createGraphqlClient,
-  expectGraphqlResponse,
-  outdent,
-} from "@probitas/client-graphql";
+import { client, expect, outdent, scenario } from "probitas";
 
 export default scenario("GraphQL Client Example", {
   tags: ["integration", "graphql"],
 })
   .resource("gql", () =>
-    createGraphqlClient({
+    client.graphql.createGraphqlClient({
       endpoint: "http://localhost:14000/graphql",
     }))
   .step("echo - simple query", async (ctx) => {
@@ -26,7 +21,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res)
+    expect(res)
       .ok()
       .dataContains({ echo: "Hello GraphQL" });
   })
@@ -41,7 +36,7 @@ export default scenario("GraphQL Client Example", {
       { msg: "variable message" },
     );
 
-    expectGraphqlResponse(res)
+    expect(res)
       .ok()
       .dataContains({ echo: "variable message" });
   })
@@ -53,7 +48,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res)
+    expect(res)
       .ok()
       .dataContains({ echoWithDelay: "delayed" })
       .durationLessThan(5000);
@@ -70,7 +65,7 @@ export default scenario("GraphQL Client Example", {
       { throwOnError: false },
     );
 
-    expectGraphqlResponse(res).hasErrors();
+    expect(res).hasErrors();
   })
   .step("echoNull - null handling", async (ctx) => {
     const { gql } = ctx.resources;
@@ -80,7 +75,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res)
+    expect(res)
       .ok()
       .dataContains({ echoNull: null });
   })
@@ -92,7 +87,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res)
+    expect(res)
       .ok()
       .dataContains({ echoOptional: "optional" });
   })
@@ -107,7 +102,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res).ok();
+    expect(res).ok();
   })
   .step("echoNested - nested response", async (ctx) => {
     const { gql } = ctx.resources;
@@ -122,7 +117,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res).ok();
+    expect(res).ok();
   })
   .step("echoHeaders - header verification", async (ctx) => {
     const { gql } = ctx.resources;
@@ -139,7 +134,7 @@ export default scenario("GraphQL Client Example", {
       { headers: { Authorization: "Bearer test-token" } },
     );
 
-    expectGraphqlResponse(res).ok();
+    expect(res).ok();
   })
   .step("createMessage - mutation", async (ctx) => {
     const { gql } = ctx.resources;
@@ -153,7 +148,7 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res).ok();
+    expect(res).ok();
   })
   .step("batchCreateMessages - batch mutation", async (ctx) => {
     const { gql } = ctx.resources;
@@ -166,6 +161,6 @@ export default scenario("GraphQL Client Example", {
       }
     `);
 
-    expectGraphqlResponse(res).ok();
+    expect(res).ok();
   })
   .build();

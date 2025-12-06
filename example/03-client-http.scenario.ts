@@ -4,7 +4,7 @@
  * This example demonstrates the @probitas/client-http package:
  * - Creating an HTTP client with base URL
  * - Making GET/POST/PUT/PATCH/DELETE requests
- * - Using expectHttpResponse for fluent assertions
+ * - Using expect for fluent assertions
  * - Working with JSON request/response bodies
  * - Query parameters and custom headers
  * - Status code testing
@@ -14,21 +14,20 @@
  * Target: echo-http service on port 18080 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-http/docs/api.md
  */
-import { scenario } from "probitas";
-import { createHttpClient, expectHttpResponse } from "@probitas/client-http";
+import { client, expect, scenario } from "probitas";
 
 export default scenario("HTTP Client Example", {
   tags: ["integration", "http"],
 })
   .resource("http", () =>
-    createHttpClient({
+    client.http.createHttpClient({
       baseUrl: "http://localhost:18080",
     }))
   .step("GET /get - echo request info", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/get?name=probitas&version=1");
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .status(200)
       .contentType(/application\/json/)
@@ -41,7 +40,7 @@ export default scenario("HTTP Client Example", {
       count: 42,
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .contentType(/application\/json/)
       .jsonContains({ json: { message: "Hello from probitas", count: 42 } });
@@ -50,7 +49,7 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.put("/put", { id: 1, name: "updated" });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ json: { id: 1, name: "updated" } });
   })
@@ -58,7 +57,7 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.patch("/patch", { name: "patched" });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ json: { name: "patched" } });
   })
@@ -66,7 +65,7 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.delete("/delete?id=123");
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ args: { id: "123" } });
   })
@@ -79,7 +78,7 @@ export default scenario("HTTP Client Example", {
       },
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({
         headers: {
@@ -92,31 +91,31 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/status/200", { throwOnError: false });
 
-    expectHttpResponse(res).ok().status(200);
+    expect(res).ok().status(200);
   })
   .step("GET /status/201 - created status", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/201", { throwOnError: false });
 
-    expectHttpResponse(res).ok().status(201);
+    expect(res).ok().status(201);
   })
   .step("GET /status/400 - bad request", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/400", { throwOnError: false });
 
-    expectHttpResponse(res).notOk().status(400);
+    expect(res).notOk().status(400);
   })
   .step("GET /status/404 - not found", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/404", { throwOnError: false });
 
-    expectHttpResponse(res).notOk().status(404);
+    expect(res).notOk().status(404);
   })
   .step("GET /status/500 - server error", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/500", { throwOnError: false });
 
-    expectHttpResponse(res).notOk().status(500);
+    expect(res).notOk().status(500);
   })
   .step("GET /basic-auth - valid credentials", async (ctx) => {
     const { http } = ctx.resources;
@@ -125,7 +124,7 @@ export default scenario("HTTP Client Example", {
       headers: { Authorization: `Basic ${credentials}` },
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ authenticated: true, user: "testuser" });
   })
@@ -137,7 +136,7 @@ export default scenario("HTTP Client Example", {
       throwOnError: false,
     });
 
-    expectHttpResponse(res).notOk().status(401);
+    expect(res).notOk().status(401);
   })
   .step("GET /bearer - valid token", async (ctx) => {
     const { http } = ctx.resources;
@@ -145,7 +144,7 @@ export default scenario("HTTP Client Example", {
       headers: { Authorization: "Bearer my-secret-token" },
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ authenticated: true, token: "my-secret-token" });
   })
@@ -153,7 +152,7 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/bearer", { throwOnError: false });
 
-    expectHttpResponse(res).notOk().status(401);
+    expect(res).notOk().status(401);
   })
   .step("GET /cookies - echo cookies", async (ctx) => {
     const { http } = ctx.resources;
@@ -161,7 +160,7 @@ export default scenario("HTTP Client Example", {
       headers: { Cookie: "session=abc123; user=probitas" },
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .jsonContains({ cookies: { session: "abc123", user: "probitas" } });
   })
@@ -171,7 +170,7 @@ export default scenario("HTTP Client Example", {
       data: "test",
     });
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .contentType(/application\/json/)
       .jsonContains({ method: "POST", args: { key: "value" } });
@@ -180,25 +179,25 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/ip");
 
-    expectHttpResponse(res).ok().hasContent();
+    expect(res).ok().hasContent();
   })
   .step("GET /user-agent - get user agent", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/user-agent");
 
-    expectHttpResponse(res).ok().hasContent();
+    expect(res).ok().hasContent();
   })
   .step("GET /health - health check", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/health");
 
-    expectHttpResponse(res).ok().jsonContains({ status: "ok" });
+    expect(res).ok().jsonContains({ status: "ok" });
   })
   .step("GET /bytes/{n} - random bytes", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/bytes/100");
 
-    expectHttpResponse(res)
+    expect(res)
       .ok()
       .contentType(/application\/octet-stream/)
       .bodyMatch((body) => body?.byteLength === 100);

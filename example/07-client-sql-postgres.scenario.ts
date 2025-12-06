@@ -4,17 +4,13 @@
  * Target: postgres service on port 15432 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { scenario } from "probitas";
-import {
-  createPostgresClient,
-  expectSqlQueryResult,
-} from "@probitas/client-sql-postgres";
+import { client, expect, outdent, scenario } from "probitas";
 
 export default scenario("PostgreSQL Client Example", {
   tags: ["integration", "sql", "postgres"],
 })
   .resource("pg", () =>
-    createPostgresClient({
+    client.sql.postgres.createPostgresClient({
       connection: {
         host: "localhost",
         port: 15432,
@@ -26,7 +22,7 @@ export default scenario("PostgreSQL Client Example", {
   .setup(async (ctx) => {
     const { pg } = ctx.resources;
     // Create test table
-    await pg.query(`
+    await pg.query(outdent`
       CREATE TABLE IF NOT EXISTS test_users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
@@ -47,7 +43,7 @@ export default scenario("PostgreSQL Client Example", {
       ["Alice", "alice@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -58,7 +54,7 @@ export default scenario("PostgreSQL Client Example", {
       ["Bob", "bob@example.com", "Charlie", "charlie@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(2);
   })
@@ -69,7 +65,7 @@ export default scenario("PostgreSQL Client Example", {
       ["Alice"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ name: "Alice" });
@@ -80,7 +76,7 @@ export default scenario("PostgreSQL Client Example", {
       `SELECT id, name FROM test_users ORDER BY id`,
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCountAtLeast(3);
   })
@@ -91,7 +87,7 @@ export default scenario("PostgreSQL Client Example", {
       ["Alice Updated", "alice@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
@@ -109,7 +105,7 @@ export default scenario("PostgreSQL Client Example", {
       ["tx@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1)
       .rowContains({ name: "TxUser" });
@@ -133,7 +129,7 @@ export default scenario("PostgreSQL Client Example", {
       ["rollback@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(0);
   })
@@ -144,7 +140,7 @@ export default scenario("PostgreSQL Client Example", {
       ["tx@example.com"],
     );
 
-    expectSqlQueryResult(result)
+    expect(result)
       .ok()
       .rowCount(1);
   })
