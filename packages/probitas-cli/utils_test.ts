@@ -130,8 +130,8 @@ describe("utils", () => {
   });
 
   describe("getVersion", () => {
-    it("returns version string or undefined", () => {
-      const version = getVersion();
+    it("returns version string or undefined", async () => {
+      const version = await getVersion();
       // Should be a version string or undefined
       if (version !== undefined) {
         assertEquals(typeof version, "string");

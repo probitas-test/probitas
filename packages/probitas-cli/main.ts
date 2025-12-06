@@ -40,7 +40,7 @@ export async function main(args: string[]): Promise<number> {
 
   // Show version
   if (parsed.version) {
-    const version = getVersion() ?? "unknown";
+    const version = await getVersion() ?? "unknown";
     console.log(`probitas ${version}`);
     return EXIT_CODE.SUCCESS;
   }

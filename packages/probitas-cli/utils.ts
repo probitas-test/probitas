@@ -19,6 +19,14 @@ import type { Reporter, ReporterOptions } from "@probitas/reporter";
 
 const logger = getLogger("probitas", "cli", "utils");
 
+type DenoJson = {
+  version?: string;
+};
+
+const isDenoJson = is.ObjectOf({
+  version: as.Optional(is.String),
+}) satisfies Predicate<DenoJson>;
+
 type DenoConfig = {
   imports?: Record<string, string>;
 };
@@ -124,12 +132,17 @@ export async function readAsset(path: string): Promise<string> {
  *
  * @returns Version string, or undefined if not running from JSR
  */
-export function getVersion(): string | undefined {
-  const prefix = "https://jsr.io/@probitas/probitas/";
-  if (import.meta.url.startsWith(prefix)) {
-    return import.meta.url.slice(prefix.length).split("/").at(0);
+export async function getVersion(): Promise<string | undefined> {
+  try {
+    const resp = await fetch(new URL("./deno.json", import.meta.url));
+    const denoJson = ensure(await resp.json(), isDenoJson);
+    return denoJson.version;
+  } catch (err: unknown) {
+    logger.debug("Failed to read version from deno.json", {
+      err,
+    });
+    return undefined;
   }
-  return undefined;
 }
 
 /**
