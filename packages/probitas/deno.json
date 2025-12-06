@@ -1,7 +1,25 @@
 {
   "name": "@probitas/probitas",
   "version": "0.2.2",
-  "exports": "./mod.ts",
+  "exports": {
+    ".": "./mod.ts",
+    "./expect": "./expect.ts",
+    "./client": "./client/mod.ts",
+    "./client/connectrpc": "./client/connectrpc.ts",
+    "./client/deno-kv": "./client/deno_kv.ts",
+    "./client/graphql": "./client/graphql.ts",
+    "./client/grpc": "./client/grpc.ts",
+    "./client/http": "./client/http.ts",
+    "./client/mongodb": "./client/mongodb.ts",
+    "./client/rabbitmq": "./client/rabbitmq.ts",
+    "./client/redis": "./client/redis.ts",
+    "./client/sql": "./client/sql/mod.ts",
+    "./client/sql/duckdb": "./client/sql/duckdb.ts",
+    "./client/sql/mysql": "./client/sql/mysql.ts",
+    "./client/sql/postgres": "./client/sql/postgres.ts",
+    "./client/sql/sqlite": "./client/sql/sqlite.ts",
+    "./client/sqs": "./client/sqs.ts"
+  },
   "publish": {
     "exclude": [
       "**/*_test.ts",
