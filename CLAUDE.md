@@ -52,7 +52,7 @@ graph TD
 ```json
 {
   "name": "@probitas/{package-name}",
-  "version": "0.0.0",
+  "version": "0.2.2",
   "exports": "./mod.ts",
   "publish": {
     "exclude": ["**/*_test.ts", "**/*_bench.ts"]
