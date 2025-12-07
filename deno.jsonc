@@ -67,10 +67,13 @@
     "jsr:@probitas/reporter@^0": "./packages/probitas-reporter/mod.ts",
     "jsr:@probitas/runner@^0": "./packages/probitas-runner/mod.ts",
     "jsr:@probitas/scenario@^0": "./packages/probitas-scenario/mod.ts",
-    // Convenience aliases (required for type-checking example/ directory)
+    // Convenience aliases (required for type-checking probitas/ directory)
     "probitas": "./packages/probitas/mod.ts"
   },
   "probitas": {
+    "includes": [
+      "probitas/**/*.probitas.ts"
+    ],
     "excludes": [
       "**/templates/**/*.scenario.ts"
     ]

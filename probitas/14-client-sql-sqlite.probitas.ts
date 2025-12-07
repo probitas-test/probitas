@@ -2,7 +2,7 @@
  * SQLite Client Scenario Example
  *
  * Uses in-memory database for testing (no external dependencies required).
- * For file-based database, set path to a file path like "./example/assets/test.db"
+ * For file-based database, set path to a file path like "./probitas/assets/test.db"
  */
 import { client, expect, outdent, scenario } from "probitas";
 

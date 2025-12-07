@@ -21,7 +21,7 @@ probitas/
 │   ├── probitas-scenario/        # @probitas/scenario - Scenario loading/filtering
 │   ├── probitas-discover/        # @probitas/discover - File discovery
 │   └── probitas-cli/             # @probitas/cli - Command-line interface
-└── example/                      # Example scenarios
+└── probitas/                     # Example scenarios
 ```
 
 ### Package Hierarchy
@@ -111,7 +111,7 @@ Follow test-driven development principles:
 - Test in isolation without external dependencies
 - Run with `deno task test`
 
-**Example Scenarios (`example/`)**
+**Example Scenarios (`probitas/`)**
 
 - Example scenarios for documentation and manual testing
 - Files named `*.probitas.ts`

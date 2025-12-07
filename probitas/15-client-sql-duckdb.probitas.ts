@@ -4,7 +4,7 @@
  * Uses in-memory database for testing (no external dependencies required).
  * DuckDB excels at analytical queries and can directly query Parquet/CSV files.
  *
- * For file-based database, set path like "./example/assets/analytics.duckdb"
+ * For file-based database, set path like "./probitas/assets/analytics.duckdb"
  */
 import { client, expect, outdent, scenario } from "probitas";
 
