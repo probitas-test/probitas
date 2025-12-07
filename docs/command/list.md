@@ -253,7 +253,7 @@ probitas list --json | jq -r '.scenarios[] | "\(.name) [\(.tags | join(", "))]"'
 
 ## Related
 
-- [CLI Reference](../cli.md)
+- [Command Reference](../command.md)
 - [probitas run](./run.md)
 - [probitas init](./init.md)
 - [Guide](../guide.md)

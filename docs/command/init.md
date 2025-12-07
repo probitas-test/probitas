@@ -312,5 +312,5 @@ probitas run
 
 ## Related
 
-- [CLI Reference](../cli.md)
+- [Command Reference](../command.md)
 - [Guide](../guide.md)

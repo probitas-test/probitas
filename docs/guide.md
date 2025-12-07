@@ -213,7 +213,7 @@ GitHub Actions example:
 
 ## Related
 
-- [CLI Reference](./cli.md) - Command-line options
+- [Command Reference](./command.md) - Command-line options
 - [Architecture](./develop/architecture.md) - Design overview
 - [Builder](./develop/builder.md) - Scenario definition API
 - [Runner](./develop/runner.md) - Execution engine

@@ -1,4 +1,4 @@
-# CLI Reference
+# Command Reference
 
 Command-line interface for Probitas.
 
@@ -12,58 +12,15 @@ To update: `deno install -gAfr -n probitas jsr:@probitas/cli`
 
 ## Commands
 
-### run
-
-Execute scenarios.
-
-```
-probitas run [paths...] [options]
-```
-
-**Arguments:**
-
-- `paths` - Files or directories (default: current directory)
-
-**Options:**
-
-| Option              | Short | Description                                |
-| ------------------- | ----- | ------------------------------------------ |
-| `--selector`        | `-s`  | Filter scenarios (repeatable)              |
-| `--include`         |       | Include file pattern                       |
-| `--exclude`         |       | Exclude file pattern                       |
-| `--reporter`        |       | Output format: list/dot/json/tap           |
-| `--max-concurrency` |       | Parallel limit (default: unlimited)        |
-| `--max-failures`    |       | Stop after N failures                      |
-| `--sequential`      | `-S`  | Run sequentially (= --max-concurrency 1)   |
-| `--fail-fast`       | `-f`  | Stop on first failure (= --max-failures 1) |
-| `--quiet`           | `-q`  | Errors only                                |
-| `--verbose`         | `-v`  | Verbose output                             |
-| `--debug`           | `-d`  | Debug output                               |
-| `--no-color`        |       | Disable colors                             |
-| `--config`          |       | Config file path                           |
-| `--help`            | `-h`  | Show help                                  |
-
-### list
-
-List available scenarios.
-
-```
-probitas list [options]
-```
-
-**Options:** `-s`, `--include`, `--exclude`, `--json`, `--config`, `-h`
-
-### init
-
-Initialize project.
-
-```
-probitas init [--force]
-```
-
-Creates `deno.json` and `probitas/example.probitas.ts`.
+| Command                     | Description              |
+| --------------------------- | ------------------------ |
+| [`run`](./command/run.md)   | Execute scenarios        |
+| [`list`](./command/list.md) | List available scenarios |
+| [`init`](./command/init.md) | Initialize project       |
 
 ## Selector Syntax
+
+Used by `run` and `list` commands.
 
 ```
 [!][type:]value

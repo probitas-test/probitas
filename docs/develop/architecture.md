@@ -63,6 +63,6 @@ Cleanup always runs in reverse definition order, even on failure.
 
 ## Usage
 
-See [Guide](./guide.md) for practical usage examples.
+See [Guide](../guide.md) for practical usage examples.
 
-See [CLI Reference](./cli.md) for command-line interface.
+See [Command Reference](../command.md) for command-line interface.

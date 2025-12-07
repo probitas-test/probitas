@@ -253,7 +253,7 @@ probitas run --include "e2e/**/*.probitas.ts" --reporter dot
 
 ## Related
 
-- [CLI Reference](../cli.md)
+- [Command Reference](../command.md)
 - [probitas list](./list.md)
 - [probitas init](./init.md)
 - [Guide](../guide.md)

@@ -93,5 +93,5 @@ const mixed = await discoverScenarioFiles([
 ## Related
 
 - [Architecture](./architecture.md) - Overall design
-- [CLI](../cli.md) - Command-line usage
+- [Command Reference](../command.md) - Command-line usage
 - [Guide](../guide.md) - Practical examples
