@@ -107,7 +107,6 @@ export async function runCommand(
 
     // Load configuration
     const configPath = parsed.config ??
-      Deno.env.get("PROBITAS_CONFIG") ??
       await findDenoConfigFile(cwd, { parentLookup: true });
     const config = configPath ? await loadConfig(configPath) : {};
 

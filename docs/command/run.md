@@ -179,10 +179,9 @@ probitas run -f                     # Short form
 
 ## Environment Variables
 
-| Variable          | Description            |
-| ----------------- | ---------------------- |
-| `NO_COLOR`        | Disable colored output |
-| `PROBITAS_CONFIG` | Config file path       |
+| Variable   | Description            |
+| ---------- | ---------------------- |
+| `NO_COLOR` | Disable colored output |
 
 ## Examples
 

@@ -13,7 +13,6 @@ Options:
 
 Environment Variables:
   NO_COLOR         Disable colored output
-  PROBITAS_CONFIG  Path to config file
 
 Run 'probitas <command> -h' for more information on a command.
 
