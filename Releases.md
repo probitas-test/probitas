@@ -1,5 +1,39 @@
 ### 2025.12.07
 
+#### @probitas/builder 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/cli 0.3.2 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/discover 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/logger 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/probitas 0.3.2 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/reporter 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/runner 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+#### @probitas/scenario 0.2.4 (patch)
+
+- fix(*): update examples and docs for probitas-client 0.1.0 breaking changes
+
+### 2025.12.07
+
 #### @probitas/builder 0.2.3 (patch)
 
 - docs(*): enhance public API documentation across all packages
