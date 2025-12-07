@@ -151,13 +151,11 @@ export function parseTimeout(
       case "h":
         seconds = num * 3600;
         break;
-      default:
-        throw new Error(`Invalid timeout unit: "${unit}"`);
     }
   }
 
   if (seconds <= 0 || !Number.isFinite(seconds)) {
-    throw new Error(`Timeout must be a positive number, got: ${value}`);
+    throw new Error(`Timeout must be a positive number`);
   }
 
   return seconds;

@@ -165,7 +165,7 @@ describe("utils", () => {
       assertThrows(
         () => parseTimeout("30x"),
         Error,
-        'Invalid timeout format',
+        "Invalid timeout format",
       );
     });
 
@@ -181,7 +181,7 @@ describe("utils", () => {
       assertThrows(
         () => parseTimeout("-10s"),
         Error,
-        'Invalid timeout format',
+        "Invalid timeout format",
       );
     });
 

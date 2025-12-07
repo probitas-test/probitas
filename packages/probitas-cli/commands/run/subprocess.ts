@@ -137,8 +137,10 @@ async function main(): Promise<number> {
     };
     const reporter = resolveReporter(reporterName, reporterOptions);
 
-    // Create abort controller for timeout if specified
-    const controller = timeout ? AbortSignal.timeout(timeout * 1000) : undefined;
+    // Create abort signal for timeout if specified
+    const timeoutSignal = timeout
+      ? AbortSignal.timeout(timeout * 1000)
+      : undefined;
 
     // Run scenarios
     const runner = new ScenarioRunner();
@@ -146,7 +148,7 @@ async function main(): Promise<number> {
       reporter,
       maxConcurrency,
       maxFailures,
-      signal: controller,
+      signal: timeoutSignal,
     });
 
     logger.info("Scenarios completed", {
