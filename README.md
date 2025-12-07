@@ -6,6 +6,7 @@
 
 [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)
 [![Test](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml)
+[![Publish](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml)
 [![codecov](https://codecov.io/github/jsr-probitas/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/jsr-probitas/probitas)
 
 Scenario-based testing & workflow execution framework.
@@ -198,15 +199,15 @@ consistent tooling.
 
 ## Packages
 
-| Package                                                 | Description                              | Version                                                                               |
-| ------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------- |
-| [@probitas/probitas](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios    | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) |
-| [@probitas/cli](https://jsr.io/@probitas/cli)           | Command-line interface                   | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           |
-| [@probitas/builder](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API        | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   |
-| [@probitas/runner](https://jsr.io/@probitas/runner)     | Scenario execution engine                | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     |
-| [@probitas/reporter](https://jsr.io/@probitas/reporter) | Output formatters (List, Dot, JSON, TAP) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) |
-| [@probitas/scenario](https://jsr.io/@probitas/scenario) | Scenario loading and filtering           | [![JSR](https://jsr.io/badges/@probitas/scenario)](https://jsr.io/@probitas/scenario) |
-| [@probitas/discover](https://jsr.io/@probitas/discover) | File discovery with glob patterns        | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) |
+| Package                                                 | JSR                                                                                   | Description                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------- |
+| [@probitas/probitas](https://jsr.io/@probitas/probitas) | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios    |
+| [@probitas/cli](https://jsr.io/@probitas/cli)           | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           | Command-line interface                   |
+| [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API        |
+| [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine                |
+| [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, Dot, JSON, TAP) |
+| [@probitas/scenario](https://jsr.io/@probitas/scenario) | [![JSR](https://jsr.io/badges/@probitas/scenario)](https://jsr.io/@probitas/scenario) | Scenario loading and filtering           |
+| [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns        |
 
 ## License
 
