@@ -5,7 +5,7 @@
   "probitas": {
     "reporter": "list",
     "includes": [
-      "**/*.scenario.ts"
+      "probitas/**/*.probitas.ts"
     ],
     "excludes": [
       "**/node_modules/**",

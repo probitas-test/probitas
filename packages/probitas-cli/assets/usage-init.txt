@@ -2,15 +2,20 @@ probitas init - Initialize a new Probitas project
 
 Usage: probitas init [options]
 
-Generates the following files:
-  deno.jsonc (or updates deno.json)  Deno config with probitas settings
-  scenarios/example.scenario.ts      Sample scenario
+Generates the following structure:
+  deno.json                    Deno config with probitas settings (created or updated)
+  probitas/
+    example.probitas.ts        Sample scenario
 
 If deno.json or deno.jsonc already exists, adds probitas configuration to it.
+Comments in .jsonc files are preserved.
 
 Options:
   -h, --help     Show help message
-  --force        Overwrite existing files
+  -f, --force    Overwrite existing files
+  -v, --verbose  Enable verbose logging
+  -q, --quiet    Suppress most logging
+  -d, --debug    Enable debug logging
 
 Examples:
   probitas init           Initialize new project

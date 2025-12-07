@@ -40,10 +40,15 @@ describe("init command", () => {
       assertEquals(config.probitas.reporter, "list");
       assertEquals(Array.isArray(config.probitas.includes), true);
       assertEquals(Array.isArray(config.probitas.excludes), true);
+      // Check new includes pattern
+      assertStringIncludes(
+        config.probitas.includes[0],
+        "probitas/**/*.probitas.ts",
+      );
     });
   });
 
-  describe("when deno.json exists (no comments)", () => {
+  describe("when deno.json exists", () => {
     it("adds probitas import when not exists", async () => {
       await using sbox = await sandbox();
 
@@ -182,24 +187,29 @@ describe("init command", () => {
   });
 
   describe("when deno.jsonc exists (with comments)", () => {
-    it("returns error without --force", async () => {
+    it("preserves comments when adding probitas config", async () => {
       await using sbox = await sandbox();
 
       const denoJsoncPath = sbox.resolve("deno.jsonc");
-      await Deno.writeTextFile(
-        denoJsoncPath,
-        `{
-          // This is a comment
-          "imports": {}
-        }`,
-      );
+      const originalContent = `{
+  // Project configuration
+  "name": "my-app",
+  "imports": {}
+}`;
+      await Deno.writeTextFile(denoJsoncPath, originalContent);
 
       const exitCode = await initCommand([], sbox.path);
 
-      assertEquals(exitCode, 2);
+      assertEquals(exitCode, 0);
+
+      const content = await Deno.readTextFile(denoJsoncPath);
+      // Comments should be preserved
+      assertStringIncludes(content, "// Project configuration");
+      // Probitas config should be added
+      assertStringIncludes(content, '"probitas"');
     });
 
-    it("adds probitas when no comments exist", async () => {
+    it("adds probitas config to jsonc file", async () => {
       await using sbox = await sandbox();
 
       const denoJsoncPath = sbox.resolve("deno.jsonc");
@@ -213,21 +223,21 @@ describe("init command", () => {
       assertEquals(exitCode, 0);
 
       const content = await Deno.readTextFile(denoJsoncPath);
-      const config = JSON.parse(content);
-
-      assertEquals(typeof config.probitas, "object");
+      assertStringIncludes(content, '"probitas"');
+      assertStringIncludes(content, "probitas/**/*.probitas.ts");
     });
 
-    it("overwrites with --force (comments are lost)", async () => {
+    it("overwrites probitas section with --force", async () => {
       await using sbox = await sandbox();
 
       const denoJsoncPath = sbox.resolve("deno.jsonc");
       await Deno.writeTextFile(
         denoJsoncPath,
         `{
-          // This comment will be lost
-          "imports": {}
-        }`,
+  // My custom comment
+  "imports": {},
+  "probitas": { "reporter": "dot" }
+}`,
       );
 
       const exitCode = await initCommand(["--force"], sbox.path);
@@ -235,11 +245,10 @@ describe("init command", () => {
       assertEquals(exitCode, 0);
 
       const content = await Deno.readTextFile(denoJsoncPath);
-      const config = JSON.parse(content);
-
-      assertEquals(typeof config.probitas, "object");
-      // Comments are lost after rewrite
-      assertEquals(content.includes("//"), false);
+      // Comments should be preserved
+      assertStringIncludes(content, "// My custom comment");
+      // Probitas config should be overwritten
+      assertStringIncludes(content, '"reporter": "list"');
     });
   });
 
@@ -272,18 +281,18 @@ describe("init command", () => {
     });
   });
 
-  describe("scenario directory", () => {
-    it("creates scenarios directory and example file", async () => {
+  describe("probitas directory", () => {
+    it("creates probitas directory and example file", async () => {
       await using sbox = await sandbox();
 
       const exitCode = await initCommand([], sbox.path);
 
       assertEquals(exitCode, 0);
 
-      const scenariosDir = sbox.resolve("scenarios");
-      const examplePath = sbox.resolve("scenarios/example.scenario.ts");
+      const probitasDir = sbox.resolve("probitas");
+      const examplePath = sbox.resolve("probitas/example.probitas.ts");
 
-      assertEquals(await exists(scenariosDir), true);
+      assertEquals(await exists(probitasDir), true);
       assertEquals(await exists(examplePath), true);
 
       const exampleContent = await Deno.readTextFile(examplePath);
@@ -293,9 +302,9 @@ describe("init command", () => {
     it("returns error when example exists without --force", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("scenarios"), { recursive: true });
+      await Deno.mkdir(sbox.resolve("probitas"), { recursive: true });
       await Deno.writeTextFile(
-        sbox.resolve("scenarios/example.scenario.ts"),
+        sbox.resolve("probitas/example.probitas.ts"),
         "old content",
       );
 
@@ -305,7 +314,7 @@ describe("init command", () => {
 
       // Content should be unchanged
       const content = await Deno.readTextFile(
-        sbox.resolve("scenarios/example.scenario.ts"),
+        sbox.resolve("probitas/example.probitas.ts"),
       );
       assertEquals(content, "old content");
     });
@@ -313,9 +322,9 @@ describe("init command", () => {
     it("overwrites example with --force", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("scenarios"), { recursive: true });
+      await Deno.mkdir(sbox.resolve("probitas"), { recursive: true });
       await Deno.writeTextFile(
-        sbox.resolve("scenarios/example.scenario.ts"),
+        sbox.resolve("probitas/example.probitas.ts"),
         "old content",
       );
 
@@ -324,7 +333,7 @@ describe("init command", () => {
       assertEquals(exitCode, 0);
 
       const content = await Deno.readTextFile(
-        sbox.resolve("scenarios/example.scenario.ts"),
+        sbox.resolve("probitas/example.probitas.ts"),
       );
       assertStringIncludes(content, "Example Scenario");
     });
@@ -337,6 +346,47 @@ describe("init command", () => {
       const exitCode = await initCommand(["--help"], sbox.path);
 
       assertEquals(exitCode, 0);
+    });
+  });
+
+  describe("error handling", () => {
+    it("shows user-friendly error for invalid JSON syntax", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(
+        sbox.resolve("deno.json"),
+        "{ invalid json }",
+      );
+
+      const exitCode = await initCommand([], sbox.path);
+
+      assertEquals(exitCode, 2);
+    });
+
+    it("shows user-friendly error for invalid imports section", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(
+        sbox.resolve("deno.json"),
+        JSON.stringify({ imports: "not an object" }, null, 2),
+      );
+
+      const exitCode = await initCommand([], sbox.path);
+
+      assertEquals(exitCode, 2);
+    });
+
+    it("shows user-friendly error for non-string import value", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(
+        sbox.resolve("deno.json"),
+        JSON.stringify({ imports: { foo: 123 } }, null, 2),
+      );
+
+      const exitCode = await initCommand([], sbox.path);
+
+      assertEquals(exitCode, 2);
     });
   });
 });

@@ -114,7 +114,7 @@ describe("utils", () => {
       assertStringIncludes(denoJson, "imports");
       assertStringIncludes(denoJson, "probitas");
 
-      const example = await readTemplate("example.scenario.ts.tpl");
+      const example = await readTemplate("example.probitas.ts.tpl");
       assertStringIncludes(example, "Example Scenario");
     });
   });
