@@ -10,7 +10,7 @@
 import type {
   Entry,
   ResourceDefinition,
-  ResourceFactory,
+  ResourceFunction,
   ScenarioDefinition,
   ScenarioOptions,
   SetupDefinition,
@@ -20,7 +20,7 @@ import type {
   StepOptions,
 } from "@probitas/scenario";
 import type {
-  BuilderResourceFactory,
+  BuilderResourceFunction,
   BuilderSetupFunction,
   BuilderStepFunction,
 } from "./types.ts";
@@ -111,11 +111,11 @@ class ScenarioBuilderState<
 
   addResource(
     name: string,
-    factory: ResourceFactory,
+    fn: ResourceFunction,
   ): void {
     const resourceDef: ResourceDefinition = {
       name,
-      factory,
+      fn,
     };
     this.#entries.push({
       kind: "resource",
@@ -275,7 +275,7 @@ class ScenarioBuilderInit<
    * @typeParam K - Resource name as a string literal type
    * @typeParam T - Resource value type
    * @param name - Unique identifier for the resource (used as key in `ctx.resources`)
-   * @param factory - Async function that creates and returns the resource
+   * @param fn - Async function that creates and returns the resource
    * @returns New builder with the resource added to the Resources type
    *
    * @remarks
@@ -307,10 +307,10 @@ class ScenarioBuilderInit<
    */
   resource<K extends string, T>(
     name: K,
-    factory: BuilderResourceFactory<T, P, A, R>,
+    fn: BuilderResourceFunction<T, P, A, R>,
   ): ScenarioBuilderInit<P, A, R & Record<K, T>> {
     const clonedState = this.#state.clone<R & Record<K, T>>();
-    clonedState.addResource(name, factory as ResourceFactory);
+    clonedState.addResource(name, fn as ResourceFunction);
     return new ScenarioBuilderInit(clonedState);
   }
 

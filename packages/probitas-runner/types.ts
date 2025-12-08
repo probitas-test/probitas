@@ -457,7 +457,7 @@ export type {
   Entry,
   EntryMetadata,
   ResourceDefinition,
-  ResourceFactory,
+  ResourceFunction,
   ResourceMetadata,
   ScenarioDefinition,
   ScenarioMetadata,

@@ -290,7 +290,7 @@ export interface SetupDefinition {
 export type SetupMetadata = Omit<SetupDefinition, "fn">;
 
 /**
- * Function signature for resource factory functions.
+ * Function signature for resource fn functions.
  *
  * Resource factories create named dependencies that are:
  * - Initialized before any steps run
@@ -301,7 +301,7 @@ export type SetupMetadata = Omit<SetupDefinition, "fn">;
  *
  * @example Database connection resource
  * ```ts
- * const dbFactory: ResourceFactory<Database> = async (ctx) => {
+ * const dbFactory: ResourceFunction<Database> = async (ctx) => {
  *   const conn = await Database.connect(process.env.DATABASE_URL);
  *   return conn;  // Disposed automatically if implements AsyncDisposable
  * };
@@ -310,17 +310,19 @@ export type SetupMetadata = Omit<SetupDefinition, "fn">;
  * @example Resource depending on another resource
  * ```ts
  * // Second resource can access the first
- * const apiFactory: ResourceFactory<ApiClient, unknown, [], { config: Config }> =
+ * const apiFactory: ResourceFunction<ApiClient, unknown, [], { config: Config }> =
  *   (ctx) => new ApiClient(ctx.resources.config.apiUrl);
  * ```
  */
-export type ResourceFactory<T = unknown> = (ctx: StepContext) => T | Promise<T>;
+export type ResourceFunction<T = unknown> = (
+  ctx: StepContext,
+) => T | Promise<T>;
 
 /**
  * Immutable definition of a named resource.
  *
  * Resource definitions contain everything needed to create and identify
- * a resource: its name, factory function, and source source.
+ * a resource: its name, fn function, and source source.
  *
  * @typeParam T - Type of the resource value
  */
@@ -329,15 +331,15 @@ export interface ResourceDefinition<T = unknown> {
   readonly name: string;
 
   /** Factory function that creates the resource */
-  readonly factory: ResourceFactory<T>;
+  readonly fn: ResourceFunction<T>;
 
   /** Source source where the resource was defined */
   readonly source?: Source;
 }
 
 /**
- * Serializable resource metadata (without the factory function).
+ * Serializable resource metadata (without the fn function).
  *
  * Contains the resource name and source source.
  */
-export type ResourceMetadata = Omit<ResourceDefinition, "factory">;
+export type ResourceMetadata = Omit<ResourceDefinition, "fn">;

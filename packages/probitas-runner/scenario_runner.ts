@@ -250,7 +250,7 @@ export class ScenarioRunner {
               try {
                 // Initialize resource
                 const resourceCtx = createEntryContext();
-                const resource = await entry.value.factory(resourceCtx);
+                const resource = await entry.value.fn(resourceCtx);
                 resources[entry.value.name] = resource;
 
                 logger.debug("Resource initialized", {

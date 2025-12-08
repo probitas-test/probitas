@@ -72,7 +72,7 @@ export interface ScenarioOptions {
  *     stepOptions: { timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } }
  *   },
  *   entries: [
- *     { kind: "resource", value: { name: "api", factory: ... } },
+ *     { kind: "resource", value: { name: "api", fn: ... } },
  *     { kind: "step", value: { name: "Login", fn: ..., options: ... } },
  *     { kind: "step", value: { name: "Verify", fn: ..., options: ... } }
  *   ],

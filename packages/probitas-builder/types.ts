@@ -195,7 +195,7 @@ export type BuilderSetupDefinition<
 };
 
 /**
- * Function signature for resource factory functions.
+ * Function signature for resource fn functions.
  *
  * Resource factories create named dependencies that are:
  * - Initialized before any steps run
@@ -205,11 +205,11 @@ export type BuilderSetupDefinition<
  * @typeParam T - Type of resource to create
  * @typeParam P - Type of the previous step's result
  * @typeParam A - Tuple type of accumulated results
- * @typeParam R - Previously registered resources available to this factory
+ * @typeParam R - Previously registered resources available to this fn
  *
  * @example Database connection resource
  * ```ts
- * const dbFactory: ResourceFactory<Database> = async (ctx) => {
+ * const dbFactory: ResourceFunction<Database> = async (ctx) => {
  *   const conn = await Database.connect(process.env.DATABASE_URL);
  *   return conn;  // Disposed automatically if implements AsyncDisposable
  * };
@@ -218,11 +218,11 @@ export type BuilderSetupDefinition<
  * @example Resource depending on another resource
  * ```ts
  * // Second resource can access the first
- * const apiFactory: ResourceFactory<ApiClient, unknown, [], { config: Config }> =
+ * const apiFactory: ResourceFunction<ApiClient, unknown, [], { config: Config }> =
  *   (ctx) => new ApiClient(ctx.resources.config.apiUrl);
  * ```
  */
-export type BuilderResourceFactory<
+export type BuilderResourceFunction<
   T = unknown,
   P = unknown,
   A extends readonly unknown[] = readonly unknown[],
@@ -233,12 +233,12 @@ export type BuilderResourceFactory<
  * Immutable definition of a named resource.
  *
  * Resource definitions contain everything needed to create and identify
- * a resource: its name, factory function, and source source.
+ * a resource: its name, fn function, and source source.
  *
  * @typeParam T - Type of the resource value
  * @typeParam P - Type of the previous step's result
  * @typeParam A - Tuple type of accumulated results
- * @typeParam R - Previously registered resources available to this factory
+ * @typeParam R - Previously registered resources available to this fn
  */
 export type BuilderResourceDefinition<
   T = unknown,
@@ -247,5 +247,5 @@ export type BuilderResourceDefinition<
   R extends Record<string, unknown> = Record<string, unknown>,
 > = ResourceDefinition & {
   /** Factory function that creates the resource */
-  readonly factory: BuilderResourceFactory<T, P, A, R>;
+  readonly fn: BuilderResourceFunction<T, P, A, R>;
 };

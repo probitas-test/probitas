@@ -65,8 +65,8 @@ export function resolveReporter(
     return new ListReporter(options);
   }
 
-  const factory = reporterMap[reporter];
-  if (!factory) {
+  const fn = reporterMap[reporter];
+  if (!fn) {
     logger.error("Unknown reporter", {
       reporter,
       availableReporters: Object.keys(reporterMap),
@@ -75,7 +75,7 @@ export function resolveReporter(
   }
 
   logger.debug("Reporter resolved", { reporter });
-  return factory(options);
+  return fn(options);
 }
 
 /**

@@ -19,7 +19,7 @@ import type {
 // Local type for test helper
 type ResourceDefinition = {
   name: string;
-  factory: (
+  fn: (
     ctx: StepContext,
   ) => unknown;
 };
@@ -171,7 +171,7 @@ describe("ScenarioRunner", () => {
           kind: "resource",
           value: {
             name: "lateResource",
-            factory: (ctx) => {
+            fn: (ctx) => {
               resourceSnapshots.push({
                 index: ctx.index,
                 previous: ctx.previous,
@@ -450,7 +450,7 @@ describe("ScenarioRunner", () => {
               kind: "resource",
               value: {
                 name: "api",
-                factory: () => {
+                fn: () => {
                   order.push("resource-init");
                   return { [Symbol.dispose]() {} };
                 },
@@ -494,7 +494,7 @@ describe("ScenarioRunner", () => {
               kind: "resource",
               value: {
                 name: "api",
-                factory: () => ({
+                fn: () => ({
                   [Symbol.dispose]() {
                     order.push("resource-dispose");
                   },
@@ -540,7 +540,7 @@ describe("ScenarioRunner", () => {
               kind: "resource",
               value: {
                 name: "api",
-                factory: () => {
+                fn: () => {
                   order.push("resource-init");
                   return {
                     [Symbol.dispose]() {
@@ -594,7 +594,7 @@ describe("ScenarioRunner", () => {
           resources: [
             {
               name: "first",
-              factory: () => ({
+              fn: () => ({
                 [Symbol.dispose]() {
                   disposeOrder.push("first");
                 },
@@ -602,7 +602,7 @@ describe("ScenarioRunner", () => {
             },
             {
               name: "second",
-              factory: () => ({
+              fn: () => ({
                 [Symbol.dispose]() {
                   disposeOrder.push("second");
                 },
@@ -610,7 +610,7 @@ describe("ScenarioRunner", () => {
             },
             {
               name: "third",
-              factory: () => ({
+              fn: () => ({
                 [Symbol.dispose]() {
                   disposeOrder.push("third");
                 },
@@ -639,7 +639,7 @@ describe("ScenarioRunner", () => {
           resources: [
             {
               name: "api",
-              factory: () => ({
+              fn: () => ({
                 [Symbol.dispose]() {
                   disposed = true;
                 },
@@ -672,7 +672,7 @@ describe("ScenarioRunner", () => {
           resources: [
             {
               name: "pool",
-              factory: () => ({
+              fn: () => ({
                 type: "pool",
                 [Symbol.dispose]() {
                   poolDisposed = true;
@@ -681,7 +681,7 @@ describe("ScenarioRunner", () => {
             },
             {
               name: "api",
-              factory: (ctx) => {
+              fn: (ctx) => {
                 const resources = ctx.resources as { pool: { type: string } };
                 poolValue = resources.pool;
                 return {
@@ -726,7 +726,7 @@ describe("ScenarioRunner", () => {
               kind: "resource",
               value: {
                 name: "api",
-                factory: () => {
+                fn: () => {
                   lifecycleLog.push("resource-init");
                   return {
                     type: "api",
