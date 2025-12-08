@@ -37,9 +37,7 @@ import type {
  *   .build();
  * ```
  */
-export interface ScenarioContext<
-  Resources extends Record<string, unknown> = Record<string, never>,
-> {
+export interface ScenarioContext {
   /** Human-readable scenario name */
   readonly name: string;
 
@@ -56,7 +54,7 @@ export interface ScenarioContext<
   readonly signal: AbortSignal;
 
   /** Named resources registered with `.resource()` */
-  readonly resources: Resources;
+  readonly resources: Record<string, unknown>;
 }
 
 /**

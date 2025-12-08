@@ -20,7 +20,7 @@ import type {
 type ResourceDefinition = {
   name: string;
   factory: (
-    ctx: StepContext<unknown, readonly unknown[], Record<string, unknown>>,
+    ctx: StepContext,
   ) => unknown;
 };
 

@@ -27,13 +27,11 @@ import type {
  * const ctx = createScenarioContext(scenario, signal, resources);
  * ```
  */
-export function createScenarioContext<
-  Resources extends Record<string, unknown> = Record<string, never>,
->(
+export function createScenarioContext(
   scenario: ScenarioDefinition,
   signal: AbortSignal,
-  resources: Resources = {} as Resources,
-): ScenarioContext<Resources> {
+  resources: Record<string, unknown>,
+): ScenarioContext {
   return {
     name: scenario.name,
     options: scenario.options,
@@ -76,7 +74,7 @@ export function createStepContext<
   readonly store: Map<string, unknown>;
   readonly signal: AbortSignal;
   readonly resources: Resources;
-}): StepContext<P, A, Resources> {
+}): StepContext {
   return {
     index: props.index,
     previous: props.previous,

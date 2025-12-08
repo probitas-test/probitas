@@ -29,19 +29,15 @@ import type { StepContext, StepDefinition } from "./types.ts";
  * const result = await executeStep(step, ctx);
  * ```
  */
-export async function executeStep<
-  P = unknown,
-  A extends readonly unknown[] = readonly unknown[],
-  Resources extends Record<string, unknown> = Record<string, unknown>,
->(
+export async function executeStep(
   step: StepDefinition,
-  ctx: StepContext<P, A, Resources>,
+  ctx: StepContext,
 ): Promise<unknown> {
   const timeoutSignal = AbortSignal.timeout(step.options.timeout);
   const signal = AbortSignal.any([ctx.signal, timeoutSignal]);
 
   try {
-    return await step.fn({ ...ctx, signal } as StepContext<P, A, Resources>);
+    return await step.fn({ ...ctx, signal } as StepContext);
   } catch (error) {
     // Convert AbortError from timeout to TimeoutError
     if (error instanceof Error && error.name === "TimeoutError") {
@@ -72,13 +68,9 @@ export async function executeStep<
  * const result = await executeStepWithRetry(step, ctx);
  * ```
  */
-export async function executeStepWithRetry<
-  P = unknown,
-  A extends readonly unknown[] = readonly unknown[],
-  Resources extends Record<string, unknown> = Record<string, unknown>,
->(
+export async function executeStepWithRetry(
   step: StepDefinition,
-  ctx: StepContext<P, A, Resources>,
+  ctx: StepContext,
 ): Promise<unknown> {
   return await retry(
     () => executeStep(step, ctx),
