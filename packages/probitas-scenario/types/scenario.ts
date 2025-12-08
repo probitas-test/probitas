@@ -84,8 +84,17 @@ export interface ScenarioDefinition {
   /** Human-readable scenario name (displayed in reports and CLI) */
   readonly name: string;
 
-  /** Scenario configuration with all defaults applied */
-  readonly options?: ScenarioOptions;
+  /**
+   * Tags for filtering and organizing scenarios.
+   *
+   * Tags can be used with the CLI to run specific subsets:
+   * ```bash
+   * probitas run -s "tag:api"           # Run scenarios tagged "api"
+   * probitas run -s "tag:api,tag:fast"  # Run scenarios with both tags
+   * probitas run -s "!tag:slow"         # Exclude slow scenarios
+   * ```
+   */
+  readonly tags: readonly string[];
 
   /** Ordered sequence of entries (resources → setups → steps) */
   readonly entries: readonly Entry[];
@@ -145,8 +154,17 @@ export interface ScenarioMetadata {
   /** Scenario name */
   readonly name: string;
 
-  /** Scenario configuration options */
-  readonly options?: ScenarioOptions;
+  /**
+   * Tags for filtering and organizing scenarios.
+   *
+   * Tags can be used with the CLI to run specific subsets:
+   * ```bash
+   * probitas run -s "tag:api"           # Run scenarios tagged "api"
+   * probitas run -s "tag:api,tag:fast"  # Run scenarios with both tags
+   * probitas run -s "!tag:slow"         # Exclude slow scenarios
+   * ```
+   */
+  readonly tags: readonly string[];
 
   /** Entry metadata (functions omitted for serialization) */
   readonly entries: readonly EntryMetadata[];

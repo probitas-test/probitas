@@ -24,36 +24,11 @@ import type {
   BuilderSetupFunction,
   BuilderStepFunction,
 } from "./types.ts";
-import { DEFAULT_SCENARIO_OPTIONS, DEFAULT_STEP_OPTIONS } from "./defaults.ts";
 import { captureSource } from "./utils/capture_source.ts";
 
-/**
- * Merge partial step options with scenario defaults
- *
- * @param scenarioOptions - Scenario options containing default step options
- * @param partialOptions - Partial step options to merge
- * @returns Merged complete step options
- */
-function mergeStepOptions(
-  scenarioOptions: ScenarioOptions,
-  partialOptions?: StepOptions,
-): StepOptions {
-  const scenarioStepOptions = scenarioOptions.stepOptions ||
-    DEFAULT_STEP_OPTIONS;
-
-  return {
-    timeout: partialOptions?.timeout ?? scenarioStepOptions.timeout ??
-      DEFAULT_STEP_OPTIONS.timeout,
-    retry: {
-      maxAttempts: partialOptions?.retry?.maxAttempts ??
-        scenarioStepOptions.retry?.maxAttempts ??
-        DEFAULT_STEP_OPTIONS.retry?.maxAttempts,
-      backoff: partialOptions?.retry?.backoff ??
-        scenarioStepOptions.retry?.backoff ??
-        DEFAULT_STEP_OPTIONS.retry?.backoff,
-    },
-  };
-}
+export const DEFAULT_STEP_TIMEOUT = 30000;
+export const DEFAULT_STEP_RETRY_MAX_ATTEMPTS = 1;
+export const DEFAULT_STEP_RETRY_BACKOFF = "linear";
 
 /**
  * Internal state class for ScenarioBuilder
@@ -156,14 +131,26 @@ class ScenarioBuilderState<
       options = fnOrOptions as StepOptions | undefined;
     }
 
-    const stepLocation = captureSource(3);
-    const mergedOptions = mergeStepOptions(this.#scenarioOptions, options);
+    const source = captureSource(3);
+    const timeout = options?.timeout ??
+      this.#scenarioOptions?.stepOptions?.timeout ??
+      DEFAULT_STEP_TIMEOUT;
+    const retryMaxAttempts = options?.retry?.maxAttempts ??
+      this.#scenarioOptions?.stepOptions?.retry?.maxAttempts ??
+      DEFAULT_STEP_RETRY_MAX_ATTEMPTS;
+    const retryBackoff = options?.retry?.backoff ??
+      this.#scenarioOptions?.stepOptions?.retry?.backoff ??
+      DEFAULT_STEP_RETRY_BACKOFF;
 
     const stepDef: StepDefinition = {
       name: stepName,
       fn: stepFn as StepFunction,
-      options: mergedOptions,
-      source: stepLocation,
+      timeout,
+      retry: {
+        maxAttempts: retryMaxAttempts,
+        backoff: retryBackoff,
+      },
+      source,
     };
 
     this.#entries.push({
@@ -173,29 +160,14 @@ class ScenarioBuilderState<
   }
 
   build(): ScenarioDefinition {
-    const mergedScenarioOptions: ScenarioOptions = {
-      tags: this.#scenarioOptions.tags ?? DEFAULT_SCENARIO_OPTIONS.tags,
-      stepOptions: {
-        timeout: this.#scenarioOptions.stepOptions?.timeout ??
-          DEFAULT_SCENARIO_OPTIONS.stepOptions?.timeout,
-        retry: {
-          maxAttempts: this.#scenarioOptions.stepOptions?.retry?.maxAttempts ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions?.retry?.maxAttempts,
-          backoff: this.#scenarioOptions.stepOptions?.retry?.backoff ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions?.retry?.backoff,
-        },
-      },
-    };
-
     // Capture source at build time
     // depth=3 to skip: captureSource -> State.build -> BuilderClass.build
-    const scenarioLocation = captureSource(3);
-
+    const source = captureSource(3);
     const definition: ScenarioDefinition = {
       name: this.#name,
-      options: mergedScenarioOptions,
+      tags: this.#scenarioOptions.tags ?? [],
       entries: Object.freeze([...this.#entries]) as readonly Entry[],
-      source: scenarioLocation,
+      source,
     };
 
     return definition;

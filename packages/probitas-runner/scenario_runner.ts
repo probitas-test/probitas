@@ -503,10 +503,7 @@ export class ScenarioRunner {
   ): ScenarioMetadata {
     return {
       name: scenario.name,
-      options: {
-        tags: scenario.options?.tags,
-        stepOptions: scenario.options?.stepOptions,
-      },
+      tags: scenario.tags,
       entries: scenario.entries,
       source: scenario.source,
     };
@@ -520,7 +517,8 @@ export class ScenarioRunner {
   ): StepMetadata {
     return {
       name: step.name,
-      options: step.options,
+      timeout: step.timeout,
+      retry: step.retry,
       source: step.source,
     };
   }

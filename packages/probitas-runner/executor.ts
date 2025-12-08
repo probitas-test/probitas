@@ -10,8 +10,6 @@ import { retry } from "./utils/retry.ts";
 import { TimeoutError } from "./errors.ts";
 import type { StepContext, StepDefinition } from "./types.ts";
 
-const DEFAULT_STEP_TIMEOUT = 30000;
-
 /**
  * Execute a single step with timeout support
  *
@@ -35,7 +33,7 @@ export async function executeStep(
   step: StepDefinition,
   ctx: StepContext,
 ): Promise<unknown> {
-  const timeout = step.options?.timeout ?? DEFAULT_STEP_TIMEOUT;
+  const timeout = step.timeout;
   const signal = AbortSignal.any([
     ctx.signal,
     AbortSignal.timeout(timeout),
@@ -80,8 +78,8 @@ export async function executeStepWithRetry(
   return await retry(
     () => executeStep(step, ctx),
     {
-      maxAttempts: step.options?.retry?.maxAttempts,
-      backoff: step.options?.retry?.backoff,
+      maxAttempts: step.retry.maxAttempts,
+      backoff: step.retry.backoff,
       signal: ctx.signal,
     },
   );

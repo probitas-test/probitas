@@ -153,7 +153,7 @@ export function matchesSelector(
   selector: Selector,
 ): boolean {
   if (selector.type === "tag") {
-    return !!scenario.options?.tags?.some((tag) => selector.value.test(tag));
+    return scenario.tags.some((tag) => selector.value.test(tag));
   } else if (selector.type === "name") {
     return selector.value.test(scenario.name);
   }
@@ -223,7 +223,7 @@ export function applySelectors(
   const filtered = scenarios.filter((scenario) => {
     logger.debug("Evaluating scenario against selectors", {
       scenario: scenario.name,
-      tags: scenario.options?.tags,
+      tags: scenario.tags,
     });
 
     // OR between selector strings
@@ -273,7 +273,7 @@ export function applySelectors(
     if (!matched) {
       logger.debug("Scenario filtered out (no selector matched)", {
         scenario: scenario.name,
-        tags: scenario.options?.tags,
+        tags: scenario.tags,
       });
     } else {
       logger.debug("Scenario included (at least one selector matched)", {

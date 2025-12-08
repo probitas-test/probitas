@@ -87,5 +87,4 @@
  */
 
 export type * from "./types.ts";
-export * from "./defaults.ts";
 export { scenario } from "./scenario_builder.ts";

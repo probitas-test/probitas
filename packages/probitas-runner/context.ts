@@ -34,7 +34,7 @@ export function createScenarioContext(
 ): ScenarioContext {
   return {
     name: scenario.name,
-    options: scenario.options,
+    tags: scenario.tags,
     results: [],
     store: new Map(),
     signal,

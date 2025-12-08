@@ -16,13 +16,7 @@ describe("selector", () => {
     tags: string[] = [],
   ): ScenarioDefinition => ({
     name,
-    options: {
-      tags,
-      stepOptions: {
-        timeout: 5000,
-        retry: { maxAttempts: 1, backoff: "linear" },
-      },
-    },
+    tags,
     entries: [],
   });
 

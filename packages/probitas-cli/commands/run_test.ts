@@ -22,7 +22,7 @@ const createScenario = (name: string, file: string, failing = false) =>
   outdent`
   export default {
     name: "${name}",
-    options: { tags: [], stepOptions: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } } },
+    tags: [],
     entries: [
       {
         kind: "step",
@@ -31,7 +31,8 @@ const createScenario = (name: string, file: string, failing = false) =>
           fn: () => ${
     failing ? '{ throw new Error("Failed"); }' : '({ result: "success" })'
   },
-          options: { timeout: 5000, retry: { maxAttempts: 1, backoff: "linear" } }
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" }
         }
       }
     ],

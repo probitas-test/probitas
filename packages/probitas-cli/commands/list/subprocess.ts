@@ -163,7 +163,7 @@ function outputText(
 function outputJson(scenarios: ScenarioDefinition[]): void {
   const output = scenarios.map((scenario) => ({
     name: scenario.name,
-    tags: scenario.options?.tags,
+    tags: scenario.tags,
     steps: scenario.entries.filter((e) => e.kind === "step").length,
     file: scenario.source?.file || "unknown",
   }));

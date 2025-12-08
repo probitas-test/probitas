@@ -13,7 +13,6 @@ import type {
   ScenarioOptions,
   StepContext,
   StepDefinition,
-  StepOptions,
 } from "./types.ts";
 
 // Local type for test helper
@@ -22,16 +21,6 @@ type ResourceDefinition = {
   fn: (
     ctx: StepContext,
   ) => unknown;
-};
-
-const defaultStepOptions: StepOptions = {
-  timeout: 5000,
-  retry: { maxAttempts: 1, backoff: "linear" },
-};
-
-const defaultScenarioOptions: ScenarioOptions = {
-  tags: [],
-  stepOptions: defaultStepOptions,
 };
 
 const createTestScenario = (
@@ -66,7 +55,7 @@ const createTestScenario = (
 
   return {
     name: params?.name ?? "Test Scenario",
-    options: params?.options ?? defaultScenarioOptions,
+    tags: params?.options?.tags ?? [],
     entries,
   };
 };
@@ -76,7 +65,11 @@ const createTestStep = (
 ): StepDefinition => ({
   name: "Test Step",
   fn: () => "result",
-  options: defaultStepOptions,
+  timeout: 5000,
+  retry: {
+    maxAttempts: 1,
+    backoff: "linear",
+  },
   ...overrides,
 });
 

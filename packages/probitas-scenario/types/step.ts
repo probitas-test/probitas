@@ -224,8 +224,37 @@ export interface StepDefinition<T = unknown> {
   /** Step function to execute */
   readonly fn: StepFunction<T>;
 
-  /** Step execution options (timeout, retry) with defaults applied */
-  readonly options?: StepOptions;
+  /**
+   * Maximum execution time in milliseconds.
+   *
+   * If the step takes longer, a {@linkcode TimeoutError} is thrown.
+   * Default: 30000 (30 seconds)
+   */
+  readonly timeout: number;
+
+  /** Retry configuration for handling transient failures */
+  readonly retry: {
+    /**
+     * Maximum number of execution attempts.
+     *
+     * - `1` = No retry (fail immediately on error)
+     * - `2` = One retry (2 total attempts)
+     * - `n` = n-1 retries (n total attempts)
+     *
+     * Default: 1 (no retry)
+     */
+    readonly maxAttempts: number;
+
+    /**
+     * Backoff strategy for delay between retry attempts.
+     *
+     * - `"linear"`: Fixed 1 second delay between attempts
+     * - `"exponential"`: Doubles delay each attempt (1s, 2s, 4s, 8s...)
+     *
+     * Default: "linear"
+     */
+    readonly backoff: "linear" | "exponential";
+  };
 
   /** Source source where the step was defined (for error messages) */
   readonly source?: Source;

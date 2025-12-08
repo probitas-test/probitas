@@ -11,7 +11,6 @@ import type {
   ResourceDefinition,
   ScenarioDefinition,
   ScenarioMetadata,
-  ScenarioOptions,
   SetupDefinition,
   StepDefinition,
   StepMetadata,
@@ -41,8 +40,7 @@ export interface ScenarioContext {
   /** Human-readable scenario name */
   readonly name: string;
 
-  /** Scenario configuration options */
-  readonly options?: ScenarioOptions;
+  readonly tags: readonly string[];
 
   /** Array of all step results so far */
   readonly results: unknown[];

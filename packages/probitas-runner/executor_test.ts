@@ -9,19 +9,15 @@ import { describe, it } from "@std/testing/bdd";
 import { FakeTime } from "@std/testing/time";
 import { executeStep } from "./executor.ts";
 import { createStepContext } from "./context.ts";
-import type { StepContext, StepDefinition, StepOptions } from "./types.ts";
-
-const defaultStepOptions: StepOptions = {
-  timeout: 5000,
-  retry: { maxAttempts: 1, backoff: "linear" },
-};
+import type { StepContext, StepDefinition } from "./types.ts";
 
 const createTestStep = (
   overrides?: Partial<StepDefinition>,
 ): StepDefinition => ({
   name: "Test Step",
   fn: () => "result",
-  options: defaultStepOptions,
+  timeout: 5000,
+  retry: { maxAttempts: 1, backoff: "linear" },
   ...overrides,
 });
 
