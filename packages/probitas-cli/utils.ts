@@ -15,7 +15,8 @@ import {
   ListReporter,
   TAPReporter,
 } from "@probitas/reporter";
-import type { Reporter, ReporterOptions } from "@probitas/reporter";
+import type { Reporter } from "@probitas/runner";
+import type { ReporterOptions } from "@probitas/reporter";
 
 const logger = getLogger("probitas", "cli", "utils");
 

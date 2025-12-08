@@ -8,14 +8,9 @@
  */
 
 import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  ScenarioResult,
-  StepDefinition,
-  StepResult,
-} from "./types.ts";
+import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { RunSummary, ScenarioResult, StepResult } from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
 
 /**
  * JSON Reporter - outputs results in JSONLine format

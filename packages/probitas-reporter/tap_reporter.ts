@@ -8,13 +8,9 @@
  */
 
 import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  StepDefinition,
-  StepResult,
-} from "./types.ts";
+import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { RunSummary, StepResult } from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
 
 /**
  * TAP Reporter - outputs Test Anything Protocol version 14 format
@@ -88,9 +84,12 @@ export class TAPReporter extends BaseReporter {
       await this.write(`  source: ${source}\n`);
 
       if (result.error) {
-        await this.write(`  message: ${result.error.message}\n`);
+        const m = result.error instanceof Error
+          ? result.error.message
+          : String(result.error);
+        await this.write(`  message: ${m}\n`);
 
-        if (result.error.stack) {
+        if (result.error instanceof Error && result.error.stack) {
           const sanitizedStack = this.sanitizeStack(result.error.stack);
           await this.write(`  stack: |\n`);
           for (const line of sanitizedStack.split("\n")) {

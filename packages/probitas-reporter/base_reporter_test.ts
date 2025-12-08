@@ -12,12 +12,8 @@ import {
 import { describe, it } from "@std/testing/bdd";
 import { Buffer } from "@std/streams/buffer";
 import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ScenarioDefinition,
-  ScenarioResult,
-  StepDefinition,
-  StepResult,
-} from "./types.ts";
+import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { ScenarioResult, StepResult } from "@probitas/runner";
 
 class TestReporter extends BaseReporter {
   outputs: string[] = [];

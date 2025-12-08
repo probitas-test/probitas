@@ -10,16 +10,20 @@
 import { describe, it } from "@std/testing/bdd";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { Buffer } from "@std/streams/buffer";
-import type { ScenarioOptions, Source, StepOptions } from "@probitas/runner";
+import type {
+  ScenarioDefinition,
+  ScenarioOptions,
+  Source,
+  StepDefinition,
+  StepOptions,
+} from "@probitas/scenario";
 import type {
   Reporter,
-  ReporterOptions,
   RunSummary,
-  ScenarioDefinition,
   ScenarioResult,
-  StepDefinition,
   StepResult,
-} from "./types.ts";
+} from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
 
 // Source sources for testing
 export const sourceLocations = {

@@ -177,7 +177,7 @@ export interface StepContext {
    * Pass this to fetch() or other APIs that support AbortSignal
    * for proper timeout handling.
    */
-  readonly signal: AbortSignal;
+  readonly signal?: AbortSignal;
 }
 
 /**

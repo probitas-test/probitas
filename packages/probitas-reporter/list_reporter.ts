@@ -8,13 +8,9 @@
  */
 
 import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  StepDefinition,
-  StepResult,
-} from "./types.ts";
+import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { RunSummary, StepResult } from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
 
 /**
  * List Reporter - outputs results in flat list format

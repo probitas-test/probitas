@@ -8,12 +8,9 @@
  */
 
 import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  ScenarioResult,
-} from "./types.ts";
+import type { ScenarioDefinition } from "@probitas/scenario";
+import type { RunSummary, ScenarioResult } from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
 
 /**
  * Dot Reporter - outputs simple dot format progress

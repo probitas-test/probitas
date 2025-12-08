@@ -11,13 +11,9 @@
 
 import { getLogger } from "@probitas/logger";
 import { defaultTheme, noColorTheme } from "./theme.ts";
-import type {
-  Reporter,
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  Theme,
-} from "./types.ts";
+import type { ScenarioDefinition } from "@probitas/scenario";
+import type { Reporter, RunSummary } from "@probitas/runner";
+import type { ReporterOptions, Theme } from "./types.ts";
 
 const logger = getLogger("probitas", "reporter");
 

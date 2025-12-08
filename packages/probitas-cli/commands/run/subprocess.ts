@@ -10,7 +10,7 @@
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { applySelectors, loadScenarios } from "@probitas/scenario";
 import type { ReporterOptions } from "@probitas/reporter";
-import { ScenarioRunner } from "@probitas/runner";
+import { Runner } from "@probitas/runner";
 import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { resolveReporter } from "../../utils.ts";
 
@@ -143,9 +143,8 @@ async function main(): Promise<number> {
       : undefined;
 
     // Run scenarios
-    const runner = new ScenarioRunner();
+    const runner = new Runner(reporter);
     const summary = await runner.run(scenarios, {
-      reporter,
       maxConcurrency,
       maxFailures,
       signal: timeoutSignal,

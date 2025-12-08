@@ -132,13 +132,3 @@ export interface ReporterOptions {
    */
   readonly theme?: Theme;
 }
-
-// Re-export types needed by reporter implementations and consumers
-export type {
-  Reporter,
-  RunSummary,
-  ScenarioDefinition,
-  ScenarioResult,
-  StepDefinition,
-  StepResult,
-} from "@probitas/runner";
