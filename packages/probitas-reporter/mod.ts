@@ -135,7 +135,6 @@
  * @module
  */
 
-export * from "./base_reporter.ts";
 export * from "./tap_reporter.ts";
 export * from "./list_reporter.ts";
 export * from "./json_reporter.ts";

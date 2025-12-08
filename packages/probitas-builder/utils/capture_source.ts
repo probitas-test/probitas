@@ -1,13 +1,13 @@
 /**
- * Utility for capturing source code locations from stack traces
+ * Utility for capturing source code sources from stack traces
  *
  * @module
  */
 
-import type { SourceLocation } from "@probitas/scenario";
+import type { Source } from "@probitas/scenario";
 
 /**
- * Parse a single stack trace line to extract file location
+ * Parse a single stack trace line to extract file source
  *
  * Supports two common V8 stack trace formats:
  * - With function name: "at functionName (file:///path/to/file.ts:123:45)"
@@ -15,14 +15,14 @@ import type { SourceLocation } from "@probitas/scenario";
  *
  * @param line - Single line from stack trace
  * @param cwd - Current working directory for making paths relative
- * @returns Source location or undefined if line doesn't match expected format
+ * @returns Source source or undefined if line doesn't match expected format
  *
  * @internal
  */
 export function parseStackLine(
   line: string,
   cwd: string,
-): SourceLocation | undefined {
+): Source | undefined {
   // Try format with parentheses first: "at functionName (file:///path:line:col)"
   let match = line.match(/\((file:\/\/[^:]+):(\d+):/);
 
@@ -54,26 +54,26 @@ export function parseStackLine(
 }
 
 /**
- * Capture current source location for better error messages
+ * Capture current source source for better error messages
  *
  * Parses the JavaScript stack trace to extract file path and line number
  * of the calling code. Useful for providing context in error messages and logs.
  *
  * @param depth - Stack depth to skip (default 2)
- * @returns Source location or undefined if unable to determine
+ * @returns Source source or undefined if unable to determine
  *
  * @example
  * ```ts
  * function myFunction() {
- *   // Captures location of caller (depth=2 skips captureSourceLocation and myFunction)
- *   const location = captureSourceLocation(2);
- *   console.log(`Called from ${location?.file}:${location?.line}`);
+ *   // Captures source of caller (depth=2 skips captureSource and myFunction)
+ *   const source = captureSource(2);
+ *   console.log(`Called from ${source?.file}:${source?.line}`);
  * }
  * ```
  */
-export function captureSourceLocation(
+export function captureSource(
   depth = 2,
-): SourceLocation | undefined {
+): Source | undefined {
   try {
     const err = new Error();
     const stack = err.stack;
@@ -87,9 +87,9 @@ export function captureSourceLocation(
 
     const skipLines = depth + 1;
     for (let i = skipLines; i < stackLines.length; i++) {
-      const location = parseStackLine(stackLines[i], cwd);
-      if (location) {
-        return location;
+      const source = parseStackLine(stackLines[i], cwd);
+      if (source) {
+        return source;
       }
     }
 

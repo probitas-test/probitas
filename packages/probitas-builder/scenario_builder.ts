@@ -8,48 +8,19 @@
  */
 
 import type {
-  Entry,
-  ResourceDefinition,
-  ResourceFactory,
   ScenarioDefinition,
   ScenarioOptions,
-  SetupDefinition,
-  SetupFunction,
+  SetupCleanup,
   StepDefinition,
   StepFunction,
   StepOptions,
 } from "@probitas/scenario";
-import type { BuilderScenarioOptions, BuilderStepOptions } from "./types.ts";
-import { DEFAULT_SCENARIO_OPTIONS, DEFAULT_STEP_OPTIONS } from "./defaults.ts";
-import { captureSourceLocation } from "./capture_source_location.ts";
+import type { BuilderStepFunction } from "./types.ts";
+import { captureSource } from "./utils/capture_source.ts";
 
-/**
- * Merge partial step options with scenario defaults
- *
- * @param scenarioOptions - Scenario options containing default step options
- * @param partialOptions - Partial step options to merge
- * @returns Merged complete step options
- */
-function mergeStepOptions(
-  scenarioOptions: BuilderScenarioOptions,
-  partialOptions?: BuilderStepOptions,
-): StepOptions {
-  const scenarioStepOptions = scenarioOptions.stepOptions ||
-    DEFAULT_STEP_OPTIONS;
-
-  return {
-    timeout: partialOptions?.timeout ?? scenarioStepOptions.timeout ??
-      DEFAULT_STEP_OPTIONS.timeout,
-    retry: {
-      maxAttempts: partialOptions?.retry?.maxAttempts ??
-        scenarioStepOptions.retry?.maxAttempts ??
-        DEFAULT_STEP_OPTIONS.retry.maxAttempts,
-      backoff: partialOptions?.retry?.backoff ??
-        scenarioStepOptions.retry?.backoff ??
-        DEFAULT_STEP_OPTIONS.retry.backoff,
-    },
-  };
-}
+export const DEFAULT_STEP_TIMEOUT = 30000;
+export const DEFAULT_STEP_RETRY_MAX_ATTEMPTS = 1;
+export const DEFAULT_STEP_RETRY_BACKOFF = "linear";
 
 /**
  * Internal state class for ScenarioBuilder
@@ -63,10 +34,10 @@ class ScenarioBuilderState<
   Resources extends Record<string, unknown> = Record<string, never>,
 > {
   #name: string;
-  #scenarioOptions: BuilderScenarioOptions;
-  #entries: Entry[] = [];
+  #scenarioOptions: ScenarioOptions;
+  #steps: StepDefinition[] = [];
 
-  constructor(name: string, options?: BuilderScenarioOptions) {
+  constructor(name: string, options?: ScenarioOptions) {
     this.#name = name;
     this.#scenarioOptions = options || {};
   }
@@ -80,120 +51,107 @@ class ScenarioBuilderState<
     NewResources extends Record<string, unknown> = Resources,
   >(): ScenarioBuilderState<NewResources> {
     // Deep clone scenarioOptions
-    const clonedOptions: BuilderScenarioOptions = {
-      ...this.#scenarioOptions,
-      tags: this.#scenarioOptions.tags
-        ? [...this.#scenarioOptions.tags]
-        : undefined,
-      stepOptions: this.#scenarioOptions.stepOptions
-        ? {
-          ...this.#scenarioOptions.stepOptions,
-          retry: this.#scenarioOptions.stepOptions.retry
-            ? {
-              ...this.#scenarioOptions.stepOptions.retry,
-            }
-            : undefined,
-        }
-        : undefined,
-    };
-
+    const clonedOptions: ScenarioOptions = structuredClone(
+      this.#scenarioOptions,
+    );
     const cloned = new ScenarioBuilderState<NewResources>(
       this.#name,
       clonedOptions,
     );
-    cloned.#entries = [...this.#entries];
+    cloned.#steps = [...this.#steps];
     return cloned;
   }
 
-  addResource(
+  #addStep<T = unknown>(
+    kind: "step" | "resource" | "setup",
     name: string,
-    factory: ResourceFactory,
+    fn: StepFunction<T>,
+    options?: StepOptions,
   ): void {
-    const resourceDef: ResourceDefinition = {
+    const source = captureSource(4);
+    const timeout = options?.timeout ??
+      this.#scenarioOptions?.stepOptions?.timeout ??
+      DEFAULT_STEP_TIMEOUT;
+    const retryMaxAttempts = options?.retry?.maxAttempts ??
+      this.#scenarioOptions?.stepOptions?.retry?.maxAttempts ??
+      DEFAULT_STEP_RETRY_MAX_ATTEMPTS;
+    const retryBackoff = options?.retry?.backoff ??
+      this.#scenarioOptions?.stepOptions?.retry?.backoff ??
+      DEFAULT_STEP_RETRY_BACKOFF;
+    const step = {
+      kind,
       name,
-      factory,
-    };
-    this.#entries.push({
-      kind: "resource",
-      value: resourceDef,
-    });
-  }
-
-  addSetup(fn: SetupFunction): void {
-    const location = captureSourceLocation(3);
-    const setupDef: SetupDefinition = {
       fn,
-      location,
+      timeout,
+      retry: {
+        maxAttempts: retryMaxAttempts,
+        backoff: retryBackoff,
+      },
+      source,
     };
-    this.#entries.push({
-      kind: "setup",
-      value: setupDef,
-    });
+    this.#steps.push(step);
   }
 
-  addStep(
-    nameOrFn: string | StepFunction,
-    fnOrOptions?: StepFunction | BuilderStepOptions,
-    stepOptions?: BuilderStepOptions,
+  addResourceStep(
+    name: string,
+    fn: StepFunction,
+    options?: StepOptions,
   ): void {
-    let stepName: string;
-    let stepFn: StepFunction;
-    let options: BuilderStepOptions | undefined;
+    this.#addStep("resource", name, fn, options);
+  }
 
+  addSetupStep(
+    nameOrFn: string | StepFunction,
+    fnOrOptions?: StepFunction | StepOptions,
+    stepOptions?: StepOptions,
+  ): void {
+    let name: string;
+    let fn: StepFunction;
+    let options: StepOptions | undefined;
     if (typeof nameOrFn === "string") {
-      stepName = nameOrFn;
-      stepFn = fnOrOptions as StepFunction;
+      name = nameOrFn;
+      fn = fnOrOptions as StepFunction;
       options = stepOptions;
     } else {
-      // Count only steps for auto-naming
-      const stepCount = this.#entries.filter((e) => e.kind === "step").length;
-      stepName = `Step ${stepCount + 1}`;
-      stepFn = nameOrFn;
-      options = fnOrOptions as BuilderStepOptions | undefined;
+      const count = this.#steps.filter((s) => s.kind === "setup").length;
+      name = `Setup step ${count + 1}`;
+      fn = nameOrFn;
+      options = fnOrOptions as StepOptions | undefined;
     }
+    this.#addStep("setup", name, fn, options);
+  }
 
-    const stepLocation = captureSourceLocation(3);
-    const mergedOptions = mergeStepOptions(this.#scenarioOptions, options);
-
-    const stepDef: StepDefinition = {
-      name: stepName,
-      fn: stepFn as StepFunction,
-      options: mergedOptions,
-      location: stepLocation,
-    };
-
-    this.#entries.push({
-      kind: "step",
-      value: stepDef,
-    });
+  addExecutionStep(
+    nameOrFn: string | StepFunction,
+    fnOrOptions?: StepFunction | StepOptions,
+    stepOptions?: StepOptions,
+  ): void {
+    let name: string;
+    let fn: StepFunction;
+    let options: StepOptions | undefined;
+    if (typeof nameOrFn === "string") {
+      name = nameOrFn;
+      fn = fnOrOptions as StepFunction;
+      options = stepOptions;
+    } else {
+      const count = this.#steps.filter((s) => s.kind === "step").length;
+      name = `Execution step ${count + 1}`;
+      fn = nameOrFn;
+      options = fnOrOptions as StepOptions | undefined;
+    }
+    this.#addStep("step", name, fn, options);
   }
 
   build(): ScenarioDefinition {
-    const mergedScenarioOptions: ScenarioOptions = {
-      tags: this.#scenarioOptions.tags ?? DEFAULT_SCENARIO_OPTIONS.tags,
-      stepOptions: {
-        timeout: this.#scenarioOptions.stepOptions?.timeout ??
-          DEFAULT_SCENARIO_OPTIONS.stepOptions.timeout,
-        retry: {
-          maxAttempts: this.#scenarioOptions.stepOptions?.retry?.maxAttempts ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions.retry.maxAttempts,
-          backoff: this.#scenarioOptions.stepOptions?.retry?.backoff ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions.retry.backoff,
-        },
-      },
-    };
-
-    // Capture location at build time
-    // depth=3 to skip: captureSourceLocation -> State.build -> BuilderClass.build
-    const scenarioLocation = captureSourceLocation(3);
-
-    const definition: ScenarioDefinition = {
+    // Capture source at build time
+    // depth=3 to skip: captureSource -> State.build -> BuilderClass.build
+    const source = captureSource(3);
+    const definition: ScenarioDefinition = Object.freeze({
       name: this.#name,
-      options: mergedScenarioOptions,
-      entries: Object.freeze([...this.#entries]) as readonly Entry[],
-      location: scenarioLocation,
-    };
-
+      tags: [...(this.#scenarioOptions.tags ?? [])],
+      steps: [...this.#steps],
+      source,
+    });
     return definition;
   }
 }
@@ -210,9 +168,9 @@ class ScenarioBuilderState<
  * The builder is immutable - each method returns a new builder instance with
  * updated type parameters, preserving the original builder.
  *
- * @typeParam Previous - Type of the previous step's return value, accessible via `ctx.previous`
- * @typeParam Results - Tuple type of all accumulated step results, accessible via `ctx.results`
- * @typeParam Resources - Record of named resources, accessible via `ctx.resources`
+ * @typeParam P - Type of the previous step's return value, accessible via `ctx.previous`
+ * @typeParam A - Tuple type of all accumulated step results, accessible via `ctx.results`
+ * @typeParam R - Record of named resources, accessible via `ctx.resources`
  *
  * @example Basic step chaining with type inference
  * ```ts
@@ -249,14 +207,14 @@ class ScenarioBuilderState<
  * @see {@linkcode StepContext} - Context object passed to each step
  */
 class ScenarioBuilderInit<
-  Previous = unknown,
-  Results extends readonly unknown[] = readonly [],
-  Resources extends Record<string, unknown> = Record<string, never>,
+  P = unknown,
+  A extends readonly unknown[] = readonly [],
+  R extends Record<string, unknown> = Record<string, never>,
 > {
-  #state: ScenarioBuilderState<Resources>;
+  #state: ScenarioBuilderState<R>;
 
   /** @internal */
-  constructor(state: ScenarioBuilderState<Resources>) {
+  constructor(state: ScenarioBuilderState<R>) {
     this.#state = state;
   }
 
@@ -271,7 +229,7 @@ class ScenarioBuilderInit<
    * @typeParam K - Resource name as a string literal type
    * @typeParam T - Resource value type
    * @param name - Unique identifier for the resource (used as key in `ctx.resources`)
-   * @param factory - Async function that creates and returns the resource
+   * @param fn - Async function that creates and returns the resource
    * @returns New builder with the resource added to the Resources type
    *
    * @remarks
@@ -303,15 +261,16 @@ class ScenarioBuilderInit<
    */
   resource<K extends string, T>(
     name: K,
-    factory: ResourceFactory<T, Previous, Results, Resources>,
-  ): ScenarioBuilderInit<Previous, Results, Resources & Record<K, T>> {
-    const clonedState = this.#state.clone<Resources & Record<K, T>>();
-    clonedState.addResource(name, factory as ResourceFactory);
+    fn: BuilderStepFunction<T, P, A, R>,
+    options?: StepOptions,
+  ): ScenarioBuilderInit<P, A, R & Record<K, T>> {
+    const clonedState = this.#state.clone<R & Record<K, T>>();
+    clonedState.addResourceStep(name, fn as StepFunction, options);
     return new ScenarioBuilderInit(clonedState);
   }
 
   /**
-   * Add a setup function for side effects that need cleanup.
+   * Add a named setup function for side effects that need cleanup.
    *
    * Setup functions run before any steps and can return a cleanup function
    * that executes after the scenario completes (regardless of success/failure).
@@ -355,10 +314,73 @@ class ScenarioBuilderInit<
    * ```
    */
   setup(
-    fn: SetupFunction<Previous, Results, Resources>,
-  ): ScenarioBuilderInit<Previous, Results, Resources> {
+    name: string,
+    fn: BuilderStepFunction<SetupCleanup, P, A, R>,
+    options?: StepOptions,
+  ): ScenarioBuilderInit<P, A, R>;
+
+  /**
+   * Add an unnamed setup function for side effects that need cleanup.
+   *
+   * Setup functions run before any steps and can return a cleanup function
+   * that executes after the scenario completes (regardless of success/failure).
+   *
+   * @param fn - Setup function that optionally returns a cleanup handler
+   * @returns New builder for chaining
+   *
+   * @remarks
+   * Unlike resources, setup functions:
+   * - Don't have a name (not accessible via `ctx.resources`)
+   * - Can perform arbitrary side effects (modify files, start servers, etc.)
+   * - Support both sync and async cleanup
+   * - Can return `Disposable`, `AsyncDisposable`, or a cleanup function
+   *
+   * @example Temporary file setup
+   * ```ts
+   * scenario("File Test")
+   *   .setup((ctx) => {
+   *     const tempFile = Deno.makeTempFileSync();
+   *     ctx.store.set("tempFile", tempFile);
+   *     return () => Deno.removeSync(tempFile);  // Cleanup function
+   *   })
+   *   .step("Write file", (ctx) => {
+   *     Deno.writeTextFileSync(ctx.store.get("tempFile"), "test");
+   *   })
+   *   .build();
+   * ```
+   *
+   * @example Environment variable setup
+   * ```ts
+   * scenario("Env Test")
+   *   .setup(() => {
+   *     const original = Deno.env.get("DEBUG");
+   *     Deno.env.set("DEBUG", "true");
+   *     return () => {
+   *       if (original) Deno.env.set("DEBUG", original);
+   *       else Deno.env.delete("DEBUG");
+   *     };
+   *   })
+   *   .build();
+   * ```
+   */
+  setup(
+    fn: BuilderStepFunction<SetupCleanup, P, A, R>,
+    options?: StepOptions,
+  ): ScenarioBuilderInit<P, A, R>;
+
+  setup(
+    nameOrFn: string | BuilderStepFunction<SetupCleanup, P, A, R>,
+    fnOrOptions?:
+      | BuilderStepFunction<SetupCleanup, P, A, R>
+      | StepOptions,
+    stepOptions?: StepOptions,
+  ): ScenarioBuilderInit<P, A, R> {
     const clonedState = this.#state.clone();
-    clonedState.addSetup(fn as SetupFunction);
+    clonedState.addSetupStep(
+      nameOrFn as (string | StepFunction),
+      fnOrOptions as (StepFunction | StepOptions),
+      stepOptions,
+    );
     return new ScenarioBuilderInit(clonedState);
   }
 
@@ -393,9 +415,9 @@ class ScenarioBuilderInit<
    */
   step<T>(
     name: string,
-    fn: StepFunction<T, Previous, Results, Resources>,
-    options?: BuilderStepOptions,
-  ): ScenarioBuilderInit<T, readonly [...Results, T], Resources>;
+    fn: BuilderStepFunction<T, P, A, R>,
+    options?: StepOptions,
+  ): ScenarioBuilderInit<T, readonly [...A, T], R>;
 
   /**
    * Add an unnamed step to the scenario (auto-named as "Step N").
@@ -417,21 +439,21 @@ class ScenarioBuilderInit<
    * ```
    */
   step<T>(
-    fn: StepFunction<T, Previous, Results, Resources>,
-    options?: BuilderStepOptions,
-  ): ScenarioBuilderInit<T, readonly [...Results, T], Resources>;
+    fn: BuilderStepFunction<T, P, A, R>,
+    options?: StepOptions,
+  ): ScenarioBuilderInit<T, readonly [...A, T], R>;
 
   step<T>(
-    nameOrFn: string | StepFunction<T, Previous, Results, Resources>,
+    nameOrFn: string | BuilderStepFunction<T, P, A, R>,
     fnOrOptions?:
-      | StepFunction<T, Previous, Results, Resources>
-      | BuilderStepOptions,
-    stepOptions?: BuilderStepOptions,
-  ): ScenarioBuilderInit<T, readonly [...Results, T], Resources> {
+      | BuilderStepFunction<T, P, A, R>
+      | StepOptions,
+    stepOptions?: StepOptions,
+  ): ScenarioBuilderInit<T, readonly [...A, T], R> {
     const clonedState = this.#state.clone();
-    clonedState.addStep(
+    clonedState.addExecutionStep(
       nameOrFn as (string | StepFunction),
-      fnOrOptions as (StepFunction | BuilderStepOptions),
+      fnOrOptions as (StepFunction | StepOptions),
       stepOptions,
     );
     return new ScenarioBuilderInit(clonedState);
@@ -444,7 +466,7 @@ class ScenarioBuilderInit<
    * that can be executed by the runner. The definition includes:
    * - All registered resources, setups, and steps in declaration order
    * - Merged options with defaults applied
-   * - Source location information for error reporting
+   * - Source source information for error reporting
    *
    * @returns Immutable scenario definition ready for execution
    *
@@ -531,7 +553,7 @@ class ScenarioBuilderInit<
  */
 export function scenario(
   name: string,
-  options?: BuilderScenarioOptions,
+  options?: ScenarioOptions,
 ): ScenarioBuilderInit {
   const state = new ScenarioBuilderState(name, options);
   return new ScenarioBuilderInit(state);

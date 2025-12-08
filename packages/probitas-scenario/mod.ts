@@ -24,9 +24,9 @@
  * The type system is designed around immutable data structures:
  *
  * - {@linkcode ScenarioDefinition} - Complete scenario with name, options, and entries
- * - {@linkcode StepDefinition} - Individual step with function, options, and location
+ * - {@linkcode StepDefinition} - Individual step with function, options, and source
  * - {@linkcode SetupDefinition} - Setup hook with cleanup function support
- * - {@linkcode ResourceDefinition} - Named resource with factory function
+ * - {@linkcode ResourceDefinition} - Named resource with fn function
  * - {@linkcode StepContext} - Context object passed to all functions
  * - {@linkcode Entry} - Discriminated union of step, setup, or resource
  *
@@ -34,13 +34,13 @@
  *
  * - {@linkcode ScenarioOptions} - Scenario-level configuration (tags, default step options)
  * - {@linkcode StepOptions} - Step execution settings (timeout, retry strategy)
- * - {@linkcode SourceLocation} - File and line number for error reporting
+ * - {@linkcode Source} - File and line number for error reporting
  *
  * ## Function Types
  *
  * - {@linkcode StepFunction} - Signature for step execution functions
  * - {@linkcode SetupFunction} - Signature for setup hooks (returns cleanup)
- * - {@linkcode ResourceFactory} - Signature for resource creation functions
+ * - {@linkcode ResourceFunction} - Signature for resource creation functions
  * - {@linkcode SetupCleanup} - Return type of setup functions
  *
  * ## Loader Utilities

@@ -1,106 +1,132 @@
-/**
- * Type definitions for the Builder layer
- *
- * Types for building scenario definitions with type-safe fluent API.
- * Re-exports core types from the scenario module.
- *
- * @module
- */
-
-import type { ScenarioOptions, StepOptions } from "@probitas/scenario";
+import type { StepContext, StepDefinition } from "@probitas/scenario";
 
 /**
- * Deep partial type - makes all properties and nested properties optional.
+ * Execution context provided to steps, resources, and setup hooks.
  *
- * This utility type recursively makes all properties optional, allowing users
- * to specify only the options they want to override while inheriting defaults
- * for everything else.
+ * The context provides access to:
+ * - Previous step results with full type inference
+ * - All accumulated results as a typed tuple
+ * - Named resources registered with `.resource()`
+ * - Shared storage for cross-step communication
+ * - Abort signal for timeout and cancellation handling
  *
- * @typeParam T - The type to make deeply partial
+ * @typeParam P - Type of the previous step's return value
+ * @typeParam A - Tuple type of all accumulated results from previous steps
+ * @typeParam R - Record type mapping resource names to their types
  *
- * @remarks
- * - Functions are preserved as-is (not made partial)
- * - Arrays are preserved as-is (not made partial)
- * - Objects have all properties made optional recursively
- *
- * @example
+ * @example Accessing previous result
  * ```ts
- * // Original type
- * interface Config {
- *   timeout: number;
- *   retry: { maxAttempts: number; backoff: string };
- * }
- *
- * // DeepPartial<Config> allows:
- * const partial: DeepPartial<Config> = {
- *   retry: { maxAttempts: 3 }  // backoff is optional
- * };
- * ```
- */
-// deno-lint-ignore no-explicit-any
-type DeepPartial<T> = T extends (...args: any[]) => any ? T
-  // deno-lint-ignore no-explicit-any
-  : T extends readonly any[] ? T
-  : T extends object ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
-
-/**
- * Partial scenario options used during building.
- *
- * All fields and nested fields are optional. When building a scenario,
- * unspecified options are filled with {@linkcode DEFAULT_SCENARIO_OPTIONS}.
- *
- * @example
- * ```ts
- * import { scenario } from "@probitas/builder";
- *
- * // Only specify what you need - rest uses defaults
- * scenario("My Test", {
- *   tags: ["api", "integration"],
- *   stepOptions: {
- *     timeout: 60000  // Override only timeout, keep default retry
- *   }
- * });
- * ```
- *
- * @see {@linkcode ScenarioOptions} for the complete options structure
- * @see {@linkcode DEFAULT_SCENARIO_OPTIONS} for default values
- */
-export type BuilderScenarioOptions = DeepPartial<ScenarioOptions>;
-
-/**
- * Partial step options used during building.
- *
- * All fields and nested fields are optional. When adding a step,
- * unspecified options inherit from scenario-level defaults, then
- * from {@linkcode DEFAULT_STEP_OPTIONS}.
- *
- * @example
- * ```ts
- * import { scenario } from "@probitas/builder";
- *
- * scenario("Payment Flow")
- *   .step("Process payment", async (ctx) => {
- *     // ... payment logic
- *   }, {
- *     timeout: 120000,  // 2 minutes for slow payment gateway
- *     retry: { maxAttempts: 3, backoff: "exponential" }
+ * scenario("Chained Steps")
+ *   .step("First", () => ({ id: 123 }))
+ *   .step("Second", (ctx) => {
+ *     console.log(ctx.previous.id);  // 123 (typed as number)
  *   })
  *   .build();
  * ```
  *
- * @see {@linkcode StepOptions} for the complete options structure
- * @see {@linkcode DEFAULT_STEP_OPTIONS} for default values
+ * @example Using shared store
+ * ```ts
+ * scenario("Store Example")
+ *   .setup((ctx) => {
+ *     ctx.store.set("startTime", Date.now());
+ *   })
+ *   .step("Check duration", (ctx) => {
+ *     const start = ctx.store.get("startTime") as number;
+ *     console.log(`Elapsed: ${Date.now() - start}ms`);
+ *   })
+ *   .build();
+ * ```
  */
-export type BuilderStepOptions = DeepPartial<StepOptions>;
+export type BuilderStepContext<
+  P = unknown,
+  A extends readonly unknown[] = readonly unknown[],
+  R extends Record<string, unknown> = Record<string, unknown>,
+> = StepContext & {
+  /**
+   * Result from the previous step.
+   *
+   * Fully typed based on what the previous step returned.
+   * For the first step, this is `unknown`.
+   */
+  readonly previous: P;
 
-// Re-export core types used by builder consumers
-export type {
-  ResourceFactory,
-  SetupCleanup,
-  SetupFunction,
-  StepContext,
-  StepFunction,
-} from "@probitas/scenario";
+  /**
+   * All accumulated results as a typed tuple.
+   *
+   * Allows accessing any previous result by index:
+   * ```ts
+   * ctx.results[0]  // First step's result
+   * ctx.results[1]  // Second step's result
+   * ```
+   */
+  readonly results: A;
+
+  /**
+   * Named resources registered with `.resource()`.
+   *
+   * Resources are typed based on their registration:
+   * ```ts
+   * .resource("db", () => createDbConnection())
+   * .step((ctx) => ctx.resources.db.query(...))
+   * ```
+   */
+  readonly resources: R;
+};
+
+/**
+ * Function signature for step execution.
+ *
+ * A step function receives the execution context and returns a value
+ * (sync or async) that becomes available to subsequent steps.
+ *
+ * @typeParam T - Type of this step's return value
+ * @typeParam P - Type of the previous step's result (from `ctx.previous`)
+ * @typeParam A - Tuple type of all accumulated results
+ * @typeParam R - Record of available resources
+ *
+ * @example Sync step returning data
+ * ```ts
+ * const step: StepFunction<{ name: string }> = (ctx) => {
+ *   return { name: "Alice" };
+ * };
+ * ```
+ *
+ * @example Async step with API call
+ * ```ts
+ * const step: StepFunction<User> = async (ctx) => {
+ *   const response = await fetch("/api/user", { signal: ctx.signal });
+ *   return response.json();
+ * };
+ * ```
+ */
+export type BuilderStepFunction<
+  T = unknown,
+  P = unknown,
+  A extends readonly unknown[] = readonly unknown[],
+  R extends Record<string, unknown> = Record<string, unknown>,
+> = (ctx: BuilderStepContext<P, A, R>) => T | Promise<T>;
+
+/**
+ * Immutable definition of a scenario step.
+ *
+ * Contains all information needed to execute a single step:
+ * the step function, its options, and debugging metadata.
+ *
+ * @typeParam T - Type of this step's return value
+ * @typeParam P - Type of the previous step's result
+ * @typeParam A - Tuple type of accumulated results
+ * @typeParam R - Record of available resources
+ *
+ * @remarks
+ * Step definitions are created by the builder and consumed by the runner.
+ * They are immutable and should not be modified after creation.
+ */
+export type BuilderStepDefinition<
+  T = unknown,
+  P = unknown,
+  A extends readonly unknown[] = readonly unknown[],
+  R extends Record<string, unknown> = Record<string, unknown>,
+> = StepDefinition & {
+  /** Step function to execute */
+  readonly fn: BuilderStepFunction<T, P, A, R>;
+};

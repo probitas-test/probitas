@@ -35,7 +35,7 @@
  * - {@linkcode Skip} - Exception class to skip scenarios conditionally
  * - {@linkcode Reporter} - Interface for observing test execution events
  * - {@linkcode RunOptions} - Configuration options for test runs
- * - {@linkcode RunSummary} - Aggregated results from a test run
+ * - {@linkcode RunResult} - Aggregated results from a test run
  * - {@linkcode ScenarioResult} - Result from executing a single scenario
  * - {@linkcode StepResult} - Result from executing a single step
  *
@@ -84,7 +84,7 @@
  *
  * @example Implementing a custom reporter
  * ```ts
- * import type { Reporter, ScenarioDefinition, RunSummary } from "@probitas/runner";
+ * import type { Reporter, ScenarioDefinition, RunResult } from "@probitas/runner";
  *
  * class MinimalReporter implements Reporter {
  *   onScenarioEnd(scenario: ScenarioDefinition, result: ScenarioResult) {
@@ -92,7 +92,7 @@
  *     console.log(`${icon} ${scenario.name}`);
  *   }
  *
- *   onRunEnd(summary: RunSummary) {
+ *   onRunEnd(summary: RunResult) {
  *     console.log(`\n${summary.passed}/${summary.total} passed`);
  *   }
  * }
@@ -117,6 +117,5 @@
  */
 
 export type * from "./types.ts";
-export * from "./errors.ts";
 export { Skip } from "./skip.ts";
-export { ScenarioRunner } from "./scenario_runner.ts";
+export { Runner } from "./runner.ts";

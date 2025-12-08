@@ -10,7 +10,7 @@
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { applySelectors, loadScenarios } from "@probitas/scenario";
 import type { ReporterOptions } from "@probitas/reporter";
-import { ScenarioRunner } from "@probitas/runner";
+import { Runner } from "@probitas/runner";
 import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { resolveReporter } from "../../utils.ts";
 
@@ -26,8 +26,6 @@ interface SubprocessInput {
   selectors?: string[];
   /** Reporter name */
   reporter?: string;
-  /** Disable color output */
-  noColor?: boolean;
   /** Log level */
   logLevel?: LogLevel;
   /** Maximum concurrent scenario execution */
@@ -42,7 +40,6 @@ const isSubprocessInput = is.ObjectOf({
   files: is.ArrayOf(is.String),
   selectors: as.Optional(is.ArrayOf(is.String)),
   reporter: as.Optional(is.String),
-  noColor: as.Optional(is.Boolean),
   logLevel: as.Optional(is.LiteralOneOf(
     ["debug", "info", "warning", "error", "fatal", "trace"] as const,
   )),
@@ -69,7 +66,6 @@ async function main(): Promise<number> {
     files,
     selectors,
     reporter: reporterName,
-    noColor,
     logLevel,
     maxConcurrency,
     maxFailures,
@@ -78,7 +74,7 @@ async function main(): Promise<number> {
 
   // Configure logging
   try {
-    await configureLogging(input.logLevel ?? "warning");
+    await configureLogging(logLevel ?? "warning");
   } catch (err: unknown) {
     const m = err instanceof Error ? err.message : String(err);
     console.error(`Warning: Failed to configure logging: ${m}`);
@@ -131,10 +127,7 @@ async function main(): Promise<number> {
     });
 
     // Setup reporter
-    const reporterOptions: ReporterOptions = {
-      noColor: noColor ?? false,
-      logLevel: logLevel ?? "warning",
-    };
+    const reporterOptions: ReporterOptions = {};
     const reporter = resolveReporter(reporterName, reporterOptions);
 
     // Create abort signal for timeout if specified
@@ -143,9 +136,8 @@ async function main(): Promise<number> {
       : undefined;
 
     // Run scenarios
-    const runner = new ScenarioRunner();
+    const runner = new Runner(reporter);
     const summary = await runner.run(scenarios, {
-      reporter,
       maxConcurrency,
       maxFailures,
       signal: timeoutSignal,

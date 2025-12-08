@@ -7,86 +7,81 @@
  * @module
  */
 
-import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  ScenarioResult,
-} from "./types.ts";
+import type { ScenarioDefinition } from "@probitas/scenario";
+import type { Reporter, RunResult, ScenarioResult } from "@probitas/runner";
+import { Writer, type WriterOptions } from "./writer.ts";
+import { defaultTheme, type Theme } from "./theme.ts";
+import { formatSource } from "./utils/source.ts";
 
-/**
- * Dot Reporter - outputs simple dot format progress
- */
-export class DotReporter extends BaseReporter {
-  /**
-   * Initialize Dot reporter
-   *
-   * @param options Configuration options
-   */
-  constructor(options: ReporterOptions = {}) {
-    super(options);
+export interface DotReporterOptions extends WriterOptions {
+  theme?: Theme;
+}
+
+export class DotReporter implements Reporter {
+  #writer: Writer;
+  #theme: Theme;
+
+  constructor(options: DotReporterOptions = {}) {
+    this.#writer = new Writer(options);
+    this.#theme = options.theme ?? defaultTheme;
   }
 
-  /**
-   * Called when scenario completes - output dot
-   *
-   * @param _scenario The scenario definition
-   * @param result The scenario execution result
-   */
+  #write(...terms: string[]): Promise<void> {
+    const text = terms.join(" ");
+    return this.#writer.write(text);
+  }
+
+  #writeln(...terms: string[]): Promise<void> {
+    const text = terms.join(" ");
+    return this.#writer.write(`${text}\n`);
+  }
+
   async onScenarioEnd(
     _scenario: ScenarioDefinition,
     result: ScenarioResult,
   ): Promise<void> {
     if (result.status === "passed") {
-      await this.write(this.theme.success("."));
+      await this.#write(this.#theme.success("."));
     } else if (result.status === "skipped") {
-      await this.write(this.theme.skip("S"));
+      await this.#write(this.#theme.skip("S"));
     } else if (result.status === "failed") {
-      await this.write(this.theme.failure("F"));
+      await this.#write(this.#theme.failure("F"));
     }
   }
 
-  /**
-   * Called when test run completes - output summary
-   *
-   * @param summary The execution summary
-   */
-  override async onRunEnd(summary: RunSummary): Promise<void> {
-    await this.write("\n\n");
-    const parts = [`${summary.passed} passed`];
-    if (summary.skipped > 0) {
-      parts.push(`${summary.skipped} skipped`);
+  async onRunEnd(
+    _scenarios: readonly ScenarioDefinition[],
+    result: RunResult,
+  ): Promise<void> {
+    await this.#write("\n\n");
+    const parts = [`${result.passed} passed`];
+    if (result.skipped > 0) {
+      parts.push(`${result.skipped} skipped`);
     }
-    parts.push(`${summary.failed} failed`);
-    await this.write(`${parts.join(", ")} (${summary.duration}ms)\n`);
+    parts.push(`${result.failed} failed`);
+    await this.#writeln(`${parts.join(", ")} (${result.duration}ms)`);
 
     // Show failed tests
-    const failed = summary.scenarios.filter((s) => s.status === "failed");
+    const failed = result.scenarios.filter((s) => s.status === "failed");
     if (failed.length > 0) {
-      await this.write("\n");
-      await this.write(`${this.theme.title("Failed Tests")}\n`);
+      await this.#writeln("");
+      await this.#writeln(`${this.#theme.title("Failed Tests")}\n`);
       for (const scenario of failed) {
         // Show failed steps
         const failedSteps = scenario.steps.filter((s) => s.status === "failed");
         for (const step of failedSteps) {
-          const location = step.metadata.location
-            ? ` ${
-              this.theme.dim(
-                `(${step.metadata.location.file}:${step.metadata.location.line})`,
-              )
-            }`
-            : "";
-          await this.write(
-            `  ${this.theme.failure("✗")} ` +
-              `${scenario.metadata.name} ${this.theme.dim(">")} ` +
-              `${step.metadata.name}` +
-              `${location}\n`,
+          const source = formatSource(step.metadata.source, {
+            prefix: "(",
+            suffix: ")",
+          });
+          await this.#writeln(
+            `  ${this.#theme.failure("✗")}`,
+            scenario.metadata.name,
+            this.#theme.dim(">"),
+            `${step.metadata.name}${source}`,
           );
         }
       }
     }
-
-    await super.onRunEnd(summary);
   }
 }

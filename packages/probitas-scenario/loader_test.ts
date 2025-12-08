@@ -23,7 +23,7 @@ describe("scenario loader", () => {
           name: "Test Scenario",
           options: { tags: [], stepOptions: {} },
           entries: [{ kind: "step", value: { name: "step", fn: () => {}, options: {} } }],
-          location: { file: "${scenarioPath}" }
+          source: { file: "${scenarioPath}" }
         };
       `;
       await Deno.writeTextFile(scenarioPath, content);
@@ -44,13 +44,13 @@ describe("scenario loader", () => {
             name: "Scenario 1",
             options: { tags: [], stepOptions: {} },
             entries: [],
-            location: { file: "${scenarioPath}" }
+            source: { file: "${scenarioPath}" }
           },
           {
             name: "Scenario 2",
             options: { tags: [], stepOptions: {} },
             entries: [],
-            location: { file: "${scenarioPath}" }
+            source: { file: "${scenarioPath}" }
           }
         ];
       `;
@@ -75,7 +75,7 @@ describe("scenario loader", () => {
           name: "${name}",
           options: { tags: [], stepOptions: {} },
           entries: [],
-          location: { file: "${path}" }
+          source: { file: "${path}" }
         };
       `;
 

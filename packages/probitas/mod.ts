@@ -97,7 +97,7 @@
 
 export { scenario } from "@probitas/builder";
 export { Skip } from "@probitas/runner";
-export type { StepContext } from "@probitas/builder";
+export type { BuilderStepContext as StepContext } from "@probitas/builder";
 
 export * as client from "./client/mod.ts";
 export * from "./expect.ts";

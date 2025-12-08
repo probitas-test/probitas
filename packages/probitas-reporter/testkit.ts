@@ -11,28 +11,29 @@ import { describe, it } from "@std/testing/bdd";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { Buffer } from "@std/streams/buffer";
 import type {
+  ScenarioDefinition,
   ScenarioOptions,
-  SourceLocation,
+  Source,
+  StepDefinition,
   StepOptions,
-} from "@probitas/runner";
+} from "@probitas/scenario";
 import type {
   Reporter,
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
+  RunResult,
   ScenarioResult,
-  StepDefinition,
   StepResult,
-} from "./types.ts";
+} from "@probitas/runner";
+import type { ReporterOptions } from "./types.ts";
+import { colorTheme, noColorTheme } from "./theme.ts";
 
-// Source locations for testing
+// Source sources for testing
 export const sourceLocations = {
   scenario1: { file: "test.scenario.ts", line: 10 },
   scenario2: { file: "test.scenario.ts", line: 50 },
   step1: { file: "test.scenario.ts", line: 15 },
   step2: { file: "test.scenario.ts", line: 20 },
   step3: { file: "test.scenario.ts", line: 25 },
-} as const satisfies Record<string, SourceLocation>;
+} as const satisfies Record<string, Source>;
 
 // Default step options for testing
 const defaultStepOptions: StepOptions = {
@@ -56,30 +57,36 @@ export const scenarioOptions = {
 // Step definitions
 export const stepDefinitions = {
   passing: {
+    kind: "step",
     name: "Step that passes",
-    location: sourceLocations.step1,
+    source: sourceLocations.step1,
     fn: () => {
       return Promise.resolve();
     },
-    options: defaultStepOptions,
+    timeout: 5000,
+    retry: { maxAttempts: 1, backoff: "linear" as const },
   },
 
   failing: {
+    kind: "step",
     name: "Step that fails",
-    location: sourceLocations.step2,
+    source: sourceLocations.step2,
     fn: () => {
       throw new Error("Step failed");
     },
-    options: defaultStepOptions,
+    timeout: 5000,
+    retry: { maxAttempts: 1, backoff: "linear" as const },
   },
 
   slow: {
+    kind: "step",
     name: "Slow step",
-    location: sourceLocations.step3,
+    source: sourceLocations.step3,
     fn: async () => {
       // Intentionally empty - just simulates a step that could be slow
     },
-    options: defaultStepOptions,
+    timeout: 5000,
+    retry: { maxAttempts: 1, backoff: "linear" as const },
   },
 } as const satisfies Record<string, StepDefinition>;
 
@@ -87,9 +94,11 @@ export const stepDefinitions = {
 export const stepResults = {
   passed: {
     metadata: {
+      kind: "step",
       name: "Step that passes",
-      options: defaultStepOptions,
-      location: sourceLocations.step1,
+      timeout: 5000,
+      retry: { maxAttempts: 1, backoff: "linear" as const },
+      source: sourceLocations.step1,
     },
     status: "passed" as const,
     duration: 10,
@@ -98,9 +107,11 @@ export const stepResults = {
 
   passedWithOutput: {
     metadata: {
+      kind: "step",
       name: "Step that passes",
-      options: defaultStepOptions,
-      location: sourceLocations.step1,
+      timeout: 5000,
+      retry: { maxAttempts: 1, backoff: "linear" as const },
+      source: sourceLocations.step1,
     },
     status: "passed" as const,
     duration: 15,
@@ -109,13 +120,28 @@ export const stepResults = {
 
   failed: {
     metadata: {
+      kind: "step",
       name: "Step that fails",
-      options: defaultStepOptions,
-      location: sourceLocations.step2,
+      timeout: 5000,
+      retry: { maxAttempts: 1, backoff: "linear" as const },
+      source: sourceLocations.step2,
     },
     status: "failed" as const,
     duration: 5,
     error: new Error("Assertion failed"),
+  },
+
+  skipped: {
+    metadata: {
+      kind: "step",
+      name: "Step that is skipped",
+      timeout: 5000,
+      retry: { maxAttempts: 1, backoff: "linear" as const },
+      source: sourceLocations.step3,
+    },
+    status: "skipped" as const,
+    duration: 0,
+    error: "This step was skipped due to prerequisite failure",
   },
 } as const satisfies Record<string, StepResult>;
 
@@ -123,37 +149,37 @@ export const stepResults = {
 export const scenarioDefinitions = {
   simple: {
     name: "Simple passing scenario",
-    options: scenarioOptions.default,
-    location: sourceLocations.scenario1,
-    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
+    tags: [],
+    source: sourceLocations.scenario1,
+    steps: [stepDefinitions.passing],
   },
 
   withMultipleSteps: {
     name: "Scenario with multiple steps",
-    options: scenarioOptions.default,
-    location: sourceLocations.scenario1,
-    entries: [
-      { kind: "step" as const, value: stepDefinitions.passing },
-      { kind: "step" as const, value: stepDefinitions.passing },
-      { kind: "step" as const, value: stepDefinitions.passing },
+    tags: [],
+    source: sourceLocations.scenario1,
+    steps: [
+      stepDefinitions.passing,
+      stepDefinitions.passing,
+      stepDefinitions.passing,
     ],
   },
 
   withFailingStep: {
     name: "Scenario with failing step",
-    options: scenarioOptions.default,
-    location: sourceLocations.scenario1,
-    entries: [
-      { kind: "step" as const, value: stepDefinitions.passing },
-      { kind: "step" as const, value: stepDefinitions.failing },
+    tags: [],
+    source: sourceLocations.scenario1,
+    steps: [
+      stepDefinitions.passing,
+      stepDefinitions.failing,
     ],
   },
 
   withTags: {
     name: "Tagged scenario",
-    options: scenarioOptions.withTags,
-    location: sourceLocations.scenario2,
-    entries: [{ kind: "step" as const, value: stepDefinitions.passing }],
+    tags: ["@smoke", "@api"],
+    source: sourceLocations.scenario2,
+    steps: [stepDefinitions.passing],
   },
 } as const satisfies Record<string, ScenarioDefinition>;
 
@@ -162,19 +188,15 @@ export const scenarioResults = {
   passed: {
     metadata: {
       name: "Simple passing scenario",
-      location: sourceLocations.scenario1,
-      options: {
-        tags: [],
-        stepOptions: defaultStepOptions,
-      },
-      entries: [
+      source: sourceLocations.scenario1,
+      tags: [],
+      steps: [
         {
           kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
       ],
     },
@@ -186,35 +208,29 @@ export const scenarioResults = {
   passedMultipleSteps: {
     metadata: {
       name: "Scenario with multiple steps",
-      location: sourceLocations.scenario1,
-      options: {
-        tags: [],
-        stepOptions: defaultStepOptions,
-      },
-      entries: [
+      source: sourceLocations.scenario1,
+      tags: [],
+      steps: [
         {
           kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
         {
           kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
         {
           kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
       ],
     },
@@ -226,27 +242,22 @@ export const scenarioResults = {
   failed: {
     metadata: {
       name: "Scenario with failing step",
-      location: sourceLocations.scenario1,
-      options: {
-        tags: [],
-        stepOptions: defaultStepOptions,
-      },
-      entries: [
+      source: sourceLocations.scenario1,
+      tags: [],
+      steps: [
         {
           kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
         {
           kind: "step" as const,
-          value: {
-            name: "Step that fails",
-            options: defaultStepOptions,
-            location: sourceLocations.step2,
-          },
+          name: "Step that fails",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step2,
         },
       ],
     },
@@ -259,19 +270,15 @@ export const scenarioResults = {
   withTags: {
     metadata: {
       name: "Tagged scenario",
-      location: sourceLocations.scenario2,
-      options: {
-        tags: ["@smoke", "@api"],
-        stepOptions: defaultStepOptions,
-      },
-      entries: [
+      source: sourceLocations.scenario2,
+      tags: ["@smoke", "@api"],
+      steps: [
         {
-          kind: "step" as const,
-          value: {
-            name: "Step that passes",
-            options: defaultStepOptions,
-            location: sourceLocations.step1,
-          },
+          kind: "step",
+          name: "Step that passes",
+          timeout: 5000,
+          retry: { maxAttempts: 1, backoff: "linear" as const },
+          source: sourceLocations.step1,
         },
       ],
     },
@@ -317,7 +324,7 @@ export const runSummaries = {
     duration: 0,
     scenarios: [],
   },
-} as const satisfies Record<string, RunSummary>;
+} as const satisfies Record<string, RunResult>;
 
 /**
  * Normalize file paths in stack traces for snapshot testing
@@ -361,7 +368,6 @@ function getRawBufferOutput(buffer: Buffer): string {
  * - Complete run with all scenarios passed
  * - Complete run with failures
  * - Empty run (no scenarios)
- * - Both with and without color output (noColor: true and false)
  *
  * Uses snapshot testing with assertSnapshot for output verification of the
  * complete output generated throughout the entire lifecycle.
@@ -380,12 +386,12 @@ export function testReporter(
 ): void {
   const name = reporterName ?? ReporterClass.name;
   describe(name, () => {
-    describe("with colors (noColor: false)", () => {
+    describe("with colors", () => {
       it("complete run with all scenarios passed", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: false,
+          theme: colorTheme,
         });
 
         const summary = runSummaries.allPassed;
@@ -406,15 +412,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[0]);
+        await reporter.onStepStart?.(scenarios[0], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[0],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[0],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (1)",
@@ -431,15 +437,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (2)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (2)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[1],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[1],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (2)",
@@ -456,15 +462,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (3)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[2]);
+        await reporter.onStepStart?.(scenarios[2], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (3)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[2],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[2],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (3)",
@@ -475,7 +481,7 @@ export function testReporter(
           name: "after onScenarioEnd - Simple passing scenario (3)",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onRunEnd",
         });
@@ -485,7 +491,7 @@ export function testReporter(
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: false,
+          theme: colorTheme,
         });
 
         const summary = runSummaries.withFailures;
@@ -506,15 +512,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[0]);
+        await reporter.onStepStart?.(scenarios[0], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[0],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[0],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (1)",
@@ -531,33 +537,32 @@ export function testReporter(
           name: "after onScenarioStart - Scenario with failing step (2)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (2-1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[1],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[1],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (2-1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.failing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.failing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that fails (2-2)",
         });
 
-        await reporter.onStepError?.(
-          stepDefinitions.failing,
-          new Error("Assertion failed"),
-          5, // duration in ms
+        await reporter.onStepEnd?.(
           scenarios[1],
+          stepDefinitions.failing,
+          stepResults.failed,
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
-          name: "after onStepError - Step that fails (2-2)",
+          name: "after onStepEnd - Step that fails (2-2)",
         });
 
         await reporter.onScenarioEnd?.(scenarios[1], summary.scenarios[1]);
@@ -571,15 +576,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (3)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[2]);
+        await reporter.onStepStart?.(scenarios[2], stepDefinitions.passing);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepStart - Step that passes (3)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[2],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[2],
         );
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onStepEnd - Step that passes (3)",
@@ -590,7 +595,7 @@ export function testReporter(
           name: "after onScenarioEnd - Simple passing scenario (3)",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onRunEnd",
         });
@@ -600,7 +605,6 @@ export function testReporter(
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: false,
         });
 
         const summary = runSummaries.empty;
@@ -611,19 +615,19 @@ export function testReporter(
           name: "after onRunStart",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getRawBufferOutput(buffer), {
           name: "after onRunEnd",
         });
       });
     });
 
-    describe("without colors (noColor: true)", () => {
+    describe("without colors", () => {
       it("complete run with all scenarios passed", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: true,
+          theme: noColorTheme,
         });
 
         const summary = runSummaries.allPassed;
@@ -644,15 +648,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[0]);
+        await reporter.onStepStart?.(scenarios[0], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[0],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[0],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (1)",
@@ -669,15 +673,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (2)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (2)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[1],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[1],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (2)",
@@ -694,15 +698,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (3)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[2]);
+        await reporter.onStepStart?.(scenarios[2], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (3)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[2],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[2],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (3)",
@@ -713,7 +717,7 @@ export function testReporter(
           name: "after onScenarioEnd - Simple passing scenario (3)",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onRunEnd",
         });
@@ -723,7 +727,7 @@ export function testReporter(
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: true,
+          theme: noColorTheme,
         });
 
         const summary = runSummaries.withFailures;
@@ -744,15 +748,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[0]);
+        await reporter.onStepStart?.(scenarios[0], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[0],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[0],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (1)",
@@ -769,33 +773,32 @@ export function testReporter(
           name: "after onScenarioStart - Scenario with failing step (2)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (2-1)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[1],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[1],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (2-1)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.failing, scenarios[1]);
+        await reporter.onStepStart?.(scenarios[1], stepDefinitions.failing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that fails (2-2)",
         });
 
-        await reporter.onStepError?.(
-          stepDefinitions.failing,
-          new Error("Assertion failed"),
-          5, // duration in ms
+        await reporter.onStepEnd?.(
           scenarios[1],
+          stepDefinitions.failing,
+          stepResults.failed,
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
-          name: "after onStepError - Step that fails (2-2)",
+          name: "after onStepEnd - Step that fails (2-2)",
         });
 
         await reporter.onScenarioEnd?.(scenarios[1], summary.scenarios[1]);
@@ -809,15 +812,15 @@ export function testReporter(
           name: "after onScenarioStart - Simple passing scenario (3)",
         });
 
-        await reporter.onStepStart?.(stepDefinitions.passing, scenarios[2]);
+        await reporter.onStepStart?.(scenarios[2], stepDefinitions.passing);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepStart - Step that passes (3)",
         });
 
         await reporter.onStepEnd?.(
+          scenarios[2],
           stepDefinitions.passing,
           stepResults.passed,
-          scenarios[2],
         );
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onStepEnd - Step that passes (3)",
@@ -828,7 +831,7 @@ export function testReporter(
           name: "after onScenarioEnd - Simple passing scenario (3)",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onRunEnd",
         });
@@ -838,7 +841,7 @@ export function testReporter(
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
-          noColor: true,
+          theme: noColorTheme,
         });
 
         const summary = runSummaries.empty;
@@ -849,7 +852,7 @@ export function testReporter(
           name: "after onRunStart",
         });
 
-        await reporter.onRunEnd?.(summary);
+        await reporter.onRunEnd?.(scenarios, summary);
         await assertSnapshot(t, getBufferOutputNoColor(buffer), {
           name: "after onRunEnd",
         });

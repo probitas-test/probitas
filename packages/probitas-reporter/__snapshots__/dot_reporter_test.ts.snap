@@ -51,7 +51,7 @@ snapshot[`after onStepEnd - Step that passes (2-1) 1`] = `"[32m.[39m"`;
 
 snapshot[`after onStepStart - Step that fails (2-2) 1`] = `"[32m.[39m"`;
 
-snapshot[`after onStepError - Step that fails (2-2) 1`] = `"[32m.[39m"`;
+snapshot[`after onStepEnd - Step that fails (2-2) 1`] = `"[32m.[39m"`;
 
 snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `"[32m.[39m[31mF[39m"`;
 
@@ -69,7 +69,8 @@ snapshot[`after onRunEnd 2`] = `
 2 passed, 1 failed (35ms)
 
 [1mFailed Tests[22m
-  [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m
+
+  [31m✗[39m Scenario with failing step [90m>[39m Step that fails(test.scenario.ts:20)
 "
 `;
 
@@ -133,7 +134,7 @@ snapshot[`after onStepEnd - Step that passes (2-1) 2`] = `"."`;
 
 snapshot[`after onStepStart - Step that fails (2-2) 2`] = `"."`;
 
-snapshot[`after onStepError - Step that fails (2-2) 2`] = `"."`;
+snapshot[`after onStepEnd - Step that fails (2-2) 2`] = `"."`;
 
 snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `".F"`;
 
@@ -151,7 +152,8 @@ snapshot[`after onRunEnd 5`] = `
 2 passed, 1 failed (35ms)
 
 Failed Tests
-  ✗ Scenario with failing step > Step that fails (test.scenario.ts:20)
+
+  ✗ Scenario with failing step > Step that fails(test.scenario.ts:20)
 "
 `;
 

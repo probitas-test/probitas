@@ -7,58 +7,46 @@
  * @module
  */
 
-import { BaseReporter } from "./base_reporter.ts";
-import type {
-  ReporterOptions,
-  RunSummary,
-  ScenarioDefinition,
-  StepDefinition,
-  StepResult,
-} from "./types.ts";
+import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { Reporter, RunResult, StepResult } from "@probitas/runner";
+import { Writer, type WriterOptions } from "./writer.ts";
+import { sanitizeStack } from "./utils/stack.ts";
 
-/**
- * TAP Reporter - outputs Test Anything Protocol version 14 format
- */
-export class TAPReporter extends BaseReporter {
+export interface TAPReporterOptions extends WriterOptions {
+}
+
+export class TAPReporter implements Reporter {
+  #writer: Writer;
   #testNumber = 0;
   #totalSteps = 0;
   #skippedScenarioSteps: Map<string, number> = new Map();
 
-  /**
-   * Initialize TAP reporter
-   *
-   * @param options Configuration options
-   */
-  constructor(options: ReporterOptions = {}) {
-    super(options);
+  constructor(options: TAPReporterOptions = {}) {
+    this.#writer = new Writer(options);
   }
 
-  /**
-   * Called when test run starts - outputs TAP header and test count
-   *
-   * @param scenarios All scenarios to be run
-   */
-  override async onRunStart(
+  #writeln(...terms: string[]): Promise<void> {
+    const text = terms.join(" ");
+    return this.#writer.write(`${text}\n`);
+  }
+
+  async onRunStart(
     scenarios: readonly ScenarioDefinition[],
   ): Promise<void> {
-    await super.onRunStart(scenarios);
-
     // Store step counts per scenario for skip handling
     for (const scenario of scenarios) {
-      const stepCount = scenario.entries.filter((e) =>
-        e.kind === "step"
-      ).length;
+      const stepCount = scenario.steps.filter((e) => e.kind === "step").length;
       this.#skippedScenarioSteps.set(scenario.name, stepCount);
     }
 
     // Calculate total number of steps
     this.#totalSteps = scenarios.reduce(
-      (sum, s) => sum + s.entries.filter((e) => e.kind === "step").length,
+      (sum, s) => sum + s.steps.filter((e) => e.kind === "step").length,
       0,
     );
 
-    await this.write("TAP version 14\n");
-    await this.write(`1..${this.#totalSteps}\n`);
+    await this.#writeln("TAP version 14");
+    await this.#writeln(`1..${this.#totalSteps}`);
   }
 
   /**
@@ -69,73 +57,53 @@ export class TAPReporter extends BaseReporter {
    * @param scenario The scenario being executed
    */
   async onStepEnd(
+    scenario: ScenarioDefinition,
     _step: StepDefinition,
     result: StepResult,
-    scenario: ScenarioDefinition,
   ): Promise<void> {
     this.#testNumber++;
-    const status = result.status === "passed" ? "ok" : "not ok";
+    const status = result.status !== "failed" ? "ok" : "not ok";
+    const directive = result.status === "skipped" ? " # SKIP" : "";
+
     const testName = `${scenario.name} > ${result.metadata.name}`;
 
-    await this.write(`${status} ${this.#testNumber} - ${testName}\n`);
+    await this.#writeln(
+      `${status} ${this.#testNumber} - ${testName}${directive}`,
+    );
 
     // Output YAML diagnostic for failed tests
     if (result.status === "failed") {
-      await this.write("  ---\n");
+      await this.#writeln("  ---");
 
-      const location = result.metadata.location
-        ? `${result.metadata.location.file}:${result.metadata.location.line}`
+      const source = result.metadata.source
+        ? `${result.metadata.source.file}:${result.metadata.source.line}`
         : "unknown";
 
-      await this.write(`  location: ${location}\n`);
+      await this.#writeln(`  source: ${source}`);
 
       if (result.error) {
-        await this.write(`  message: ${result.error.message}\n`);
+        const m = result.error instanceof Error
+          ? result.error.message
+          : String(result.error);
+        await this.#writeln(`  message: ${m}`);
 
-        if (result.error.stack) {
-          const sanitizedStack = this.sanitizeStack(result.error.stack);
-          await this.write(`  stack: |\n`);
+        if (result.error instanceof Error && result.error.stack) {
+          const sanitizedStack = sanitizeStack(result.error.stack);
+          await this.#writeln(`  stack: |\n`);
           for (const line of sanitizedStack.split("\n")) {
-            await this.write(`    ${line}\n`);
+            await this.#writeln(`    ${line}\n`);
           }
         }
       }
 
-      await this.write("  ...\n");
+      await this.#writeln("  ...");
     }
   }
 
-  /**
-   * Called when scenario is skipped - output SKIP directive for all steps
-   *
-   * @param scenario The scenario that was skipped
-   * @param reason Optional skip reason
-   * @param _duration Scenario execution duration (not used in TAP format)
-   */
-  async onScenarioSkip(
-    scenario: ScenarioDefinition,
-    reason: string | undefined,
-    _duration: number,
-  ): Promise<void> {
-    const stepCount = this.#skippedScenarioSteps.get(scenario.name) ?? 0;
-    const directive = reason ? `# SKIP ${reason}` : "# SKIP";
-
-    // Output skip for each step in the scenario
-    for (let i = 0; i < stepCount; i++) {
-      this.#testNumber++;
-      await this.write(
-        `ok ${this.#testNumber} - ${scenario.name} ${directive}\n`,
-      );
-    }
-  }
-
-  /**
-   * Called when test run completes - reset state
-   *
-   * @param summary The execution summary
-   */
-  override async onRunEnd(summary: RunSummary): Promise<void> {
+  onRunEnd(
+    _scenarios: readonly ScenarioDefinition[],
+    _result: RunResult,
+  ): void {
     this.#skippedScenarioSteps.clear();
-    await super.onRunEnd(summary);
   }
 }

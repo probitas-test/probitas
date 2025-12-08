@@ -10,7 +10,7 @@
 /**
  * Exception class for conditionally skipping scenario execution.
  *
- * Throw `Skip` from any step, setup, or resource factory to skip the
+ * Throw `Skip` from any step, setup, or resource fn to skip the
  * entire scenario. Skipped scenarios are counted separately in the
  * summary and don't count as failures.
  *

@@ -253,6 +253,8 @@ describe("list command", { sanitizeResources: false }, () => {
       const result = await child.output();
       const stdout = new TextDecoder().decode(result.stdout);
 
+      console.log(stdout);
+
       assertEquals(result.code, 0);
       assertEquals(stdout.includes("API Test"), true);
       assertEquals(stdout.includes("E2E Test"), false);

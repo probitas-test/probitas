@@ -7,38 +7,22 @@
 import { assertEquals, assertExists } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { FakeTime } from "@std/testing/time";
-import type { Entry } from "@probitas/scenario";
+import type { StepDefinition } from "@probitas/scenario";
 import { scenario } from "./scenario_builder.ts";
 
-type StepEntry = Extract<Entry, { kind: "step" }>;
-type ResourceEntry = Extract<Entry, { kind: "resource" }>;
-type SetupEntry = Extract<Entry, { kind: "setup" }>;
-
-function isStepEntry(entry: Entry): entry is StepEntry {
-  return entry.kind === "step";
+// Helper to extract steps from steps
+function getSteps(steps: readonly StepDefinition[]) {
+  return steps.filter((v) => v.kind === "step");
 }
 
-function isResourceEntry(entry: Entry): entry is ResourceEntry {
-  return entry.kind === "resource";
+// Helper to extract resources from steps
+function getResources(steps: readonly StepDefinition[]) {
+  return steps.filter((v) => v.kind === "resource");
 }
 
-function isSetupEntry(entry: Entry): entry is SetupEntry {
-  return entry.kind === "setup";
-}
-
-// Helper to extract steps from entries
-function getSteps(entries: readonly Entry[]) {
-  return entries.filter(isStepEntry).map((entry) => entry.value);
-}
-
-// Helper to extract resources from entries
-function getResources(entries: readonly Entry[]) {
-  return entries.filter(isResourceEntry).map((entry) => entry.value);
-}
-
-// Helper to extract setups from entries
-function getSetups(entries: readonly Entry[]) {
-  return entries.filter(isSetupEntry).map((entry) => entry.value);
+// Helper to extract setups from steps
+function getSetups(steps: readonly StepDefinition[]) {
+  return steps.filter((v) => v.kind === "setup");
 }
 
 describe("ScenarioBuilder", () => {
@@ -48,12 +32,12 @@ describe("ScenarioBuilder", () => {
       assertEquals(definition.name, "My Scenario");
     });
 
-    it("captures scenario location at build time", () => {
+    it("captures scenario source at build time", () => {
       const definition = scenario("Test").build();
-      assertExists(definition.location);
+      assertExists(definition.source);
       // Location should point to the test file where build() was called
       assertEquals(
-        definition.location.file.includes("scenario_builder_test.ts"),
+        definition.source.file.includes("scenario_builder_test.ts"),
         true,
       );
     });
@@ -62,29 +46,26 @@ describe("ScenarioBuilder", () => {
   describe("options", () => {
     it("applies default options to scenario", () => {
       const definition = scenario("Test").build();
-      assertEquals(definition.options.tags.length, 0);
-      assertEquals(definition.options.stepOptions.timeout, 30000);
-      assertEquals(definition.options.stepOptions.retry.maxAttempts, 1);
-      assertEquals(definition.options.stepOptions.retry.backoff, "linear");
+      assertEquals(definition.tags.length, 0);
     });
 
     it("allows partial scenario options override", () => {
       const definition = scenario("Test", {
         tags: ["api", "integration"],
       }).build();
-      assertEquals(definition.options.tags.length, 2);
-      assertEquals(definition.options.tags[0], "api");
-      assertEquals(definition.options.tags[1], "integration");
+      assertEquals(definition.tags.length, 2);
+      assertEquals(definition.tags[0], "api");
+      assertEquals(definition.tags[1], "integration");
     });
 
     it("applies default step options", () => {
       const definition = scenario("Test")
         .step("Test Step", () => {})
         .build();
-      const steps = getSteps(definition.entries);
-      assertEquals(steps[0].options.timeout, 30000);
-      assertEquals(steps[0].options.retry.maxAttempts, 1);
-      assertEquals(steps[0].options.retry.backoff, "linear");
+      const steps = getSteps(definition.steps);
+      assertEquals(steps[0].timeout, 30000);
+      assertEquals(steps[0].retry.maxAttempts, 1);
+      assertEquals(steps[0].retry.backoff, "linear");
     });
 
     it("allows step-level options override", () => {
@@ -94,10 +75,10 @@ describe("ScenarioBuilder", () => {
           retry: { maxAttempts: 3, backoff: "exponential" },
         })
         .build();
-      const steps = getSteps(definition.entries);
-      assertEquals(steps[0].options.timeout, 5000);
-      assertEquals(steps[0].options.retry.maxAttempts, 3);
-      assertEquals(steps[0].options.retry.backoff, "exponential");
+      const steps = getSteps(definition.steps);
+      assertEquals(steps[0].timeout, 5000);
+      assertEquals(steps[0].retry.maxAttempts, 3);
+      assertEquals(steps[0].retry.backoff, "exponential");
     });
   });
 
@@ -106,7 +87,7 @@ describe("ScenarioBuilder", () => {
       const definition = scenario("Test")
         .step("First Step", () => 42)
         .build();
-      const steps = getSteps(definition.entries);
+      const steps = getSteps(definition.steps);
       assertEquals(steps.length, 1);
       assertEquals(steps[0].name, "First Step");
     });
@@ -116,10 +97,10 @@ describe("ScenarioBuilder", () => {
         .step(() => 1)
         .step(() => 2)
         .build();
-      const steps = getSteps(definition.entries);
+      const steps = getSteps(definition.steps);
       assertEquals(steps.length, 2);
-      assertEquals(steps[0].name, "Step 1");
-      assertEquals(steps[1].name, "Step 2");
+      assertEquals(steps[0].name, "Execution step 1");
+      assertEquals(steps[1].name, "Execution step 2");
     });
   });
 
@@ -138,7 +119,7 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const steps = getSteps(definition.entries);
+      const steps = getSteps(definition.steps);
       assertEquals(steps.length, 2);
       assertEquals(steps[0].name, "Step 1");
       assertEquals(steps[1].name, "Step 2");
@@ -154,7 +135,7 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const steps = getSteps(definition.entries);
+      const steps = getSteps(definition.steps);
       const promise = steps[0].fn({
         index: 0,
         previous: undefined,
@@ -178,7 +159,7 @@ describe("ScenarioBuilder", () => {
         .setup(setupFn)
         .build();
 
-      const setups = getSetups(definition.entries);
+      const setups = getSetups(definition.steps);
       assertEquals(setups.length, 1);
       assertEquals(typeof setups[0].fn, "function");
     });
@@ -190,7 +171,7 @@ describe("ScenarioBuilder", () => {
         .setup(() => {})
         .build();
 
-      const setups = getSetups(definition.entries);
+      const setups = getSetups(definition.steps);
       assertEquals(setups.length, 2);
     });
 
@@ -202,8 +183,8 @@ describe("ScenarioBuilder", () => {
         .step("Step 1", () => 42)
         .build();
 
-      const setups = getSetups(definition.entries);
-      const steps = getSteps(definition.entries);
+      const setups = getSetups(definition.steps);
+      const steps = getSteps(definition.steps);
       assertEquals(setups.length, 1);
       assertEquals(steps.length, 1);
     });
@@ -215,8 +196,8 @@ describe("ScenarioBuilder", () => {
         .step("Step 2", () => "hello")
         .build();
 
-      const steps = getSteps(definition.entries);
-      const setups = getSetups(definition.entries);
+      const steps = getSteps(definition.steps);
+      const setups = getSetups(definition.steps);
       assertEquals(steps.length, 2);
       assertEquals(setups.length, 1);
     });
@@ -231,7 +212,7 @@ describe("ScenarioBuilder", () => {
         .step("Step 1", () => 42)
         .build();
 
-      const setups = getSetups(definition.entries);
+      const setups = getSetups(definition.steps);
       assertEquals(setups.length, 1);
     });
 
@@ -240,8 +221,8 @@ describe("ScenarioBuilder", () => {
         .step("Step 1", () => 42)
         .build();
 
-      const setups = getSetups(definition.entries);
-      const steps = getSteps(definition.entries);
+      const setups = getSetups(definition.steps);
+      const steps = getSteps(definition.steps);
       assertEquals(setups.length, 0);
       assertEquals(steps.length, 1);
     });
@@ -263,12 +244,12 @@ describe("ScenarioBuilder", () => {
         .build();
 
       assertEquals(scenarioA.name, "Base");
-      const stepsA = getSteps(scenarioA.entries);
+      const stepsA = getSteps(scenarioA.steps);
       assertEquals(stepsA.length, 3);
       assertEquals(stepsA[2].name, "A specific step");
 
       assertEquals(scenarioB.name, "Base");
-      const stepsB = getSteps(scenarioB.entries);
+      const stepsB = getSteps(scenarioB.steps);
       assertEquals(stepsB.length, 3);
       assertEquals(stepsB[2].name, "B specific step");
     });
@@ -284,15 +265,15 @@ describe("ScenarioBuilder", () => {
       const def1 = branch1.build();
       const def2 = branch2.build();
 
-      const stepsBase = getSteps(defBase.entries);
+      const stepsBase = getSteps(defBase.steps);
       assertEquals(stepsBase.length, 1);
       assertEquals(stepsBase[0].name, "Step 1");
 
-      const steps1 = getSteps(def1.entries);
+      const steps1 = getSteps(def1.steps);
       assertEquals(steps1.length, 2);
       assertEquals(steps1[1].name, "Step 2a");
 
-      const steps2 = getSteps(def2.entries);
+      const steps2 = getSteps(def2.steps);
       assertEquals(steps2.length, 2);
       assertEquals(steps2[1].name, "Step 2b");
     });
@@ -306,14 +287,14 @@ describe("ScenarioBuilder", () => {
       const def1 = withStep1.build();
       const def2 = withStep2.build();
 
-      const setups1 = getSetups(def1.entries);
-      const steps1 = getSteps(def1.entries);
+      const setups1 = getSetups(def1.steps);
+      const steps1 = getSteps(def1.steps);
       assertEquals(setups1.length, 1);
       assertEquals(steps1.length, 1);
       assertEquals(steps1[0].name, "Step A");
 
-      const setups2 = getSetups(def2.entries);
-      const steps2 = getSteps(def2.entries);
+      const setups2 = getSetups(def2.steps);
+      const steps2 = getSteps(def2.steps);
       assertEquals(setups2.length, 1);
       assertEquals(steps2.length, 1);
       assertEquals(steps2[0].name, "Step B");
@@ -336,14 +317,14 @@ describe("ScenarioBuilder", () => {
       const defSuccess = successCase.build();
       const defError = errorCase.build();
 
-      const setupsSuccess = getSetups(defSuccess.entries);
-      const stepsSuccess = getSteps(defSuccess.entries);
+      const setupsSuccess = getSetups(defSuccess.steps);
+      const stepsSuccess = getSteps(defSuccess.steps);
       assertEquals(setupsSuccess.length, 1);
       assertEquals(stepsSuccess.length, 4);
       assertEquals(stepsSuccess[2].name, "Perform valid action");
 
-      const setupsError = getSetups(defError.entries);
-      const stepsError = getSteps(defError.entries);
+      const setupsError = getSetups(defError.steps);
+      const stepsError = getSteps(defError.steps);
       assertEquals(setupsError.length, 1);
       assertEquals(stepsError.length, 4);
       assertEquals(stepsError[2].name, "Perform invalid action");
@@ -362,7 +343,7 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const resources = getResources(definition.entries);
+      const resources = getResources(definition.steps);
       assertEquals(resources.length, 1);
       assertEquals(resources[0].name, "api");
     });
@@ -377,7 +358,7 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const resources = getResources(definition.entries);
+      const resources = getResources(definition.steps);
       assertEquals(resources.length, 2);
     });
 
@@ -398,7 +379,7 @@ describe("ScenarioBuilder", () => {
         })
         .build();
 
-      const resources = getResources(definition.entries);
+      const resources = getResources(definition.steps);
       assertEquals(resources.length, 2);
     });
 
@@ -411,8 +392,8 @@ describe("ScenarioBuilder", () => {
         .step("Test", () => {})
         .build();
 
-      const resources = getResources(definition.entries);
-      const setups = getSetups(definition.entries);
+      const resources = getResources(definition.steps);
+      const setups = getSetups(definition.steps);
       assertEquals(resources.length, 1);
       assertEquals(setups.length, 1);
     });
@@ -426,7 +407,7 @@ describe("ScenarioBuilder", () => {
         .resource("db", () => ({ [Symbol.dispose]() {} }))
         .build();
 
-      const resources = getResources(definition.entries);
+      const resources = getResources(definition.steps);
       assertEquals(resources.length, 2);
     });
   });

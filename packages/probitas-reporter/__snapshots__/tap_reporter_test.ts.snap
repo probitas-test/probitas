@@ -167,11 +167,22 @@ ok 2 - Scenario with failing step > Step that passes
 "
 `;
 
-snapshot[`after onStepError - Step that fails (2-2) 1`] = `
+snapshot[`after onStepEnd - Step that fails (2-2) 1`] = `
 "TAP version 14
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -180,6 +191,17 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -188,6 +210,17 @@ snapshot[`after onScenarioStart - Simple passing scenario (3) 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -196,6 +229,17 @@ snapshot[`after onStepStart - Step that passes (3) 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -204,7 +248,18 @@ snapshot[`after onStepEnd - Step that passes (3) 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 
@@ -213,7 +268,18 @@ snapshot[`after onScenarioEnd - Simple passing scenario (3) 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 
@@ -222,7 +288,18 @@ snapshot[`after onRunEnd 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 
@@ -405,11 +482,22 @@ ok 2 - Scenario with failing step > Step that passes
 "
 `;
 
-snapshot[`after onStepError - Step that fails (2-2) 2`] = `
+snapshot[`after onStepEnd - Step that fails (2-2) 2`] = `
 "TAP version 14
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -418,6 +506,17 @@ snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -426,6 +525,17 @@ snapshot[`after onScenarioStart - Simple passing scenario (3) 4`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -434,6 +544,17 @@ snapshot[`after onStepStart - Step that passes (3) 4`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
 "
 `;
 
@@ -442,7 +563,18 @@ snapshot[`after onStepEnd - Step that passes (3) 4`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 
@@ -451,7 +583,18 @@ snapshot[`after onScenarioEnd - Simple passing scenario (3) 4`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 
@@ -460,7 +603,18 @@ snapshot[`after onRunEnd 5`] = `
 1..4
 ok 1 - Simple passing scenario > Step that passes
 ok 2 - Scenario with failing step > Step that passes
-ok 3 - Simple passing scenario > Step that passes
+not ok 3 - Scenario with failing step > Step that fails
+  ---
+  source: test.scenario.ts:20
+  message: Assertion failed
+  stack: |
+
+    Error: Assertion failed
+
+        at <file>:131:12
+
+  ...
+ok 4 - Simple passing scenario > Step that passes
 "
 `;
 

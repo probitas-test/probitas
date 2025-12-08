@@ -1,7 +1,7 @@
 /**
  * Builder module for creating scenario definitions with a fluent, type-safe API.
  *
- * This package provides the {@linkcode scenario} factory function that returns a builder
+ * This package provides the {@linkcode scenario} fn function that returns a builder
  * for constructing scenario definitions. The builder uses method chaining to define
  * resources, setup functions, and test steps with full TypeScript type inference.
  *
@@ -31,7 +31,7 @@
  * - {@linkcode StepContext} - Type representing the context passed to step functions
  * - {@linkcode StepFunction} - Type signature for step functions
  * - {@linkcode SetupFunction} - Type signature for setup functions
- * - {@linkcode ResourceFactory} - Type signature for resource factory functions
+ * - {@linkcode ResourceFunction} - Type signature for resource fn functions
  * - {@linkcode BuilderScenarioOptions} - Partial options for scenario configuration
  * - {@linkcode BuilderStepOptions} - Partial options for step configuration
  * - {@linkcode DEFAULT_SCENARIO_OPTIONS} - Default values for scenario options
@@ -87,5 +87,4 @@
  */
 
 export type * from "./types.ts";
-export * from "./defaults.ts";
 export { scenario } from "./scenario_builder.ts";

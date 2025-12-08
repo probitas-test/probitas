@@ -65,6 +65,71 @@ Follow test-driven development principles:
 - Files named `*.probitas.ts`
 - Run with `deno task probitas run`
 
+## Custom Reporter Implementation
+
+Custom reporters should implement the `Reporter` interface and compose a
+`Writer` for output:
+
+```ts
+import { Writer, type WriterOptions } from "@probitas/reporter";
+import type {
+  Reporter,
+  RunResult,
+  ScenarioDefinition,
+  StepResult,
+} from "@probitas/runner";
+import { defaultTheme, type Theme } from "@probitas/reporter";
+
+export interface CustomReporterOptions extends WriterOptions {
+  theme?: Theme;
+}
+
+export class CustomReporter implements Reporter {
+  #writer: Writer;
+  #theme: Theme;
+
+  constructor(options: CustomReporterOptions = {}) {
+    this.#writer = new Writer(options);
+    this.#theme = options.theme ?? defaultTheme;
+  }
+
+  async onRunStart(scenarios: readonly ScenarioDefinition[]): Promise<void> {
+    await this.#writer.write(`Running ${scenarios.length} scenarios\n`);
+  }
+
+  async onStepEnd(
+    scenario: ScenarioDefinition,
+    step: StepDefinition,
+    result: StepResult,
+  ): Promise<void> {
+    // result is a discriminated union - access status-specific fields safely
+    if (result.status === "passed") {
+      await this.#writer.write(`✓ ${step.name}\n`);
+    } else if (result.status === "failed") {
+      await this.#writer.write(`✗ ${step.name}: ${result.error}\n`);
+    } else if (result.status === "skipped") {
+      await this.#writer.write(`⊘ ${step.name}: ${result.error}\n`);
+    }
+  }
+
+  async onRunEnd(
+    scenarios: readonly ScenarioDefinition[],
+    result: RunResult,
+  ): Promise<void> {
+    await this.#writer.write(`\nCompleted: ${result.passed}/${result.total}\n`);
+  }
+}
+```
+
+### Key Points
+
+1. **Implement `Reporter` interface** - All methods are optional
+2. **Compose `Writer`** - For serialized, buffered output
+3. **Use `Theme`** - For semantic coloring
+4. **Access discriminated unions safely** - Check `result.status` before
+   accessing fields
+5. **Support options** - Allow users to customize output stream and theme
+
 ## Development Environment
 
 - A Nix flake is provided to supply the Deno toolchain without global installs.

@@ -15,7 +15,8 @@ import {
   ListReporter,
   TAPReporter,
 } from "@probitas/reporter";
-import type { Reporter, ReporterOptions } from "@probitas/reporter";
+import type { Reporter } from "@probitas/runner";
+import type { ReporterOptions } from "@probitas/reporter";
 
 const logger = getLogger("probitas", "cli", "utils");
 
@@ -65,8 +66,8 @@ export function resolveReporter(
     return new ListReporter(options);
   }
 
-  const factory = reporterMap[reporter];
-  if (!factory) {
+  const fn = reporterMap[reporter];
+  if (!fn) {
     logger.error("Unknown reporter", {
       reporter,
       availableReporters: Object.keys(reporterMap),
@@ -75,7 +76,7 @@ export function resolveReporter(
   }
 
   logger.debug("Reporter resolved", { reporter });
-  return factory(options);
+  return fn(options);
 }
 
 /**
