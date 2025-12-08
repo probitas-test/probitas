@@ -6,7 +6,7 @@
  * @module
  */
 
-import { retry } from "./retry.ts";
+import { retry } from "./utils/retry.ts";
 import { TimeoutError } from "./errors.ts";
 import type { StepContext, StepDefinition } from "./types.ts";
 

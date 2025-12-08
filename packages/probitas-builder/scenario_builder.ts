@@ -21,7 +21,7 @@ import type {
 } from "@probitas/scenario";
 import type { BuilderScenarioOptions, BuilderStepOptions } from "./types.ts";
 import { DEFAULT_SCENARIO_OPTIONS, DEFAULT_STEP_OPTIONS } from "./defaults.ts";
-import { captureSource } from "./capture_source.ts";
+import { captureSource } from "./utils/capture_source.ts";
 
 /**
  * Merge partial step options with scenario defaults
