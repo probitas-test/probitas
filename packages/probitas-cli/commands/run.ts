@@ -220,8 +220,38 @@ export async function runCommand(
     );
     await writer.close();
 
-    // Wait for subprocess to complete
-    const result = await child.status;
+    // Wait for subprocess to complete with timeout enforcement
+    let result: Deno.CommandStatus;
+    if (timeout && timeout > 0) {
+      // Create a timeout promise that will kill the subprocess
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          child.kill("SIGTERM");
+          reject(
+            new Error(`Subprocess killed after timeout of ${timeout} seconds`),
+          );
+        }, timeout * 1000);
+      });
+
+      try {
+        result = await Promise.race([child.status, timeoutPromise]);
+      } catch (err: unknown) {
+        logger.error("Subprocess timeout", {
+          timeout,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        // Wait a moment for the process to clean up
+        try {
+          await child.status;
+        } catch {
+          // Ignore errors from waiting for killed process
+        }
+        return EXIT_CODE.FAILURE;
+      }
+    } else {
+      // No timeout, just wait for completion
+      result = await child.status;
+    }
 
     logger.debug("Subprocess completed", { exitCode: result.code });
 

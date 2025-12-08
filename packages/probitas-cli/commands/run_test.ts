@@ -233,4 +233,54 @@ describe("run command", () => {
       );
     });
   });
+
+  describe("timeout option", () => {
+    it("kills subprocess when timeout is exceeded", async () => {
+      await using sbox = await sandbox();
+
+      // Create a scenario that will hang indefinitely
+      const scenarioPath = sbox.resolve("timeout.probitas.ts");
+      await Deno.writeTextFile(
+        scenarioPath,
+        outdent`
+          import { scenario } from "probitas";
+
+          export default scenario("Timeout Test")
+            .step("Hang forever", async () => {
+              // This step will hang indefinitely
+              await new Promise(() => {});
+            })
+            .build();
+        `,
+      );
+
+      const output: string[] = [];
+      using _errorStub = stub(console, "error", (...args: unknown[]) => {
+        output.push(args.join(" "));
+      });
+
+      const startTime = Date.now();
+      const exitCode = await runCommand(["--timeout", "2"], sbox.path);
+      const duration = Date.now() - startTime;
+
+      // Should fail due to timeout
+      assertEquals(exitCode, EXIT_CODE.FAILURE);
+      // Should complete within reasonable time after timeout (2s + buffer for subprocess cleanup)
+      assertEquals(duration < 5000, true);
+    });
+
+    it("completes successfully when scenarios finish before timeout", async () => {
+      await using sbox = await sandbox();
+
+      const scenarioPath = sbox.resolve("quick.probitas.ts");
+      await Deno.writeTextFile(
+        scenarioPath,
+        createScenario("Quick Test", scenarioPath),
+      );
+
+      const exitCode = await runCommand(["--timeout", "10"], sbox.path);
+
+      assertEquals(exitCode, EXIT_CODE.SUCCESS);
+    });
+  });
 });
