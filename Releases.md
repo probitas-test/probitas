@@ -1,3 +1,45 @@
+### 2025.12.08
+
+#### @probitas/builder 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/cli 0.3.3 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/discover 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/logger 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/probitas 0.3.4 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/reporter 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/runner 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
+#### @probitas/scenario 0.2.5 (patch)
+
+- docs(*): add Publish badge and reorganize packages table
+- docs(*): add logo and center-align title in README
+
 ### 2025.12.07
 
 #### @probitas/probitas 0.3.3 (patch)
