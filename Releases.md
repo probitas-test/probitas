@@ -1,5 +1,103 @@
 ### 2025.12.08
 
+#### @probitas/builder 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/cli 0.3.4 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/discover 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/logger 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/probitas 0.3.5 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/reporter 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/runner 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+#### @probitas/scenario 0.2.6 (patch)
+
+- docs(*): Document new Runner and Reporter architecture
+- refactor(*): Refactor and Refine reporters
+- refactor(*): Refactor and Refine scenario runner
+- refactor(*): Transform resource/setup step to common step
+- refactor(*): Fix option values in definitions
+- refactor(*): Rename factory to fn
+- refactor(*): Use complex types only in builder
+- refactor(*): Make options optional
+- refactor(*): Rename SourceLocation to Source
+
+### 2025.12.08
+
 #### @probitas/builder 0.2.5 (patch)
 
 - docs(*): add Publish badge and reorganize packages table
