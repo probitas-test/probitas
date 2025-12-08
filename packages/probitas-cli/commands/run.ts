@@ -223,17 +223,12 @@ export async function runCommand(
     // Wait for subprocess to complete with timeout enforcement
     let result: Deno.CommandStatus;
     if (timeout && timeout > 0) {
-      // Create an abort signal with timeout
-      const signal = AbortSignal.timeout(timeout * 1000);
-
-      // Set up abort handler to kill subprocess on timeout
-      signal.addEventListener("abort", () => {
-        child.kill("SIGTERM");
-      });
-
-      // Create a promise that rejects when the signal aborts
+      // Create a promise that rejects when the timeout expires
       const timeoutPromise = new Promise<never>((_, reject) => {
+        const signal = AbortSignal.timeout(timeout * 1000);
+        // Set up abort handler to kill subprocess and reject promise
         signal.addEventListener("abort", () => {
+          child.kill("SIGTERM");
           reject(
             new Error(`Subprocess killed after timeout of ${timeout} seconds`),
           );
