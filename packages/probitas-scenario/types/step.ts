@@ -26,10 +26,10 @@ export interface StepOptions {
    * If the step takes longer, a {@linkcode TimeoutError} is thrown.
    * Default: 30000 (30 seconds)
    */
-  readonly timeout: number;
+  readonly timeout?: number;
 
   /** Retry configuration for handling transient failures */
-  readonly retry: {
+  readonly retry?: {
     /**
      * Maximum number of execution attempts.
      *
@@ -39,7 +39,7 @@ export interface StepOptions {
      *
      * Default: 1 (no retry)
      */
-    readonly maxAttempts: number;
+    readonly maxAttempts?: number;
 
     /**
      * Backoff strategy for delay between retry attempts.
@@ -49,7 +49,7 @@ export interface StepOptions {
      *
      * Default: "linear"
      */
-    readonly backoff: "linear" | "exponential";
+    readonly backoff?: "linear" | "exponential";
   };
 }
 
@@ -249,7 +249,7 @@ export interface StepDefinition<
   readonly fn: StepFunction<T, Previous, Results, Resources>;
 
   /** Step execution options (timeout, retry) with defaults applied */
-  readonly options: StepOptions;
+  readonly options?: StepOptions;
 
   /** Source source where the step was defined (for error messages) */
   readonly source?: Source;

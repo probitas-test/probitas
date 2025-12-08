@@ -62,19 +62,19 @@ describe("ScenarioBuilder", () => {
   describe("options", () => {
     it("applies default options to scenario", () => {
       const definition = scenario("Test").build();
-      assertEquals(definition.options.tags.length, 0);
-      assertEquals(definition.options.stepOptions.timeout, 30000);
-      assertEquals(definition.options.stepOptions.retry.maxAttempts, 1);
-      assertEquals(definition.options.stepOptions.retry.backoff, "linear");
+      assertEquals(definition.options?.tags?.length, 0);
+      assertEquals(definition.options?.stepOptions?.timeout, 30000);
+      assertEquals(definition.options?.stepOptions?.retry?.maxAttempts, 1);
+      assertEquals(definition.options?.stepOptions?.retry?.backoff, "linear");
     });
 
     it("allows partial scenario options override", () => {
       const definition = scenario("Test", {
         tags: ["api", "integration"],
       }).build();
-      assertEquals(definition.options.tags.length, 2);
-      assertEquals(definition.options.tags[0], "api");
-      assertEquals(definition.options.tags[1], "integration");
+      assertEquals(definition.options?.tags?.length, 2);
+      assertEquals(definition.options?.tags?.[0], "api");
+      assertEquals(definition.options?.tags?.[1], "integration");
     });
 
     it("applies default step options", () => {
@@ -82,9 +82,9 @@ describe("ScenarioBuilder", () => {
         .step("Test Step", () => {})
         .build();
       const steps = getSteps(definition.entries);
-      assertEquals(steps[0].options.timeout, 30000);
-      assertEquals(steps[0].options.retry.maxAttempts, 1);
-      assertEquals(steps[0].options.retry.backoff, "linear");
+      assertEquals(steps[0].options?.timeout, 30000);
+      assertEquals(steps[0].options?.retry?.maxAttempts, 1);
+      assertEquals(steps[0].options?.retry?.backoff, "linear");
     });
 
     it("allows step-level options override", () => {
@@ -95,9 +95,9 @@ describe("ScenarioBuilder", () => {
         })
         .build();
       const steps = getSteps(definition.entries);
-      assertEquals(steps[0].options.timeout, 5000);
-      assertEquals(steps[0].options.retry.maxAttempts, 3);
-      assertEquals(steps[0].options.retry.backoff, "exponential");
+      assertEquals(steps[0].options?.timeout, 5000);
+      assertEquals(steps[0].options?.retry?.maxAttempts, 3);
+      assertEquals(steps[0].options?.retry?.backoff, "exponential");
     });
   });
 

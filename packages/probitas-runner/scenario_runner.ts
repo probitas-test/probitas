@@ -504,8 +504,8 @@ export class ScenarioRunner {
     return {
       name: scenario.name,
       options: {
-        tags: scenario.options.tags,
-        stepOptions: scenario.options.stepOptions,
+        tags: scenario.options?.tags,
+        stepOptions: scenario.options?.stepOptions,
       },
       entries: scenario.entries,
       source: scenario.source,

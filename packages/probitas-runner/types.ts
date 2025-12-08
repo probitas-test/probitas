@@ -42,7 +42,7 @@ export interface ScenarioContext {
   readonly name: string;
 
   /** Scenario configuration options */
-  readonly options: ScenarioOptions;
+  readonly options?: ScenarioOptions;
 
   /** Array of all step results so far */
   readonly results: unknown[];

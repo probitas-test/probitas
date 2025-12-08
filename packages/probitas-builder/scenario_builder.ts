@@ -43,10 +43,10 @@ function mergeStepOptions(
     retry: {
       maxAttempts: partialOptions?.retry?.maxAttempts ??
         scenarioStepOptions.retry?.maxAttempts ??
-        DEFAULT_STEP_OPTIONS.retry.maxAttempts,
+        DEFAULT_STEP_OPTIONS.retry?.maxAttempts,
       backoff: partialOptions?.retry?.backoff ??
         scenarioStepOptions.retry?.backoff ??
-        DEFAULT_STEP_OPTIONS.retry.backoff,
+        DEFAULT_STEP_OPTIONS.retry?.backoff,
     },
   };
 }
@@ -173,12 +173,12 @@ class ScenarioBuilderState<
       tags: this.#scenarioOptions.tags ?? DEFAULT_SCENARIO_OPTIONS.tags,
       stepOptions: {
         timeout: this.#scenarioOptions.stepOptions?.timeout ??
-          DEFAULT_SCENARIO_OPTIONS.stepOptions.timeout,
+          DEFAULT_SCENARIO_OPTIONS.stepOptions?.timeout,
         retry: {
           maxAttempts: this.#scenarioOptions.stepOptions?.retry?.maxAttempts ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions.retry.maxAttempts,
+            DEFAULT_SCENARIO_OPTIONS.stepOptions?.retry?.maxAttempts,
           backoff: this.#scenarioOptions.stepOptions?.retry?.backoff ??
-            DEFAULT_SCENARIO_OPTIONS.stepOptions.retry.backoff,
+            DEFAULT_SCENARIO_OPTIONS.stepOptions?.retry?.backoff,
         },
       },
     };

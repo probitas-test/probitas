@@ -38,7 +38,7 @@ export interface ScenarioOptions {
    * probitas run -s "!tag:slow"         # Exclude slow scenarios
    * ```
    */
-  readonly tags: readonly string[];
+  readonly tags?: readonly string[];
 
   /**
    * Default options applied to all steps in this scenario.
@@ -46,7 +46,7 @@ export interface ScenarioOptions {
    * Individual steps can override these defaults by specifying
    * their own options in the `.step()` call.
    */
-  readonly stepOptions: StepOptions;
+  readonly stepOptions?: StepOptions;
 }
 
 /**
@@ -85,7 +85,7 @@ export interface ScenarioDefinition {
   readonly name: string;
 
   /** Scenario configuration with all defaults applied */
-  readonly options: ScenarioOptions;
+  readonly options?: ScenarioOptions;
 
   /** Ordered sequence of entries (resources → setups → steps) */
   readonly entries: readonly Entry[];
@@ -146,7 +146,7 @@ export interface ScenarioMetadata {
   readonly name: string;
 
   /** Scenario configuration options */
-  readonly options: ScenarioOptions;
+  readonly options?: ScenarioOptions;
 
   /** Entry metadata (functions omitted for serialization) */
   readonly entries: readonly EntryMetadata[];
