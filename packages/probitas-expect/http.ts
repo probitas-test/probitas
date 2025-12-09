@@ -1,7 +1,10 @@
 import {
-  buildDurationError,
+  assertContains,
+  assertMatches,
   containsSubarray,
   containsSubset,
+  createDurationMethods,
+  getNonNull,
 } from "./common.ts";
 import type { HttpResponse } from "@probitas/client-http";
 
@@ -9,271 +12,67 @@ import type { HttpResponse } from "@probitas/client-http";
  * Fluent API for HTTP response validation.
  */
 export interface HttpResponseExpectation {
-  /** Assert that response status is 200-299 */
-  ok(): this;
+  /** Invert all assertions */
+  readonly not: this;
 
-  /** Assert that response status is not 200-299 */
-  notOk(): this;
+  /** Assert that response status is 200-299 */
+  toBeSuccessful(): this;
 
   /** Assert that response status matches expected code */
-  status(code: number): this;
-
-  /** Assert that response status is within range (inclusive) */
-  statusInRange(min: number, max: number): this;
+  toHaveStatus(code: number): this;
 
   /** Assert that response status is one of the given values */
-  statusIn(...statuses: number[]): this;
-
-  /** Assert that response status is NOT one of the given values */
-  statusNotIn(...statuses: number[]): this;
+  toHaveStatusOneOf(statuses: number[]): this;
 
   /** Assert that header value matches expected string or regex */
-  header(name: string, expected: string | RegExp): this;
+  toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
   /** Assert that header exists */
-  headerExists(name: string): this;
+  toHaveHeader(name: string): this;
 
   /** Assert that header value contains substring */
-  headerContains(name: string, substring: string): this;
+  toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Assert header value using custom matcher function */
-  headerMatch(name: string, matcher: (value: string) => void): this;
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
   /** Assert that Content-Type header matches expected string or regex */
-  contentType(expected: string | RegExp): this;
-
-  /** Assert that response body is null */
-  noContent(): this;
+  toHaveContentType(expected: string | RegExp): this;
 
   /** Assert that response body is not null */
-  hasContent(): this;
+  toHaveContent(): this;
 
   /** Assert that body contains given byte sequence */
-  bodyContains(subbody: Uint8Array): this;
+  toHaveBodyContaining(subbody: Uint8Array): this;
 
-  /** Assert body using custom matcher function */
-  bodyMatch(matcher: (body: Uint8Array) => void): this;
+  /** Assert JSON data using custom matcher function */
+  // deno-lint-ignore no-explicit-any
+  toSatisfy<T = any>(matcher: (data: T) => void): this;
 
-  /** Assert that text body contains substring */
-  textContains(substring: string): this;
+  /** Assert raw body bytes using custom matcher function */
+  toSatisfyBody(matcher: (body: Uint8Array) => void): this;
 
   /** Assert text body using custom matcher function */
-  textMatch(matcher: (text: string) => void): this;
+  toSatisfyText(matcher: (text: string) => void): this;
+
+  /** Assert that text body contains substring */
+  toHaveTextContaining(substring: string): this;
 
   /** Assert that JSON body contains expected properties */
   // deno-lint-ignore no-explicit-any
-  dataContains<T = any>(subset: Partial<T>): this;
-
-  /** Assert JSON body using custom matcher function */
-  // deno-lint-ignore no-explicit-any
-  dataMatch<T = any>(matcher: (body: T) => void): this;
+  toMatchObject<T = any>(subset: Partial<T>): this;
 
   /** Assert that response duration is less than threshold (ms) */
-  durationLessThan(ms: number): this;
-}
+  toHaveDurationLessThan(ms: number): this;
 
-/**
- * HttpResponseExpectation implementation.
- */
-class HttpResponseExpectationImpl implements HttpResponseExpectation {
-  readonly #response: HttpResponse;
+  /** Assert that response duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
 
-  constructor(response: HttpResponse) {
-    this.#response = response;
-  }
+  /** Assert that response duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
 
-  ok(): this {
-    if (!this.#response.ok) {
-      throw new Error(
-        `Expected ok response, got status ${this.#response.status}`,
-      );
-    }
-    return this;
-  }
-
-  notOk(): this {
-    if (this.#response.ok) {
-      throw new Error(
-        `Expected non-ok response, got status ${this.#response.status}`,
-      );
-    }
-    return this;
-  }
-
-  status(code: number): this {
-    if (this.#response.status !== code) {
-      throw new Error(
-        `Expected status ${code}, got ${this.#response.status}`,
-      );
-    }
-    return this;
-  }
-
-  statusInRange(min: number, max: number): this {
-    const { status } = this.#response;
-    if (status < min || status > max) {
-      throw new Error(
-        `Expected status in range ${min}-${max}, got ${status}`,
-      );
-    }
-    return this;
-  }
-
-  statusIn(...statuses: number[]): this {
-    const { status } = this.#response;
-    if (!statuses.includes(status)) {
-      throw new Error(
-        `Expected status in [${statuses.join(", ")}], got ${status}`,
-      );
-    }
-    return this;
-  }
-
-  statusNotIn(...statuses: number[]): this {
-    const { status } = this.#response;
-    if (statuses.includes(status)) {
-      throw new Error(
-        `Expected status not in [${statuses.join(", ")}], got ${status}`,
-      );
-    }
-    return this;
-  }
-
-  header(name: string, expected: string | RegExp): this {
-    const value = this.#response.headers.get(name);
-    if (value === null) {
-      throw new Error(`Header ${name} not found`);
-    }
-
-    if (typeof expected === "string") {
-      if (value !== expected) {
-        throw new Error(
-          `Expected header ${name} to be "${expected}", got "${value}"`,
-        );
-      }
-    } else {
-      if (!expected.test(value)) {
-        throw new Error(
-          `Expected header ${name} to match ${expected}, got "${value}"`,
-        );
-      }
-    }
-    return this;
-  }
-
-  headerExists(name: string): this {
-    if (!this.#response.headers.has(name)) {
-      throw new Error(`Header ${name} not found`);
-    }
-    return this;
-  }
-
-  headerContains(name: string, substring: string): this {
-    const value = this.#response.headers.get(name);
-    if (value === null) {
-      throw new Error(`Header ${name} not found`);
-    }
-    if (!value.includes(substring)) {
-      throw new Error(
-        `Expected header ${name} to contain "${substring}", got "${value}"`,
-      );
-    }
-    return this;
-  }
-
-  headerMatch(name: string, matcher: (value: string) => void): this {
-    const value = this.#response.headers.get(name);
-    if (value === null) {
-      throw new Error(`Header ${name} not found`);
-    }
-    matcher(value);
-    return this;
-  }
-
-  contentType(expected: string | RegExp): this {
-    return this.header("Content-Type", expected);
-  }
-
-  noContent(): this {
-    if (this.#response.body !== null) {
-      throw new Error("Expected no content, but body exists");
-    }
-    return this;
-  }
-
-  hasContent(): this {
-    if (this.#response.body === null) {
-      throw new Error("Expected content, but body is null");
-    }
-    return this;
-  }
-
-  bodyContains(subbody: Uint8Array): this {
-    if (this.#response.body === null) {
-      throw new Error("Expected body to contain bytes, but body is null");
-    }
-    if (!containsSubarray(this.#response.body, subbody)) {
-      throw new Error("Body does not contain expected bytes");
-    }
-    return this;
-  }
-
-  bodyMatch(matcher: (body: Uint8Array) => void): this {
-    if (this.#response.body === null) {
-      throw new Error("Expected body for matching, but body is null");
-    }
-    matcher(this.#response.body);
-    return this;
-  }
-
-  textContains(substring: string): this {
-    const text = this.#response.text();
-    if (text === null) {
-      throw new Error("Expected text to contain substring, but body is null");
-    }
-    if (!text.includes(substring)) {
-      throw new Error(`Text does not contain "${substring}"`);
-    }
-    return this;
-  }
-
-  textMatch(matcher: (text: string) => void): this {
-    const text = this.#response.text();
-    if (text === null) {
-      throw new Error("Expected text for matching, but body is null");
-    }
-    matcher(text);
-    return this;
-  }
-
-  // deno-lint-ignore no-explicit-any
-  dataContains<T = any>(subset: Partial<T>): this {
-    const data = this.#response.data();
-    if (data === null) {
-      throw new Error("Expected data to contain properties, but body is null");
-    }
-    if (!containsSubset(data, subset)) {
-      throw new Error("Data does not contain expected properties");
-    }
-    return this;
-  }
-
-  // deno-lint-ignore no-explicit-any
-  dataMatch<T = any>(matcher: (body: T) => void): this {
-    const data = this.#response.data<T>();
-    if (data === null) {
-      throw new Error("Expected data for matching, but body is null");
-    }
-    matcher(data);
-    return this;
-  }
-
-  durationLessThan(ms: number): this {
-    if (this.#response.duration >= ms) {
-      throw new Error(buildDurationError(ms, this.#response.duration));
-    }
-    return this;
-  }
+  /** Assert that response duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -283,6 +82,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
  * Each assertion throws an Error if it fails, making it ideal for testing.
  *
  * @param response - The HTTP response to validate
+ * @param negate - Whether to negate assertions (used internally by .not)
  * @returns A fluent expectation chain
  *
  * @example Basic assertions
@@ -313,6 +113,160 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
  */
 export function expectHttpResponse(
   response: HttpResponse,
+  negate = false,
 ): HttpResponseExpectation {
-  return new HttpResponseExpectationImpl(response);
+  const self: HttpResponseExpectation = {
+    get not(): HttpResponseExpectation {
+      return expectHttpResponse(response, !negate);
+    },
+
+    toBeSuccessful() {
+      const isSuccess = response.ok;
+      if (negate ? isSuccess : !isSuccess) {
+        throw new Error(
+          negate
+            ? `Expected non-successful response, got status ${response.status}`
+            : `Expected successful response (200-299), got status ${response.status}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveStatus(code: number) {
+      const match = response.status === code;
+      if (negate ? match : !match) {
+        throw new Error(
+          negate
+            ? `Expected status to not be ${code}`
+            : `Expected status ${code}, got ${response.status}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveStatusOneOf(statuses: number[]) {
+      const match = statuses.includes(response.status);
+      if (negate ? match : !match) {
+        throw new Error(
+          negate
+            ? `Expected status to not be one of [${
+              statuses.join(", ")
+            }], got ${response.status}`
+            : `Expected status to be one of [${
+              statuses.join(", ")
+            }], got ${response.status}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveHeaderValue(name: string, expected: string | RegExp) {
+      const value = getNonNull(response.headers.get(name), `header "${name}"`);
+      assertMatches(value, expected, `header "${name}"`);
+      return this;
+    },
+
+    toHaveHeader(name: string) {
+      const has = response.headers.has(name);
+      if (negate ? has : !has) {
+        throw new Error(
+          negate
+            ? `Expected header "${name}" to not exist`
+            : `Expected header "${name}" to exist`,
+        );
+      }
+      return this;
+    },
+
+    toHaveHeaderContaining(name: string, substring: string) {
+      const value = getNonNull(response.headers.get(name), `header "${name}"`);
+      assertContains(value, substring, `header "${name}"`);
+      return this;
+    },
+
+    toHaveHeaderMatching(name: string, matcher: (value: string) => void) {
+      const value = getNonNull(response.headers.get(name), `header "${name}"`);
+      matcher(value);
+      return this;
+    },
+
+    toHaveContentType(expected: string | RegExp) {
+      return this.toHaveHeaderValue("Content-Type", expected);
+    },
+
+    toHaveContent() {
+      const hasContent = response.body !== null;
+      if (negate ? hasContent : !hasContent) {
+        throw new Error(
+          negate
+            ? "Expected no content, but body is present"
+            : "Expected content, but body is null",
+        );
+      }
+      return this;
+    },
+
+    toHaveBodyContaining(subbody: Uint8Array) {
+      const body = getNonNull(response.body, "body");
+      const contains = containsSubarray(body, subbody);
+      if (negate ? contains : !contains) {
+        throw new Error(
+          negate
+            ? "Expected body to not contain bytes"
+            : "Body does not contain expected bytes",
+        );
+      }
+      return this;
+    },
+
+    // deno-lint-ignore no-explicit-any
+    toSatisfy<T = any>(matcher: (data: T) => void) {
+      const data = getNonNull(response.data(), "JSON data") as T;
+      matcher(data);
+      return this;
+    },
+
+    toSatisfyBody(matcher: (body: Uint8Array) => void) {
+      const body = getNonNull(response.body, "body");
+      matcher(body);
+      return this;
+    },
+
+    toSatisfyText(matcher: (text: string) => void) {
+      const text = getNonNull(response.text(), "text");
+      matcher(text);
+      return this;
+    },
+
+    toHaveTextContaining(substring: string) {
+      const text = getNonNull(response.text(), "text body");
+      const contains = text.includes(substring);
+      if (negate ? contains : !contains) {
+        throw new Error(
+          negate
+            ? `Expected text to not contain "${substring}"`
+            : `Text does not contain "${substring}"`,
+        );
+      }
+      return this;
+    },
+
+    // deno-lint-ignore no-explicit-any
+    toMatchObject<T = any>(subset: Partial<T>) {
+      const data = getNonNull(response.data(), "JSON data");
+      const matches = containsSubset(data, subset);
+      if (negate ? matches : !matches) {
+        throw new Error(
+          negate
+            ? "Expected data to not contain properties"
+            : "Data does not contain expected properties",
+        );
+      }
+      return this;
+    },
+
+    ...createDurationMethods(response.duration, negate),
+  };
+
+  return self;
 }

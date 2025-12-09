@@ -189,8 +189,68 @@ Add to `deno.json` or `deno.jsonc`:
 }
 ```
 
+## Expectation API
+
+Probitas provides specialized expectation functions for various client
+responses:
+
+```typescript
+import { client, expect, scenario } from "probitas";
+
+export default scenario("API Test Example")
+  .resource("http", () =>
+    client.http.createHttpClient({
+      url: "http://localhost:3000",
+    }))
+  .step("GET /api/users", async (ctx) => {
+    const { http } = ctx.resources;
+    const response = await http.get("/api/users");
+
+    // HTTP Response expectations
+    expect(response)
+      .toBeSuccessful() // Status 2xx
+      .toHaveStatus(200) // Specific status
+      .toHaveContentType(/application\/json/)
+      .toMatchObject({ users: [] });
+  })
+  .step("Validate count", (ctx) => {
+    const count = 42;
+
+    // Chainable expectations for any value
+    expect(count)
+      .toBe(42)
+      .toBeGreaterThan(40)
+      .toBeLessThan(50);
+  })
+  .step("Validate message", (ctx) => {
+    const message = "hello";
+
+    expect(message)
+      .not.toBe("world")
+      .toContain("ello");
+  })
+  .build();
+```
+
+Supported client types:
+
+- **HTTP** - `expectHttpResponse` for REST API testing
+- **GraphQL** - `expectGraphqlResponse` for GraphQL queries
+- **ConnectRPC** - `expectConnectRpcResponse` for RPC calls
+- **SQL** - `expectSqlQueryResult` for database queries
+- **Redis** - `expectRedisResult` for Redis operations
+- **MongoDB** - `expectMongoResult` for MongoDB operations
+- **Deno KV** - `expectDenoKvResult` for Deno KV operations
+- **RabbitMQ** - `expectRabbitMqResult` for message queue operations
+- **SQS** - `expectSqsResult` for AWS SQS operations
+
+All expectation methods follow a consistent naming pattern (`toBeXxx`,
+`toHaveXxx`) and support method chaining for fluent assertions.
+
 ## Documentation
 
+- [Migration from 0.3.6](docs/migration-from-0.3.6.md) - **Breaking changes in
+  0.4.0**
 - [Guide](docs/guide.md) - Comprehensive usage guide
 - [CLI Reference](docs/cli.md) - Command-line options
 - [Architecture](docs/architecture.md) - Design overview

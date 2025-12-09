@@ -28,10 +28,10 @@ export default scenario("HTTP Client Example", {
     const res = await http.get("/get?name=probitas&version=1");
 
     expect(res)
-      .ok()
-      .status(200)
-      .contentType(/application\/json/)
-      .dataContains({ args: { name: "probitas", version: "1" } });
+      .toBeSuccessful()
+      .toHaveStatus(200)
+      .toHaveContentType(/application\/json/)
+      .toMatchObject({ args: { name: "probitas", version: "1" } });
   })
   .step("POST /post - send JSON body", async (ctx) => {
     const { http } = ctx.resources;
@@ -41,33 +41,33 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .contentType(/application\/json/)
-      .dataContains({ json: { message: "Hello from probitas", count: 42 } });
+      .toBeSuccessful()
+      .toHaveContentType(/application\/json/)
+      .toMatchObject({ json: { message: "Hello from probitas", count: 42 } });
   })
   .step("PUT /put - update resource", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.put("/put", { id: 1, name: "updated" });
 
     expect(res)
-      .ok()
-      .dataContains({ json: { id: 1, name: "updated" } });
+      .toBeSuccessful()
+      .toMatchObject({ json: { id: 1, name: "updated" } });
   })
   .step("PATCH /patch - partial update", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.patch("/patch", { name: "patched" });
 
     expect(res)
-      .ok()
-      .dataContains({ json: { name: "patched" } });
+      .toBeSuccessful()
+      .toMatchObject({ json: { name: "patched" } });
   })
   .step("DELETE /delete - remove resource", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.delete("/delete?id=123");
 
     expect(res)
-      .ok()
-      .dataContains({ args: { id: "123" } });
+      .toBeSuccessful()
+      .toMatchObject({ args: { id: "123" } });
   })
   .step("GET /headers - custom headers", async (ctx) => {
     const { http } = ctx.resources;
@@ -79,8 +79,8 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({
+      .toBeSuccessful()
+      .toMatchObject({
         headers: {
           "X-Custom-Header": "custom-value",
           "X-Request-Id": "req-12345",
@@ -91,31 +91,31 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/status/200", { throwOnError: false });
 
-    expect(res).ok().status(200);
+    expect(res).toBeSuccessful().toHaveStatus(200);
   })
   .step("GET /status/201 - created status", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/201", { throwOnError: false });
 
-    expect(res).ok().status(201);
+    expect(res).toBeSuccessful().toHaveStatus(201);
   })
   .step("GET /status/400 - bad request", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/400", { throwOnError: false });
 
-    expect(res).notOk().status(400);
+    expect(res).not.toBeSuccessful().toHaveStatus(400);
   })
   .step("GET /status/404 - not found", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/404", { throwOnError: false });
 
-    expect(res).notOk().status(404);
+    expect(res).not.toBeSuccessful().toHaveStatus(404);
   })
   .step("GET /status/500 - server error", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/500", { throwOnError: false });
 
-    expect(res).notOk().status(500);
+    expect(res).not.toBeSuccessful().toHaveStatus(500);
   })
   .step("GET /basic-auth - valid credentials", async (ctx) => {
     const { http } = ctx.resources;
@@ -125,8 +125,8 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ authenticated: true, user: "testuser" });
+      .toBeSuccessful()
+      .toMatchObject({ authenticated: true, user: "testuser" });
   })
   .step("GET /basic-auth - invalid credentials", async (ctx) => {
     const { http } = ctx.resources;
@@ -136,7 +136,7 @@ export default scenario("HTTP Client Example", {
       throwOnError: false,
     });
 
-    expect(res).notOk().status(401);
+    expect(res).not.toBeSuccessful().toHaveStatus(401);
   })
   .step("GET /bearer - valid token", async (ctx) => {
     const { http } = ctx.resources;
@@ -145,14 +145,14 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ authenticated: true, token: "my-secret-token" });
+      .toBeSuccessful()
+      .toMatchObject({ authenticated: true, token: "my-secret-token" });
   })
   .step("GET /bearer - missing token", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/bearer", { throwOnError: false });
 
-    expect(res).notOk().status(401);
+    expect(res).not.toBeSuccessful().toHaveStatus(401);
   })
   .step("GET /cookies - echo cookies", async (ctx) => {
     const { http } = ctx.resources;
@@ -161,8 +161,8 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ cookies: { session: "abc123", user: "probitas" } });
+      .toBeSuccessful()
+      .toMatchObject({ cookies: { session: "abc123", user: "probitas" } });
   })
   .step("ANY /anything - echo everything", async (ctx) => {
     const { http } = ctx.resources;
@@ -171,35 +171,39 @@ export default scenario("HTTP Client Example", {
     });
 
     expect(res)
-      .ok()
-      .contentType(/application\/json/)
-      .dataContains({ method: "POST", args: { key: "value" } });
+      .toBeSuccessful()
+      .toHaveContentType(/application\/json/)
+      .toMatchObject({ method: "POST", args: { key: "value" } });
   })
   .step("GET /ip - get client IP", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/ip");
 
-    expect(res).ok().hasContent();
+    expect(res).toBeSuccessful().toHaveContent();
   })
   .step("GET /user-agent - get user agent", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/user-agent");
 
-    expect(res).ok().hasContent();
+    expect(res).toBeSuccessful().toHaveContent();
   })
   .step("GET /health - health check", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/health");
 
-    expect(res).ok().dataContains({ status: "ok" });
+    expect(res).toBeSuccessful().toMatchObject({ status: "ok" });
   })
   .step("GET /bytes/{n} - random bytes", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/bytes/100");
 
     expect(res)
-      .ok()
-      .contentType(/application\/octet-stream/)
-      .bodyMatch((body) => body?.byteLength === 100);
+      .toBeSuccessful()
+      .toHaveContentType(/application\/octet-stream/)
+      .toSatisfy((body) => {
+        if (body instanceof Uint8Array && body.byteLength !== 100) {
+          throw new Error(`Expected 100 bytes, got ${body.byteLength}`);
+        }
+      });
   })
   .build();

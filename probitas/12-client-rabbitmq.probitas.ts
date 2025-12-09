@@ -35,7 +35,7 @@ export default scenario("RabbitMQ Client Example", {
       autoDelete: true,
     });
 
-    expect(result).ok();
+    expect(result).toBeSuccessful();
     await channel.close();
   })
   .step("Send message to queue", async (ctx) => {
@@ -47,7 +47,7 @@ export default scenario("RabbitMQ Client Example", {
     }));
     const result = await channel.sendToQueue("test_queue", content);
 
-    expect(result).ok();
+    expect(result).toBeSuccessful();
     await channel.close();
   })
   .step("Send multiple messages to queue", async (ctx) => {
@@ -68,7 +68,7 @@ export default scenario("RabbitMQ Client Example", {
     const channel = await mq.channel();
     const result = await channel.get("test_queue");
 
-    expect(result).ok().hasContent();
+    expect(result).toBeSuccessful().toHaveContent();
 
     if (result.message) {
       await channel.ack(result.message);
@@ -95,7 +95,7 @@ export default scenario("RabbitMQ Client Example", {
       durable: false,
       autoDelete: true,
     });
-    expect(result).ok();
+    expect(result).toBeSuccessful();
     await channel.close();
   })
   .step("Bind queue to exchange", async (ctx) => {
@@ -122,7 +122,7 @@ export default scenario("RabbitMQ Client Example", {
     const channel = await mq.channel();
     const result = await channel.get("test_bound_queue");
 
-    expect(result).ok().hasContent();
+    expect(result).toBeSuccessful().toHaveContent();
 
     if (result.message) {
       await channel.ack(result.message);
@@ -141,7 +141,7 @@ export default scenario("RabbitMQ Client Example", {
     });
 
     const result = await channel.get("test_queue");
-    expect(result).ok().hasContent();
+    expect(result).toBeSuccessful().toHaveContent();
 
     if (result.message) {
       await channel.ack(result.message);

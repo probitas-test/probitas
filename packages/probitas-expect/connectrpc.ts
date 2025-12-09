@@ -4,7 +4,7 @@
  * @module
  */
 
-import { buildDurationError, containsSubset } from "./common.ts";
+import { containsSubset, createDurationMethods, getNonNull } from "./common.ts";
 import type {
   ConnectRpcResponse,
   ConnectRpcStatusCode,
@@ -14,294 +14,73 @@ import type {
  * Fluent assertion interface for ConnectRpcResponse.
  */
 export interface ConnectRpcResponseExpectation {
-  /** Verify that status is OK (code === 0). */
-  ok(): this;
+  /** Invert all assertions */
+  readonly not: this;
 
-  /** Verify that status is not OK. */
-  notOk(): this;
+  /** Verify that status is OK (code === 0). */
+  toBeSuccessful(): this;
 
   /** Verify the exact status code. */
-  code(expected: ConnectRpcStatusCode): this;
+  toHaveCode(expected: ConnectRpcStatusCode): this;
 
   /** Verify the status code is one of the specified values. */
-  codeIn(...codes: ConnectRpcStatusCode[]): this;
-
-  /** Verify the status code is not one of the specified values. */
-  codeNotIn(...codes: ConnectRpcStatusCode[]): this;
+  toHaveCodeOneOf(codes: ConnectRpcStatusCode[]): this;
 
   /** Verify the error message matches exactly or by regex. */
-  error(expected: string | RegExp): this;
+  toHaveError(expected: string | RegExp): this;
 
   /** Verify the error message contains the substring. */
-  errorContains(substring: string): this;
+  toHaveErrorContaining(substring: string): this;
 
   /** Verify the error message using a custom matcher. */
-  errorMatch(matcher: (message: string) => void): this;
+  toHaveErrorMatching(matcher: (message: string) => void): this;
 
   /** Verify a header value matches exactly or by regex. */
-  header(name: string, expected: string | RegExp): this;
+  toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
   /** Verify that a header exists. */
-  headerExists(name: string): this;
+  toHaveHeader(name: string): this;
 
   /** Verify that a header value contains the substring. */
-  headerContains(name: string, substring: string): this;
+  toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Verify a header value using a custom matcher. */
-  headerMatch(name: string, matcher: (value: string) => void): this;
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
   /** Verify a trailer value matches exactly or by regex. */
-  trailer(name: string, expected: string | RegExp): this;
+  toHaveTrailerValue(name: string, expected: string | RegExp): this;
 
   /** Verify that a trailer exists. */
-  trailerExists(name: string): this;
+  toHaveTrailer(name: string): this;
 
   /** Verify that a trailer value contains the substring. */
-  trailerContains(name: string, substring: string): this;
+  toHaveTrailerContaining(name: string, substring: string): this;
 
   /** Verify a trailer value using a custom matcher. */
-  trailerMatch(name: string, matcher: (value: string) => void): this;
-
-  /** Verify that data() is null. */
-  noContent(): this;
+  toHaveTrailerMatching(name: string, matcher: (value: string) => void): this;
 
   /** Verify that data() is not null. */
-  hasContent(): this;
+  toHaveContent(): this;
 
   /** Verify that data() contains the specified properties (deep partial match). */
   // deno-lint-ignore no-explicit-any
-  dataContains<T = any>(subset: Partial<T>): this;
+  toMatchObject<T = any>(subset: Partial<T>): this;
 
   /** Verify data() using a custom matcher. */
   // deno-lint-ignore no-explicit-any
-  dataMatch<T = any>(matcher: (data: T) => void): this;
+  toSatisfy<T = any>(matcher: (data: T) => void): this;
 
   /** Verify that response duration is less than the threshold. */
-  durationLessThan(ms: number): this;
-}
+  toHaveDurationLessThan(ms: number): this;
 
-class ConnectRpcResponseExpectationImpl
-  implements ConnectRpcResponseExpectation {
-  readonly #response: ConnectRpcResponse;
+  /** Verify that response duration is less than or equal to the threshold. */
+  toHaveDurationLessThanOrEqual(ms: number): this;
 
-  constructor(response: ConnectRpcResponse) {
-    this.#response = response;
-  }
+  /** Verify that response duration is greater than the threshold. */
+  toHaveDurationGreaterThan(ms: number): this;
 
-  ok(): this {
-    if (!this.#response.ok) {
-      throw new Error(
-        `Expected ok response (code 0), got code ${this.#response.code}`,
-      );
-    }
-    return this;
-  }
-
-  notOk(): this {
-    if (this.#response.ok) {
-      throw new Error(
-        `Expected non-ok response, got code ${this.#response.code}`,
-      );
-    }
-    return this;
-  }
-
-  code(expected: ConnectRpcStatusCode): this {
-    if (this.#response.code !== expected) {
-      throw new Error(
-        `Expected code ${expected}, got ${this.#response.code}`,
-      );
-    }
-    return this;
-  }
-
-  codeIn(...codes: ConnectRpcStatusCode[]): this {
-    if (!codes.includes(this.#response.code)) {
-      throw new Error(
-        `Expected code to be one of [${
-          codes.join(", ")
-        }], got ${this.#response.code}`,
-      );
-    }
-    return this;
-  }
-
-  codeNotIn(...codes: ConnectRpcStatusCode[]): this {
-    if (codes.includes(this.#response.code)) {
-      throw new Error(
-        `Expected code to not be one of [${
-          codes.join(", ")
-        }], got ${this.#response.code}`,
-      );
-    }
-    return this;
-  }
-
-  error(expected: string | RegExp): this {
-    const msg = this.#response.message;
-    if (typeof expected === "string") {
-      if (msg !== expected) {
-        throw new Error(`Expected error "${expected}", got "${msg}"`);
-      }
-    } else {
-      if (!expected.test(msg)) {
-        throw new Error(
-          `Expected error to match ${expected}, got "${msg}"`,
-        );
-      }
-    }
-    return this;
-  }
-
-  errorContains(substring: string): this {
-    if (!this.#response.message.includes(substring)) {
-      throw new Error(`Expected error to contain "${substring}"`);
-    }
-    return this;
-  }
-
-  errorMatch(matcher: (message: string) => void): this {
-    matcher(this.#response.message);
-    return this;
-  }
-
-  header(name: string, expected: string | RegExp): this {
-    const value = this.#response.headers[name];
-    if (typeof expected === "string") {
-      if (value !== expected) {
-        throw new Error(
-          `Expected header "${name}" to be "${expected}", got "${value}"`,
-        );
-      }
-    } else {
-      if (value === undefined || !expected.test(value)) {
-        throw new Error(
-          `Expected header "${name}" to match ${expected}, got "${value}"`,
-        );
-      }
-    }
-    return this;
-  }
-
-  headerExists(name: string): this {
-    if (!(name in this.#response.headers)) {
-      throw new Error(`Expected header "${name}" to exist`);
-    }
-    return this;
-  }
-
-  headerContains(name: string, substring: string): this {
-    const value = this.#response.headers[name];
-    if (value === undefined) {
-      throw new Error(`Expected header "${name}" to exist`);
-    }
-    if (!value.includes(substring)) {
-      throw new Error(
-        `Expected header "${name}" to contain "${substring}", got "${value}"`,
-      );
-    }
-    return this;
-  }
-
-  headerMatch(name: string, matcher: (value: string) => void): this {
-    const value = this.#response.headers[name];
-    if (value === undefined) {
-      throw new Error(`Expected header "${name}" to exist`);
-    }
-    matcher(value);
-    return this;
-  }
-
-  trailer(name: string, expected: string | RegExp): this {
-    const value = this.#response.trailers[name];
-    if (typeof expected === "string") {
-      if (value !== expected) {
-        throw new Error(
-          `Expected trailer "${name}" to be "${expected}", got "${value}"`,
-        );
-      }
-    } else {
-      if (value === undefined || !expected.test(value)) {
-        throw new Error(
-          `Expected trailer "${name}" to match ${expected}, got "${value}"`,
-        );
-      }
-    }
-    return this;
-  }
-
-  trailerExists(name: string): this {
-    if (!(name in this.#response.trailers)) {
-      throw new Error(`Expected trailer "${name}" to exist`);
-    }
-    return this;
-  }
-
-  trailerContains(name: string, substring: string): this {
-    const value = this.#response.trailers[name];
-    if (value === undefined) {
-      throw new Error(`Expected trailer "${name}" to exist`);
-    }
-    if (!value.includes(substring)) {
-      throw new Error(
-        `Expected trailer "${name}" to contain "${substring}", got "${value}"`,
-      );
-    }
-    return this;
-  }
-
-  trailerMatch(name: string, matcher: (value: string) => void): this {
-    const value = this.#response.trailers[name];
-    if (value === undefined) {
-      throw new Error(`Expected trailer "${name}" to exist`);
-    }
-    matcher(value);
-    return this;
-  }
-
-  noContent(): this {
-    if (this.#response.data() !== null) {
-      throw new Error("Expected no data, but data is not null");
-    }
-    return this;
-  }
-
-  hasContent(): this {
-    if (this.#response.data() === null) {
-      throw new Error("Expected data, but data is null");
-    }
-    return this;
-  }
-
-  // deno-lint-ignore no-explicit-any
-  dataContains<T = any>(subset: Partial<T>): this {
-    const data = this.#response.data<T>();
-    if (!containsSubset(data, subset)) {
-      throw new Error(
-        `Expected data to contain ${JSON.stringify(subset)}, got ${
-          JSON.stringify(data)
-        }`,
-      );
-    }
-    return this;
-  }
-
-  // deno-lint-ignore no-explicit-any
-  dataMatch<T = any>(matcher: (data: T) => void): this {
-    const data = this.#response.data<T>();
-    if (data === null) {
-      throw new Error("Cannot match data: data is null");
-    }
-    matcher(data);
-    return this;
-  }
-
-  durationLessThan(ms: number): this {
-    if (this.#response.duration >= ms) {
-      throw new Error(buildDurationError(ms, this.#response.duration));
-    }
-    return this;
-  }
+  /** Verify that response duration is greater than or equal to the threshold. */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -311,6 +90,7 @@ class ConnectRpcResponseExpectationImpl
  * Each assertion throws an Error if it fails, making it ideal for testing.
  *
  * @param response - The ConnectRPC response to validate
+ * @param negate - Whether to negate assertions (used internally by .not)
  * @returns A fluent expectation chain
  *
  * @example Basic assertions
@@ -359,6 +139,243 @@ class ConnectRpcResponseExpectationImpl
  */
 export function expectConnectRpcResponse(
   response: ConnectRpcResponse,
+  negate = false,
 ): ConnectRpcResponseExpectation {
-  return new ConnectRpcResponseExpectationImpl(response);
+  const self: ConnectRpcResponseExpectation = {
+    get not(): ConnectRpcResponseExpectation {
+      return expectConnectRpcResponse(response, !negate);
+    },
+
+    toBeSuccessful() {
+      const isSuccess = response.ok;
+      if (negate ? isSuccess : !isSuccess) {
+        throw new Error(
+          negate
+            ? `Expected non-successful response, got code ${response.code}`
+            : `Expected successful response (code 0), got code ${response.code}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveCode(expected: ConnectRpcStatusCode) {
+      const match = response.code === expected;
+      if (negate ? match : !match) {
+        throw new Error(
+          negate
+            ? `Expected code to not be ${expected}, got ${response.code}`
+            : `Expected code ${expected}, got ${response.code}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveCodeOneOf(codes: ConnectRpcStatusCode[]) {
+      const match = codes.includes(response.code);
+      if (negate ? match : !match) {
+        throw new Error(
+          negate
+            ? `Expected code to not be one of [${
+              codes.join(", ")
+            }], got ${response.code}`
+            : `Expected code to be one of [${
+              codes.join(", ")
+            }], got ${response.code}`,
+        );
+      }
+      return this;
+    },
+
+    toHaveError(expected: string | RegExp) {
+      const msg = response.message;
+      if (typeof expected === "string") {
+        const match = msg === expected;
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected error to not be "${expected}", got "${msg}"`
+              : `Expected error "${expected}", got "${msg}"`,
+          );
+        }
+      } else {
+        const match = expected.test(msg);
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected error to not match ${expected}, got "${msg}"`
+              : `Expected error to match ${expected}, got "${msg}"`,
+          );
+        }
+      }
+      return this;
+    },
+
+    toHaveErrorContaining(substring: string) {
+      const contains = response.message.includes(substring);
+      if (negate ? contains : !contains) {
+        throw new Error(
+          negate
+            ? `Expected error to not contain "${substring}"`
+            : `Expected error to contain "${substring}"`,
+        );
+      }
+      return this;
+    },
+
+    toHaveErrorMatching(matcher: (message: string) => void) {
+      matcher(response.message);
+      return this;
+    },
+
+    toHaveHeaderValue(name: string, expected: string | RegExp) {
+      const value = response.headers[name];
+      if (typeof expected === "string") {
+        const match = value === expected;
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected header "${name}" to not be "${expected}", got "${value}"`
+              : `Expected header "${name}" to be "${expected}", got "${value}"`,
+          );
+        }
+      } else {
+        const match = value !== undefined && expected.test(value);
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected header "${name}" to not match ${expected}, got "${value}"`
+              : `Expected header "${name}" to match ${expected}, got "${value}"`,
+          );
+        }
+      }
+      return this;
+    },
+
+    toHaveHeader(name: string) {
+      const exists = name in response.headers;
+      if (negate ? exists : !exists) {
+        throw new Error(
+          negate
+            ? `Expected header "${name}" to not exist`
+            : `Expected header "${name}" to exist`,
+        );
+      }
+      return this;
+    },
+
+    toHaveHeaderContaining(name: string, substring: string) {
+      const value = getNonNull(response.headers[name], `header "${name}"`);
+      const contains = value.includes(substring);
+      if (negate ? contains : !contains) {
+        throw new Error(
+          negate
+            ? `Expected header "${name}" to not contain "${substring}", got "${value}"`
+            : `Expected header "${name}" to contain "${substring}", got "${value}"`,
+        );
+      }
+      return this;
+    },
+
+    toHaveHeaderMatching(name: string, matcher: (value: string) => void) {
+      const value = getNonNull(response.headers[name], `header "${name}"`);
+      matcher(value);
+      return this;
+    },
+
+    toHaveTrailerValue(name: string, expected: string | RegExp) {
+      const value = response.trailers[name];
+      if (typeof expected === "string") {
+        const match = value === expected;
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected trailer "${name}" to not be "${expected}", got "${value}"`
+              : `Expected trailer "${name}" to be "${expected}", got "${value}"`,
+          );
+        }
+      } else {
+        const match = value !== undefined && expected.test(value);
+        if (negate ? match : !match) {
+          throw new Error(
+            negate
+              ? `Expected trailer "${name}" to not match ${expected}, got "${value}"`
+              : `Expected trailer "${name}" to match ${expected}, got "${value}"`,
+          );
+        }
+      }
+      return this;
+    },
+
+    toHaveTrailer(name: string) {
+      const exists = name in response.trailers;
+      if (negate ? exists : !exists) {
+        throw new Error(
+          negate
+            ? `Expected trailer "${name}" to not exist`
+            : `Expected trailer "${name}" to exist`,
+        );
+      }
+      return this;
+    },
+
+    toHaveTrailerContaining(name: string, substring: string) {
+      const value = getNonNull(response.trailers[name], `trailer "${name}"`);
+      const contains = value.includes(substring);
+      if (negate ? contains : !contains) {
+        throw new Error(
+          negate
+            ? `Expected trailer "${name}" to not contain "${substring}", got "${value}"`
+            : `Expected trailer "${name}" to contain "${substring}", got "${value}"`,
+        );
+      }
+      return this;
+    },
+
+    toHaveTrailerMatching(name: string, matcher: (value: string) => void) {
+      const value = getNonNull(response.trailers[name], `trailer "${name}"`);
+      matcher(value);
+      return this;
+    },
+
+    toHaveContent() {
+      const hasData = response.data() !== null;
+      if (negate ? hasData : !hasData) {
+        throw new Error(
+          negate
+            ? "Expected no content, but data is not null"
+            : "Expected content, but data is null",
+        );
+      }
+      return this;
+    },
+
+    // deno-lint-ignore no-explicit-any
+    toMatchObject<T = any>(subset: Partial<T>) {
+      const data = response.data<T>();
+      const matches = containsSubset(data, subset);
+      if (negate ? matches : !matches) {
+        throw new Error(
+          negate
+            ? `Expected data to not contain ${JSON.stringify(subset)}, got ${
+              JSON.stringify(data)
+            }`
+            : `Expected data to contain ${JSON.stringify(subset)}, got ${
+              JSON.stringify(data)
+            }`,
+        );
+      }
+      return this;
+    },
+
+    // deno-lint-ignore no-explicit-any
+    toSatisfy<T = any>(matcher: (data: T) => void) {
+      const data = getNonNull(response.data<T>(), "data");
+      matcher(data);
+      return this;
+    },
+
+    ...createDurationMethods(response.duration, negate),
+  };
+
+  return self;
 }

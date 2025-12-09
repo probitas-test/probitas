@@ -14,6 +14,7 @@ import { expectRabbitMqResult } from "./rabbitmq.ts";
 import { expectRedisResult } from "./redis.ts";
 import { expectSqlQueryResult, type SqlQueryResultExpectation } from "./sql.ts";
 import { expectSqsResult } from "./sqs.ts";
+import { type AnythingExpectation, expectAnything } from "./anything.ts";
 
 import type { ConnectRpcResponse } from "@probitas/client-connectrpc";
 import type { DenoKvResult } from "@probitas/client-deno-kv";
@@ -24,8 +25,6 @@ import type { RabbitMqResult } from "@probitas/client-rabbitmq";
 import type { RedisResult } from "@probitas/client-redis";
 import type { SqlQueryResult } from "@probitas/client-sql";
 import type { SqsResult } from "@probitas/client-sqs";
-
-import { expect as expectStd } from "@std/expect";
 
 /**
  * Extract row type from SqlQueryResult<T>
@@ -66,8 +65,8 @@ function hasType(value: unknown): value is { type: string } {
  * const mongoRes = await mongo.find({ status: "active" });
  * expect(mongoRes).ok().count(10);
  *
- * // Falls back to @std/expect for other values
- * expect(42).toBe(42);
+ * // Falls back to expectAnything (chainable @std/expect) for other values
+ * expect(42).toBe(42).toBeGreaterThan(40);
  * ```
  */
 export function expect<T extends HttpResponse>(
@@ -97,7 +96,7 @@ export function expect<T extends RabbitMqResult>(
 export function expect<T extends SqsResult>(
   value: T,
 ): ReturnType<typeof expectSqsResult<T>>;
-export function expect<T>(value: T): ReturnType<typeof expectStd>;
+export function expect(value: unknown): AnythingExpectation;
 export function expect(value: unknown): unknown {
   if (hasType(value)) {
     const { type } = value;
@@ -134,6 +133,6 @@ export function expect(value: unknown): unknown {
     }
   }
 
-  // Fallback to @std/expect
-  return expectStd(value);
+  // Fallback to expectAnything (chainable @std/expect wrapper)
+  return expectAnything(value);
 }

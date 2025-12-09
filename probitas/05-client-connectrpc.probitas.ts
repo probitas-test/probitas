@@ -20,8 +20,8 @@ export default scenario("ConnectRPC Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ message: "Hello ConnectRPC" });
+      .toBeSuccessful()
+      .toMatchObject({ message: "Hello ConnectRPC" });
   })
   .step("EchoWithDelay - delayed response", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -31,8 +31,8 @@ export default scenario("ConnectRPC Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ message: "delayed" });
+      .toBeSuccessful()
+      .toMatchObject({ message: "delayed" });
   })
   .step("EchoError - NOT_FOUND", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -44,8 +44,8 @@ export default scenario("ConnectRPC Client Example", {
     );
 
     expect(res)
-      .notOk()
-      .code(5);
+      .not.toBeSuccessful()
+      .toHaveCode(5);
   })
   .step("EchoError - UNAUTHENTICATED", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -57,8 +57,8 @@ export default scenario("ConnectRPC Client Example", {
     );
 
     expect(res)
-      .notOk()
-      .code(16);
+      .not.toBeSuccessful()
+      .toHaveCode(16);
   })
   .step("EchoRequestMetadata - custom headers", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -69,7 +69,7 @@ export default scenario("ConnectRPC Client Example", {
       { metadata: { authorization: "Bearer my-token" } },
     );
 
-    expect(res).ok();
+    expect(res).toBeSuccessful();
   })
   .step("EchoLargePayload - payload generation", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -79,8 +79,8 @@ export default scenario("ConnectRPC Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ actualSize: 2048 });
+      .toBeSuccessful()
+      .toMatchObject({ actualSize: 2048 });
   })
   .step("EchoDeadline - timeout propagation", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -92,8 +92,8 @@ export default scenario("ConnectRPC Client Example", {
     );
 
     expect(res)
-      .ok()
-      .dataContains({ hasDeadline: true });
+      .toBeSuccessful()
+      .toMatchObject({ hasDeadline: true });
   })
   .step("Health check", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -102,7 +102,7 @@ export default scenario("ConnectRPC Client Example", {
     });
 
     expect(res)
-      .ok()
-      .dataContains({ status: 1 });
+      .toBeSuccessful()
+      .toMatchObject({ status: 1 });
   })
   .build();

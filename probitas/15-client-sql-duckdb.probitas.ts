@@ -50,7 +50,7 @@ export default scenario("DuckDB Client Example", {
         (6, '2024-01-20', 'Widget C', 'Electronics', 12, 39.99, 'North')
     `);
 
-    expect(result).ok();
+    expect(result).toBeSuccessful();
   })
   .step("Simple aggregation query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -64,8 +64,8 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .countAtLeast(2);
+      .toBeSuccessful()
+      .toHaveLengthGreaterThanOrEqual(2);
   })
   .step("Window function query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -84,8 +84,8 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .countAtLeast(6);
+      .toBeSuccessful()
+      .toHaveLengthGreaterThanOrEqual(6);
   })
   .step("Parameterized query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -97,8 +97,8 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .countAtLeast(2);
+      .toBeSuccessful()
+      .toHaveLengthGreaterThanOrEqual(2);
   })
   .step("Complex analytical query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -118,8 +118,8 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .countAtLeast(4);
+      .toBeSuccessful()
+      .toHaveLengthGreaterThanOrEqual(4);
   })
   .step("Update row", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -128,7 +128,7 @@ export default scenario("DuckDB Client Example", {
       [25, 1],
     );
 
-    expect(result).ok();
+    expect(result).toBeSuccessful();
   })
   .step("Transaction - commit", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -146,9 +146,9 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .count(1)
-      .dataContains({ product_name: "TxProduct" });
+      .toBeSuccessful()
+      .toHaveLength(1)
+      .toMatchObject({ product_name: "TxProduct" });
   })
   .step("Transaction - rollback on error", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -171,8 +171,8 @@ export default scenario("DuckDB Client Example", {
     );
 
     expect(result)
-      .ok()
-      .count(0);
+      .toBeSuccessful()
+      .toHaveLength(0);
   })
   .step("Delete row", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -181,6 +181,6 @@ export default scenario("DuckDB Client Example", {
       [7],
     );
 
-    expect(result).ok();
+    expect(result).toBeSuccessful();
   })
   .build();
