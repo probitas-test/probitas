@@ -25,7 +25,7 @@ import type {
 export interface SqsSendResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  hasMessageId(): this;
+  toHaveMessageId(): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -35,10 +35,9 @@ export interface SqsSendResultExpectation {
 export interface SqsSendBatchResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  allSuccessful(): this;
-  successfulCount(count: number): this;
-  failedCount(count: number): this;
-  noFailures(): this;
+  toBeAllSuccessful(): this;
+  toHaveSuccessfulCount(count: number): this;
+  toHaveFailedCount(count: number): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -80,20 +79,22 @@ export interface SqsMessageExpectation {
 
   /** Assert that body equals expected JSON (deep equality) */
   // deno-lint-ignore no-explicit-any
-  bodyJsonEquals<T = any>(expected: T): this;
+  toHaveBodyJsonEqualTo<T = any>(expected: T): this;
 
   /** Assert that body JSON contains the given subset */
   // deno-lint-ignore no-explicit-any
-  bodyJsonContains<T = any>(subset: Partial<T>): this;
+  toHaveBodyJsonContaining<T = any>(subset: Partial<T>): this;
 
   /** Assert that message has the given attribute */
-  hasAttribute(name: string): this;
+  toHaveAttribute(name: string): this;
 
   /** Assert that message attributes contain the given subset */
-  attributesContain(subset: Record<string, Partial<SqsMessageAttribute>>): this;
+  toHaveAttributesContaining(
+    subset: Record<string, Partial<SqsMessageAttribute>>,
+  ): this;
 
   /** Assert that messageId matches expected */
-  messageId(expected: string): this;
+  toHaveMessageId(expected: string): this;
 }
 
 /**
@@ -127,7 +128,7 @@ class SqsSendResultExpectationImpl implements SqsSendResultExpectation {
     return this;
   }
 
-  hasMessageId(): this {
+  toHaveMessageId(): this {
     if (!this.#result.messageId) {
       throw new Error("Expected messageId, but messageId is undefined");
     }
@@ -174,7 +175,7 @@ class SqsSendBatchResultExpectationImpl
     return this;
   }
 
-  allSuccessful(): this {
+  toBeAllSuccessful(): this {
     if (this.#result.failed.length > 0) {
       throw new Error(
         `Expected all messages successful, but ${this.#result.failed.length} failed`,
@@ -183,7 +184,7 @@ class SqsSendBatchResultExpectationImpl
     return this;
   }
 
-  successfulCount(count: number): this {
+  toHaveSuccessfulCount(count: number): this {
     if (this.#result.successful.length !== count) {
       throw new Error(
         buildCountError(count, this.#result.successful.length, "successful"),
@@ -192,19 +193,10 @@ class SqsSendBatchResultExpectationImpl
     return this;
   }
 
-  failedCount(count: number): this {
+  toHaveFailedCount(count: number): this {
     if (this.#result.failed.length !== count) {
       throw new Error(
         buildCountError(count, this.#result.failed.length, "failed"),
-      );
-    }
-    return this;
-  }
-
-  noFailures(): this {
-    if (this.#result.failed.length > 0) {
-      throw new Error(
-        `Expected no failures, but ${this.#result.failed.length} failed`,
       );
     }
     return this;
@@ -398,7 +390,7 @@ class SqsDeleteBatchResultExpectationImpl
     return this;
   }
 
-  allSuccessful(): this {
+  toBeAllSuccessful(): this {
     if (this.#result.failed.length > 0) {
       throw new Error(
         `Expected all deletions successful, but ${this.#result.failed.length} failed`,
@@ -407,7 +399,7 @@ class SqsDeleteBatchResultExpectationImpl
     return this;
   }
 
-  successfulCount(count: number): this {
+  toHaveSuccessfulCount(count: number): this {
     if (this.#result.successful.length !== count) {
       throw new Error(
         buildCountError(count, this.#result.successful.length, "successful"),
@@ -416,7 +408,7 @@ class SqsDeleteBatchResultExpectationImpl
     return this;
   }
 
-  failedCount(count: number): this {
+  toHaveFailedCount(count: number): this {
     if (this.#result.failed.length !== count) {
       throw new Error(
         buildCountError(count, this.#result.failed.length, "failed"),
@@ -467,7 +459,7 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
   }
 
   // deno-lint-ignore no-explicit-any
-  bodyJsonEquals<T = any>(expected: T): this {
+  toHaveBodyJsonEqualTo<T = any>(expected: T): this {
     const actual = JSON.parse(this.#message.body);
     if (JSON.stringify(actual) !== JSON.stringify(expected)) {
       throw new Error(
@@ -480,7 +472,7 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
   }
 
   // deno-lint-ignore no-explicit-any
-  bodyJsonContains<T = any>(subset: Partial<T>): this {
+  toHaveBodyJsonContaining<T = any>(subset: Partial<T>): this {
     const actual = JSON.parse(this.#message.body);
     if (!containsSubset(actual, subset)) {
       throw new Error(
@@ -492,14 +484,14 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
     return this;
   }
 
-  hasAttribute(name: string): this {
+  toHaveAttribute(name: string): this {
     if (!this.#message.messageAttributes?.[name]) {
       throw new Error(`Expected message to have attribute "${name}"`);
     }
     return this;
   }
 
-  attributesContain(
+  toHaveAttributesContaining(
     subset: Record<string, Partial<SqsMessageAttribute>>,
   ): this {
     const attrs = this.#message.messageAttributes ?? {};
@@ -519,7 +511,7 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
     return this;
   }
 
-  messageId(expected: string): this {
+  toHaveMessageId(expected: string): this {
     if (this.#message.messageId !== expected) {
       throw new Error(
         `Expected messageId "${expected}", got "${this.#message.messageId}"`,
@@ -544,8 +536,8 @@ export function expectSqsMessage(
 export interface SqsEnsureQueueResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  hasQueueUrl(): this;
-  queueUrl(expected: string): this;
+  toHaveQueueUrl(): this;
+  toHaveQueueUrl(expected: string): this;
   toHaveQueueUrlContaining(substring: string): this;
   toHaveDurationLessThan(ms: number): this;
 }
@@ -591,18 +583,17 @@ class SqsEnsureQueueResultExpectationImpl
     return this;
   }
 
-  hasQueueUrl(): this {
-    if (!this.#result.queueUrl) {
-      throw new Error("Expected queueUrl, but queueUrl is empty");
-    }
-    return this;
-  }
-
-  queueUrl(expected: string): this {
-    if (this.#result.queueUrl !== expected) {
-      throw new Error(
-        `Expected queueUrl "${expected}", got "${this.#result.queueUrl}"`,
-      );
+  toHaveQueueUrl(expected?: string): this {
+    if (expected !== undefined) {
+      if (this.#result.queueUrl !== expected) {
+        throw new Error(
+          `Expected queueUrl "${expected}", got "${this.#result.queueUrl}"`,
+        );
+      }
+    } else {
+      if (!this.#result.queueUrl) {
+        throw new Error("Expected queueUrl, but queueUrl is empty");
+      }
     }
     return this;
   }

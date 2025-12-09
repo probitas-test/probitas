@@ -15,13 +15,13 @@ export interface GraphqlResponseExpectation {
   toBeSuccessful(): this;
 
   /** Assert exact number of errors */
-  errorCount(n: number): this;
+  toHaveErrorCount(n: number): this;
 
   /** Assert that at least one error contains the message */
   toHaveErrorContaining(message: string): this;
 
   /** Assert that at least one error message matches the string or regex */
-  error(messageMatcher: string | RegExp): this;
+  toHaveError(messageMatcher: string | RegExp): this;
 
   /** Assert errors using custom matcher */
   errorMatch(matcher: (errors: readonly GraphqlErrorItem[]) => void): this;
@@ -41,13 +41,13 @@ export interface GraphqlResponseExpectation {
   toHaveExtension(key: string): this;
 
   /** Assert extension using custom matcher */
-  extensionMatch(key: string, matcher: (value: unknown) => void): this;
+  toHaveExtensionMatching(key: string, matcher: (value: unknown) => void): this;
 
   /** Assert HTTP status code */
-  status(code: number): this;
+  toHaveStatus(code: number): this;
 
   /** Assert that HTTP status code is within range (inclusive) */
-  statusInRange(min: number, max: number): this;
+  toHaveStatusInRange(min: number, max: number): this;
 
   /** Assert that HTTP status code is one of the given codes */
   toHaveStatusIn(statuses: number[]): this;
@@ -90,7 +90,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  errorCount(n: number): this {
+  toHaveErrorCount(n: number): this {
     const actual = this.#response.errors?.length ?? 0;
     if (actual !== n) {
       throw new Error(`Expected ${n} errors, got ${actual}`);
@@ -115,7 +115,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  error(messageMatcher: string | RegExp): this {
+  toHaveError(messageMatcher: string | RegExp): this {
     if (!this.#response.errors || this.#response.errors.length === 0) {
       throw new Error(
         `Expected an error matching "${messageMatcher}", but no errors present`,
@@ -183,7 +183,10 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  extensionMatch(key: string, matcher: (value: unknown) => void): this {
+  toHaveExtensionMatching(
+    key: string,
+    matcher: (value: unknown) => void,
+  ): this {
     if (!this.#response.extensions || !(key in this.#response.extensions)) {
       throw new Error(`Extension "${key}" not found`);
     }
@@ -191,7 +194,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  status(code: number): this {
+  toHaveStatus(code: number): this {
     if (this.#response.status !== code) {
       throw new Error(
         `Expected status ${code}, got ${this.#response.status}`,
@@ -200,7 +203,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  statusInRange(min: number, max: number): this {
+  toHaveStatusInRange(min: number, max: number): this {
     const { status } = this.#response;
     if (status < min || status > max) {
       throw new Error(

@@ -51,10 +51,10 @@ export interface RabbitMqConsumeResultExpectation {
   toHavePropertyContaining(subset: Partial<RabbitMqMessageProperties>): this;
 
   /** Assert that routing key matches expected */
-  routingKey(expected: string): this;
+  toHaveRoutingKey(expected: string): this;
 
   /** Assert that exchange matches expected */
-  exchange(expected: string): this;
+  toHaveExchange(expected: string): this;
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -84,13 +84,13 @@ export interface RabbitMqQueueResultExpectation {
   toBeSuccessful(): this;
 
   /** Assert that message count equals expected */
-  messageCount(count: number): this;
+  toHaveMessageCount(count: number): this;
 
   /** Assert that message count is at least min */
-  messageCountAtLeast(min: number): this;
+  toHaveMessageCountGreaterThanOrEqual(min: number): this;
 
   /** Assert that consumer count equals expected */
-  consumerCount(count: number): this;
+  toHaveConsumerCount(count: number): this;
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -229,7 +229,7 @@ class RabbitMqConsumeResultExpectationImpl
     return this;
   }
 
-  routingKey(expected: string): this {
+  toHaveRoutingKey(expected: string): this {
     if (this.#result.message === null) {
       throw new Error("Expected message, but message is null");
     }
@@ -242,7 +242,7 @@ class RabbitMqConsumeResultExpectationImpl
     return this;
   }
 
-  exchange(expected: string): this {
+  toHaveExchange(expected: string): this {
     if (this.#result.message === null) {
       throw new Error("Expected message, but message is null");
     }
@@ -295,7 +295,7 @@ class RabbitMqQueueResultExpectationImpl
     return this;
   }
 
-  messageCount(count: number): this {
+  toHaveMessageCount(count: number): this {
     if (this.#result.messageCount !== count) {
       throw new Error(
         buildCountError(count, this.#result.messageCount, "message count"),
@@ -304,7 +304,7 @@ class RabbitMqQueueResultExpectationImpl
     return this;
   }
 
-  messageCountAtLeast(min: number): this {
+  toHaveMessageCountGreaterThanOrEqual(min: number): this {
     if (this.#result.messageCount < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.messageCount, "message count"),
@@ -313,7 +313,7 @@ class RabbitMqQueueResultExpectationImpl
     return this;
   }
 
-  consumerCount(count: number): this {
+  toHaveConsumerCount(count: number): this {
     if (this.#result.consumerCount !== count) {
       throw new Error(
         buildCountError(count, this.#result.consumerCount, "consumer count"),

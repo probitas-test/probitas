@@ -21,13 +21,13 @@ export interface ConnectRpcResponseExpectation {
   toBeSuccessful(): this;
 
   /** Verify the exact status code. */
-  code(expected: ConnectRpcStatusCode): this;
+  toHaveCode(expected: ConnectRpcStatusCode): this;
 
   /** Verify the status code is one of the specified values. */
   toHaveCodeIn(codes: ConnectRpcStatusCode[]): this;
 
   /** Verify the error message matches exactly or by regex. */
-  error(expected: string | RegExp): this;
+  toHaveError(expected: string | RegExp): this;
 
   /** Verify the error message contains the substring. */
   toHaveErrorContaining(substring: string): this;
@@ -36,7 +36,7 @@ export interface ConnectRpcResponseExpectation {
   errorMatch(matcher: (message: string) => void): this;
 
   /** Verify a header value matches exactly or by regex. */
-  header(name: string, expected: string | RegExp): this;
+  toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
   /** Verify that a header exists. */
   toHaveHeader(name: string): this;
@@ -45,10 +45,10 @@ export interface ConnectRpcResponseExpectation {
   toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Verify a header value using a custom matcher. */
-  headerMatch(name: string, matcher: (value: string) => void): this;
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
   /** Verify a trailer value matches exactly or by regex. */
-  trailer(name: string, expected: string | RegExp): this;
+  toHaveTrailerValue(name: string, expected: string | RegExp): this;
 
   /** Verify that a trailer exists. */
   toHaveTrailer(name: string): this;
@@ -57,7 +57,7 @@ export interface ConnectRpcResponseExpectation {
   toHaveTrailerContaining(name: string, substring: string): this;
 
   /** Verify a trailer value using a custom matcher. */
-  trailerMatch(name: string, matcher: (value: string) => void): this;
+  toHaveTrailerMatching(name: string, matcher: (value: string) => void): this;
 
   /** Verify that data() is not null. */
   toHaveContent(): this;
@@ -103,7 +103,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  code(expected: ConnectRpcStatusCode): this {
+  toHaveCode(expected: ConnectRpcStatusCode): this {
     if (this.#response.code !== expected) {
       throw new Error(
         `Expected code ${expected}, got ${this.#response.code}`,
@@ -123,7 +123,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  error(expected: string | RegExp): this {
+  toHaveError(expected: string | RegExp): this {
     const msg = this.#response.message;
     if (typeof expected === "string") {
       if (msg !== expected) {
@@ -151,7 +151,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  header(name: string, expected: string | RegExp): this {
+  toHaveHeaderValue(name: string, expected: string | RegExp): this {
     const value = this.#response.headers[name];
     if (typeof expected === "string") {
       if (value !== expected) {
@@ -189,7 +189,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  headerMatch(name: string, matcher: (value: string) => void): this {
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this {
     const value = this.#response.headers[name];
     if (value === undefined) {
       throw new Error(`Expected header "${name}" to exist`);
@@ -198,7 +198,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  trailer(name: string, expected: string | RegExp): this {
+  toHaveTrailerValue(name: string, expected: string | RegExp): this {
     const value = this.#response.trailers[name];
     if (typeof expected === "string") {
       if (value !== expected) {
@@ -236,7 +236,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  trailerMatch(name: string, matcher: (value: string) => void): this {
+  toHaveTrailerMatching(name: string, matcher: (value: string) => void): this {
     const value = this.#response.trailers[name];
     if (value === undefined) {
       throw new Error(`Expected trailer "${name}" to exist`);

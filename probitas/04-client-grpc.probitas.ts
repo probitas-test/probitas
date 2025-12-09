@@ -46,7 +46,7 @@ export default scenario("gRPC Client Example", {
 
     expect(res)
       .not.toBeSuccessful()
-      .code(5);
+      .toHaveCode(5);
   })
   .step("EchoError - INVALID_ARGUMENT error", async (ctx) => {
     const { grpc } = ctx.resources;
@@ -59,7 +59,7 @@ export default scenario("gRPC Client Example", {
 
     expect(res)
       .not.toBeSuccessful()
-      .code(3);
+      .toHaveCode(3);
   })
   .step("EchoRequestMetadata - echo headers", async (ctx) => {
     const { grpc } = ctx.resources;

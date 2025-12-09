@@ -29,8 +29,8 @@ export default scenario("HTTP Client Example", {
 
     expect(res)
       .toBeSuccessful()
-      .status(200)
-      .contentType(/application\/json/)
+      .toHaveStatus(200)
+      .toHaveContentType(/application\/json/)
       .toMatchObject({ args: { name: "probitas", version: "1" } });
   })
   .step("POST /post - send JSON body", async (ctx) => {
@@ -42,7 +42,7 @@ export default scenario("HTTP Client Example", {
 
     expect(res)
       .toBeSuccessful()
-      .contentType(/application\/json/)
+      .toHaveContentType(/application\/json/)
       .toMatchObject({ json: { message: "Hello from probitas", count: 42 } });
   })
   .step("PUT /put - update resource", async (ctx) => {
@@ -91,31 +91,31 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/status/200", { throwOnError: false });
 
-    expect(res).toBeSuccessful().status(200);
+    expect(res).toBeSuccessful().toHaveStatus(200);
   })
   .step("GET /status/201 - created status", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/201", { throwOnError: false });
 
-    expect(res).toBeSuccessful().status(201);
+    expect(res).toBeSuccessful().toHaveStatus(201);
   })
   .step("GET /status/400 - bad request", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/400", { throwOnError: false });
 
-    expect(res).not.toBeSuccessful().status(400);
+    expect(res).not.toBeSuccessful().toHaveStatus(400);
   })
   .step("GET /status/404 - not found", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/404", { throwOnError: false });
 
-    expect(res).not.toBeSuccessful().status(404);
+    expect(res).not.toBeSuccessful().toHaveStatus(404);
   })
   .step("GET /status/500 - server error", async (ctx) => {
     const { http } = ctx.resources;
     const res = await http.get("/status/500", { throwOnError: false });
 
-    expect(res).not.toBeSuccessful().status(500);
+    expect(res).not.toBeSuccessful().toHaveStatus(500);
   })
   .step("GET /basic-auth - valid credentials", async (ctx) => {
     const { http } = ctx.resources;
@@ -136,7 +136,7 @@ export default scenario("HTTP Client Example", {
       throwOnError: false,
     });
 
-    expect(res).not.toBeSuccessful().status(401);
+    expect(res).not.toBeSuccessful().toHaveStatus(401);
   })
   .step("GET /bearer - valid token", async (ctx) => {
     const { http } = ctx.resources;
@@ -152,7 +152,7 @@ export default scenario("HTTP Client Example", {
     const { http } = ctx.resources;
     const res = await http.get("/bearer", { throwOnError: false });
 
-    expect(res).not.toBeSuccessful().status(401);
+    expect(res).not.toBeSuccessful().toHaveStatus(401);
   })
   .step("GET /cookies - echo cookies", async (ctx) => {
     const { http } = ctx.resources;
@@ -172,7 +172,7 @@ export default scenario("HTTP Client Example", {
 
     expect(res)
       .toBeSuccessful()
-      .contentType(/application\/json/)
+      .toHaveContentType(/application\/json/)
       .toMatchObject({ method: "POST", args: { key: "value" } });
   })
   .step("GET /ip - get client IP", async (ctx) => {
@@ -199,7 +199,7 @@ export default scenario("HTTP Client Example", {
 
     expect(res)
       .toBeSuccessful()
-      .contentType(/application\/octet-stream/)
+      .toHaveContentType(/application\/octet-stream/)
       .toSatisfy((body) => {
         if (body instanceof Uint8Array && body.byteLength !== 100) {
           throw new Error(`Expected 100 bytes, got ${body.byteLength}`);

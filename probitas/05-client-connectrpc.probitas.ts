@@ -45,7 +45,7 @@ export default scenario("ConnectRPC Client Example", {
 
     expect(res)
       .not.toBeSuccessful()
-      .code(5);
+      .toHaveCode(5);
   })
   .step("EchoError - UNAUTHENTICATED", async (ctx) => {
     const { rpc } = ctx.resources;
@@ -58,7 +58,7 @@ export default scenario("ConnectRPC Client Example", {
 
     expect(res)
       .not.toBeSuccessful()
-      .code(16);
+      .toHaveCode(16);
   })
   .step("EchoRequestMetadata - custom headers", async (ctx) => {
     const { rpc } = ctx.resources;

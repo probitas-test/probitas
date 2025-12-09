@@ -30,7 +30,7 @@ describe("expect", () => {
       const result = expect(httpResponse);
       // HttpResponseExpectation has toBeSuccessful() method that returns this
       assertEquals(typeof result.toBeSuccessful, "function");
-      assertEquals(typeof result.status, "function");
+      assertEquals(typeof result.toHaveStatus, "function");
       assertEquals(typeof result.toMatchObject, "function");
     });
 
@@ -48,7 +48,7 @@ describe("expect", () => {
 
       const result = expect(connectRpcResponse);
       assertEquals(typeof result.toBeSuccessful, "function");
-      assertEquals(typeof result.code, "function");
+      assertEquals(typeof result.toHaveCode, "function");
       assertEquals(typeof result.toMatchObject, "function");
     });
 
@@ -85,7 +85,7 @@ describe("expect", () => {
       const result = expect(sqlResult);
       assertEquals(typeof result.toBeSuccessful, "function");
       assertEquals(typeof result.toMatchObject, "function");
-      assertEquals(typeof result.rowCount, "function");
+      assertEquals(typeof result.toHaveRowCount, "function");
     });
 
     it("dispatches DenoKvResult (deno-kv:get) to expectDenoKvResult", () => {
@@ -282,7 +282,7 @@ describe("expect", () => {
       const expectation = expect(httpResponse);
       // Chain should return same type (fluent API)
       const chained = expectation.toBeSuccessful();
-      assertEquals(typeof chained.status, "function");
+      assertEquals(typeof chained.toHaveStatus, "function");
     });
 
     it("infers correct return type for primitive values", () => {

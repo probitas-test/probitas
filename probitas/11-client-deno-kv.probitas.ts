@@ -32,7 +32,7 @@ export default scenario("Deno KV Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .value("hello world");
+      .toHaveValue("hello world");
   })
   .step("Set object value", async (ctx) => {
     const { kv } = ctx.resources;
@@ -105,7 +105,7 @@ export default scenario("Deno KV Client Example", {
     await atomic.commit();
 
     const updated = await kv.get<number>(["counter"]);
-    expect(updated).toBeSuccessful().value(2);
+    expect(updated).toBeSuccessful().toHaveValue(2);
   })
   .step("Delete key", async (ctx) => {
     const { kv } = ctx.resources;

@@ -31,7 +31,7 @@ export default scenario("Redis Client Example", {
     await redis.set("test:key", "hello world");
     const result = await redis.get("test:key");
 
-    expect(result).toBeSuccessful().data("hello world");
+    expect(result).toBeSuccessful().toHaveData("hello world");
   })
   .step("SET with expiry", async (ctx) => {
     const { redis } = ctx.resources;
@@ -43,7 +43,7 @@ export default scenario("Redis Client Example", {
     const { redis } = ctx.resources;
     const result = await redis.get("test:nonexistent");
 
-    expect(result).toBeSuccessful().data(null);
+    expect(result).toBeSuccessful().toHaveData(null);
   })
   .step("INCR counter", async (ctx) => {
     const { redis } = ctx.resources;
@@ -59,7 +59,7 @@ export default scenario("Redis Client Example", {
     await redis.incr("test:counter");
     const getResult = await redis.get("test:counter");
 
-    expect(getResult).toBeSuccessful().data("4");
+    expect(getResult).toBeSuccessful().toHaveData("4");
   })
   .step("DECR counter", async (ctx) => {
     const { redis } = ctx.resources;
@@ -73,7 +73,7 @@ export default scenario("Redis Client Example", {
     await redis.hset("test:hash", "field2", "value2");
     const result = await redis.hget("test:hash", "field1");
 
-    expect(result).toBeSuccessful().data("value1");
+    expect(result).toBeSuccessful().toHaveData("value1");
   })
   .step("HGETALL hash", async (ctx) => {
     const { redis } = ctx.resources;
@@ -92,7 +92,7 @@ export default scenario("Redis Client Example", {
     await redis.lpush("test:list", "c", "b", "a");
     const result = await redis.lrange("test:list", 0, -1);
 
-    expect(result).toBeSuccessful().toHaveLength(3).contains("a");
+    expect(result).toBeSuccessful().toHaveLength(3).toContain("a");
   })
   .step("LLEN list", async (ctx) => {
     const { redis } = ctx.resources;
@@ -111,7 +111,7 @@ export default scenario("Redis Client Example", {
     const { redis } = ctx.resources;
     const result = await redis.sismember("test:set", "member1");
 
-    expect(result).toBeSuccessful().data(true);
+    expect(result).toBeSuccessful().toHaveData(true);
   })
   .step("DEL key", async (ctx) => {
     const { redis } = ctx.resources;

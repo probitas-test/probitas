@@ -38,8 +38,8 @@ export interface MongoFindResultExpectation<T> {
 export interface MongoInsertResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  insertedCount(count: number): this;
-  hasInsertedId(): this;
+  toHaveInsertedCount(count: number): this;
+  toHaveInsertedId(): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -49,9 +49,9 @@ export interface MongoInsertResultExpectation {
 export interface MongoUpdateResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  matchedCount(count: number): this;
-  modifiedCount(count: number): this;
-  hasUpsertedId(): this;
+  toHaveMatchedCount(count: number): this;
+  toHaveModifiedCount(count: number): this;
+  toHaveUpsertedId(): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -61,8 +61,8 @@ export interface MongoUpdateResultExpectation {
 export interface MongoDeleteResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  deletedCount(count: number): this;
-  deletedAtLeast(count: number): this;
+  toHaveDeletedCount(count: number): this;
+  toHaveDeletedCountGreaterThanOrEqual(count: number): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -212,7 +212,7 @@ class MongoInsertResultExpectationImpl implements MongoInsertResultExpectation {
     return this;
   }
 
-  insertedCount(count: number): this {
+  toHaveInsertedCount(count: number): this {
     const actualCount = "insertedCount" in this.#result
       ? this.#result.insertedCount
       : 1;
@@ -224,7 +224,7 @@ class MongoInsertResultExpectationImpl implements MongoInsertResultExpectation {
     return this;
   }
 
-  hasInsertedId(): this {
+  toHaveInsertedId(): this {
     if ("insertedId" in this.#result) {
       if (!this.#result.insertedId) {
         throw new Error("Expected insertedId, but it is empty");
@@ -273,7 +273,7 @@ class MongoUpdateResultExpectationImpl implements MongoUpdateResultExpectation {
     return this;
   }
 
-  matchedCount(count: number): this {
+  toHaveMatchedCount(count: number): this {
     if (this.#result.matchedCount !== count) {
       throw new Error(
         `Expected ${count} matched documents, got ${this.#result.matchedCount}`,
@@ -282,7 +282,7 @@ class MongoUpdateResultExpectationImpl implements MongoUpdateResultExpectation {
     return this;
   }
 
-  modifiedCount(count: number): this {
+  toHaveModifiedCount(count: number): this {
     if (this.#result.modifiedCount !== count) {
       throw new Error(
         `Expected ${count} modified documents, got ${this.#result.modifiedCount}`,
@@ -291,7 +291,7 @@ class MongoUpdateResultExpectationImpl implements MongoUpdateResultExpectation {
     return this;
   }
 
-  hasUpsertedId(): this {
+  toHaveUpsertedId(): this {
     if (!this.#result.upsertedId) {
       throw new Error("Expected upsertedId, but no document was upserted");
     }
@@ -334,7 +334,7 @@ class MongoDeleteResultExpectationImpl implements MongoDeleteResultExpectation {
     return this;
   }
 
-  deletedCount(count: number): this {
+  toHaveDeletedCount(count: number): this {
     if (this.#result.deletedCount !== count) {
       throw new Error(
         `Expected ${count} deleted documents, got ${this.#result.deletedCount}`,
@@ -343,7 +343,7 @@ class MongoDeleteResultExpectationImpl implements MongoDeleteResultExpectation {
     return this;
   }
 
-  deletedAtLeast(count: number): this {
+  toHaveDeletedCountGreaterThanOrEqual(count: number): this {
     if (this.#result.deletedCount < count) {
       throw new Error(
         `Expected at least ${count} deleted documents, got ${this.#result.deletedCount}`,

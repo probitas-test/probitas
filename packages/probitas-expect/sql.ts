@@ -31,13 +31,13 @@ export interface SqlQueryResultExpectation<T> {
   toHaveLengthLessThanOrEqual(expected: number): this;
 
   /** Verify exact affected row count */
-  rowCount(count: number): this;
+  toHaveRowCount(count: number): this;
 
   /** Verify minimum affected row count */
-  rowCountAtLeast(count: number): this;
+  toHaveRowCountGreaterThanOrEqual(count: number): this;
 
   /** Verify maximum affected row count */
-  rowCountAtMost(count: number): this;
+  toHaveRowCountLessThanOrEqual(count: number): this;
 
   /** Verify a row contains the given subset */
   toMatchObject(subset: Partial<T>): this;
@@ -46,22 +46,31 @@ export interface SqlQueryResultExpectation<T> {
   toSatisfy(matcher: (rows: SqlRows<T>) => void): this;
 
   /** Verify mapped data contains the given subset */
-  mapContains<U>(mapper: (row: T) => U, subset: Partial<U>): this;
+  toHaveMapContaining<U>(mapper: (row: T) => U, subset: Partial<U>): this;
 
   /** Custom mapped data validation */
-  mapMatch<U>(mapper: (row: T) => U, matcher: (mapped: U[]) => void): this;
+  toHaveMapMatching<U>(
+    mapper: (row: T) => U,
+    matcher: (mapped: U[]) => void,
+  ): this;
 
   /** Verify instance contains the given subset */
-  asContains<U>(ctor: new (row: T) => U, subset: Partial<U>): this;
+  toHaveInstanceContaining<U>(
+    ctor: new (row: T) => U,
+    subset: Partial<U>,
+  ): this;
 
   /** Custom instance validation */
-  asMatch<U>(ctor: new (row: T) => U, matcher: (instances: U[]) => void): this;
+  toHaveInstanceMatching<U>(
+    ctor: new (row: T) => U,
+    matcher: (instances: U[]) => void,
+  ): this;
 
   /** Verify exact lastInsertId */
-  lastInsertId(expected: bigint | string): this;
+  toHaveLastInsertId(expected: bigint | string): this;
 
-  /** Verify lastInsertId is present */
-  hasLastInsertId(): this;
+  /** Verify lastInsertId is present (overload without expected) */
+  toHaveLastInsertId(): this;
 
   /** Verify query duration is below threshold */
   toHaveDurationLessThan(ms: number): this;
@@ -135,7 +144,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  rowCount(count: number): this {
+  toHaveRowCount(count: number): this {
     if (this.#result.rowCount !== count) {
       throw new Error(
         buildCountError(count, this.#result.rowCount, "rowCount"),
@@ -144,7 +153,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  rowCountAtLeast(count: number): this {
+  toHaveRowCountGreaterThanOrEqual(count: number): this {
     if (this.#result.rowCount < count) {
       throw new Error(
         buildCountAtLeastError(count, this.#result.rowCount, "rowCount"),
@@ -153,7 +162,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  rowCountAtMost(count: number): this {
+  toHaveRowCountLessThanOrEqual(count: number): this {
     if (this.#result.rowCount > count) {
       throw new Error(
         buildCountAtMostError(count, this.#result.rowCount, "rowCount"),
@@ -175,7 +184,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  mapContains<U>(mapper: (row: T) => U, subset: Partial<U>): this {
+  toHaveMapContaining<U>(mapper: (row: T) => U, subset: Partial<U>): this {
     const mapped = this.#result.map(mapper);
     const found = mapped.find((item) => containsSubset(item, subset));
     if (!found) {
@@ -184,13 +193,19 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  mapMatch<U>(mapper: (row: T) => U, matcher: (mapped: U[]) => void): this {
+  toHaveMapMatching<U>(
+    mapper: (row: T) => U,
+    matcher: (mapped: U[]) => void,
+  ): this {
     const mapped = this.#result.map(mapper);
     matcher(mapped);
     return this;
   }
 
-  asContains<U>(ctor: new (row: T) => U, subset: Partial<U>): this {
+  toHaveInstanceContaining<U>(
+    ctor: new (row: T) => U,
+    subset: Partial<U>,
+  ): this {
     const instances = this.#result.as(ctor);
     const found = instances.find((item) => containsSubset(item, subset));
     if (!found) {
@@ -199,23 +214,25 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  asMatch<U>(ctor: new (row: T) => U, matcher: (instances: U[]) => void): this {
+  toHaveInstanceMatching<U>(
+    ctor: new (row: T) => U,
+    matcher: (instances: U[]) => void,
+  ): this {
     const instances = this.#result.as(ctor);
     matcher(instances);
     return this;
   }
 
-  lastInsertId(expected: bigint | string): this {
+  toHaveLastInsertId(expected?: bigint | string): this {
     const actual = this.#result.metadata.lastInsertId;
-    if (actual !== expected) {
-      throw new Error(`Expected lastInsertId ${expected}, got ${actual}`);
-    }
-    return this;
-  }
-
-  hasLastInsertId(): this {
-    if (this.#result.metadata.lastInsertId === undefined) {
-      throw new Error("Expected lastInsertId to be present");
+    if (expected !== undefined) {
+      if (actual !== expected) {
+        throw new Error(`Expected lastInsertId ${expected}, got ${actual}`);
+      }
+    } else {
+      if (actual === undefined) {
+        throw new Error("Expected lastInsertId to be present");
+      }
     }
     return this;
   }

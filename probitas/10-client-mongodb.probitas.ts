@@ -32,7 +32,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .hasInsertedId();
+      .toHaveInsertedId();
   })
   .step("Insert many documents", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -45,7 +45,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .insertedCount(3);
+      .toHaveInsertedCount(3);
   })
   .step("Find one document", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -90,7 +90,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .modifiedCount(1);
+      .toHaveModifiedCount(1);
   })
   .step("Update many documents", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -134,7 +134,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .deletedCount(1);
+      .toHaveDeletedCount(1);
   })
   .step("Delete many documents", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -143,6 +143,6 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .deletedAtLeast(1);
+      .toHaveDeletedCountGreaterThanOrEqual(1);
   })
   .build();

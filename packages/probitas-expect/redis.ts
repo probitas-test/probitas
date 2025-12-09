@@ -35,7 +35,7 @@ export interface RedisResultExpectation<T> {
   toBeSuccessful(): this;
 
   /** Assert that data matches expected */
-  data(expected: T): this;
+  toHaveData(expected: T): this;
 
   /** Assert data using custom matcher function */
   toSatisfy(matcher: (value: T) => void): this;
@@ -77,7 +77,7 @@ export interface RedisArrayResultExpectation<T>
   toHaveLengthLessThanOrEqual(max: number): this;
 
   /** Assert that array contains item */
-  contains(item: T): this;
+  toContain(item: T): this;
 }
 
 /**
@@ -111,7 +111,7 @@ class RedisResultExpectationImpl<T> implements RedisResultExpectation<T> {
     return this;
   }
 
-  data(expected: T): this {
+  toHaveData(expected: T): this {
     if (this.result.value !== expected) {
       throw new Error(
         `Expected data ${JSON.stringify(expected)}, got ${
@@ -221,7 +221,7 @@ class RedisArrayResultExpectationImpl<T>
     return this;
   }
 
-  contains(item: T): this {
+  toContain(item: T): this {
     if (!this.result.value.includes(item)) {
       throw new Error(
         `Expected array to contain ${JSON.stringify(item)}`,

@@ -29,7 +29,7 @@ export interface DenoKvGetResultExpectation<T> {
   toHaveContent(): this;
 
   /** Assert that value equals expected */
-  value(expected: T): this;
+  toHaveValue(expected: T): this;
 
   /** Assert that data contains expected properties */
   toMatchObject(subset: Partial<T>): this;
@@ -38,7 +38,7 @@ export interface DenoKvGetResultExpectation<T> {
   toSatisfy(matcher: (value: T) => void): this;
 
   /** Assert that versionstamp exists */
-  hasVersionstamp(): this;
+  toHaveVersionstamp(): this;
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -87,7 +87,7 @@ export interface DenoKvSetResultExpectation {
   toBeSuccessful(): this;
 
   /** Assert that versionstamp exists */
-  hasVersionstamp(): this;
+  toHaveVersionstamp(): this;
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -118,7 +118,7 @@ export interface DenoKvAtomicResultExpectation {
   toBeSuccessful(): this;
 
   /** Assert that versionstamp exists (only present on successful atomic commits) */
-  hasVersionstamp(): this;
+  toHaveVersionstamp(): this;
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -177,7 +177,7 @@ class DenoKvGetResultExpectationImpl<T>
     return this;
   }
 
-  value(expected: T): this {
+  toHaveValue(expected: T): this {
     if (this.#result.value === null) {
       throw new Error("Expected value, but value is null");
     }
@@ -211,7 +211,7 @@ class DenoKvGetResultExpectationImpl<T>
     return this;
   }
 
-  hasVersionstamp(): this {
+  toHaveVersionstamp(): this {
     if (this.#result.versionstamp === null) {
       throw new Error("Expected versionstamp, but it is null");
     }
@@ -359,7 +359,7 @@ class DenoKvSetResultExpectationImpl implements DenoKvSetResultExpectation {
     return this;
   }
 
-  hasVersionstamp(): this {
+  toHaveVersionstamp(): this {
     if (!this.#result.versionstamp) {
       throw new Error("Expected versionstamp, but it is empty");
     }
@@ -442,7 +442,7 @@ class DenoKvAtomicResultExpectationImpl
     return this;
   }
 
-  hasVersionstamp(): this {
+  toHaveVersionstamp(): this {
     if (!this.#result.versionstamp) {
       throw new Error("Expected versionstamp, but it is missing or empty");
     }

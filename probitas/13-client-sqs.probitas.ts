@@ -31,7 +31,7 @@ export default scenario("SQS Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .hasMessageId();
+      .toHaveMessageId();
   })
   .step("Send message with attributes", async (ctx) => {
     const { sqs } = ctx.resources;
@@ -47,7 +47,7 @@ export default scenario("SQS Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .hasMessageId();
+      .toHaveMessageId();
   })
   .step("Send batch messages", async (ctx) => {
     const { sqs } = ctx.resources;
@@ -57,7 +57,7 @@ export default scenario("SQS Client Example", {
       { id: "3", body: JSON.stringify({ index: 3 }) },
     ];
     const result = await sqs.sendBatch(messages);
-    expect(result).toBeSuccessful().successfulCount(3);
+    expect(result).toBeSuccessful().toHaveSuccessfulCount(3);
   })
   .step("Receive messages", async (ctx) => {
     const { sqs } = ctx.resources;
@@ -103,7 +103,7 @@ export default scenario("SQS Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .hasMessageId();
+      .toHaveMessageId();
   })
   .step("Purge queue", async (ctx) => {
     const { sqs } = ctx.resources;

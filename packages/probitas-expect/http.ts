@@ -16,16 +16,16 @@ export interface HttpResponseExpectation {
   toBeSuccessful(): this;
 
   /** Assert that response status matches expected code */
-  status(code: number): this;
+  toHaveStatus(code: number): this;
 
   /** Assert that response status is within range (inclusive) */
-  statusInRange(min: number, max: number): this;
+  toHaveStatusInRange(min: number, max: number): this;
 
   /** Assert that response status is one of the given values */
   toHaveStatusIn(statuses: number[]): this;
 
   /** Assert that header value matches expected string or regex */
-  header(name: string, expected: string | RegExp): this;
+  toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
   /** Assert that header exists */
   toHaveHeader(name: string): this;
@@ -34,10 +34,10 @@ export interface HttpResponseExpectation {
   toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Assert header value using custom matcher function */
-  headerMatch(name: string, matcher: (value: string) => void): this;
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
   /** Assert that Content-Type header matches expected string or regex */
-  contentType(expected: string | RegExp): this;
+  toHaveContentType(expected: string | RegExp): this;
 
   /** Assert that response body is not null */
   toHaveContent(): this;
@@ -90,7 +90,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  status(code: number): this {
+  toHaveStatus(code: number): this {
     if (this.#response.status !== code) {
       throw new Error(
         `Expected status ${code}, got ${this.#response.status}`,
@@ -99,7 +99,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  statusInRange(min: number, max: number): this {
+  toHaveStatusInRange(min: number, max: number): this {
     const { status } = this.#response;
     if (status < min || status > max) {
       throw new Error(
@@ -119,7 +119,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  header(name: string, expected: string | RegExp): this {
+  toHaveHeaderValue(name: string, expected: string | RegExp): this {
     const value = this.#response.headers.get(name);
     if (value === null) {
       throw new Error(`Header ${name} not found`);
@@ -161,7 +161,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  headerMatch(name: string, matcher: (value: string) => void): this {
+  toHaveHeaderMatching(name: string, matcher: (value: string) => void): this {
     const value = this.#response.headers.get(name);
     if (value === null) {
       throw new Error(`Header ${name} not found`);
@@ -170,8 +170,8 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  contentType(expected: string | RegExp): this {
-    return this.header("Content-Type", expected);
+  toHaveContentType(expected: string | RegExp): this {
+    return this.toHaveHeaderValue("Content-Type", expected);
   }
 
   toHaveContent(): this {
