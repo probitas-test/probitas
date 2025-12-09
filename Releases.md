@@ -1,5 +1,11 @@
 ### 2025.12.09
 
+#### @probitas/expect 0.1.2 (patch)
+
+- docs(@probitas/expect): add comprehensive JSDoc to all expectation interfaces
+
+### 2025.12.09
+
 #### @probitas/expect 0.1.1 (patch)
 
 - docs(@probitas/expect): update JSDoc examples to use new API naming convention
