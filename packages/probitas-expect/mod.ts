@@ -7,6 +7,9 @@
 // Unified expect function (recommended)
 export { expect } from "./expect.ts";
 
+// Chainable wrapper for @std/expect
+export { type AnythingExpectation, expectAnything } from "./anything.ts";
+
 // Common utilities
 export {
   buildErrorMessage,
