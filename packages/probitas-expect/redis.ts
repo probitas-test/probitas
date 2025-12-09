@@ -16,66 +16,231 @@ import type {
 
 /**
  * Base fluent API for Redis result validation.
+ *
+ * Provides chainable assertions for validating Redis operation results,
+ * including success status, data values, and operation duration.
  */
 export interface RedisResultExpectation<T> {
-  /** Negates the next assertion */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectRedisResult(result).not.toBeSuccessful();
+   * expectRedisResult(result).not.toHaveData("unexpected");
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that result ok is true */
+  /**
+   * Asserts that the Redis operation was successful (ok is true).
+   *
+   * @example
+   * ```ts
+   * expectRedisResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that data matches expected */
+  /**
+   * Asserts that the result data matches the expected value using strict equality.
+   *
+   * @param expected - The expected data value
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveData("myValue");
+   * expectRedisResult(result).toHaveData(null);
+   * ```
+   */
   toHaveData(expected: T): this;
 
-  /** Assert data using custom matcher function */
+  /**
+   * Asserts that the result data satisfies a custom matcher function.
+   *
+   * The matcher function receives the result value and should throw
+   * an error if the assertion fails.
+   *
+   * @param matcher - A function that validates the value
+   * @example
+   * ```ts
+   * expectRedisResult(result).toSatisfy((value) => {
+   *   if (value !== "expected") {
+   *     throw new Error("Value mismatch");
+   *   }
+   * });
+   * ```
+   */
   toSatisfy(matcher: (value: T) => void): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
  * Fluent API for Redis count result validation.
+ *
+ * Extends {@linkcode RedisResultExpectation} with additional assertions
+ * specific to count-based results (e.g., DEL, LPUSH, SCARD operations).
  */
 export interface RedisCountResultExpectation
   extends RedisResultExpectation<number> {
-  /** Assert that count equals expected */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectRedisResult(result).not.toHaveLength(0);
+   * ```
+   */
+  readonly not: this;
+
+  /**
+   * Asserts that the count equals the expected value.
+   *
+   * @param expected - The expected count value
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLength(5);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that count is at least min */
+  /**
+   * Asserts that the count is greater than or equal to the minimum value.
+   *
+   * @param min - The minimum count value (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLengthGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that count is at most max */
+  /**
+   * Asserts that the count is less than or equal to the maximum value.
+   *
+   * @param max - The maximum count value (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLengthLessThanOrEqual(10);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 }
 
 /**
  * Fluent API for Redis array result validation.
+ *
+ * Extends {@linkcode RedisResultExpectation} with additional assertions
+ * specific to array-based results (e.g., LRANGE, SMEMBERS, KEYS operations).
  */
 export interface RedisArrayResultExpectation<T>
   extends RedisResultExpectation<readonly T[]> {
-  /** Assert that array is not empty */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectRedisResult(result).not.toHaveContent();
+   * expectRedisResult(result).not.toContain("item");
+   * ```
+   */
+  readonly not: this;
+
+  /**
+   * Asserts that the array is not empty (contains at least one item).
+   *
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that array count equals expected */
+  /**
+   * Asserts that the array length equals the expected value.
+   *
+   * @param expected - The expected array length
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLength(3);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that array count is at least min */
+  /**
+   * Asserts that the array length is greater than or equal to the minimum value.
+   *
+   * @param min - The minimum array length (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLengthGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that array count is at most max */
+  /**
+   * Asserts that the array length is less than or equal to the maximum value.
+   *
+   * @param max - The maximum array length (inclusive)
+   * @example
+   * ```ts
+   * expectRedisResult(result).toHaveLengthLessThanOrEqual(100);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 
-  /** Assert that array contains item */
+  /**
+   * Asserts that the array contains the specified item.
+   *
+   * @param item - The item to check for
+   * @example
+   * ```ts
+   * expectRedisResult(result).toContain("myItem");
+   * expectRedisResult(result).toContain("value1").toContain("value2");
+   * ```
+   */
   toContain(item: T): this;
 }
 

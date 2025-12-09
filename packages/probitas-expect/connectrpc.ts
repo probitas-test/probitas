@@ -14,72 +14,273 @@ import type {
  * Fluent assertion interface for ConnectRpcResponse.
  */
 export interface ConnectRpcResponseExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).not.toBeSuccessful();
+   * expectConnectRpcResponse(response).not.toHaveCode(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Verify that status is OK (code === 0). */
+  /**
+   * Asserts that the status is OK (code === 0).
+   *
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Verify the exact status code. */
+  /**
+   * Asserts that the status code matches the expected value exactly.
+   *
+   * @param expected - The expected ConnectRPC status code
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveCode(0);  // OK
+   * expectConnectRpcResponse(response).toHaveCode(5);  // NOT_FOUND
+   * ```
+   */
   toHaveCode(expected: ConnectRpcStatusCode): this;
 
-  /** Verify the status code is one of the specified values. */
+  /**
+   * Asserts that the status code is one of the specified values.
+   *
+   * @param codes - Array of acceptable ConnectRPC status codes
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveCodeOneOf([3, 5]);  // INVALID_ARGUMENT or NOT_FOUND
+   * ```
+   */
   toHaveCodeOneOf(codes: ConnectRpcStatusCode[]): this;
 
-  /** Verify the error message matches exactly or by regex. */
+  /**
+   * Asserts that the error message matches the expected value exactly or by regex.
+   *
+   * @param expected - The expected error message string or RegExp pattern
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveError("user not found");
+   * expectConnectRpcResponse(response).toHaveError(/not found/i);
+   * ```
+   */
   toHaveError(expected: string | RegExp): this;
 
-  /** Verify the error message contains the substring. */
+  /**
+   * Asserts that the error message contains the specified substring.
+   *
+   * @param substring - The substring to search for in the error message
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveErrorContaining("not found");
+   * ```
+   */
   toHaveErrorContaining(substring: string): this;
 
-  /** Verify the error message using a custom matcher. */
+  /**
+   * Asserts that the error message satisfies a custom matcher function.
+   *
+   * @param matcher - A function that receives the error message and throws if invalid
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveErrorMatching((msg) => {
+   *   if (!msg.startsWith("Error:")) {
+   *     throw new Error("Expected error to start with 'Error:'");
+   *   }
+   * });
+   * ```
+   */
   toHaveErrorMatching(matcher: (message: string) => void): this;
 
-  /** Verify a header value matches exactly or by regex. */
+  /**
+   * Asserts that a header value matches the expected value exactly or by regex.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param expected - The expected header value string or RegExp pattern
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveHeaderValue("content-type", "application/json");
+   * expectConnectRpcResponse(response).toHaveHeaderValue("x-request-id", /^[a-f0-9-]+$/);
+   * ```
+   */
   toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
-  /** Verify that a header exists. */
+  /**
+   * Asserts that a header exists in the response.
+   *
+   * @param name - The header name (case-insensitive)
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveHeader("x-request-id");
+   * ```
+   */
   toHaveHeader(name: string): this;
 
-  /** Verify that a header value contains the substring. */
+  /**
+   * Asserts that a header value contains the specified substring.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param substring - The substring to search for in the header value
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveHeaderContaining("content-type", "json");
+   * ```
+   */
   toHaveHeaderContaining(name: string, substring: string): this;
 
-  /** Verify a header value using a custom matcher. */
+  /**
+   * Asserts that a header value satisfies a custom matcher function.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param matcher - A function that receives the header value and throws if invalid
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveHeaderMatching("x-request-id", (value) => {
+   *   if (value.length !== 36) {
+   *     throw new Error("Expected UUID format");
+   *   }
+   * });
+   * ```
+   */
   toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
-  /** Verify a trailer value matches exactly or by regex. */
+  /**
+   * Asserts that a trailer value matches the expected value exactly or by regex.
+   *
+   * @param name - The trailer name (case-insensitive)
+   * @param expected - The expected trailer value string or RegExp pattern
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveTrailerValue("grpc-status", "0");
+   * expectConnectRpcResponse(response).toHaveTrailerValue("grpc-message", /success/i);
+   * ```
+   */
   toHaveTrailerValue(name: string, expected: string | RegExp): this;
 
-  /** Verify that a trailer exists. */
+  /**
+   * Asserts that a trailer exists in the response.
+   *
+   * @param name - The trailer name (case-insensitive)
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveTrailer("grpc-status");
+   * ```
+   */
   toHaveTrailer(name: string): this;
 
-  /** Verify that a trailer value contains the substring. */
+  /**
+   * Asserts that a trailer value contains the specified substring.
+   *
+   * @param name - The trailer name (case-insensitive)
+   * @param substring - The substring to search for in the trailer value
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveTrailerContaining("grpc-message", "success");
+   * ```
+   */
   toHaveTrailerContaining(name: string, substring: string): this;
 
-  /** Verify a trailer value using a custom matcher. */
+  /**
+   * Asserts that a trailer value satisfies a custom matcher function.
+   *
+   * @param name - The trailer name (case-insensitive)
+   * @param matcher - A function that receives the trailer value and throws if invalid
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveTrailerMatching("grpc-status", (value) => {
+   *   if (value !== "0") {
+   *     throw new Error("Expected successful status");
+   *   }
+   * });
+   * ```
+   */
   toHaveTrailerMatching(name: string, matcher: (value: string) => void): this;
 
-  /** Verify that data() is not null. */
+  /**
+   * Asserts that the response has content (data() is not null).
+   *
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Verify that data() contains the specified properties (deep partial match). */
+  /**
+   * Asserts that the response data contains the specified properties (deep partial match).
+   *
+   * @param subset - An object containing the expected subset of properties
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toMatchObject({ id: 1, name: "Alice" });
+   * expectConnectRpcResponse(response).toMatchObject({ user: { email: "alice@example.com" } });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toMatchObject<T = any>(subset: Partial<T>): this;
 
-  /** Verify data() using a custom matcher. */
+  /**
+   * Asserts that the response data satisfies a custom matcher function.
+   *
+   * @param matcher - A function that receives the response data and throws if invalid
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toSatisfy((data) => {
+   *   if (data.items.length === 0) {
+   *     throw new Error("Expected at least one item");
+   *   }
+   * });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toSatisfy<T = any>(matcher: (data: T) => void): this;
 
-  /** Verify that response duration is less than the threshold. */
+  /**
+   * Asserts that the response duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveDurationLessThan(500);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Verify that response duration is less than or equal to the threshold. */
+  /**
+   * Asserts that the response duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveDurationLessThanOrEqual(500);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Verify that response duration is greater than the threshold. */
+  /**
+   * Asserts that the response duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Verify that response duration is greater than or equal to the threshold. */
+  /**
+   * Asserts that the response duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectConnectRpcResponse(response).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

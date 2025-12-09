@@ -21,40 +21,136 @@ import type {
  * Fluent API for MongoDB find result validation.
  */
 export interface MongoFindResultExpectation<T> {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).not.toHaveContent();
+   * expectMongoResult(findResult).not.toHaveLength(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the find operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that result contains at least one document */
+  /**
+   * Asserts that the result contains at least one document.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that document count matches expected value */
+  /**
+   * Asserts that the document count matches the expected value.
+   *
+   * @param expected - The expected number of documents
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveLength(5);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that document count is at least the minimum */
+  /**
+   * Asserts that the document count is at least the specified minimum.
+   *
+   * @param min - The minimum expected number of documents
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveLengthGreaterThanOrEqual(3);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that document count is at most the maximum */
+  /**
+   * Asserts that the document count is at most the specified maximum.
+   *
+   * @param max - The maximum expected number of documents
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveLengthLessThanOrEqual(10);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 
-  /** Assert that at least one document contains the given subset */
+  /**
+   * Asserts that at least one document in the result contains the given subset of properties.
+   *
+   * @param subset - An object containing the properties to match
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toMatchObject({ name: "Alice", age: 30 });
+   * ```
+   */
   toMatchObject(subset: Partial<T>): this;
 
-  /** Assert documents using custom matcher function */
+  /**
+   * Asserts documents using a custom matcher function.
+   *
+   * @param matcher - A function that receives the array of documents and performs assertions
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toSatisfy((docs) => {
+   *   expect(docs.every((doc) => doc.age >= 18)).toBe(true);
+   * });
+   * ```
+   */
   toSatisfy(matcher: (docs: MongoDocs<T>) => void): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -62,40 +158,133 @@ export interface MongoFindResultExpectation<T> {
  * Fluent API for MongoDB insert result validation.
  */
 export interface MongoInsertResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).not.toHaveInsertedCount(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the insert operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that inserted count matches expected value */
+  /**
+   * Asserts that the inserted document count matches the expected value.
+   *
+   * @param count - The expected number of inserted documents
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedCount(3);
+   * ```
+   */
   toHaveInsertedCount(count: number): this;
 
-  /** Assert that inserted count is greater than threshold */
+  /**
+   * Asserts that the inserted document count is greater than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedCountGreaterThan(0);
+   * ```
+   */
   toHaveInsertedCountGreaterThan(count: number): this;
 
-  /** Assert that inserted count is at least the minimum */
+  /**
+   * Asserts that the inserted document count is at least the specified minimum.
+   *
+   * @param count - The minimum expected number of inserted documents
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveInsertedCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that inserted count is less than threshold */
+  /**
+   * Asserts that the inserted document count is less than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedCountLessThan(100);
+   * ```
+   */
   toHaveInsertedCountLessThan(count: number): this;
 
-  /** Assert that inserted count is at most the maximum */
+  /**
+   * Asserts that the inserted document count is at most the specified maximum.
+   *
+   * @param count - The maximum expected number of inserted documents
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveInsertedCountLessThanOrEqual(count: number): this;
 
-  /** Assert that insertedId or insertedIds is present */
+  /**
+   * Asserts that insertedId (for insertOne) or insertedIds (for insertMany) is present.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveInsertedId();
+   * ```
+   */
   toHaveInsertedId(): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(insertResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -103,55 +292,188 @@ export interface MongoInsertResultExpectation {
  * Fluent API for MongoDB update result validation.
  */
 export interface MongoUpdateResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).not.toHaveMatchedCount(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the update operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that matched count matches expected value */
+  /**
+   * Asserts that the number of matched documents equals the expected value.
+   *
+   * @param count - The expected number of matched documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveMatchedCount(1);
+   * ```
+   */
   toHaveMatchedCount(count: number): this;
 
-  /** Assert that matched count is greater than threshold */
+  /**
+   * Asserts that the number of matched documents is greater than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveMatchedCountGreaterThan(0);
+   * ```
+   */
   toHaveMatchedCountGreaterThan(count: number): this;
 
-  /** Assert that matched count is at least the minimum */
+  /**
+   * Asserts that the number of matched documents is at least the specified minimum.
+   *
+   * @param count - The minimum expected number of matched documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveMatchedCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveMatchedCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that matched count is less than threshold */
+  /**
+   * Asserts that the number of matched documents is less than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveMatchedCountLessThan(100);
+   * ```
+   */
   toHaveMatchedCountLessThan(count: number): this;
 
-  /** Assert that matched count is at most the maximum */
+  /**
+   * Asserts that the number of matched documents is at most the specified maximum.
+   *
+   * @param count - The maximum expected number of matched documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveMatchedCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveMatchedCountLessThanOrEqual(count: number): this;
 
-  /** Assert that modified count matches expected value */
+  /**
+   * Asserts that the number of modified documents equals the expected value.
+   *
+   * @param count - The expected number of modified documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveModifiedCount(1);
+   * ```
+   */
   toHaveModifiedCount(count: number): this;
 
-  /** Assert that modified count is greater than threshold */
+  /**
+   * Asserts that the number of modified documents is greater than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveModifiedCountGreaterThan(0);
+   * ```
+   */
   toHaveModifiedCountGreaterThan(count: number): this;
 
-  /** Assert that modified count is at least the minimum */
+  /**
+   * Asserts that the number of modified documents is at least the specified minimum.
+   *
+   * @param count - The minimum expected number of modified documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveModifiedCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveModifiedCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that modified count is less than threshold */
+  /**
+   * Asserts that the number of modified documents is less than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveModifiedCountLessThan(100);
+   * ```
+   */
   toHaveModifiedCountLessThan(count: number): this;
 
-  /** Assert that modified count is at most the maximum */
+  /**
+   * Asserts that the number of modified documents is at most the specified maximum.
+   *
+   * @param count - The maximum expected number of modified documents
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveModifiedCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveModifiedCountLessThanOrEqual(count: number): this;
 
-  /** Assert that upsertedId is present */
+  /**
+   * Asserts that an upsertedId is present (document was upserted).
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveUpsertedId();
+   * ```
+   */
   toHaveUpsertedId(): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(updateResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -159,37 +481,123 @@ export interface MongoUpdateResultExpectation {
  * Fluent API for MongoDB delete result validation.
  */
 export interface MongoDeleteResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).not.toHaveDeletedCount(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the delete operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that deleted count matches expected value */
+  /**
+   * Asserts that the number of deleted documents equals the expected value.
+   *
+   * @param count - The expected number of deleted documents
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDeletedCount(1);
+   * ```
+   */
   toHaveDeletedCount(count: number): this;
 
-  /** Assert that deleted count is greater than threshold */
+  /**
+   * Asserts that the number of deleted documents is greater than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDeletedCountGreaterThan(0);
+   * ```
+   */
   toHaveDeletedCountGreaterThan(count: number): this;
 
-  /** Assert that deleted count is at least the minimum */
+  /**
+   * Asserts that the number of deleted documents is at least the specified minimum.
+   *
+   * @param count - The minimum expected number of deleted documents
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDeletedCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveDeletedCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that deleted count is less than threshold */
+  /**
+   * Asserts that the number of deleted documents is less than the specified threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDeletedCountLessThan(100);
+   * ```
+   */
   toHaveDeletedCountLessThan(count: number): this;
 
-  /** Assert that deleted count is at most the maximum */
+  /**
+   * Asserts that the number of deleted documents is at most the specified maximum.
+   *
+   * @param count - The maximum expected number of deleted documents
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDeletedCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveDeletedCountLessThanOrEqual(count: number): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(deleteResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -197,31 +605,102 @@ export interface MongoDeleteResultExpectation {
  * Fluent API for MongoDB findOne result validation.
  */
 export interface MongoFindOneResultExpectation<T> {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).not.toHaveContent();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the findOne operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that a document was found */
+  /**
+   * Asserts that a document was found (not undefined).
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that document contains the given subset */
+  /**
+   * Asserts that the found document contains the given subset of properties.
+   *
+   * @param subset - An object containing the properties to match
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toMatchObject({ name: "Alice", age: 30 });
+   * ```
+   */
   toMatchObject(subset: Partial<T>): this;
 
-  /** Assert document using custom matcher function */
+  /**
+   * Asserts the document using a custom matcher function.
+   *
+   * @param matcher - A function that receives the document and performs assertions
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toSatisfy((doc) => {
+   *   expect(doc.age).toBeGreaterThan(18);
+   * });
+   * ```
+   */
   toSatisfy(matcher: (doc: T) => void): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(findOneResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -229,31 +708,101 @@ export interface MongoFindOneResultExpectation<T> {
  * Fluent API for MongoDB count result validation.
  */
 export interface MongoCountResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).not.toHaveLength(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the count operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that document count matches expected value */
+  /**
+   * Asserts that the document count equals the expected value.
+   *
+   * @param expected - The expected document count
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveLength(10);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that document count is at least the minimum */
+  /**
+   * Asserts that the document count is at least the specified minimum.
+   *
+   * @param min - The minimum expected document count
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveLengthGreaterThanOrEqual(5);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that document count is at most the maximum */
+  /**
+   * Asserts that the document count is at most the specified maximum.
+   *
+   * @param max - The maximum expected document count
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveLengthLessThanOrEqual(100);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectMongoResult(countResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

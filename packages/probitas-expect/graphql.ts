@@ -8,71 +8,246 @@ import type {
  * Fluent API for GraphQL response validation.
  */
 export interface GraphqlResponseExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).not.toBeSuccessful();
+   * expectGraphqlResponse(response).not.toHaveErrorCount(0);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that response has no errors */
+  /**
+   * Asserts that the response has no errors.
+   *
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert exact number of errors */
+  /**
+   * Asserts the exact number of errors in the response.
+   *
+   * @param n - The expected number of errors
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorCount(0);
+   * expectGraphqlResponse(response).toHaveErrorCount(1);
+   * ```
+   */
   toHaveErrorCount(n: number): this;
 
-  /** Assert that error count is greater than specified value */
+  /**
+   * Asserts that the error count is greater than the specified value.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorCountGreaterThan(0);
+   * ```
+   */
   toHaveErrorCountGreaterThan(count: number): this;
 
-  /** Assert that error count is greater than or equal to specified value */
+  /**
+   * Asserts that the error count is greater than or equal to the specified value.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveErrorCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that error count is less than specified value */
+  /**
+   * Asserts that the error count is less than the specified value.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorCountLessThan(5);
+   * ```
+   */
   toHaveErrorCountLessThan(count: number): this;
 
-  /** Assert that error count is less than or equal to specified value */
+  /**
+   * Asserts that the error count is less than or equal to the specified value.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorCountLessThanOrEqual(2);
+   * ```
+   */
   toHaveErrorCountLessThanOrEqual(count: number): this;
 
-  /** Assert that at least one error contains the message */
+  /**
+   * Asserts that at least one error message contains the specified substring.
+   *
+   * @param message - The substring to search for
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorContaining("not found");
+   * ```
+   */
   toHaveErrorContaining(message: string): this;
 
-  /** Assert that at least one error message matches the string or regex */
+  /**
+   * Asserts that at least one error message matches the string or regex.
+   *
+   * @param messageMatcher - The string or pattern to match
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveError("User not found");
+   * expectGraphqlResponse(response).toHaveError(/not found/i);
+   * ```
+   */
   toHaveError(messageMatcher: string | RegExp): this;
 
-  /** Assert errors using custom matcher */
+  /**
+   * Asserts errors using a custom matcher function.
+   *
+   * @param matcher - Function that receives the errors array and should throw if invalid
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveErrorMatching((errors) => {
+   *   assertEquals(errors[0].path, ["user", "email"]);
+   * });
+   * ```
+   */
   toHaveErrorMatching(
     matcher: (errors: readonly GraphqlErrorItem[]) => void,
   ): this;
 
-  /** Assert that data is not null */
+  /**
+   * Asserts that the response data is not null.
+   *
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that data contains expected subset (deep partial match) */
+  /**
+   * Asserts that the data contains the expected subset (deep partial match).
+   *
+   * @param subset - An object containing the expected properties
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toMatchObject({ user: { name: "Alice" } });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toMatchObject<T = any>(subset: Partial<T>): this;
 
-  /** Assert data using custom matcher */
+  /**
+   * Asserts the data using a custom matcher function.
+   *
+   * @param matcher - Function that receives the data and should throw if invalid
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toSatisfy((data) => {
+   *   assertEquals(data.user.id, "123");
+   * });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toSatisfy<T = any>(matcher: (data: T) => void): this;
 
-  /** Assert that an extension key exists */
+  /**
+   * Asserts that an extension key exists in the response.
+   *
+   * @param key - The extension key name
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveExtension("tracing");
+   * ```
+   */
   toHaveExtension(key: string): this;
 
-  /** Assert extension using custom matcher */
+  /**
+   * Asserts an extension value using a custom matcher function.
+   *
+   * @param key - The extension key name
+   * @param matcher - Function that receives the extension value and should throw if invalid
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveExtensionMatching("timing", (value) => {
+   *   assertExists(value.duration);
+   * });
+   * ```
+   */
   toHaveExtensionMatching(key: string, matcher: (value: unknown) => void): this;
 
-  /** Assert HTTP status code */
+  /**
+   * Asserts the HTTP status code of the response.
+   *
+   * @param code - The expected HTTP status code
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveStatus(200);
+   * ```
+   */
   toHaveStatus(code: number): this;
 
-  /** Assert that HTTP status code is one of the given codes */
+  /**
+   * Asserts that the HTTP status code is one of the given codes.
+   *
+   * @param statuses - Array of acceptable HTTP status codes
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveStatusOneOf([200, 201]);
+   * ```
+   */
   toHaveStatusOneOf(statuses: number[]): this;
 
-  /** Assert that response duration is less than threshold (ms) */
+  /**
+   * Asserts that the response duration is less than the threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveDurationLessThan(500);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that response duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the response duration is less than or equal to the threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveDurationLessThanOrEqual(500);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that response duration is greater than threshold (ms) */
+  /**
+   * Asserts that the response duration is greater than the threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that response duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the response duration is greater than or equal to the threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectGraphqlResponse(response).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

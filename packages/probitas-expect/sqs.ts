@@ -23,25 +23,78 @@ import type {
  * Fluent API for SQS send result validation.
  */
 export interface SqsSendResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the send operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that messageId is present */
+  /**
+   * Asserts that the send result contains a messageId.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toHaveMessageId();
+   * ```
+   */
   toHaveMessageId(): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toHaveDurationLessThan(1000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toHaveDurationLessThanOrEqual(1000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(sendResult).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -49,55 +102,188 @@ export interface SqsSendResultExpectation {
  * Fluent API for SQS send batch result validation.
  */
 export interface SqsSendBatchResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the batch send operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that all messages were sent successfully (no failures) */
+  /**
+   * Asserts that all messages in the batch were sent successfully (no failures).
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toBeAllSuccessful();
+   * ```
+   */
   toBeAllSuccessful(): this;
 
-  /** Assert that successful count matches expected value */
+  /**
+   * Asserts that the count of successfully sent messages matches the expected value.
+   *
+   * @param count - The expected number of successful messages
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveSuccessfulCount(5);
+   * ```
+   */
   toHaveSuccessfulCount(count: number): this;
 
-  /** Assert that successful count is greater than threshold */
+  /**
+   * Asserts that the count of successfully sent messages is greater than the threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveSuccessfulCountGreaterThan(3);
+   * ```
+   */
   toHaveSuccessfulCountGreaterThan(count: number): this;
 
-  /** Assert that successful count is at least the minimum */
+  /**
+   * Asserts that the count of successfully sent messages is at least the minimum.
+   *
+   * @param count - The minimum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveSuccessfulCountGreaterThanOrEqual(5);
+   * ```
+   */
   toHaveSuccessfulCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that successful count is less than threshold */
+  /**
+   * Asserts that the count of successfully sent messages is less than the threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveSuccessfulCountLessThan(10);
+   * ```
+   */
   toHaveSuccessfulCountLessThan(count: number): this;
 
-  /** Assert that successful count is at most the maximum */
+  /**
+   * Asserts that the count of successfully sent messages is at most the maximum.
+   *
+   * @param count - The maximum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveSuccessfulCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveSuccessfulCountLessThanOrEqual(count: number): this;
 
-  /** Assert that failed count matches expected value */
+  /**
+   * Asserts that the count of failed messages matches the expected value.
+   *
+   * @param count - The expected number of failed messages
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveFailedCount(0);
+   * ```
+   */
   toHaveFailedCount(count: number): this;
 
-  /** Assert that failed count is greater than threshold */
+  /**
+   * Asserts that the count of failed messages is greater than the threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveFailedCountGreaterThan(0);
+   * ```
+   */
   toHaveFailedCountGreaterThan(count: number): this;
 
-  /** Assert that failed count is at least the minimum */
+  /**
+   * Asserts that the count of failed messages is at least the minimum.
+   *
+   * @param count - The minimum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveFailedCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveFailedCountGreaterThanOrEqual(count: number): this;
 
-  /** Assert that failed count is less than threshold */
+  /**
+   * Asserts that the count of failed messages is less than the threshold.
+   *
+   * @param count - The threshold value
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveFailedCountLessThan(5);
+   * ```
+   */
   toHaveFailedCountLessThan(count: number): this;
 
-  /** Assert that failed count is at most the maximum */
+  /**
+   * Asserts that the count of failed messages is at most the maximum.
+   *
+   * @param count - The maximum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveFailedCountLessThanOrEqual(2);
+   * ```
+   */
   toHaveFailedCountLessThanOrEqual(count: number): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveDurationLessThan(2000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveDurationLessThanOrEqual(2000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(batchResult).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -105,42 +291,141 @@ export interface SqsSendBatchResultExpectation {
  * Fluent API for SQS receive result validation.
  */
 export interface SqsReceiveResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).not.toHaveContent();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the receive operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that at least one message was received */
+  /**
+   * Asserts that at least one message was received.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that message count matches expected value */
+  /**
+   * Asserts that the message count matches the expected value.
+   *
+   * @param expected - The expected number of messages
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveLength(5);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that message count is at least the minimum */
+  /**
+   * Asserts that the message count is at least the minimum.
+   *
+   * @param min - The minimum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveLengthGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that message count is at most the maximum */
+  /**
+   * Asserts that the message count is at most the maximum.
+   *
+   * @param max - The maximum count (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveLengthLessThanOrEqual(10);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 
-  /** Assert that at least one message contains the given subset */
+  /**
+   * Asserts that at least one message contains the given subset of properties.
+   *
+   * @param subset - Object containing optional body and attributes to match
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toMatchObject({
+   *   body: "orderId",
+   *   attributes: { type: "ORDER" },
+   * });
+   * ```
+   */
   toMatchObject(
     subset: { body?: string; attributes?: Record<string, string> },
   ): this;
 
-  /** Assert messages using custom matcher function */
+  /**
+   * Asserts messages using a custom matcher function.
+   *
+   * @param matcher - Custom function to validate the messages array
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toSatisfy((messages) => {
+   *   if (messages.length === 0) throw new Error("No messages");
+   *   if (!messages[0].body.includes("order")) throw new Error("Missing order");
+   * });
+   * ```
+   */
   toSatisfy(matcher: (messages: SqsMessages) => void): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveDurationLessThan(5000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveDurationLessThanOrEqual(5000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(receiveResult).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -148,22 +433,68 @@ export interface SqsReceiveResultExpectation {
  * Fluent API for SQS delete result validation.
  */
 export interface SqsDeleteResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the delete operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).toHaveDurationLessThan(1000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).toHaveDurationLessThanOrEqual(1000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(deleteResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -171,29 +502,93 @@ export interface SqsDeleteResultExpectation {
  * Fluent API for SQS message validation.
  */
 export interface SqsMessageExpectation {
-  /** Assert that body contains the given substring */
+  /**
+   * Asserts that the message body contains the given substring.
+   *
+   * @param substring - The substring to search for in the body
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveBodyContaining("orderId");
+   * ```
+   */
   toHaveBodyContaining(substring: string): this;
 
-  /** Assert body using custom matcher function */
+  /**
+   * Asserts the message body using a custom matcher function.
+   *
+   * @param matcher - Custom function to validate the body
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveBodyMatching((body) => {
+   *   if (!body.startsWith("{")) throw new Error("Body must be JSON");
+   * });
+   * ```
+   */
   toHaveBodyMatching(matcher: (body: string) => void): this;
 
-  /** Assert that body equals expected JSON (deep equality) */
+  /**
+   * Asserts that the message body equals the expected JSON (deep equality).
+   *
+   * @param expected - The expected JSON object
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveBodyJsonEqualTo({
+   *   orderId: "123",
+   *   status: "pending",
+   * });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toHaveBodyJsonEqualTo<T = any>(expected: T): this;
 
-  /** Assert that body JSON contains the given subset */
+  /**
+   * Asserts that the message body JSON contains the given subset of properties.
+   *
+   * @param subset - Partial object to match against the body JSON
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveBodyJsonContaining({ orderId: "123" });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toHaveBodyJsonContaining<T = any>(subset: Partial<T>): this;
 
-  /** Assert that message has the given attribute */
+  /**
+   * Asserts that the message has the given attribute.
+   *
+   * @param name - The attribute name to check for
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveAttribute("correlationId");
+   * ```
+   */
   toHaveAttribute(name: string): this;
 
-  /** Assert that message attributes contain the given subset */
+  /**
+   * Asserts that the message attributes contain the given subset.
+   *
+   * @param subset - Record of attribute names to partial attribute values
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveAttributesContaining({
+   *   correlationId: { stringValue: "abc-123" },
+   *   messageType: { stringValue: "ORDER" },
+   * });
+   * ```
+   */
   toHaveAttributesContaining(
     subset: Record<string, Partial<SqsMessageAttribute>>,
   ): this;
 
-  /** Assert that messageId matches expected */
+  /**
+   * Asserts that the messageId matches the expected value.
+   *
+   * @param expected - The expected messageId
+   * @example
+   * ```ts
+   * expectSqsMessage(message).toHaveMessageId("msg-12345");
+   * ```
+   */
   toHaveMessageId(expected: string): this;
 }
 
@@ -201,31 +596,102 @@ export interface SqsMessageExpectation {
  * Fluent API for SQS ensure queue result validation.
  */
 export interface SqsEnsureQueueResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the ensure queue operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that queueUrl is present */
+  /**
+   * Asserts that the queue URL is present in the result.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveQueueUrl();
+   * ```
+   */
   toHaveQueueUrl(): this;
 
-  /** Assert that queueUrl matches expected value */
+  /**
+   * Asserts that the queue URL matches the expected value.
+   *
+   * @param expected - The expected queue URL
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveQueueUrl(
+   *   "http://localhost:4566/000000000000/my-queue"
+   * );
+   * ```
+   */
   toHaveQueueUrl(expected: string): this;
 
-  /** Assert that queueUrl contains the given substring */
+  /**
+   * Asserts that the queue URL contains the given substring.
+   *
+   * @param substring - The substring to search for in the queue URL
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveQueueUrlContaining("my-queue");
+   * ```
+   */
   toHaveQueueUrlContaining(substring: string): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveDurationLessThan(2000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveDurationLessThanOrEqual(2000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(ensureQueueResult).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -233,22 +699,68 @@ export interface SqsEnsureQueueResultExpectation {
  * Fluent API for SQS delete queue result validation.
  */
 export interface SqsDeleteQueueResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation completed successfully */
+  /**
+   * Asserts that the delete queue operation completed successfully.
+   *
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that operation duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).toHaveDurationLessThan(1000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that operation duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - Maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).toHaveDurationLessThanOrEqual(1000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that operation duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that operation duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - Minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqsResult(deleteQueueResult).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

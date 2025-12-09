@@ -12,66 +12,239 @@ import type { HttpResponse } from "@probitas/client-http";
  * Fluent API for HTTP response validation.
  */
 export interface HttpResponseExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectHttpResponse(response).not.toBeSuccessful();
+   * expectHttpResponse(response).not.toHaveStatus(404);
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that response status is 200-299 */
+  /**
+   * Asserts that the response status is successful (200-299).
+   *
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that response status matches expected code */
+  /**
+   * Asserts that the response status matches the expected code.
+   *
+   * @param code - The expected HTTP status code
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveStatus(200);
+   * expectHttpResponse(response).toHaveStatus(201);
+   * ```
+   */
   toHaveStatus(code: number): this;
 
-  /** Assert that response status is one of the given values */
+  /**
+   * Asserts that the response status is one of the given values.
+   *
+   * @param statuses - Array of acceptable HTTP status codes
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveStatusOneOf([200, 201, 204]);
+   * ```
+   */
   toHaveStatusOneOf(statuses: number[]): this;
 
-  /** Assert that header value matches expected string or regex */
+  /**
+   * Asserts that a header value matches the expected string or regex.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param expected - The expected value or pattern
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveHeaderValue("content-type", "application/json");
+   * expectHttpResponse(response).toHaveHeaderValue("content-type", /application\/json/);
+   * ```
+   */
   toHaveHeaderValue(name: string, expected: string | RegExp): this;
 
-  /** Assert that header exists */
+  /**
+   * Asserts that a header exists in the response.
+   *
+   * @param name - The header name (case-insensitive)
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveHeader("x-request-id");
+   * ```
+   */
   toHaveHeader(name: string): this;
 
-  /** Assert that header value contains substring */
+  /**
+   * Asserts that a header value contains the specified substring.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param substring - The substring to search for
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveHeaderContaining("content-type", "json");
+   * ```
+   */
   toHaveHeaderContaining(name: string, substring: string): this;
 
-  /** Assert header value using custom matcher function */
+  /**
+   * Asserts a header value using a custom matcher function.
+   *
+   * @param name - The header name (case-insensitive)
+   * @param matcher - Function that receives the header value and should throw if invalid
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveHeaderMatching("x-custom", (value) => {
+   *   assertEquals(value.startsWith("prefix-"), true);
+   * });
+   * ```
+   */
   toHaveHeaderMatching(name: string, matcher: (value: string) => void): this;
 
-  /** Assert that Content-Type header matches expected string or regex */
+  /**
+   * Asserts that the Content-Type header matches the expected string or regex.
+   *
+   * @param expected - The expected content type or pattern
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveContentType("application/json");
+   * expectHttpResponse(response).toHaveContentType(/application\/json/);
+   * ```
+   */
   toHaveContentType(expected: string | RegExp): this;
 
-  /** Assert that response body is not null */
+  /**
+   * Asserts that the response body is not null.
+   *
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that body contains given byte sequence */
+  /**
+   * Asserts that the body contains the given byte sequence.
+   *
+   * @param subbody - The byte sequence to search for
+   * @example
+   * ```ts
+   * const expected = new TextEncoder().encode("hello");
+   * expectHttpResponse(response).toHaveBodyContaining(expected);
+   * ```
+   */
   toHaveBodyContaining(subbody: Uint8Array): this;
 
-  /** Assert JSON data using custom matcher function */
+  /**
+   * Asserts the JSON data using a custom matcher function.
+   *
+   * @param matcher - Function that receives the parsed JSON and should throw if invalid
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toSatisfy((data) => {
+   *   assertEquals(data.users.length, 3);
+   * });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toSatisfy<T = any>(matcher: (data: T) => void): this;
 
-  /** Assert raw body bytes using custom matcher function */
+  /**
+   * Asserts the raw body bytes using a custom matcher function.
+   *
+   * @param matcher - Function that receives the raw bytes and should throw if invalid
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toSatisfyBody((body) => {
+   *   assertEquals(body.length > 0, true);
+   * });
+   * ```
+   */
   toSatisfyBody(matcher: (body: Uint8Array) => void): this;
 
-  /** Assert text body using custom matcher function */
+  /**
+   * Asserts the text body using a custom matcher function.
+   *
+   * @param matcher - Function that receives the text and should throw if invalid
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toSatisfyText((text) => {
+   *   assertStringIncludes(text, "success");
+   * });
+   * ```
+   */
   toSatisfyText(matcher: (text: string) => void): this;
 
-  /** Assert that text body contains substring */
+  /**
+   * Asserts that the text body contains the specified substring.
+   *
+   * @param substring - The substring to search for
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveTextContaining("success");
+   * ```
+   */
   toHaveTextContaining(substring: string): this;
 
-  /** Assert that JSON body contains expected properties */
+  /**
+   * Asserts that the JSON body contains the expected properties (deep partial match).
+   *
+   * @param subset - An object containing the expected properties
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toMatchObject({ status: "ok", data: { id: 1 } });
+   * ```
+   */
   // deno-lint-ignore no-explicit-any
   toMatchObject<T = any>(subset: Partial<T>): this;
 
-  /** Assert that response duration is less than threshold (ms) */
+  /**
+   * Asserts that the response duration is less than the threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveDurationLessThan(1000);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that response duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the response duration is less than or equal to the threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveDurationLessThanOrEqual(1000);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that response duration is greater than threshold (ms) */
+  /**
+   * Asserts that the response duration is greater than the threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveDurationGreaterThan(100);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that response duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the response duration is greater than or equal to the threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   * @example
+   * ```ts
+   * expectHttpResponse(response).toHaveDurationGreaterThanOrEqual(100);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

@@ -233,40 +233,40 @@ export {
 
 // HTTP
 export { expectHttpResponse } from "./http.ts";
-export type { HttpResponse } from "@probitas/client-http";
+export type * from "@probitas/client-http";
 
 // GraphQL
 export { expectGraphqlResponse } from "./graphql.ts";
-export type { GraphqlResponse } from "@probitas/client-graphql";
+export type * from "@probitas/client-graphql";
 
 // ConnectRPC
 export { expectConnectRpcResponse } from "./connectrpc.ts";
-export type { ConnectRpcResponse } from "@probitas/client-connectrpc";
+export type * from "@probitas/client-connectrpc";
 
 // gRPC
 export { expectGrpcResponse } from "./grpc.ts";
-export type { GrpcResponse } from "@probitas/client-grpc";
+export type * from "@probitas/client-grpc";
 
 // Redis
 export { expectRedisResult } from "./redis.ts";
-export type { RedisResult } from "@probitas/client-redis";
+export type * from "@probitas/client-redis";
 
 // MongoDB
 export { expectMongoResult } from "./mongodb.ts";
-export type { MongoResult } from "@probitas/client-mongodb";
+export type * from "@probitas/client-mongodb";
 
 // Deno KV
 export { expectDenoKvResult } from "./deno_kv.ts";
-export type { DenoKvResult } from "@probitas/client-deno-kv";
+export type * from "@probitas/client-deno-kv";
 
 // SQS
 export { expectSqsMessage, expectSqsResult } from "./sqs.ts";
-export type { SqsResult } from "@probitas/client-sqs";
+export type * from "@probitas/client-sqs";
 
 // RabbitMQ
 export { expectRabbitMqResult } from "./rabbitmq.ts";
-export type { RabbitMqResult } from "@probitas/client-rabbitmq";
+export type * from "@probitas/client-rabbitmq";
 
 // SQL
 export { expectSqlQueryResult, type SqlQueryResultExpectation } from "./sql.ts";
-export type { SqlQueryResult } from "@probitas/client-sql";
+export type * from "@probitas/client-sql";

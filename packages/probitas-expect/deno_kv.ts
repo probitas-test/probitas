@@ -17,155 +17,510 @@ import type {
 
 /**
  * Fluent API for validating DenoKvGetResult.
+ *
+ * Provides chainable assertions specifically designed for Deno KV get operation results.
+ * All assertion methods return `this` to enable method chaining.
  */
 export interface DenoKvGetResultExpectation<T> {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).not.toBeSuccessful();
+   * expectDenoKvResult(result).not.toHaveContent();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation succeeded */
+  /**
+   * Asserts that the get operation succeeded.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that content exists */
+  /**
+   * Asserts that the result contains a value (not null).
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that value equals expected */
+  /**
+   * Asserts that the retrieved value equals the expected value (deep equality).
+   *
+   * @param expected - The expected value to compare against
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveValue({ name: "Alice", age: 30 });
+   * ```
+   */
   toHaveValue(expected: T): this;
 
-  /** Assert that data contains expected properties */
+  /**
+   * Asserts that the retrieved value contains the expected properties.
+   *
+   * @param subset - An object containing the expected properties
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toMatchObject({ name: "Alice" });
+   * ```
+   */
   toMatchObject(subset: Partial<T>): this;
 
-  /** Assert data using custom matcher function */
+  /**
+   * Asserts that the retrieved value satisfies a custom matcher function.
+   *
+   * @param matcher - A function that receives the value and should throw if the assertion fails
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toSatisfy((value) => {
+   *   if (value.age < 18) throw new Error("Expected adult user");
+   * });
+   * ```
+   */
   toSatisfy(matcher: (value: T) => void): this;
 
-  /** Assert that versionstamp exists */
+  /**
+   * Asserts that the result has a versionstamp (indicates the entry exists).
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveVersionstamp();
+   * ```
+   */
   toHaveVersionstamp(): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
  * Fluent API for validating DenoKvListResult.
+ *
+ * Provides chainable assertions specifically designed for Deno KV list operation results.
+ * All assertion methods return `this` to enable method chaining.
  */
 export interface DenoKvListResultExpectation<T> {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).not.toBeSuccessful();
+   * expectDenoKvResult(result).not.toHaveContent();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation succeeded */
+  /**
+   * Asserts that the list operation succeeded.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that content exists */
+  /**
+   * Asserts that the result contains at least one entry.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Assert that entry count equals expected */
+  /**
+   * Asserts that the number of entries equals the expected count.
+   *
+   * @param expected - The expected number of entries
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveLength(3);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Assert that entry count is at least min */
+  /**
+   * Asserts that the number of entries is at least the specified minimum.
+   *
+   * @param min - The minimum number of entries (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveLengthGreaterThanOrEqual(5);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(min: number): this;
 
-  /** Assert that entry count is at most max */
+  /**
+   * Asserts that the number of entries is at most the specified maximum.
+   *
+   * @param max - The maximum number of entries (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveLengthLessThanOrEqual(10);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(max: number): this;
 
-  /** Assert that at least one entry contains expected properties */
+  /**
+   * Asserts that at least one entry matches the specified criteria.
+   *
+   * @param subset - An object containing optional key and/or value properties to match
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveEntryContaining({ key: ["users", "1"] });
+   * expectDenoKvResult(result).toHaveEntryContaining({ value: { name: "Alice" } });
+   * expectDenoKvResult(result).toHaveEntryContaining({ key: ["users", "1"], value: { active: true } });
+   * ```
+   */
   toHaveEntryContaining(subset: { key?: Deno.KvKey; value?: Partial<T> }): this;
 
-  /** Assert entries using custom matcher function */
+  /**
+   * Asserts that the entries satisfy a custom matcher function.
+   *
+   * @param matcher - A function that receives the entries array and should throw if the assertion fails
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toSatisfy((entries) => {
+   *   const activeCount = entries.filter(e => e.value.active).length;
+   *   if (activeCount < 3) throw new Error("Expected at least 3 active entries");
+   * });
+   * ```
+   */
   toSatisfy(matcher: (entries: DenoKvEntries<T>) => void): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
  * Fluent API for validating DenoKvSetResult.
+ *
+ * Provides chainable assertions specifically designed for Deno KV set operation results.
+ * All assertion methods return `this` to enable method chaining.
  */
 export interface DenoKvSetResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).not.toBeSuccessful();
+   * expectDenoKvResult(result).not.toHaveVersionstamp();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation succeeded */
+  /**
+   * Asserts that the set operation succeeded.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that versionstamp exists */
+  /**
+   * Asserts that the result has a versionstamp (confirms the value was stored).
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveVersionstamp();
+   * ```
+   */
   toHaveVersionstamp(): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
  * Fluent API for validating DenoKvDeleteResult.
+ *
+ * Provides chainable assertions specifically designed for Deno KV delete operation results.
+ * All assertion methods return `this` to enable method chaining.
  */
 export interface DenoKvDeleteResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).not.toBeSuccessful();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation succeeded */
+  /**
+   * Asserts that the delete operation succeeded.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
  * Fluent API for validating DenoKvAtomicResult.
+ *
+ * Provides chainable assertions specifically designed for Deno KV atomic operation results.
+ * All assertion methods return `this` to enable method chaining.
  */
 export interface DenoKvAtomicResultExpectation {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).not.toBeSuccessful();
+   * expectDenoKvResult(result).not.toHaveVersionstamp();
+   * ```
+   */
   readonly not: this;
 
-  /** Assert that operation succeeded */
+  /**
+   * Asserts that the atomic operation succeeded.
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Assert that versionstamp exists (only present on successful atomic commits) */
+  /**
+   * Asserts that the result has a versionstamp (only present on successful atomic commits).
+   *
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveVersionstamp();
+   * ```
+   */
   toHaveVersionstamp(): this;
 
-  /** Assert that duration is less than threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Assert that duration is less than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is less than or equal to the specified threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Assert that duration is greater than threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThan(10);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Assert that duration is greater than or equal to threshold (ms) */
+  /**
+   * Asserts that the operation duration is greater than or equal to the specified threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectDenoKvResult(result).toHaveDurationGreaterThanOrEqual(10);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

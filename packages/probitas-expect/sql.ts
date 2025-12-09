@@ -12,76 +12,269 @@ import type { SqlQueryResult, SqlRows } from "@probitas/client-sql";
  * All methods return `this` for chaining.
  */
 export interface SqlQueryResultExpectation<T> {
-  /** Invert all assertions */
+  /**
+   * Negates the next assertion.
+   *
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).not.toBeSuccessful();
+   * expectSqlQueryResult(result).not.toHaveContent();
+   * ```
+   */
   readonly not: this;
 
-  /** Verify query succeeded */
+  /**
+   * Asserts that the query succeeded.
+   *
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toBeSuccessful();
+   * ```
+   */
   toBeSuccessful(): this;
 
-  /** Verify result has rows */
+  /**
+   * Asserts that the result has at least one row.
+   *
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveContent();
+   * ```
+   */
   toHaveContent(): this;
 
-  /** Verify exact row count */
+  /**
+   * Asserts that the row count matches the expected value.
+   *
+   * @param expected - The expected number of rows
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveLength(10);
+   * ```
+   */
   toHaveLength(expected: number): this;
 
-  /** Verify minimum row count */
+  /**
+   * Asserts that the row count is at least the expected value.
+   *
+   * @param expected - The minimum expected number of rows
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveLengthGreaterThanOrEqual(5);
+   * ```
+   */
   toHaveLengthGreaterThanOrEqual(expected: number): this;
 
-  /** Verify maximum row count */
+  /**
+   * Asserts that the row count is at most the expected value.
+   *
+   * @param expected - The maximum expected number of rows
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveLengthLessThanOrEqual(100);
+   * ```
+   */
   toHaveLengthLessThanOrEqual(expected: number): this;
 
-  /** Verify exact affected row count */
+  /**
+   * Asserts that the affected row count matches the expected value.
+   *
+   * @param count - The expected affected row count
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveRowCount(1);
+   * ```
+   */
   toHaveRowCount(count: number): this;
 
-  /** Verify minimum affected row count */
+  /**
+   * Asserts that the affected row count is at least the expected value.
+   *
+   * @param count - The minimum expected affected row count
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveRowCountGreaterThanOrEqual(1);
+   * ```
+   */
   toHaveRowCountGreaterThanOrEqual(count: number): this;
 
-  /** Verify maximum affected row count */
+  /**
+   * Asserts that the affected row count is at most the expected value.
+   *
+   * @param count - The maximum expected affected row count
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveRowCountLessThanOrEqual(10);
+   * ```
+   */
   toHaveRowCountLessThanOrEqual(count: number): this;
 
-  /** Verify a row contains the given subset */
+  /**
+   * Asserts that at least one row contains the given subset of properties.
+   *
+   * @param subset - The partial object to match against rows
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toMatchObject({ name: "Alice", active: true });
+   * ```
+   */
   toMatchObject(subset: Partial<T>): this;
 
-  /** Custom row validation */
+  /**
+   * Validates the rows using a custom matcher function.
+   *
+   * @param matcher - A function that receives the rows and performs assertions
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toSatisfy((rows) => {
+   *   assertEquals(rows.length, 2);
+   *   assertEquals(rows[0].name, "Alice");
+   * });
+   * ```
+   */
   toSatisfy(matcher: (rows: SqlRows<T>) => void): this;
 
-  /** Verify mapped data contains the given subset */
+  /**
+   * Asserts that at least one mapped row contains the given subset.
+   *
+   * @param mapper - A function to transform each row
+   * @param subset - The partial object to match against mapped rows
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveMapContaining(
+   *   (row) => ({ upperName: row.name.toUpperCase() }),
+   *   { upperName: "ALICE" }
+   * );
+   * ```
+   */
   toHaveMapContaining<U>(mapper: (row: T) => U, subset: Partial<U>): this;
 
-  /** Custom mapped data validation */
+  /**
+   * Validates the mapped rows using a custom matcher function.
+   *
+   * @param mapper - A function to transform each row
+   * @param matcher - A function that receives the mapped rows and performs assertions
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveMapMatching(
+   *   (row) => row.name.toUpperCase(),
+   *   (names) => assertEquals(names, ["ALICE", "BOB"])
+   * );
+   * ```
+   */
   toHaveMapMatching<U>(
     mapper: (row: T) => U,
     matcher: (mapped: U[]) => void,
   ): this;
 
-  /** Verify instance contains the given subset */
+  /**
+   * Asserts that at least one instance created from rows contains the given subset.
+   *
+   * @param ctor - The constructor to instantiate with each row
+   * @param subset - The partial object to match against instances
+   * @example
+   * ```ts
+   * class User {
+   *   constructor(row: { name: string }) {
+   *     this.displayName = row.name.toUpperCase();
+   *   }
+   *   displayName: string;
+   * }
+   * expectSqlQueryResult(result).toHaveInstanceContaining(User, { displayName: "ALICE" });
+   * ```
+   */
   toHaveInstanceContaining<U>(
     ctor: new (row: T) => U,
     subset: Partial<U>,
   ): this;
 
-  /** Custom instance validation */
+  /**
+   * Validates instances created from rows using a custom matcher function.
+   *
+   * @param ctor - The constructor to instantiate with each row
+   * @param matcher - A function that receives the instances and performs assertions
+   * @example
+   * ```ts
+   * class User {
+   *   constructor(row: { name: string }) {
+   *     this.displayName = row.name.toUpperCase();
+   *   }
+   *   displayName: string;
+   * }
+   * expectSqlQueryResult(result).toHaveInstanceMatching(User, (users) => {
+   *   assertEquals(users.length, 2);
+   * });
+   * ```
+   */
   toHaveInstanceMatching<U>(
     ctor: new (row: T) => U,
     matcher: (instances: U[]) => void,
   ): this;
 
-  /** Verify exact lastInsertId */
+  /**
+   * Asserts that the lastInsertId matches the expected value.
+   *
+   * @param expected - The expected lastInsertId value
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveLastInsertId(1n);
+   * expectSqlQueryResult(result).toHaveLastInsertId("uuid-string");
+   * ```
+   */
   toHaveLastInsertId(expected: bigint | string): this;
 
-  /** Verify lastInsertId is present (overload without expected) */
+  /**
+   * Asserts that the lastInsertId is present.
+   *
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveLastInsertId();
+   * ```
+   */
   toHaveLastInsertId(): this;
 
-  /** Verify query duration is below threshold */
+  /**
+   * Asserts that the query duration is less than the threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveDurationLessThan(100);
+   * ```
+   */
   toHaveDurationLessThan(ms: number): this;
 
-  /** Verify query duration is at or below threshold */
+  /**
+   * Asserts that the query duration is at most the threshold.
+   *
+   * @param ms - The maximum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveDurationLessThanOrEqual(100);
+   * ```
+   */
   toHaveDurationLessThanOrEqual(ms: number): this;
 
-  /** Verify query duration is above threshold */
+  /**
+   * Asserts that the query duration is greater than the threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (exclusive)
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveDurationGreaterThan(50);
+   * ```
+   */
   toHaveDurationGreaterThan(ms: number): this;
 
-  /** Verify query duration is at or above threshold */
+  /**
+   * Asserts that the query duration is at least the threshold.
+   *
+   * @param ms - The minimum duration in milliseconds (inclusive)
+   * @example
+   * ```ts
+   * expectSqlQueryResult(result).toHaveDurationGreaterThanOrEqual(50);
+   * ```
+   */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
