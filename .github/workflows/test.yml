@@ -30,6 +30,8 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VERSION }}
       - run: |
+          sudo apt-get update && sudo apt-get install -y sqlite3
+      - run: |
           deno task test:coverage
         timeout-minutes: 5
 
