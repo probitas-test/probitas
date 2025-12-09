@@ -23,12 +23,25 @@ import type {
  * Fluent API for SQS send result validation.
  */
 export interface SqsSendResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that messageId is present */
   toHaveMessageId(): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -36,22 +49,55 @@ export interface SqsSendResultExpectation {
  * Fluent API for SQS send batch result validation.
  */
 export interface SqsSendBatchResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that all messages were sent successfully (no failures) */
   toBeAllSuccessful(): this;
+
+  /** Assert that successful count matches expected value */
   toHaveSuccessfulCount(count: number): this;
+
+  /** Assert that successful count is greater than threshold */
   toHaveSuccessfulCountGreaterThan(count: number): this;
+
+  /** Assert that successful count is at least the minimum */
   toHaveSuccessfulCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that successful count is less than threshold */
   toHaveSuccessfulCountLessThan(count: number): this;
+
+  /** Assert that successful count is at most the maximum */
   toHaveSuccessfulCountLessThanOrEqual(count: number): this;
+
+  /** Assert that failed count matches expected value */
   toHaveFailedCount(count: number): this;
+
+  /** Assert that failed count is greater than threshold */
   toHaveFailedCountGreaterThan(count: number): this;
+
+  /** Assert that failed count is at least the minimum */
   toHaveFailedCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that failed count is less than threshold */
   toHaveFailedCountLessThan(count: number): this;
+
+  /** Assert that failed count is at most the maximum */
   toHaveFailedCountLessThanOrEqual(count: number): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -59,19 +105,42 @@ export interface SqsSendBatchResultExpectation {
  * Fluent API for SQS receive result validation.
  */
 export interface SqsReceiveResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that at least one message was received */
   toHaveContent(): this;
+
+  /** Assert that message count matches expected value */
   toHaveLength(expected: number): this;
+
+  /** Assert that message count is at least the minimum */
   toHaveLengthGreaterThanOrEqual(min: number): this;
+
+  /** Assert that message count is at most the maximum */
   toHaveLengthLessThanOrEqual(max: number): this;
+
+  /** Assert that at least one message contains the given subset */
   toMatchObject(
     subset: { body?: string; attributes?: Record<string, string> },
   ): this;
+
+  /** Assert messages using custom matcher function */
   toSatisfy(matcher: (messages: SqsMessages) => void): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -79,11 +148,22 @@ export interface SqsReceiveResultExpectation {
  * Fluent API for SQS delete result validation.
  */
 export interface SqsDeleteResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -121,14 +201,31 @@ export interface SqsMessageExpectation {
  * Fluent API for SQS ensure queue result validation.
  */
 export interface SqsEnsureQueueResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that queueUrl is present */
   toHaveQueueUrl(): this;
+
+  /** Assert that queueUrl matches expected value */
   toHaveQueueUrl(expected: string): this;
+
+  /** Assert that queueUrl contains the given substring */
   toHaveQueueUrlContaining(substring: string): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -136,11 +233,22 @@ export interface SqsEnsureQueueResultExpectation {
  * Fluent API for SQS delete queue result validation.
  */
 export interface SqsDeleteQueueResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 

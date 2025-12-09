@@ -21,17 +21,40 @@ import type {
  * Fluent API for MongoDB find result validation.
  */
 export interface MongoFindResultExpectation<T> {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that result contains at least one document */
   toHaveContent(): this;
+
+  /** Assert that document count matches expected value */
   toHaveLength(expected: number): this;
+
+  /** Assert that document count is at least the minimum */
   toHaveLengthGreaterThanOrEqual(min: number): this;
+
+  /** Assert that document count is at most the maximum */
   toHaveLengthLessThanOrEqual(max: number): this;
+
+  /** Assert that at least one document contains the given subset */
   toMatchObject(subset: Partial<T>): this;
+
+  /** Assert documents using custom matcher function */
   toSatisfy(matcher: (docs: MongoDocs<T>) => void): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -39,17 +62,40 @@ export interface MongoFindResultExpectation<T> {
  * Fluent API for MongoDB insert result validation.
  */
 export interface MongoInsertResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that inserted count matches expected value */
   toHaveInsertedCount(count: number): this;
+
+  /** Assert that inserted count is greater than threshold */
   toHaveInsertedCountGreaterThan(count: number): this;
+
+  /** Assert that inserted count is at least the minimum */
   toHaveInsertedCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that inserted count is less than threshold */
   toHaveInsertedCountLessThan(count: number): this;
+
+  /** Assert that inserted count is at most the maximum */
   toHaveInsertedCountLessThanOrEqual(count: number): this;
+
+  /** Assert that insertedId or insertedIds is present */
   toHaveInsertedId(): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -57,22 +103,55 @@ export interface MongoInsertResultExpectation {
  * Fluent API for MongoDB update result validation.
  */
 export interface MongoUpdateResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that matched count matches expected value */
   toHaveMatchedCount(count: number): this;
+
+  /** Assert that matched count is greater than threshold */
   toHaveMatchedCountGreaterThan(count: number): this;
+
+  /** Assert that matched count is at least the minimum */
   toHaveMatchedCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that matched count is less than threshold */
   toHaveMatchedCountLessThan(count: number): this;
+
+  /** Assert that matched count is at most the maximum */
   toHaveMatchedCountLessThanOrEqual(count: number): this;
+
+  /** Assert that modified count matches expected value */
   toHaveModifiedCount(count: number): this;
+
+  /** Assert that modified count is greater than threshold */
   toHaveModifiedCountGreaterThan(count: number): this;
+
+  /** Assert that modified count is at least the minimum */
   toHaveModifiedCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that modified count is less than threshold */
   toHaveModifiedCountLessThan(count: number): this;
+
+  /** Assert that modified count is at most the maximum */
   toHaveModifiedCountLessThanOrEqual(count: number): this;
+
+  /** Assert that upsertedId is present */
   toHaveUpsertedId(): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -80,16 +159,37 @@ export interface MongoUpdateResultExpectation {
  * Fluent API for MongoDB delete result validation.
  */
 export interface MongoDeleteResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that deleted count matches expected value */
   toHaveDeletedCount(count: number): this;
+
+  /** Assert that deleted count is greater than threshold */
   toHaveDeletedCountGreaterThan(count: number): this;
+
+  /** Assert that deleted count is at least the minimum */
   toHaveDeletedCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that deleted count is less than threshold */
   toHaveDeletedCountLessThan(count: number): this;
+
+  /** Assert that deleted count is at most the maximum */
   toHaveDeletedCountLessThanOrEqual(count: number): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -97,14 +197,31 @@ export interface MongoDeleteResultExpectation {
  * Fluent API for MongoDB findOne result validation.
  */
 export interface MongoFindOneResultExpectation<T> {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that a document was found */
   toHaveContent(): this;
+
+  /** Assert that document contains the given subset */
   toMatchObject(subset: Partial<T>): this;
+
+  /** Assert document using custom matcher function */
   toSatisfy(matcher: (doc: T) => void): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
@@ -112,14 +229,31 @@ export interface MongoFindOneResultExpectation<T> {
  * Fluent API for MongoDB count result validation.
  */
 export interface MongoCountResultExpectation {
+  /** Invert all assertions */
   readonly not: this;
+
+  /** Assert that operation completed successfully */
   toBeSuccessful(): this;
+
+  /** Assert that document count matches expected value */
   toHaveLength(expected: number): this;
+
+  /** Assert that document count is at least the minimum */
   toHaveLengthGreaterThanOrEqual(min: number): this;
+
+  /** Assert that document count is at most the maximum */
   toHaveLengthLessThanOrEqual(max: number): this;
+
+  /** Assert that operation duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that operation duration is less than or equal to threshold (ms) */
   toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that operation duration is greater than threshold (ms) */
   toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that operation duration is greater than or equal to threshold (ms) */
   toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
