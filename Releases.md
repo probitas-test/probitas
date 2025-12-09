@@ -1,3 +1,9 @@
+### 2025.12.09
+
+#### @probitas/reporter 0.3.1 (patch)
+
+- fix(@probitas/reporter): Fix ListReporter on multiline error messages
+
 ### 2025.12.08
 
 #### @probitas/builder 0.2.6 (patch)
