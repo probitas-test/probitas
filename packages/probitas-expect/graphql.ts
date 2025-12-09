@@ -1,0 +1,311 @@
+import { containsSubset } from "./common.ts";
+import type {
+  GraphqlErrorItem,
+  GraphqlResponse,
+} from "@probitas/client-graphql";
+
+/**
+ * Fluent API for GraphQL response validation.
+ */
+export interface GraphqlResponseExpectation {
+  /** Assert that response has no errors */
+  ok(): this;
+
+  /** Assert that response has errors */
+  notOk(): this;
+
+  /** Assert exact number of errors */
+  errorCount(n: number): this;
+
+  /** Assert that at least one error contains the message */
+  errorContains(message: string): this;
+
+  /** Assert that at least one error message matches the string or regex */
+  error(messageMatcher: string | RegExp): this;
+
+  /** Assert errors using custom matcher */
+  errorMatch(matcher: (errors: readonly GraphqlErrorItem[]) => void): this;
+
+  /** Assert that data is not null */
+  hasContent(): this;
+
+  /** Assert that data is null */
+  noContent(): this;
+
+  /** Assert that data contains expected subset (deep partial match) */
+  // deno-lint-ignore no-explicit-any
+  dataContains<T = any>(subset: Partial<T>): this;
+
+  /** Assert data using custom matcher */
+  // deno-lint-ignore no-explicit-any
+  dataMatch<T = any>(matcher: (data: T) => void): this;
+
+  /** Assert that an extension key exists */
+  extensionExists(key: string): this;
+
+  /** Assert extension using custom matcher */
+  extensionMatch(key: string, matcher: (value: unknown) => void): this;
+
+  /** Assert HTTP status code */
+  status(code: number): this;
+
+  /** Assert that HTTP status code is within range (inclusive) */
+  statusInRange(min: number, max: number): this;
+
+  /** Assert that HTTP status code is one of the given codes */
+  statusIn(...statuses: number[]): this;
+
+  /** Assert that HTTP status code is not one of the given codes */
+  statusNotIn(...statuses: number[]): this;
+
+  /** Assert that response duration is less than threshold (ms) */
+  durationLessThan(ms: number): this;
+}
+
+/**
+ * GraphqlResponseExpectation implementation.
+ */
+class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
+  readonly #response: GraphqlResponse;
+
+  constructor(response: GraphqlResponse) {
+    this.#response = response;
+  }
+
+  ok(): this {
+    if (!this.#response.ok) {
+      const errorMessages = this.#response.errors
+        ?.map((e) => e.message)
+        .join("; ");
+      throw new Error(`Expected ok response, got errors: ${errorMessages}`);
+    }
+    return this;
+  }
+
+  notOk(): this {
+    if (this.#response.ok) {
+      throw new Error("Expected response with errors, but got ok response");
+    }
+    return this;
+  }
+
+  errorCount(n: number): this {
+    const actual = this.#response.errors?.length ?? 0;
+    if (actual !== n) {
+      throw new Error(`Expected ${n} errors, got ${actual}`);
+    }
+    return this;
+  }
+
+  errorContains(message: string): this {
+    if (!this.#response.errors || this.#response.errors.length === 0) {
+      throw new Error(
+        `Expected an error containing "${message}", but no errors present`,
+      );
+    }
+    const found = this.#response.errors.some((e) =>
+      e.message.includes(message)
+    );
+    if (!found) {
+      throw new Error(
+        `Expected an error containing "${message}", but none found`,
+      );
+    }
+    return this;
+  }
+
+  error(messageMatcher: string | RegExp): this {
+    if (!this.#response.errors || this.#response.errors.length === 0) {
+      throw new Error(
+        `Expected an error matching "${messageMatcher}", but no errors present`,
+      );
+    }
+    const found = this.#response.errors.some((e) => {
+      if (typeof messageMatcher === "string") {
+        return e.message.includes(messageMatcher);
+      }
+      return messageMatcher.test(e.message);
+    });
+    if (!found) {
+      throw new Error(
+        `Expected an error matching "${messageMatcher}", but none found`,
+      );
+    }
+    return this;
+  }
+
+  errorMatch(matcher: (errors: readonly GraphqlErrorItem[]) => void): this {
+    if (!this.#response.errors) {
+      throw new Error("Cannot match errors: no errors present");
+    }
+    matcher(this.#response.errors);
+    return this;
+  }
+
+  hasContent(): this {
+    if (this.#response.data() === null) {
+      throw new Error("Expected content, but data is null");
+    }
+    return this;
+  }
+
+  noContent(): this {
+    if (this.#response.data() !== null) {
+      throw new Error("Expected no content, but data exists");
+    }
+    return this;
+  }
+
+  // deno-lint-ignore no-explicit-any
+  dataContains<T = any>(subset: Partial<T>): this {
+    const data = this.#response.data();
+    if (data === null) {
+      throw new Error("Expected data to contain subset, but data is null");
+    }
+    if (!containsSubset(data, subset)) {
+      throw new Error(
+        `Expected data to contain ${JSON.stringify(subset)}, got ${
+          JSON.stringify(data)
+        }`,
+      );
+    }
+    return this;
+  }
+
+  // deno-lint-ignore no-explicit-any
+  dataMatch<T = any>(matcher: (data: T) => void): this {
+    const data = this.#response.data();
+    if (data === null) {
+      throw new Error("Cannot match data: data is null");
+    }
+    matcher(data as T);
+    return this;
+  }
+
+  extensionExists(key: string): this {
+    if (!this.#response.extensions || !(key in this.#response.extensions)) {
+      throw new Error(`Expected extension "${key}" to exist`);
+    }
+    return this;
+  }
+
+  extensionMatch(key: string, matcher: (value: unknown) => void): this {
+    if (!this.#response.extensions || !(key in this.#response.extensions)) {
+      throw new Error(`Extension "${key}" not found`);
+    }
+    matcher(this.#response.extensions[key]);
+    return this;
+  }
+
+  status(code: number): this {
+    if (this.#response.status !== code) {
+      throw new Error(
+        `Expected status ${code}, got ${this.#response.status}`,
+      );
+    }
+    return this;
+  }
+
+  statusInRange(min: number, max: number): this {
+    const { status } = this.#response;
+    if (status < min || status > max) {
+      throw new Error(
+        `Expected status in range ${min}-${max}, got ${status}`,
+      );
+    }
+    return this;
+  }
+
+  statusIn(...statuses: number[]): this {
+    if (!statuses.includes(this.#response.status)) {
+      throw new Error(
+        `Expected status in [${
+          statuses.join(", ")
+        }], got ${this.#response.status}`,
+      );
+    }
+    return this;
+  }
+
+  statusNotIn(...statuses: number[]): this {
+    if (statuses.includes(this.#response.status)) {
+      throw new Error(
+        `Expected status not in [${
+          statuses.join(", ")
+        }], got ${this.#response.status}`,
+      );
+    }
+    return this;
+  }
+
+  durationLessThan(ms: number): this {
+    if (this.#response.duration >= ms) {
+      throw new Error(
+        `Expected duration < ${ms}ms, got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+}
+
+/**
+ * Create a fluent expectation chain for GraphQL response validation.
+ *
+ * Returns an expectation object with chainable assertion methods.
+ * Each assertion throws an Error if it fails, making it ideal for testing.
+ *
+ * @param response - The GraphQL response to validate
+ * @returns A fluent expectation chain
+ *
+ * @example Basic assertions
+ * ```ts
+ * const response = await client.query(`
+ *   query GetUser($id: ID!) {
+ *     user(id: $id) { id name }
+ *   }
+ * `, { id: "123" });
+ *
+ * expectGraphqlResponse(response)
+ *   .ok()
+ *   .hasContent()
+ *   .dataContains({ user: { name: "Alice" } });
+ * ```
+ *
+ * @example Error assertions
+ * ```ts
+ * const response = await client.query(`
+ *   query { invalidField }
+ * `, undefined, { throwOnError: false });
+ *
+ * expectGraphqlResponse(response)
+ *   .notOk()
+ *   .errorContains("Cannot query field");
+ * ```
+ *
+ * @example Mutation with custom matcher
+ * ```ts
+ * const response = await client.mutation(`
+ *   mutation CreateUser($input: CreateUserInput!) {
+ *     createUser(input: $input) { id name }
+ *   }
+ * `, { input: { name: "Bob" } });
+ *
+ * expectGraphqlResponse(response)
+ *   .ok()
+ *   .dataMatch((data) => {
+ *     assertEquals(data.createUser.name, "Bob");
+ *   });
+ * ```
+ *
+ * @example Performance assertions
+ * ```ts
+ * expectGraphqlResponse(response)
+ *   .ok()
+ *   .durationLessThan(500);  // Must respond within 500ms
+ * ```
+ */
+export function expectGraphqlResponse(
+  response: GraphqlResponse,
+): GraphqlResponseExpectation {
+  return new GraphqlResponseExpectationImpl(response);
+}

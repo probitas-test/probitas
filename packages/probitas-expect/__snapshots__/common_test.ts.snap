@@ -1,0 +1,374 @@
+export const snapshot = {};
+
+snapshot[`formatValue > formats null 1`] = `"null"`;
+
+snapshot[`formatValue > formats undefined 1`] = `"undefined"`;
+
+snapshot[`formatValue > formats string 1`] = `"hello world"`;
+
+snapshot[`formatValue > formats number 1`] = `"42"`;
+
+snapshot[`formatValue > formats boolean 1`] = `"true"`;
+
+snapshot[`formatValue > formats simple object 1`] = `
+'{
+  age: 30,
+  name: "Alice",
+}'
+`;
+
+snapshot[`formatValue > formats nested object 1`] = `
+'{
+  active: true,
+  user: {
+    address: {
+      city: "Tokyo",
+      country: "Japan",
+    },
+    age: 30,
+    name: "Alice",
+  },
+}'
+`;
+
+snapshot[`formatValue > formats array 1`] = `
+"[
+  1,
+  2,
+  3,
+  4,
+  5,
+]"
+`;
+
+snapshot[`formatValue > formats array of objects 1`] = `
+'[
+  {
+    id: 1,
+    name: "Alice",
+  },
+  {
+    id: 2,
+    name: "Bob",
+  },
+  {
+    id: 3,
+    name: "Charlie",
+  },
+]'
+`;
+
+snapshot[`formatDifferences > no difference returns empty array 1`] = `[]`;
+
+snapshot[`formatDifferences > simple object difference 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    {
+-     age: 30,
++     age: 31,
+      name: "Alice",
+    }
+'
+`;
+
+snapshot[`formatDifferences > nested object difference 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    {
+-     active: true,
++     active: false,
+      user: {
+        address: {
+-         city: "Tokyo",
++         city: "Osaka",
+          country: "Japan",
+        },
+-       age: 30,
++       age: 31,
+        name: "Alice",
+      },
+    }
+'
+`;
+
+snapshot[`formatDifferences > array difference 1`] = `
+"
+
+    [Diff] Actual / Expected
+
+
+    [
+      1,
+      2,
+-     3,
+-     4,
++     5,
++     6,
+    ]
+"
+`;
+
+snapshot[`formatDifferences > array of objects difference 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    [
+      {
+        id: 1,
+        name: "Alice",
+        status: "active",
+      },
+      {
+        id: 2,
+        name: "Bob",
+-       status: "inactive",
++       status: "active",
+      },
+      {
+        id: 3,
+-       name: "Charlie",
++       name: "Carol",
+        status: "active",
+      },
+    ]
+'
+`;
+
+snapshot[`formatDifferences > missing property 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    {
++     age: 30,
+      name: "Alice",
+    }
+'
+`;
+
+snapshot[`formatDifferences > extra property 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    {
+      age: 30,
+-     city: "Tokyo",
+      name: "Alice",
+    }
+'
+`;
+
+snapshot[`formatDifferences > deeply nested structure 1`] = `
+'
+
+    [Diff] Actual / Expected
+
+
+    {
+      level1: {
+        level2: {
+          level3: {
+            level4: {
+-             count: 42,
++             count: 43,
+              items: [
+                1,
+                2,
+-               3,
++               4,
+              ],
+-             value: "deep",
++             value: "deeper",
+            },
+          },
+        },
+      },
+    }
+'
+`;
+
+snapshot[`buildErrorMessage > simple object mismatch 1`] = `
+'Expected response to match
+
+
+    [Diff] Actual / Expected
+
+
+    {
+-     body: "OK",
+-     status: 200,
++     body: "Created",
++     status: 201,
+    }
+
+
+Expected:
+{
+  body: "Created",
+  status: 201,
+}
+
+Actual:
+{
+  body: "OK",
+  status: 200,
+}'
+`;
+
+snapshot[`buildErrorMessage > complex nested structure 1`] = `
+'Response data does not match expected structure
+
+
+    [Diff] Actual / Expected
+
+
+    {
+      data: {
+        metadata: {
+          timestamp: "2024-01-01T00:00:00Z",
+-         version: "1.0",
++         version: "2.0",
+        },
+        user: {
+          id: 123,
+          profile: {
+-           email: "alice@example.com",
++           email: "alice@test.com",
+            name: "Alice",
+            preferences: {
+-             notifications: true,
+-             theme: "dark",
++             notifications: false,
++             theme: "light",
+            },
+          },
+        },
+      },
+    }
+
+
+Expected:
+{
+  data: {
+    metadata: {
+      timestamp: "2024-01-01T00:00:00Z",
+      version: "2.0",
+    },
+    user: {
+      id: 123,
+      profile: {
+        email: "alice@test.com",
+        name: "Alice",
+        preferences: {
+          notifications: false,
+          theme: "light",
+        },
+      },
+    },
+  },
+}
+
+Actual:
+{
+  data: {
+    metadata: {
+      timestamp: "2024-01-01T00:00:00Z",
+      version: "1.0",
+    },
+    user: {
+      id: 123,
+      profile: {
+        email: "alice@example.com",
+        name: "Alice",
+        preferences: {
+          notifications: true,
+          theme: "dark",
+        },
+      },
+    },
+  },
+}'
+`;
+
+snapshot[`buildErrorMessage > array with objects 1`] = `
+'User list does not match
+
+
+    [Diff] Actual / Expected
+
+
+    {
+      users: [
+        {
+          id: 1,
+          name: "Alice",
+          roles: [
+            "admin",
+-           "user",
+          ],
+        },
+        {
+          id: 2,
+          name: "Bob",
+          roles: [
+            "user",
++           "guest",
+          ],
+        },
+      ],
+    }
+
+
+Expected:
+{
+  users: [
+    {
+      id: 1,
+      name: "Alice",
+      roles: [
+        "admin",
+      ],
+    },
+    {
+      id: 2,
+      name: "Bob",
+      roles: [
+        "user",
+        "guest",
+      ],
+    },
+  ],
+}
+
+Actual:
+{
+  users: [
+    {
+      id: 1,
+      name: "Alice",
+      roles: [
+        "admin",
+        "user",
+      ],
+    },
+    {
+      id: 2,
+      name: "Bob",
+      roles: [
+        "user",
+      ],
+    },
+  ],
+}'
+`;
