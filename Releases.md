@@ -1,5 +1,56 @@
 ### 2025.12.09
 
+#### @probitas/builder 0.2.7 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/cli 0.4.0 (minor)
+
+- BREAKING(@probitas/probitas): Phase 3.1-7 - comprehensive API improvements
+- BREAKING(@probitas/probitas): Phase 3 - rename implementation-specific detail
+  methods
+- BREAKING(@probitas/probitas): rename implementation-specific methods (Phase 2)
+- BREAKING(@probitas/probitas): rename common methods to match @std/expect
+  conventions
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/discover 0.2.7 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/expect 0.1.0 (minor)
+
+- feat(expect): create @probitas/expect package with unified expect function
+- refactor(expect): extract error message builders to common utilities
+
+#### @probitas/logger 0.2.7 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/probitas 0.4.0 (minor)
+
+- BREAKING(@probitas/probitas): Phase 3.1-7 - comprehensive API improvements
+- BREAKING(@probitas/probitas): Phase 3 - rename implementation-specific detail
+  methods
+- BREAKING(@probitas/probitas): rename implementation-specific methods (Phase 2)
+- BREAKING(@probitas/probitas): rename common methods to match @std/expect
+  conventions
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/reporter 0.3.2 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/runner 0.2.7 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+#### @probitas/scenario 0.2.7 (patch)
+
+- docs(*): update all examples to use scenario-based patterns
+
+### 2025.12.09
+
 #### @probitas/cli 0.3.6 (patch)
 
 - fix(@probitas/cli): handle unhandled promise rejections from node:http2
