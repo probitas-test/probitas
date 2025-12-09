@@ -18,7 +18,7 @@ export interface GraphqlResponseExpectation {
   errorCount(n: number): this;
 
   /** Assert that at least one error contains the message */
-  errorContains(message: string): this;
+  toHaveErrorContaining(message: string): this;
 
   /** Assert that at least one error message matches the string or regex */
   error(messageMatcher: string | RegExp): this;
@@ -38,7 +38,7 @@ export interface GraphqlResponseExpectation {
   toSatisfy<T = any>(matcher: (data: T) => void): this;
 
   /** Assert that an extension key exists */
-  extensionExists(key: string): this;
+  toHaveExtension(key: string): this;
 
   /** Assert extension using custom matcher */
   extensionMatch(key: string, matcher: (value: unknown) => void): this;
@@ -50,7 +50,7 @@ export interface GraphqlResponseExpectation {
   statusInRange(min: number, max: number): this;
 
   /** Assert that HTTP status code is one of the given codes */
-  statusIn(...statuses: number[]): this;
+  toHaveStatusIn(statuses: number[]): this;
 
   /** Assert that response duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
@@ -98,7 +98,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  errorContains(message: string): this {
+  toHaveErrorContaining(message: string): this {
     if (!this.#response.errors || this.#response.errors.length === 0) {
       throw new Error(
         `Expected an error containing "${message}", but no errors present`,
@@ -176,7 +176,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  extensionExists(key: string): this {
+  toHaveExtension(key: string): this {
     if (!this.#response.extensions || !(key in this.#response.extensions)) {
       throw new Error(`Expected extension "${key}" to exist`);
     }
@@ -210,7 +210,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  statusIn(...statuses: number[]): this {
+  toHaveStatusIn(statuses: number[]): this {
     if (!statuses.includes(this.#response.status)) {
       throw new Error(
         `Expected status in [${

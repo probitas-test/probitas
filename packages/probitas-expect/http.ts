@@ -22,16 +22,16 @@ export interface HttpResponseExpectation {
   statusInRange(min: number, max: number): this;
 
   /** Assert that response status is one of the given values */
-  statusIn(...statuses: number[]): this;
+  toHaveStatusIn(statuses: number[]): this;
 
   /** Assert that header value matches expected string or regex */
   header(name: string, expected: string | RegExp): this;
 
   /** Assert that header exists */
-  headerExists(name: string): this;
+  toHaveHeader(name: string): this;
 
   /** Assert that header value contains substring */
-  headerContains(name: string, substring: string): this;
+  toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Assert header value using custom matcher function */
   headerMatch(name: string, matcher: (value: string) => void): this;
@@ -43,13 +43,13 @@ export interface HttpResponseExpectation {
   toHaveContent(): this;
 
   /** Assert that body contains given byte sequence */
-  bodyContains(subbody: Uint8Array): this;
+  toHaveBodyContaining(subbody: Uint8Array): this;
 
   /** Assert body or text using custom matcher function */
   toSatisfy(matcher: (value: Uint8Array | string) => void): this;
 
   /** Assert that text body contains substring */
-  textContains(substring: string): this;
+  toHaveTextContaining(substring: string): this;
 
   /** Assert that JSON body contains expected properties */
   // deno-lint-ignore no-explicit-any
@@ -109,7 +109,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  statusIn(...statuses: number[]): this {
+  toHaveStatusIn(statuses: number[]): this {
     const { status } = this.#response;
     if (!statuses.includes(status)) {
       throw new Error(
@@ -141,14 +141,14 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  headerExists(name: string): this {
+  toHaveHeader(name: string): this {
     if (!this.#response.headers.has(name)) {
       throw new Error(`Header ${name} not found`);
     }
     return this;
   }
 
-  headerContains(name: string, substring: string): this {
+  toHaveHeaderContaining(name: string, substring: string): this {
     const value = this.#response.headers.get(name);
     if (value === null) {
       throw new Error(`Header ${name} not found`);
@@ -181,7 +181,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  bodyContains(subbody: Uint8Array): this {
+  toHaveBodyContaining(subbody: Uint8Array): this {
     if (this.#response.body === null) {
       throw new Error("Expected body to contain bytes, but body is null");
     }
@@ -211,7 +211,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  textContains(substring: string): this {
+  toHaveTextContaining(substring: string): this {
     const text = this.#response.text();
     if (text === null) {
       throw new Error("Expected text to contain substring, but body is null");

@@ -42,7 +42,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .step("Insert multiple rows", async (ctx) => {
     const { sqlite } = ctx.resources;
@@ -59,7 +59,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .step("Select with WHERE clause", async (ctx) => {
     const { sqlite } = ctx.resources;
@@ -70,7 +70,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1)
+      .toHaveLength(1)
       .toMatchObject({ title: "The Pragmatic Programmer" });
   })
   .step("Select all rows", async (ctx) => {
@@ -83,7 +83,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(3);
+      .toHaveLengthGreaterThanOrEqual(3);
   })
   .step("Update row", async (ctx) => {
     const { sqlite } = ctx.resources;
@@ -94,7 +94,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .step("Transaction - commit", async (ctx) => {
     const { sqlite } = ctx.resources;
@@ -112,7 +112,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1)
+      .toHaveLength(1)
       .toMatchObject({ title: "Refactoring" });
   })
   .step("Transaction - rollback on error", async (ctx) => {
@@ -136,7 +136,7 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(0);
+      .toHaveLength(0);
   })
   .step("Delete row", async (ctx) => {
     const { sqlite } = ctx.resources;
@@ -147,6 +147,6 @@ export default scenario("SQLite Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .build();

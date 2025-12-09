@@ -22,13 +22,13 @@ export interface SqlQueryResultExpectation<T> {
   toHaveContent(): this;
 
   /** Verify exact row count */
-  count(expected: number): this;
+  toHaveLength(expected: number): this;
 
   /** Verify minimum row count */
-  countAtLeast(expected: number): this;
+  toHaveLengthGreaterThanOrEqual(expected: number): this;
 
   /** Verify maximum row count */
-  countAtMost(expected: number): this;
+  toHaveLengthLessThanOrEqual(expected: number): this;
 
   /** Verify exact affected row count */
   rowCount(count: number): this;
@@ -108,7 +108,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.#result.rows.length !== expected) {
       throw new Error(
         buildCountError(expected, this.#result.rows.length, "rows"),
@@ -117,7 +117,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  countAtLeast(expected: number): this {
+  toHaveLengthGreaterThanOrEqual(expected: number): this {
     if (this.#result.rows.length < expected) {
       throw new Error(
         buildCountAtLeastError(expected, this.#result.rows.length, "rows"),
@@ -126,7 +126,7 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
     return this;
   }
 
-  countAtMost(expected: number): this {
+  toHaveLengthLessThanOrEqual(expected: number): this {
     if (this.#result.rows.length > expected) {
       throw new Error(
         buildCountAtMostError(expected, this.#result.rows.length, "rows"),

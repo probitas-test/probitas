@@ -65,7 +65,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(2);
+      .toHaveLengthGreaterThanOrEqual(2);
   })
   .step("Window function query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -85,7 +85,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(6);
+      .toHaveLengthGreaterThanOrEqual(6);
   })
   .step("Parameterized query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -98,7 +98,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(2);
+      .toHaveLengthGreaterThanOrEqual(2);
   })
   .step("Complex analytical query", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -119,7 +119,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(4);
+      .toHaveLengthGreaterThanOrEqual(4);
   })
   .step("Update row", async (ctx) => {
     const { duckdb } = ctx.resources;
@@ -147,7 +147,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1)
+      .toHaveLength(1)
       .toMatchObject({ product_name: "TxProduct" });
   })
   .step("Transaction - rollback on error", async (ctx) => {
@@ -172,7 +172,7 @@ export default scenario("DuckDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(0);
+      .toHaveLength(0);
   })
   .step("Delete row", async (ctx) => {
     const { duckdb } = ctx.resources;

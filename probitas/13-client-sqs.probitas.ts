@@ -68,7 +68,7 @@ export default scenario("SQS Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(1);
+      .toHaveLengthGreaterThanOrEqual(1);
   })
   .step("Receive and delete message", async (ctx) => {
     const { sqs } = ctx.resources;

@@ -49,9 +49,9 @@ export interface SqsReceiveResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveContent(): this;
-  count(expected: number): this;
-  countAtLeast(min: number): this;
-  countAtMost(max: number): this;
+  toHaveLength(expected: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
   toMatchObject(
     subset: { body?: string; attributes?: Record<string, string> },
   ): this;
@@ -73,7 +73,7 @@ export interface SqsDeleteResultExpectation {
  */
 export interface SqsMessageExpectation {
   /** Assert that body contains the given substring */
-  bodyContains(substring: string): this;
+  toHaveBodyContaining(substring: string): this;
 
   /** Assert body using custom matcher function */
   bodyMatch(matcher: (body: string) => void): this;
@@ -261,7 +261,7 @@ class SqsReceiveResultExpectationImpl implements SqsReceiveResultExpectation {
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.#result.messages.length !== expected) {
       throw new Error(
         buildCountError(expected, this.#result.messages.length, "messages"),
@@ -270,7 +270,7 @@ class SqsReceiveResultExpectationImpl implements SqsReceiveResultExpectation {
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.#result.messages.length < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.messages.length, "messages"),
@@ -279,7 +279,7 @@ class SqsReceiveResultExpectationImpl implements SqsReceiveResultExpectation {
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.#result.messages.length > max) {
       throw new Error(
         buildCountAtMostError(max, this.#result.messages.length, "messages"),
@@ -452,7 +452,7 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
     this.#message = message;
   }
 
-  bodyContains(substring: string): this {
+  toHaveBodyContaining(substring: string): this {
     if (!this.#message.body.includes(substring)) {
       throw new Error(
         `Expected body to contain "${substring}", but got "${this.#message.body}"`,
@@ -546,7 +546,7 @@ export interface SqsEnsureQueueResultExpectation {
   toBeSuccessful(): this;
   hasQueueUrl(): this;
   queueUrl(expected: string): this;
-  queueUrlContains(substring: string): this;
+  toHaveQueueUrlContaining(substring: string): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -607,7 +607,7 @@ class SqsEnsureQueueResultExpectationImpl
     return this;
   }
 
-  queueUrlContains(substring: string): this {
+  toHaveQueueUrlContaining(substring: string): this {
     if (!this.#result.queueUrl.includes(substring)) {
       throw new Error(
         `Expected queueUrl to contain "${substring}", got "${this.#result.queueUrl}"`,

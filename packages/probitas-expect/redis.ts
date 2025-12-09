@@ -50,13 +50,13 @@ export interface RedisResultExpectation<T> {
 export interface RedisCountResultExpectation
   extends RedisResultExpectation<number> {
   /** Assert that count equals expected */
-  count(expected: number): this;
+  toHaveLength(expected: number): this;
 
   /** Assert that count is at least min */
-  countAtLeast(min: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
 
   /** Assert that count is at most max */
-  countAtMost(max: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
 }
 
 /**
@@ -68,13 +68,13 @@ export interface RedisArrayResultExpectation<T>
   toHaveContent(): this;
 
   /** Assert that array count equals expected */
-  count(expected: number): this;
+  toHaveLength(expected: number): this;
 
   /** Assert that array count is at least min */
-  countAtLeast(min: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
 
   /** Assert that array count is at most max */
-  countAtMost(max: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
 
   /** Assert that array contains item */
   contains(item: T): this;
@@ -144,7 +144,7 @@ class RedisCountResultExpectationImpl extends RedisResultExpectationImpl<number>
     super(result, negate);
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.result.value !== expected) {
       throw new Error(
         buildCountError(expected, this.result.value, "count"),
@@ -153,7 +153,7 @@ class RedisCountResultExpectationImpl extends RedisResultExpectationImpl<number>
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.result.value < min) {
       throw new Error(
         buildCountAtLeastError(min, this.result.value, "count"),
@@ -162,7 +162,7 @@ class RedisCountResultExpectationImpl extends RedisResultExpectationImpl<number>
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.result.value > max) {
       throw new Error(
         buildCountAtMostError(max, this.result.value, "count"),
@@ -194,7 +194,7 @@ class RedisArrayResultExpectationImpl<T>
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.result.value.length !== expected) {
       throw new Error(
         buildCountError(expected, this.result.value.length, "array count"),
@@ -203,7 +203,7 @@ class RedisArrayResultExpectationImpl<T>
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.result.value.length < min) {
       throw new Error(
         buildCountAtLeastError(min, this.result.value.length, "array count"),
@@ -212,7 +212,7 @@ class RedisArrayResultExpectationImpl<T>
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.result.value.length > max) {
       throw new Error(
         buildCountAtMostError(max, this.result.value.length, "array count"),

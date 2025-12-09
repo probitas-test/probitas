@@ -64,7 +64,7 @@ export default scenario("Deno KV Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(3);
+      .toHaveLengthGreaterThanOrEqual(3);
   })
   .step("List with limit", async (ctx) => {
     const { kv } = ctx.resources;
@@ -75,7 +75,7 @@ export default scenario("Deno KV Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(2);
+      .toHaveLength(2);
   })
   .step("Get non-existent key", async (ctx) => {
     const { kv } = ctx.resources;

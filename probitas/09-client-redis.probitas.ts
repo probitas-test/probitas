@@ -50,7 +50,7 @@ export default scenario("Redis Client Example", {
     await redis.set("test:counter", "0");
     const result = await redis.incr("test:counter");
 
-    expect(result).toBeSuccessful().count(1);
+    expect(result).toBeSuccessful().toHaveLength(1);
   })
   .step("Multiple INCR", async (ctx) => {
     const { redis } = ctx.resources;
@@ -65,7 +65,7 @@ export default scenario("Redis Client Example", {
     const { redis } = ctx.resources;
     const result = await redis.decr("test:counter");
 
-    expect(result).toBeSuccessful().count(3);
+    expect(result).toBeSuccessful().toHaveLength(3);
   })
   .step("HSET and HGET hash", async (ctx) => {
     const { redis } = ctx.resources;
@@ -92,20 +92,20 @@ export default scenario("Redis Client Example", {
     await redis.lpush("test:list", "c", "b", "a");
     const result = await redis.lrange("test:list", 0, -1);
 
-    expect(result).toBeSuccessful().count(3).contains("a");
+    expect(result).toBeSuccessful().toHaveLength(3).contains("a");
   })
   .step("LLEN list", async (ctx) => {
     const { redis } = ctx.resources;
     const result = await redis.llen("test:list");
 
-    expect(result).toBeSuccessful().count(3);
+    expect(result).toBeSuccessful().toHaveLength(3);
   })
   .step("SADD and SMEMBERS set", async (ctx) => {
     const { redis } = ctx.resources;
     await redis.sadd("test:set", "member1", "member2", "member3");
     const result = await redis.smembers("test:set");
 
-    expect(result).toBeSuccessful().count(3);
+    expect(result).toBeSuccessful().toHaveLength(3);
   })
   .step("SISMEMBER set membership", async (ctx) => {
     const { redis } = ctx.resources;
@@ -117,12 +117,12 @@ export default scenario("Redis Client Example", {
     const { redis } = ctx.resources;
     const result = await redis.del("test:key");
 
-    expect(result).toBeSuccessful().count(1);
+    expect(result).toBeSuccessful().toHaveLength(1);
   })
   .step("DEL non-existent key", async (ctx) => {
     const { redis } = ctx.resources;
     const result = await redis.del("test:nonexistent:key");
 
-    expect(result).toBeSuccessful().count(0);
+    expect(result).toBeSuccessful().toHaveLength(0);
   })
   .build();

@@ -61,7 +61,7 @@ export default scenario("MongoDB Client Example", {
     const users = mongo.collection<{ name: string; age: number }>("test_users");
     const result = await users.find({ age: { $gte: 30 } });
 
-    expect(result).toBeSuccessful().count(2);
+    expect(result).toBeSuccessful().toHaveLength(2);
   })
   .step("Find with sort and limit", async (ctx) => {
     const { mongo } = ctx.resources;
@@ -73,7 +73,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(2)
+      .toHaveLength(2)
       .toSatisfy((docs) => {
         if (docs.first()?.age !== 35) {
           throw new Error("Expected oldest user first");
@@ -113,7 +113,7 @@ export default scenario("MongoDB Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(3);
+      .toHaveLengthGreaterThanOrEqual(3);
   })
   .step("Transaction - commit", async (ctx) => {
     const { mongo } = ctx.resources;

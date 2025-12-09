@@ -42,13 +42,13 @@ export interface RabbitMqConsumeResultExpectation {
   toHaveContent(): this;
 
   /** Assert that data contains the given subbody */
-  dataContains(subbody: Uint8Array): this;
+  toHaveBodyContaining(subbody: Uint8Array): this;
 
   /** Assert data using custom matcher function */
   toSatisfy(matcher: (content: Uint8Array) => void): this;
 
   /** Assert that properties contain the given subset */
-  propertyContains(subset: Partial<RabbitMqMessageProperties>): this;
+  toHavePropertyContaining(subset: Partial<RabbitMqMessageProperties>): this;
 
   /** Assert that routing key matches expected */
   routingKey(expected: string): this;
@@ -188,7 +188,7 @@ class RabbitMqConsumeResultExpectationImpl
     return this;
   }
 
-  dataContains(subbody: Uint8Array): this {
+  toHaveBodyContaining(subbody: Uint8Array): this {
     if (this.#result.message === null) {
       throw new Error("Expected message, but message is null");
     }
@@ -213,7 +213,7 @@ class RabbitMqConsumeResultExpectationImpl
     return this;
   }
 
-  propertyContains(subset: Partial<RabbitMqMessageProperties>): this {
+  toHavePropertyContaining(subset: Partial<RabbitMqMessageProperties>): this {
     if (this.#result.message === null) {
       throw new Error("Expected message, but message is null");
     }

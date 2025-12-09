@@ -58,16 +58,16 @@ export interface DenoKvListResultExpectation<T> {
   toHaveContent(): this;
 
   /** Assert that entry count equals expected */
-  count(expected: number): this;
+  toHaveLength(expected: number): this;
 
   /** Assert that entry count is at least min */
-  countAtLeast(min: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
 
   /** Assert that entry count is at most max */
-  countAtMost(max: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
 
   /** Assert that at least one entry contains expected properties */
-  entryContains(subset: { key?: Deno.KvKey; value?: Partial<T> }): this;
+  toHaveEntryContaining(subset: { key?: Deno.KvKey; value?: Partial<T> }): this;
 
   /** Assert entries using custom matcher function */
   toSatisfy(matcher: (entries: DenoKvEntries<T>) => void): this;
@@ -268,7 +268,7 @@ class DenoKvListResultExpectationImpl<T>
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.#result.entries.length !== expected) {
       throw new Error(
         buildCountError(expected, this.#result.entries.length, "entries"),
@@ -277,7 +277,7 @@ class DenoKvListResultExpectationImpl<T>
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.#result.entries.length < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.entries.length, "entries"),
@@ -286,7 +286,7 @@ class DenoKvListResultExpectationImpl<T>
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.#result.entries.length > max) {
       throw new Error(
         buildCountAtMostError(max, this.#result.entries.length, "entries"),
@@ -295,7 +295,9 @@ class DenoKvListResultExpectationImpl<T>
     return this;
   }
 
-  entryContains(subset: { key?: Deno.KvKey; value?: Partial<T> }): this {
+  toHaveEntryContaining(
+    subset: { key?: Deno.KvKey; value?: Partial<T> },
+  ): this {
     const found = this.#result.entries.some((entry) => {
       if (subset.key !== undefined && !keysEqual(entry.key, subset.key)) {
         return false;

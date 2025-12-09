@@ -24,13 +24,13 @@ export interface ConnectRpcResponseExpectation {
   code(expected: ConnectRpcStatusCode): this;
 
   /** Verify the status code is one of the specified values. */
-  codeIn(...codes: ConnectRpcStatusCode[]): this;
+  toHaveCodeIn(codes: ConnectRpcStatusCode[]): this;
 
   /** Verify the error message matches exactly or by regex. */
   error(expected: string | RegExp): this;
 
   /** Verify the error message contains the substring. */
-  errorContains(substring: string): this;
+  toHaveErrorContaining(substring: string): this;
 
   /** Verify the error message using a custom matcher. */
   errorMatch(matcher: (message: string) => void): this;
@@ -39,10 +39,10 @@ export interface ConnectRpcResponseExpectation {
   header(name: string, expected: string | RegExp): this;
 
   /** Verify that a header exists. */
-  headerExists(name: string): this;
+  toHaveHeader(name: string): this;
 
   /** Verify that a header value contains the substring. */
-  headerContains(name: string, substring: string): this;
+  toHaveHeaderContaining(name: string, substring: string): this;
 
   /** Verify a header value using a custom matcher. */
   headerMatch(name: string, matcher: (value: string) => void): this;
@@ -51,10 +51,10 @@ export interface ConnectRpcResponseExpectation {
   trailer(name: string, expected: string | RegExp): this;
 
   /** Verify that a trailer exists. */
-  trailerExists(name: string): this;
+  toHaveTrailer(name: string): this;
 
   /** Verify that a trailer value contains the substring. */
-  trailerContains(name: string, substring: string): this;
+  toHaveTrailerContaining(name: string, substring: string): this;
 
   /** Verify a trailer value using a custom matcher. */
   trailerMatch(name: string, matcher: (value: string) => void): this;
@@ -112,7 +112,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  codeIn(...codes: ConnectRpcStatusCode[]): this {
+  toHaveCodeIn(codes: ConnectRpcStatusCode[]): this {
     if (!codes.includes(this.#response.code)) {
       throw new Error(
         `Expected code to be one of [${
@@ -139,7 +139,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  errorContains(substring: string): this {
+  toHaveErrorContaining(substring: string): this {
     if (!this.#response.message.includes(substring)) {
       throw new Error(`Expected error to contain "${substring}"`);
     }
@@ -169,14 +169,14 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  headerExists(name: string): this {
+  toHaveHeader(name: string): this {
     if (!(name in this.#response.headers)) {
       throw new Error(`Expected header "${name}" to exist`);
     }
     return this;
   }
 
-  headerContains(name: string, substring: string): this {
+  toHaveHeaderContaining(name: string, substring: string): this {
     const value = this.#response.headers[name];
     if (value === undefined) {
       throw new Error(`Expected header "${name}" to exist`);
@@ -216,14 +216,14 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  trailerExists(name: string): this {
+  toHaveTrailer(name: string): this {
     if (!(name in this.#response.trailers)) {
       throw new Error(`Expected trailer "${name}" to exist`);
     }
     return this;
   }
 
-  trailerContains(name: string, substring: string): this {
+  toHaveTrailerContaining(name: string, substring: string): this {
     const value = this.#response.trailers[name];
     if (value === undefined) {
       throw new Error(`Expected trailer "${name}" to exist`);

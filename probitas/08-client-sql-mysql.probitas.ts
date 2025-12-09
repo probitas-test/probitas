@@ -39,7 +39,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .step("Insert multiple rows", async (ctx) => {
     const { mysql } = ctx.resources;
@@ -50,7 +50,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(2);
+      .toHaveLength(2);
   })
   .step("Select with WHERE clause", async (ctx) => {
     const { mysql } = ctx.resources;
@@ -61,7 +61,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1)
+      .toHaveLength(1)
       .toMatchObject({ name: "Widget" });
   })
   .step("Select all rows", async (ctx) => {
@@ -74,7 +74,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .countAtLeast(3);
+      .toHaveLengthGreaterThanOrEqual(3);
   })
   .step("Update row", async (ctx) => {
     const { mysql } = ctx.resources;
@@ -85,7 +85,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .step("Transaction - commit", async (ctx) => {
     const { mysql } = ctx.resources;
@@ -103,7 +103,7 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1)
+      .toHaveLength(1)
       .toMatchObject({ name: "TxProduct" });
   })
   .step("Delete row", async (ctx) => {
@@ -115,6 +115,6 @@ export default scenario("MySQL Client Example", {
 
     expect(result)
       .toBeSuccessful()
-      .count(1);
+      .toHaveLength(1);
   })
   .build();

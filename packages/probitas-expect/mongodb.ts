@@ -24,9 +24,9 @@ export interface MongoFindResultExpectation<T> {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveContent(): this;
-  count(expected: number): this;
-  countAtLeast(min: number): this;
-  countAtMost(max: number): this;
+  toHaveLength(expected: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
   toMatchObject(subset: Partial<T>): this;
   toSatisfy(matcher: (docs: MongoDocs<T>) => void): this;
   toHaveDurationLessThan(ms: number): this;
@@ -84,9 +84,9 @@ export interface MongoFindOneResultExpectation<T> {
 export interface MongoCountResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
-  count(expected: number): this;
-  countAtLeast(min: number): this;
-  countAtMost(max: number): this;
+  toHaveLength(expected: number): this;
+  toHaveLengthGreaterThanOrEqual(min: number): this;
+  toHaveLengthLessThanOrEqual(max: number): this;
   toHaveDurationLessThan(ms: number): this;
 }
 
@@ -131,7 +131,7 @@ class MongoFindResultExpectationImpl<T>
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.#result.docs.length !== expected) {
       throw new Error(
         buildCountError(expected, this.#result.docs.length, "documents"),
@@ -140,7 +140,7 @@ class MongoFindResultExpectationImpl<T>
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.#result.docs.length < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.docs.length, "documents"),
@@ -149,7 +149,7 @@ class MongoFindResultExpectationImpl<T>
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.#result.docs.length > max) {
       throw new Error(
         buildCountAtMostError(max, this.#result.docs.length, "documents"),
@@ -459,7 +459,7 @@ class MongoCountResultExpectationImpl implements MongoCountResultExpectation {
     return this;
   }
 
-  count(expected: number): this {
+  toHaveLength(expected: number): this {
     if (this.#result.count !== expected) {
       throw new Error(
         buildCountError(expected, this.#result.count, "count"),
@@ -468,7 +468,7 @@ class MongoCountResultExpectationImpl implements MongoCountResultExpectation {
     return this;
   }
 
-  countAtLeast(min: number): this {
+  toHaveLengthGreaterThanOrEqual(min: number): this {
     if (this.#result.count < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.count, "count"),
@@ -477,7 +477,7 @@ class MongoCountResultExpectationImpl implements MongoCountResultExpectation {
     return this;
   }
 
-  countAtMost(max: number): this {
+  toHaveLengthLessThanOrEqual(max: number): this {
     if (this.#result.count > max) {
       throw new Error(
         buildCountAtMostError(max, this.#result.count, "count"),
