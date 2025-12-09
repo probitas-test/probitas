@@ -1,5 +1,5 @@
 /**
- * Tests for common utility functions.
+ * Tests for format utility functions.
  *
  * @module
  */
@@ -10,7 +10,7 @@ import {
   formatDifferences,
   formatValue,
   stripAnsi,
-} from "./common.ts";
+} from "./format.ts";
 
 Deno.test("formatValue", async (t) => {
   await t.step("formats null", async (t) => {
