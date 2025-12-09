@@ -11,35 +11,21 @@
     "jsr:@lambdalisue/sandbox@^3.0.1": "3.0.1",
     "jsr:@logtape/logtape@^1.2.2": "1.2.2",
     "jsr:@logtape/pretty@^1.2.2": "1.2.2",
-    "jsr:@probitas/client-connectrpc@0": "0.1.0",
-    "jsr:@probitas/client-connectrpc@0.1": "0.1.0",
-    "jsr:@probitas/client-deno-kv@0": "0.1.0",
-    "jsr:@probitas/client-deno-kv@0.1": "0.1.0",
-    "jsr:@probitas/client-graphql@0": "0.1.0",
-    "jsr:@probitas/client-graphql@0.1": "0.1.0",
-    "jsr:@probitas/client-grpc@0": "0.1.0",
-    "jsr:@probitas/client-grpc@0.1": "0.1.0",
-    "jsr:@probitas/client-http@0": "0.1.0",
-    "jsr:@probitas/client-http@0.1": "0.1.0",
-    "jsr:@probitas/client-mongodb@0": "0.1.0",
-    "jsr:@probitas/client-mongodb@0.1": "0.1.0",
-    "jsr:@probitas/client-rabbitmq@0": "0.1.0",
-    "jsr:@probitas/client-rabbitmq@0.1": "0.1.0",
-    "jsr:@probitas/client-redis@0": "0.1.1",
-    "jsr:@probitas/client-redis@0.1": "0.1.1",
-    "jsr:@probitas/client-sql-duckdb@0": "0.1.0",
-    "jsr:@probitas/client-sql-duckdb@0.1": "0.1.0",
-    "jsr:@probitas/client-sql-mysql@0": "0.1.0",
-    "jsr:@probitas/client-sql-mysql@0.1": "0.1.0",
-    "jsr:@probitas/client-sql-postgres@0": "0.1.0",
-    "jsr:@probitas/client-sql-postgres@0.1": "0.1.0",
-    "jsr:@probitas/client-sql-sqlite@0": "0.1.0",
-    "jsr:@probitas/client-sql-sqlite@0.1": "0.1.0",
-    "jsr:@probitas/client-sql@0": "0.1.0",
-    "jsr:@probitas/client-sql@0.1": "0.1.0",
-    "jsr:@probitas/client-sqs@0": "0.1.0",
-    "jsr:@probitas/client-sqs@0.1": "0.1.0",
-    "jsr:@probitas/client@0": "0.1.0",
+    "jsr:@probitas/client-connectrpc@0": "0.2.2",
+    "jsr:@probitas/client-deno-kv@0": "0.1.1",
+    "jsr:@probitas/client-graphql@0": "0.1.1",
+    "jsr:@probitas/client-grpc@0": "0.2.1",
+    "jsr:@probitas/client-http@0": "0.1.1",
+    "jsr:@probitas/client-mongodb@0": "0.2.1",
+    "jsr:@probitas/client-rabbitmq@0": "0.1.1",
+    "jsr:@probitas/client-redis@0": "0.1.2",
+    "jsr:@probitas/client-sql-duckdb@0": "0.1.1",
+    "jsr:@probitas/client-sql-mysql@0": "0.1.1",
+    "jsr:@probitas/client-sql-postgres@0": "0.1.1",
+    "jsr:@probitas/client-sql-sqlite@0": "0.1.1",
+    "jsr:@probitas/client-sql@0": "0.1.1",
+    "jsr:@probitas/client-sqs@0": "0.1.1",
+    "jsr:@probitas/client@0": "0.1.1",
     "jsr:@std/assert@0.217": "0.217.0",
     "jsr:@std/assert@^1.0.14": "1.0.16",
     "jsr:@std/assert@^1.0.15": "1.0.16",
@@ -51,21 +37,16 @@
     "jsr:@std/data-structures@^1.0.9": "1.0.9",
     "jsr:@std/dotenv@~0.225.5": "0.225.5",
     "jsr:@std/encoding@1": "1.0.10",
-    "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/expect@^1.0.17": "1.0.17",
     "jsr:@std/fmt@1": "1.0.8",
     "jsr:@std/fmt@^1.0.8": "1.0.8",
     "jsr:@std/fs@1": "1.0.20",
     "jsr:@std/fs@^1.0.19": "1.0.20",
     "jsr:@std/fs@^1.0.20": "1.0.20",
-    "jsr:@std/html@^1.0.5": "1.0.5",
-    "jsr:@std/http@^1.0.10": "1.0.22",
     "jsr:@std/internal@^1.0.10": "1.0.12",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/json@^1.0.2": "1.0.2",
     "jsr:@std/jsonc@^1.0.2": "1.0.2",
-    "jsr:@std/media-types@^1.1.0": "1.1.0",
-    "jsr:@std/net@^1.0.6": "1.0.6",
     "jsr:@std/path@0.217": "0.217.0",
     "jsr:@std/path@1": "1.1.3",
     "jsr:@std/path@^1.1.2": "1.1.3",
@@ -73,13 +54,12 @@
     "jsr:@std/semver@^1.0.7": "1.0.7",
     "jsr:@std/streams@^1.0.14": "1.0.14",
     "jsr:@std/testing@^1.0.16": "1.0.16",
-    "npm:@aws-sdk/client-sqs@^3.700.0": "3.946.0",
-    "npm:@aws-sdk/client-sqs@^3.946.0": "3.946.0",
+    "npm:@aws-sdk/client-sqs@^3.700.0": "3.947.0",
     "npm:@bufbuild/protobuf@^2.7.0": "2.10.1",
     "npm:@connectrpc/connect-node@^2.1.1": "2.1.1_@bufbuild+protobuf@2.10.1_@connectrpc+connect@2.1.1__@bufbuild+protobuf@2.10.1",
     "npm:@connectrpc/connect@^2.1.1": "2.1.1_@bufbuild+protobuf@2.10.1",
     "npm:@duckdb/node-api@1.4.2-r.1": "1.4.2-r.1",
-    "npm:@lambdalisue/connectrpc-grpcreflect@0.4": "0.4.0_@bufbuild+protobuf@2.10.1",
+    "npm:@lambdalisue/connectrpc-grpcreflect@0.5": "0.5.0_@bufbuild+protobuf@2.10.1",
     "npm:@types/node@24.0.7": "24.0.7",
     "npm:amqplib@~0.10.5": "0.10.9",
     "npm:ioredis@^5.4.1": "5.8.2",
@@ -111,7 +91,7 @@
     "@denosaurs/plug@1.1.0": {
       "integrity": "eb2f0b7546c7bca2000d8b0282c54d50d91cf6d75cb26a80df25a6de8c4bc044",
       "dependencies": [
-        "jsr:@std/encoding@1",
+        "jsr:@std/encoding",
         "jsr:@std/fmt@1",
         "jsr:@std/fs@1",
         "jsr:@std/path@1"
@@ -136,11 +116,11 @@
         "npm:@types/node"
       ]
     },
-    "@probitas/client@0.1.0": {
-      "integrity": "e9a97df70b058d48a02011b489bd4b286cb9277354904311529315e62a36f620"
+    "@probitas/client@0.1.1": {
+      "integrity": "7bf43ad27129f4ecf8b4451b55d87d4577fc44eb281356cf83fa9b145d1276ff"
     },
-    "@probitas/client-connectrpc@0.1.0": {
-      "integrity": "11ea7c4c7d5ab383f1e06c626db79c8a96e2cf8f0497321b02ef106f430c186e",
+    "@probitas/client-connectrpc@0.2.2": {
+      "integrity": "9eaa121c5c79acf1f22ce8120e7a0caeb83c3b21b59da98c7794474ccee17fe7",
       "dependencies": [
         "jsr:@probitas/client",
         "npm:@bufbuild/protobuf",
@@ -149,95 +129,95 @@
         "npm:@lambdalisue/connectrpc-grpcreflect"
       ]
     },
-    "@probitas/client-deno-kv@0.1.0": {
-      "integrity": "332922c084757937aa5627a12ce51079e7117ba17c1de18ecef848711a6004a1",
+    "@probitas/client-deno-kv@0.1.1": {
+      "integrity": "29c427908b1aeb7884fcf0051dfc0649d91ad02b903a9dc48352cdc25d27a9ed",
       "dependencies": [
         "jsr:@probitas/client"
       ]
     },
-    "@probitas/client-graphql@0.1.0": {
-      "integrity": "83e9a3fd7b4ce70ef4079f4b6f735990db454431d348977e2e884911d41e2f7d",
+    "@probitas/client-graphql@0.1.1": {
+      "integrity": "413f268f1d4516af7e7af039169b3de898e208ab9c70940ff1ff6dc189a13dba",
       "dependencies": [
         "jsr:@cspotcode/outdent",
         "jsr:@probitas/client"
       ]
     },
-    "@probitas/client-grpc@0.1.0": {
-      "integrity": "758b968d02fc5df588ca712a02ec3ec8f4c20bd03a85201d516c9e97c19b8fd7",
+    "@probitas/client-grpc@0.2.1": {
+      "integrity": "306005c3268227e3a4f96087f675878c4a1530d2345a22d7bbd0de84dacc55da",
       "dependencies": [
-        "jsr:@probitas/client-connectrpc@0"
+        "jsr:@probitas/client-connectrpc"
       ]
     },
-    "@probitas/client-http@0.1.0": {
-      "integrity": "261a2cd7bc37fb178c3966090ab7f1d8bf512c3be2032f57884f633ac622534d",
+    "@probitas/client-http@0.1.1": {
+      "integrity": "e0abc68624c5e1cbbc7324ab62ad97b032d839d1bc261e4cfb16593aa12561bb",
       "dependencies": [
         "jsr:@probitas/client"
       ]
     },
-    "@probitas/client-mongodb@0.1.0": {
-      "integrity": "c655091a26a4e40ca2d124380b1b3da54e007ca667e3cbc6a7a2a0555de76a3a",
+    "@probitas/client-mongodb@0.2.1": {
+      "integrity": "b5ebeb880a24fa7d6747776525d757abcabc22a0f7471ddd939cd0fa164eadd2",
       "dependencies": [
         "jsr:@probitas/client",
         "npm:mongodb"
       ]
     },
-    "@probitas/client-rabbitmq@0.1.0": {
-      "integrity": "06dbfb922af9370511a25ada0c411215963bed0c10e92dbbc9f57ef18ed74334",
+    "@probitas/client-rabbitmq@0.1.1": {
+      "integrity": "eb05ef1b1a1eebbcac58ba9df90b687af1977387a6dde45746c1d361ff1ec772",
       "dependencies": [
         "jsr:@probitas/client",
         "npm:amqplib"
       ]
     },
-    "@probitas/client-redis@0.1.1": {
-      "integrity": "a508dee3e5aae5feba772e0798bcd1319fbb168c1e7e508880966b7d532b1778",
+    "@probitas/client-redis@0.1.2": {
+      "integrity": "e324845767a3ced99329b207a55c887c14995cabfb342282f333660bda1f004c",
       "dependencies": [
         "jsr:@probitas/client",
         "npm:ioredis"
       ]
     },
-    "@probitas/client-sql@0.1.0": {
-      "integrity": "e92e62ad1f2ac0940b975c9fd93c23d701c77c9c0661620d484c3b70b2b54682",
+    "@probitas/client-sql@0.1.1": {
+      "integrity": "37fb2d3e1c3ff90c284b131d88830ac8b941e62e0336a99b779de1f96c939e8b",
       "dependencies": [
         "jsr:@probitas/client"
       ]
     },
-    "@probitas/client-sql-duckdb@0.1.0": {
-      "integrity": "512c4f402e97fe129583acfe2b3e71157e24819dad05e25f4878935514ef5cb1",
+    "@probitas/client-sql-duckdb@0.1.1": {
+      "integrity": "ce4e371ecd028f1ea76ca6af9c905a11d8cba0d86544d73e5219bdff65b6e34d",
       "dependencies": [
         "jsr:@probitas/client",
-        "jsr:@probitas/client-sql@0",
+        "jsr:@probitas/client-sql",
         "npm:@duckdb/node-api"
       ]
     },
-    "@probitas/client-sql-mysql@0.1.0": {
-      "integrity": "bb689d4f8a305f8c6d6bb52454b7d447ab4fddb04748ad059ef668ce54549cb6",
+    "@probitas/client-sql-mysql@0.1.1": {
+      "integrity": "5fa1c57a1cf615f01f9d874a06f88774ac76b80fb8a1fa43e9a5a7f4c75951ba",
       "dependencies": [
         "jsr:@probitas/client",
-        "jsr:@probitas/client-sql@0",
+        "jsr:@probitas/client-sql",
         "npm:mysql2"
       ]
     },
-    "@probitas/client-sql-postgres@0.1.0": {
-      "integrity": "7660e6a0d2b27ea326a90997532aff55c1f45c31991d93f13caa096a4b6040db",
+    "@probitas/client-sql-postgres@0.1.1": {
+      "integrity": "3279392d746633ce064a9742eb6687f4de7e1fdbc6e14d722174ed5188940193",
       "dependencies": [
         "jsr:@probitas/client",
-        "jsr:@probitas/client-sql@0",
+        "jsr:@probitas/client-sql",
         "npm:postgres"
       ]
     },
-    "@probitas/client-sql-sqlite@0.1.0": {
-      "integrity": "331082da14f2ccaebab1b7dd3296f45e2da07c24dc760c683474320f5ce5bd96",
+    "@probitas/client-sql-sqlite@0.1.1": {
+      "integrity": "55e55bf984b49678ccb76c9162ed29442314fdeb2b2a371e269df53602121e63",
       "dependencies": [
         "jsr:@db/sqlite",
         "jsr:@probitas/client",
-        "jsr:@probitas/client-sql@0"
+        "jsr:@probitas/client-sql"
       ]
     },
-    "@probitas/client-sqs@0.1.0": {
-      "integrity": "cb2cbdadb10e6ad383107c11ddb7338f268c1e49f80c64f67f6b163d2ebc5d6e",
+    "@probitas/client-sqs@0.1.1": {
+      "integrity": "9372dfaa79e1cae0ba348613b3fd04a90a275cead99591d5bf0c46c6aa9b5bfb",
       "dependencies": [
         "jsr:@probitas/client",
-        "npm:@aws-sdk/client-sqs@^3.700.0"
+        "npm:@aws-sdk/client-sqs"
       ]
     },
     "@std/assert@0.217.0": {
@@ -290,23 +270,6 @@
         "jsr:@std/path@^1.1.3"
       ]
     },
-    "@std/html@1.0.5": {
-      "integrity": "4e2d693f474cae8c16a920fa5e15a3b72267b94b84667f11a50c6dd1cb18d35e"
-    },
-    "@std/http@1.0.22": {
-      "integrity": "53f0bb70e23a2eec3e17c4240a85bb23d185b2e20635adb37ce0f03cc4ca012a",
-      "dependencies": [
-        "jsr:@std/cli",
-        "jsr:@std/encoding@^1.0.10",
-        "jsr:@std/fmt@^1.0.8",
-        "jsr:@std/fs@^1.0.20",
-        "jsr:@std/html",
-        "jsr:@std/media-types",
-        "jsr:@std/net",
-        "jsr:@std/path@^1.1.3",
-        "jsr:@std/streams"
-      ]
-    },
     "@std/internal@1.0.12": {
       "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
@@ -318,12 +281,6 @@
       "dependencies": [
         "jsr:@std/json"
       ]
-    },
-    "@std/media-types@1.1.0": {
-      "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
-    },
-    "@std/net@1.0.6": {
-      "integrity": "110735f93e95bb9feb95790a8b1d1bf69ec0dc74f3f97a00a76ea5efea25500c"
     },
     "@std/path@0.217.0": {
       "integrity": "1217cc25534bca9a2f672d7fe7c6f356e4027df400c0e85c0ef3e4343bc67d11",
@@ -393,8 +350,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/client-sqs@3.946.0": {
-      "integrity": "sha512-Ou9F7iERMw2+1xehtXcwcOPhbd5XIBXWg7c/VyZYeE9+H81FxOc8g0hum98iiAUQ0GALce38T+R1FpP0LBbTSA==",
+    "@aws-sdk/client-sqs@3.947.0": {
+      "integrity": "sha512-8tzFyYGAAnQg+G9eB5zAe0oEo+MJMZ3YEk+8EL4uf2zG5wKxJvTBJZr6U9I1CEXYUde374OyLMyKng+sWyN+wg==",
       "dependencies": [
         "@aws-crypto/sha256-browser",
         "@aws-crypto/sha256-js",
@@ -439,8 +396,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/client-sso@3.946.0": {
-      "integrity": "sha512-kGAs5iIVyUz4p6TX3pzG5q3cNxXnVpC4pwRC6DCSaSv9ozyPjc2d74FsK4fZ+J+ejtvCdJk72uiuQtWJc86Wuw==",
+    "@aws-sdk/client-sso@3.947.0": {
+      "integrity": "sha512-sDwcO8SP290WSErY1S8pz8hTafeghKmmWjNVks86jDK30wx62CfazOTeU70IpWgrUBEygyXk/zPogHsUMbW2Rg==",
       "dependencies": [
         "@aws-crypto/sha256-browser",
         "@aws-crypto/sha256-js",
@@ -482,8 +439,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/core@3.946.0": {
-      "integrity": "sha512-u2BkbLLVbMFrEiXrko2+S6ih5sUZPlbVyRPtXOqMHlCyzr70sE8kIiD6ba223rQeIFPcYfW/wHc6k4ihW2xxVg==",
+    "@aws-sdk/core@3.947.0": {
+      "integrity": "sha512-Khq4zHhuAkvCFuFbgcy3GrZTzfSX7ZIjIcW1zRDxXRLZKRtuhnZdonqTUfaWi5K42/4OmxkYNpsO7X7trQOeHw==",
       "dependencies": [
         "@aws-sdk/types",
         "@aws-sdk/xml-builder",
@@ -500,8 +457,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-env@3.946.0": {
-      "integrity": "sha512-P4l+K6wX1tf8LmWUvZofdQ+BgCNyk6Tb9u1H10npvqpuCD+dCM4pXIBq3PQcv/juUBOvLGGREo+Govuh3lfD0Q==",
+    "@aws-sdk/credential-provider-env@3.947.0": {
+      "integrity": "sha512-VR2V6dRELmzwAsCpK4GqxUi6UW5WNhAXS9F9AzWi5jvijwJo3nH92YNJUP4quMpgFZxJHEWyXLWgPjh9u0zYOA==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/types",
@@ -510,8 +467,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-http@3.946.0": {
-      "integrity": "sha512-/zeOJ6E7dGZQ/l2k7KytEoPJX0APIhwt0A79hPf/bUpMF4dDs2P6JmchDrotk0a0Y/MIdNF8sBQ/MEOPnBiYoQ==",
+    "@aws-sdk/credential-provider-http@3.947.0": {
+      "integrity": "sha512-inF09lh9SlHj63Vmr5d+LmwPXZc2IbK8lAruhOr3KLsZAIHEgHgGPXWDC2ukTEMzg0pkexQ6FOhXXad6klK4RA==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/types",
@@ -525,8 +482,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-ini@3.946.0": {
-      "integrity": "sha512-Pdgcra3RivWj/TuZmfFaHbqsvvgnSKO0CxlRUMMr0PgBiCnUhyl+zBktdNOeGsOPH2fUzQpYhcUjYUgVSdcSDQ==",
+    "@aws-sdk/credential-provider-ini@3.947.0": {
+      "integrity": "sha512-A2ZUgJUJZERjSzvCi2NR/hBVbVkTXPD0SdKcR/aITb30XwF+n3T963b+pJl90qhOspoy7h0IVYNR7u5Nr9tJdQ==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/credential-provider-env",
@@ -544,8 +501,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-login@3.946.0": {
-      "integrity": "sha512-5iqLNc15u2Zx+7jOdQkIbP62N7n2031tw5hkmIG0DLnozhnk64osOh2CliiOE9x3c4P9Pf4frAwgyy9GzNTk2g==",
+    "@aws-sdk/credential-provider-login@3.947.0": {
+      "integrity": "sha512-u7M3hazcB7aJiVwosNdJRbIJDzbwQ861NTtl6S0HmvWpixaVb7iyhJZWg8/plyUznboZGBm7JVEdxtxv3u0bTA==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/nested-clients",
@@ -557,8 +514,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-node@3.946.0": {
-      "integrity": "sha512-I7URUqnBPng1a5y81OImxrwERysZqMBREG6svhhGeZgxmqcpAZ8z5ywILeQXdEOCuuES8phUp/ojzxFjPXp/eA==",
+    "@aws-sdk/credential-provider-node@3.947.0": {
+      "integrity": "sha512-S0Zqebr71KyrT6J4uYPhwV65g4V5uDPHnd7dt2W34FcyPu+hVC7Hx4MFmsPyVLeT5cMCkkZvmY3kAoEzgUPJJg==",
       "dependencies": [
         "@aws-sdk/credential-provider-env",
         "@aws-sdk/credential-provider-http",
@@ -574,8 +531,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-process@3.946.0": {
-      "integrity": "sha512-GtGHX7OGqIeVQ3DlVm5RRF43Qmf3S1+PLJv9svrdvAhAdy2bUb044FdXXqrtSsIfpzTKlHgQUiRo5MWLd35Ntw==",
+    "@aws-sdk/credential-provider-process@3.947.0": {
+      "integrity": "sha512-WpanFbHe08SP1hAJNeDdBDVz9SGgMu/gc0XJ9u3uNpW99nKZjDpvPRAdW7WLA4K6essMjxWkguIGNOpij6Do2Q==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/types",
@@ -585,8 +542,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-sso@3.946.0": {
-      "integrity": "sha512-LeGSSt2V5iwYey1ENGY75RmoDP3bA2iE/py8QBKW8EDA8hn74XBLkprhrK5iccOvU3UGWY8WrEKFAFGNjJOL9g==",
+    "@aws-sdk/credential-provider-sso@3.947.0": {
+      "integrity": "sha512-NktnVHTGaUMaozxycYrepvb3yfFquHTQ53lt6hBEVjYBzK3C4tVz0siUpr+5RMGLSiZ5bLBp2UjJPgwx4i4waQ==",
       "dependencies": [
         "@aws-sdk/client-sso",
         "@aws-sdk/core",
@@ -598,8 +555,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/credential-provider-web-identity@3.946.0": {
-      "integrity": "sha512-ocBCvjWfkbjxElBI1QUxOnHldsNhoU0uOICFvuRDAZAoxvypJHN3m5BJkqb7gqorBbcv3LRgmBdEnWXOAvq+7Q==",
+    "@aws-sdk/credential-provider-web-identity@3.947.0": {
+      "integrity": "sha512-gokm/e/YHiHLrZgLq4j8tNAn8RJDPbIcglFRKgy08q8DmAqHQ8MXAKW3eS0QjAuRXU9mcMmUo1NrX6FRNBCCPw==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/nested-clients",
@@ -648,8 +605,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/middleware-user-agent@3.946.0": {
-      "integrity": "sha512-7QcljCraeaWQNuqmOoAyZs8KpZcuhPiqdeeKoRd397jVGNRehLFsZbIMOvwaluUDFY11oMyXOkQEERe1Zo2fCw==",
+    "@aws-sdk/middleware-user-agent@3.947.0": {
+      "integrity": "sha512-7rpKV8YNgCP2R4F9RjWZFcD2R+SO/0R4VHIbY9iZJdH2MzzJ8ZG7h8dZ2m8QkQd1fjx4wrFJGGPJUTYXPV3baA==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/types",
@@ -660,8 +617,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/nested-clients@3.946.0": {
-      "integrity": "sha512-rjAtEguukeW8mlyEQMQI56vxFoyWlaNwowmz1p1rav948SUjtrzjHAp4TOQWhibb7AR7BUTHBCgIcyCRjBEf4g==",
+    "@aws-sdk/nested-clients@3.947.0": {
+      "integrity": "sha512-DjRJEYNnHUTu9kGPPQDTSXquwSEd6myKR4ssI4FaYLFhdT3ldWpj73yYt807H3tdmhS7vPmdVqchSJnjurUQAw==",
       "dependencies": [
         "@aws-crypto/sha256-browser",
         "@aws-crypto/sha256-js",
@@ -713,8 +670,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/token-providers@3.946.0": {
-      "integrity": "sha512-a5c+rM6CUPX2ExmUZ3DlbLlS5rQr4tbdoGcgBsjnAHiYx8MuMNAI+8M7wfjF13i2yvUQj5WEIddvLpayfEZj9g==",
+    "@aws-sdk/token-providers@3.947.0": {
+      "integrity": "sha512-X/DyB8GuK44rsE89Tn5+s542B3PhGbXQSgV8lvqHDzvicwCt0tWny6790st6CPETrVVV2K3oJMfG5U3/jAmaZA==",
       "dependencies": [
         "@aws-sdk/core",
         "@aws-sdk/nested-clients",
@@ -757,8 +714,8 @@
         "tslib"
       ]
     },
-    "@aws-sdk/util-user-agent-node@3.946.0": {
-      "integrity": "sha512-a2UwwvzbK5AxHKUBupfg4s7VnkqRAHjYsuezHnKCniczmT4HZfP1NnfwwvLKEH8qaTrwenxjKSfq4UWmWkvG+Q==",
+    "@aws-sdk/util-user-agent-node@3.947.0": {
+      "integrity": "sha512-+vhHoDrdbb+zerV4noQk1DHaUMNzWFWPpPYjVTwW2186k5BEJIecAMChYkghRrBVJ3KPWP1+JnZwOd72F3d4rQ==",
       "dependencies": [
         "@aws-sdk/middleware-user-agent",
         "@aws-sdk/types",
@@ -838,8 +795,8 @@
     "@ioredis/commands@1.4.0": {
       "integrity": "sha512-aFT2yemJJo+TZCmieA7qnYGQooOS7QfNmYrzGtsYd3g9j5iDP8AimYYAesf79ohjbLG12XxC4nG5DyEnC88AsQ=="
     },
-    "@lambdalisue/connectrpc-grpcreflect@0.4.0_@bufbuild+protobuf@2.10.1": {
-      "integrity": "sha512-leoOLYlwseKUqUZRvphzfeLK2NEJAXoWuU9MN8I8FTiZnKJFZdPycmUWxZjsAkfRGKfDisCSsxR8Nr+oMAv4gw==",
+    "@lambdalisue/connectrpc-grpcreflect@0.5.0_@bufbuild+protobuf@2.10.1": {
+      "integrity": "sha512-OisIo84Kmv4sTIFSC8v6sFxlj7H22g8uvRScqFz8ZIWEhNdg7rJK60G05EdQo5juNSK0KzG+x31TieikgQotog==",
       "dependencies": [
         "@bufbuild/protobuf",
         "@connectrpc/connect"
@@ -1438,20 +1395,20 @@
       "jsr:@lambdalisue/sandbox@^3.0.1",
       "jsr:@logtape/logtape@^1.2.2",
       "jsr:@logtape/pretty@^1.2.2",
-      "jsr:@probitas/client-connectrpc@0.1",
-      "jsr:@probitas/client-deno-kv@0.1",
-      "jsr:@probitas/client-graphql@0.1",
-      "jsr:@probitas/client-grpc@0.1",
-      "jsr:@probitas/client-http@0.1",
-      "jsr:@probitas/client-mongodb@0.1",
-      "jsr:@probitas/client-rabbitmq@0.1",
-      "jsr:@probitas/client-redis@0.1",
-      "jsr:@probitas/client-sql-duckdb@0.1",
-      "jsr:@probitas/client-sql-mysql@0.1",
-      "jsr:@probitas/client-sql-postgres@0.1",
-      "jsr:@probitas/client-sql-sqlite@0.1",
-      "jsr:@probitas/client-sql@0.1",
-      "jsr:@probitas/client-sqs@0.1",
+      "jsr:@probitas/client-connectrpc@0",
+      "jsr:@probitas/client-deno-kv@0",
+      "jsr:@probitas/client-graphql@0",
+      "jsr:@probitas/client-grpc@0",
+      "jsr:@probitas/client-http@0",
+      "jsr:@probitas/client-mongodb@0",
+      "jsr:@probitas/client-rabbitmq@0",
+      "jsr:@probitas/client-redis@0",
+      "jsr:@probitas/client-sql-duckdb@0",
+      "jsr:@probitas/client-sql-mysql@0",
+      "jsr:@probitas/client-sql-postgres@0",
+      "jsr:@probitas/client-sql-sqlite@0",
+      "jsr:@probitas/client-sql@0",
+      "jsr:@probitas/client-sqs@0",
       "jsr:@std/assert@^1.0.16",
       "jsr:@std/async@^1.0.15",
       "jsr:@std/cli@^1.0.24",

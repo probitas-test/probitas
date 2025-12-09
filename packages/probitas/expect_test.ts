@@ -48,7 +48,7 @@ describe("expect", () => {
 
       const result = expect(connectRpcResponse);
       assertEquals(typeof result.ok, "function");
-      assertEquals(typeof result.status, "function");
+      assertEquals(typeof result.code, "function");
     });
 
     it("dispatches GraphqlResponse to expectGraphqlResponse", () => {
