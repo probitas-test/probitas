@@ -17,6 +17,18 @@ export interface GraphqlResponseExpectation {
   /** Assert exact number of errors */
   toHaveErrorCount(n: number): this;
 
+  /** Assert that error count is greater than specified value */
+  toHaveErrorCountGreaterThan(count: number): this;
+
+  /** Assert that error count is greater than or equal to specified value */
+  toHaveErrorCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that error count is less than specified value */
+  toHaveErrorCountLessThan(count: number): this;
+
+  /** Assert that error count is less than or equal to specified value */
+  toHaveErrorCountLessThanOrEqual(count: number): this;
+
   /** Assert that at least one error contains the message */
   toHaveErrorContaining(message: string): this;
 
@@ -24,7 +36,9 @@ export interface GraphqlResponseExpectation {
   toHaveError(messageMatcher: string | RegExp): this;
 
   /** Assert errors using custom matcher */
-  errorMatch(matcher: (errors: readonly GraphqlErrorItem[]) => void): this;
+  toHaveErrorMatching(
+    matcher: (errors: readonly GraphqlErrorItem[]) => void,
+  ): this;
 
   /** Assert that data is not null */
   toHaveContent(): this;
@@ -46,14 +60,20 @@ export interface GraphqlResponseExpectation {
   /** Assert HTTP status code */
   toHaveStatus(code: number): this;
 
-  /** Assert that HTTP status code is within range (inclusive) */
-  toHaveStatusInRange(min: number, max: number): this;
-
   /** Assert that HTTP status code is one of the given codes */
-  toHaveStatusIn(statuses: number[]): this;
+  toHaveStatusOneOf(statuses: number[]): this;
 
   /** Assert that response duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that response duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that response duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that response duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -98,6 +118,42 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
+  toHaveErrorCountGreaterThan(count: number): this {
+    const actual = this.#response.errors?.length ?? 0;
+    if (actual <= count) {
+      throw new Error(`Expected error count > ${count}, but got ${actual}`);
+    }
+    return this;
+  }
+
+  toHaveErrorCountGreaterThanOrEqual(count: number): this {
+    const actual = this.#response.errors?.length ?? 0;
+    if (actual < count) {
+      throw new Error(
+        `Expected error count >= ${count}, but got ${actual}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveErrorCountLessThan(count: number): this {
+    const actual = this.#response.errors?.length ?? 0;
+    if (actual >= count) {
+      throw new Error(`Expected error count < ${count}, but got ${actual}`);
+    }
+    return this;
+  }
+
+  toHaveErrorCountLessThanOrEqual(count: number): this {
+    const actual = this.#response.errors?.length ?? 0;
+    if (actual > count) {
+      throw new Error(
+        `Expected error count <= ${count}, but got ${actual}`,
+      );
+    }
+    return this;
+  }
+
   toHaveErrorContaining(message: string): this {
     if (!this.#response.errors || this.#response.errors.length === 0) {
       throw new Error(
@@ -135,7 +191,9 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  errorMatch(matcher: (errors: readonly GraphqlErrorItem[]) => void): this {
+  toHaveErrorMatching(
+    matcher: (errors: readonly GraphqlErrorItem[]) => void,
+  ): this {
     if (!this.#response.errors) {
       throw new Error("Cannot match errors: no errors present");
     }
@@ -203,17 +261,7 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
     return this;
   }
 
-  toHaveStatusInRange(min: number, max: number): this {
-    const { status } = this.#response;
-    if (status < min || status > max) {
-      throw new Error(
-        `Expected status in range ${min}-${max}, got ${status}`,
-      );
-    }
-    return this;
-  }
-
-  toHaveStatusIn(statuses: number[]): this {
+  toHaveStatusOneOf(statuses: number[]): this {
     if (!statuses.includes(this.#response.status)) {
       throw new Error(
         `Expected status in [${
@@ -227,6 +275,33 @@ class GraphqlResponseExpectationImpl implements GraphqlResponseExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#response.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#response.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#response.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#response.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#response.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
     }
     return this;
   }

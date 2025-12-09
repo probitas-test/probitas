@@ -30,6 +30,9 @@ export interface MongoFindResultExpectation<T> {
   toMatchObject(subset: Partial<T>): this;
   toSatisfy(matcher: (docs: MongoDocs<T>) => void): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -39,8 +42,15 @@ export interface MongoInsertResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveInsertedCount(count: number): this;
+  toHaveInsertedCountGreaterThan(count: number): this;
+  toHaveInsertedCountGreaterThanOrEqual(count: number): this;
+  toHaveInsertedCountLessThan(count: number): this;
+  toHaveInsertedCountLessThanOrEqual(count: number): this;
   toHaveInsertedId(): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -50,9 +60,20 @@ export interface MongoUpdateResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveMatchedCount(count: number): this;
+  toHaveMatchedCountGreaterThan(count: number): this;
+  toHaveMatchedCountGreaterThanOrEqual(count: number): this;
+  toHaveMatchedCountLessThan(count: number): this;
+  toHaveMatchedCountLessThanOrEqual(count: number): this;
   toHaveModifiedCount(count: number): this;
+  toHaveModifiedCountGreaterThan(count: number): this;
+  toHaveModifiedCountGreaterThanOrEqual(count: number): this;
+  toHaveModifiedCountLessThan(count: number): this;
+  toHaveModifiedCountLessThanOrEqual(count: number): this;
   toHaveUpsertedId(): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -62,8 +83,14 @@ export interface MongoDeleteResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveDeletedCount(count: number): this;
+  toHaveDeletedCountGreaterThan(count: number): this;
   toHaveDeletedCountGreaterThanOrEqual(count: number): this;
+  toHaveDeletedCountLessThan(count: number): this;
+  toHaveDeletedCountLessThanOrEqual(count: number): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -76,6 +103,9 @@ export interface MongoFindOneResultExpectation<T> {
   toMatchObject(subset: Partial<T>): this;
   toSatisfy(matcher: (doc: T) => void): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -88,6 +118,9 @@ export interface MongoCountResultExpectation {
   toHaveLengthGreaterThanOrEqual(min: number): this;
   toHaveLengthLessThanOrEqual(max: number): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 class MongoFindResultExpectationImpl<T>
@@ -179,6 +212,33 @@ class MongoFindResultExpectationImpl<T>
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 class MongoInsertResultExpectationImpl implements MongoInsertResultExpectation {
@@ -224,6 +284,54 @@ class MongoInsertResultExpectationImpl implements MongoInsertResultExpectation {
     return this;
   }
 
+  toHaveInsertedCountGreaterThan(count: number): this {
+    const actualCount = "insertedCount" in this.#result
+      ? this.#result.insertedCount
+      : 1;
+    if (actualCount <= count) {
+      throw new Error(
+        `Expected inserted count > ${count}, but got ${actualCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveInsertedCountGreaterThanOrEqual(count: number): this {
+    const actualCount = "insertedCount" in this.#result
+      ? this.#result.insertedCount
+      : 1;
+    if (actualCount < count) {
+      throw new Error(
+        `Expected inserted count >= ${count}, but got ${actualCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveInsertedCountLessThan(count: number): this {
+    const actualCount = "insertedCount" in this.#result
+      ? this.#result.insertedCount
+      : 1;
+    if (actualCount >= count) {
+      throw new Error(
+        `Expected inserted count < ${count}, but got ${actualCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveInsertedCountLessThanOrEqual(count: number): this {
+    const actualCount = "insertedCount" in this.#result
+      ? this.#result.insertedCount
+      : 1;
+    if (actualCount > count) {
+      throw new Error(
+        `Expected inserted count <= ${count}, but got ${actualCount}`,
+      );
+    }
+    return this;
+  }
+
   toHaveInsertedId(): this {
     if ("insertedId" in this.#result) {
       if (!this.#result.insertedId) {
@@ -240,6 +348,33 @@ class MongoInsertResultExpectationImpl implements MongoInsertResultExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -282,10 +417,82 @@ class MongoUpdateResultExpectationImpl implements MongoUpdateResultExpectation {
     return this;
   }
 
+  toHaveMatchedCountGreaterThan(count: number): this {
+    if (this.#result.matchedCount <= count) {
+      throw new Error(
+        `Expected matched count > ${count}, but got ${this.#result.matchedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveMatchedCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.matchedCount < count) {
+      throw new Error(
+        `Expected matched count >= ${count}, but got ${this.#result.matchedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveMatchedCountLessThan(count: number): this {
+    if (this.#result.matchedCount >= count) {
+      throw new Error(
+        `Expected matched count < ${count}, but got ${this.#result.matchedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveMatchedCountLessThanOrEqual(count: number): this {
+    if (this.#result.matchedCount > count) {
+      throw new Error(
+        `Expected matched count <= ${count}, but got ${this.#result.matchedCount}`,
+      );
+    }
+    return this;
+  }
+
   toHaveModifiedCount(count: number): this {
     if (this.#result.modifiedCount !== count) {
       throw new Error(
         `Expected ${count} modified documents, got ${this.#result.modifiedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveModifiedCountGreaterThan(count: number): this {
+    if (this.#result.modifiedCount <= count) {
+      throw new Error(
+        `Expected modified count > ${count}, but got ${this.#result.modifiedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveModifiedCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.modifiedCount < count) {
+      throw new Error(
+        `Expected modified count >= ${count}, but got ${this.#result.modifiedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveModifiedCountLessThan(count: number): this {
+    if (this.#result.modifiedCount >= count) {
+      throw new Error(
+        `Expected modified count < ${count}, but got ${this.#result.modifiedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveModifiedCountLessThanOrEqual(count: number): this {
+    if (this.#result.modifiedCount > count) {
+      throw new Error(
+        `Expected modified count <= ${count}, but got ${this.#result.modifiedCount}`,
       );
     }
     return this;
@@ -301,6 +508,33 @@ class MongoUpdateResultExpectationImpl implements MongoUpdateResultExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -343,10 +577,37 @@ class MongoDeleteResultExpectationImpl implements MongoDeleteResultExpectation {
     return this;
   }
 
+  toHaveDeletedCountGreaterThan(count: number): this {
+    if (this.#result.deletedCount <= count) {
+      throw new Error(
+        `Expected deleted count > ${count}, but got ${this.#result.deletedCount}`,
+      );
+    }
+    return this;
+  }
+
   toHaveDeletedCountGreaterThanOrEqual(count: number): this {
     if (this.#result.deletedCount < count) {
       throw new Error(
-        `Expected at least ${count} deleted documents, got ${this.#result.deletedCount}`,
+        `Expected deleted count >= ${count}, but got ${this.#result.deletedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDeletedCountLessThan(count: number): this {
+    if (this.#result.deletedCount >= count) {
+      throw new Error(
+        `Expected deleted count < ${count}, but got ${this.#result.deletedCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDeletedCountLessThanOrEqual(count: number): this {
+    if (this.#result.deletedCount > count) {
+      throw new Error(
+        `Expected deleted count <= ${count}, but got ${this.#result.deletedCount}`,
       );
     }
     return this;
@@ -355,6 +616,33 @@ class MongoDeleteResultExpectationImpl implements MongoDeleteResultExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -429,6 +717,33 @@ class MongoFindOneResultExpectationImpl<T>
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 class MongoCountResultExpectationImpl implements MongoCountResultExpectation {
@@ -489,6 +804,33 @@ class MongoCountResultExpectationImpl implements MongoCountResultExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }

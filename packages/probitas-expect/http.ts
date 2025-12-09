@@ -18,11 +18,8 @@ export interface HttpResponseExpectation {
   /** Assert that response status matches expected code */
   toHaveStatus(code: number): this;
 
-  /** Assert that response status is within range (inclusive) */
-  toHaveStatusInRange(min: number, max: number): this;
-
   /** Assert that response status is one of the given values */
-  toHaveStatusIn(statuses: number[]): this;
+  toHaveStatusOneOf(statuses: number[]): this;
 
   /** Assert that header value matches expected string or regex */
   toHaveHeaderValue(name: string, expected: string | RegExp): this;
@@ -45,8 +42,15 @@ export interface HttpResponseExpectation {
   /** Assert that body contains given byte sequence */
   toHaveBodyContaining(subbody: Uint8Array): this;
 
-  /** Assert body or text using custom matcher function */
-  toSatisfy(matcher: (value: Uint8Array | string) => void): this;
+  /** Assert JSON data using custom matcher function */
+  // deno-lint-ignore no-explicit-any
+  toSatisfy<T = any>(matcher: (data: T) => void): this;
+
+  /** Assert raw body bytes using custom matcher function */
+  toSatisfyBody(matcher: (body: Uint8Array) => void): this;
+
+  /** Assert text body using custom matcher function */
+  toSatisfyText(matcher: (text: string) => void): this;
 
   /** Assert that text body contains substring */
   toHaveTextContaining(substring: string): this;
@@ -57,6 +61,15 @@ export interface HttpResponseExpectation {
 
   /** Assert that response duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that response duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that response duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that response duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -99,17 +112,7 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  toHaveStatusInRange(min: number, max: number): this {
-    const { status } = this.#response;
-    if (status < min || status > max) {
-      throw new Error(
-        `Expected status in range ${min}-${max}, got ${status}`,
-      );
-    }
-    return this;
-  }
-
-  toHaveStatusIn(statuses: number[]): this {
+  toHaveStatusOneOf(statuses: number[]): this {
     const { status } = this.#response;
     if (!statuses.includes(status)) {
       throw new Error(
@@ -191,23 +194,30 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
     return this;
   }
 
-  toSatisfy(matcher: (value: Uint8Array | string) => void): this {
+  // deno-lint-ignore no-explicit-any
+  toSatisfy<T = any>(matcher: (data: T) => void): this {
+    const data = this.#response.data();
+    if (data === null) {
+      throw new Error("Expected JSON data for matching, but data is null");
+    }
+    matcher(data);
+    return this;
+  }
+
+  toSatisfyBody(matcher: (body: Uint8Array) => void): this {
     if (this.#response.body === null) {
       throw new Error("Expected body for matching, but body is null");
     }
-
-    // Try text first if possible
-    const text = this.#response.text();
-    if (text !== null) {
-      try {
-        matcher(text);
-        return this;
-      } catch {
-        // If text matcher fails, try with raw body
-      }
-    }
-
     matcher(this.#response.body);
+    return this;
+  }
+
+  toSatisfyText(matcher: (text: string) => void): this {
+    const text = this.#response.text();
+    if (text === null) {
+      throw new Error("Expected text for matching, but text is null");
+    }
+    matcher(text);
     return this;
   }
 
@@ -237,6 +247,33 @@ class HttpResponseExpectationImpl implements HttpResponseExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#response.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#response.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#response.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#response.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#response.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
     }
     return this;
   }

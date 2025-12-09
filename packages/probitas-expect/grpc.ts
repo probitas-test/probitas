@@ -8,7 +8,7 @@
  */
 
 import type { GrpcResponse } from "@probitas/client-grpc";
-import { assertEquals, assertMatch } from "@std/assert";
+import { assertEquals } from "@std/assert";
 import { buildErrorMessage, formatDifferences } from "./common.ts";
 
 /**
@@ -16,88 +16,84 @@ import { buildErrorMessage, formatDifferences } from "./common.ts";
  */
 export interface GrpcResponseExpectation {
   /**
-   * Assert that the response is successful (status code 0/OK).
+   * Negates the next assertion.
    */
-  ok(): this;
+  readonly not: this;
 
   /**
-   * Assert that the response is not successful (non-zero status code).
+   * Assert that the response is successful (status code 0/OK).
    */
-  notOk(): this;
+  toBeSuccessful(): this;
 
   /**
    * Assert that the response has a specific status code.
    *
    * @param expected - Expected gRPC status code
    */
-  code(expected: number): this;
+  toHaveCode(expected: number): this;
 
   /**
    * Assert that the response status code is one of the specified codes.
    *
    * @param codes - Array of acceptable status codes
    */
-  codeIn(codes: number[]): this;
+  toHaveCodeOneOf(codes: number[]): this;
 
   /**
    * Assert that the response has a specific status message.
    *
    * @param expected - Expected status message
    */
-  message(expected: string): this;
+  toHaveMessage(expected: string): this;
 
   /**
    * Assert that the status message contains a substring.
    *
    * @param substring - Expected substring
    */
-  messageContains(substring: string): this;
+  toHaveMessageContaining(substring: string): this;
 
   /**
    * Assert that the status message matches a pattern.
    *
    * @param pattern - RegExp pattern
    */
-  messageMatch(pattern: RegExp): this;
+  toHaveMessageMatching(pattern: RegExp): this;
 
   /**
-   * Assert that a specific trailer exists.
+   * Assert that a specific trailer has the expected value.
    *
    * @param name - Trailer name
    * @param value - Expected trailer value
    */
-  trailers(name: string, value: string): this;
+  toHaveTrailerValue(name: string, value: string): this;
 
   /**
    * Assert that a specific trailer exists.
    *
    * @param name - Trailer name
    */
-  trailersExist(name: string): this;
-
-  /**
-   * Assert that the response has no content (null data).
-   */
-  noContent(): this;
+  toHaveTrailer(name: string): this;
 
   /**
    * Assert that the response has content (non-null data).
    */
-  hasContent(): this;
+  toHaveContent(): this;
 
   /**
    * Assert that the response body (for streaming) contains specific properties.
    *
    * @param subset - Expected properties
    */
-  bodyContains<T>(subset: Partial<T>): this;
+  toHaveBodyContaining<T>(subset: Partial<T>): this;
 
   /**
    * Assert that the body matches a predicate.
+   * The predicate should throw an error if the assertion fails.
    *
    * @param fn - Predicate function
    */
-  bodyMatch(fn: (body: unknown) => boolean): this;
+  toHaveBodyMatching(fn: (body: unknown) => void): this;
 
   /**
    * Assert that the response data contains specific properties.
@@ -105,21 +101,43 @@ export interface GrpcResponseExpectation {
    *
    * @param subset - Expected data properties
    */
-  dataContains<T>(subset: Partial<T>): this;
+  toHaveDataContaining<T>(subset: Partial<T>): this;
 
   /**
    * Assert that the response data matches a predicate function.
+   * The predicate should throw an error if the assertion fails.
    *
    * @param fn - Predicate function
    */
-  dataMatch(fn: (data: unknown) => boolean): this;
+  toHaveDataMatching(fn: (data: unknown) => void): this;
 
   /**
    * Assert that the request duration is less than a threshold.
    *
    * @param ms - Maximum duration in milliseconds
    */
-  durationLessThan(ms: number): this;
+  toHaveDurationLessThan(ms: number): this;
+
+  /**
+   * Assert that the request duration is less than or equal to a threshold.
+   *
+   * @param ms - Maximum duration in milliseconds
+   */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /**
+   * Assert that the request duration is greater than a threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /**
+   * Assert that the request duration is greater than or equal to a threshold.
+   *
+   * @param ms - Minimum duration in milliseconds
+   */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -127,125 +145,152 @@ export interface GrpcResponseExpectation {
  */
 class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
   #response: GrpcResponse;
+  #negate: boolean;
 
-  constructor(response: GrpcResponse) {
+  constructor(response: GrpcResponse, negate = false) {
     this.#response = response;
+    this.#negate = negate;
   }
 
-  ok(): this {
-    if (!this.#response.ok) {
+  get not(): this {
+    return new GrpcResponseExpectationImpl(
+      this.#response,
+      !this.#negate,
+    ) as this;
+  }
+
+  toBeSuccessful(): this {
+    const isOk = this.#response.ok;
+    if (this.#negate ? isOk : !isOk) {
       const code = this.#response.code;
       const message = this.#response.message ?? "";
       throw new Error(
-        `Expected response to be ok (code 0), but got code ${code}: ${message}`,
+        this.#negate
+          ? `Expected response to not be successful, but got code 0 (OK)`
+          : `Expected response to be successful (code 0), but got code ${code}: ${message}`,
       );
     }
     return this;
   }
 
-  notOk(): this {
-    if (this.#response.ok) {
+  toHaveCode(expected: number): this {
+    const matches = this.#response.code === expected;
+    if (this.#negate ? matches : !matches) {
       throw new Error(
-        `Expected response to not be ok, but got code 0 (OK)`,
+        this.#negate
+          ? `Expected code to not be ${expected}, but got ${this.#response.code}`
+          : `Expected code ${expected}, but got ${this.#response.code}`,
       );
     }
     return this;
   }
 
-  code(expected: number): this {
-    if (this.#response.code !== expected) {
+  toHaveCodeOneOf(codes: number[]): this {
+    const matches = codes.includes(this.#response.code);
+    if (this.#negate ? matches : !matches) {
       throw new Error(
-        `Expected code ${expected}, but got ${this.#response.code}`,
+        this.#negate
+          ? `Expected code to not be one of [${
+            codes.join(", ")
+          }], but got ${this.#response.code}`
+          : `Expected code to be one of [${
+            codes.join(", ")
+          }], but got ${this.#response.code}`,
       );
     }
     return this;
   }
 
-  codeIn(codes: number[]): this {
-    if (!codes.includes(this.#response.code)) {
+  toHaveMessage(expected: string): this {
+    const matches = this.#response.message === expected;
+    if (this.#negate ? matches : !matches) {
       throw new Error(
-        `Expected code to be one of [${
-          codes.join(", ")
-        }], but got ${this.#response.code}`,
+        this.#negate
+          ? `Expected message to not be "${expected}", but got "${this.#response.message}"`
+          : `Expected message "${expected}", but got "${this.#response.message}"`,
       );
     }
     return this;
   }
 
-  message(expected: string): this {
-    if (this.#response.message !== expected) {
-      throw new Error(
-        `Expected message "${expected}", but got "${this.#response.message}"`,
-      );
-    }
-    return this;
-  }
-
-  messageContains(substring: string): this {
+  toHaveMessageContaining(substring: string): this {
     const message = this.#response.message ?? "";
-    if (!message.includes(substring)) {
+    const contains = message.includes(substring);
+    if (this.#negate ? contains : !contains) {
       throw new Error(
-        `Expected message to contain "${substring}", but got "${message}"`,
+        this.#negate
+          ? `Expected message to not contain "${substring}", but got "${message}"`
+          : `Expected message to contain "${substring}", but got "${message}"`,
       );
     }
     return this;
   }
 
-  messageMatch(pattern: RegExp): this {
+  toHaveMessageMatching(pattern: RegExp): this {
     const message = this.#response.message ?? "";
-    assertMatch(message, pattern, "Message does not match pattern");
+    const matches = pattern.test(message);
+    if (this.#negate ? matches : !matches) {
+      throw new Error(
+        this.#negate
+          ? `Expected message to not match ${pattern}, but got "${message}"`
+          : `Expected message to match ${pattern}, but got "${message}"`,
+      );
+    }
     return this;
   }
 
-  trailers(name: string, value: string): this {
+  toHaveTrailerValue(name: string, value: string): this {
     const trailers = this.#response.trailers as
       | Record<string, string>
       | undefined;
-    if (!trailers || trailers[name] !== value) {
+    const matches = trailers?.[name] === value;
+    if (this.#negate ? matches : !matches) {
       throw new Error(
-        `Expected trailer "${name}" to be "${value}", but got "${
-          trailers?.[name]
-        }"`,
+        this.#negate
+          ? `Expected trailer "${name}" to not be "${value}", but got "${
+            trailers?.[name]
+          }"`
+          : `Expected trailer "${name}" to be "${value}", but got "${
+            trailers?.[name]
+          }"`,
       );
     }
     return this;
   }
 
-  trailersExist(name: string): this {
+  toHaveTrailer(name: string): this {
     const trailers = this.#response.trailers as
       | Record<string, string>
       | undefined;
-    if (!trailers || !(name in trailers)) {
+    const exists = trailers && (name in trailers);
+    if (this.#negate ? exists : !exists) {
       throw new Error(
-        `Expected trailer "${name}" to exist, but it was missing`,
+        this.#negate
+          ? `Expected trailer "${name}" to not exist, but it was present`
+          : `Expected trailer "${name}" to exist, but it was missing`,
       );
     }
     return this;
   }
 
-  noContent(): this {
+  toHaveContent(): this {
     const data = this.#response.data();
-    if (data !== null && data !== undefined) {
+    const hasContent = data !== null && data !== undefined;
+    if (this.#negate ? hasContent : !hasContent) {
       throw new Error(
-        `Expected no content, but got: ${JSON.stringify(data)}`,
+        this.#negate
+          ? `Expected response to not have content, but got: ${
+            JSON.stringify(data)
+          }`
+          : `Expected response to have content, but data is ${
+            data === null ? "null" : "undefined"
+          }`,
       );
     }
     return this;
   }
 
-  hasContent(): this {
-    const data = this.#response.data();
-    if (data === null || data === undefined) {
-      throw new Error(
-        `Expected response to have content, but data is ${
-          data === null ? "null" : "undefined"
-        }`,
-      );
-    }
-    return this;
-  }
-
-  bodyContains<T>(subset: Partial<T>): this {
+  toHaveBodyContaining<T>(subset: Partial<T>): this {
     const data = this.#response.data();
 
     try {
@@ -254,10 +299,18 @@ class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
         subset,
         "Response body does not contain expected properties",
       );
+      if (this.#negate) {
+        throw new Error(
+          `Expected body to not contain ${JSON.stringify(subset)}, but it did`,
+        );
+      }
     } catch (_error) {
+      if (this.#negate) {
+        return this;
+      }
       const diffs = formatDifferences(data, subset);
       const message = buildErrorMessage(
-        "bodyContains",
+        "toHaveBodyContaining",
         diffs,
         subset,
         data,
@@ -268,17 +321,31 @@ class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
     return this;
   }
 
-  bodyMatch(fn: (body: unknown) => boolean): this {
+  toHaveBodyMatching(fn: (body: unknown) => void): this {
     const data = this.#response.data();
-    if (!fn(data)) {
+    try {
+      fn(data);
+      if (this.#negate) {
+        throw new Error(
+          `Expected body to not match predicate, but it did. Body: ${
+            JSON.stringify(data)
+          }`,
+        );
+      }
+    } catch (error) {
+      if (this.#negate) {
+        return this;
+      }
       throw new Error(
-        `Body does not match predicate. Body: ${JSON.stringify(data)}`,
+        `Body does not match predicate. Body: ${JSON.stringify(data)}. Error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
     }
     return this;
   }
 
-  dataContains<T>(subset: Partial<T>): this {
+  toHaveDataContaining<T>(subset: Partial<T>): this {
     const data = this.#response.data();
 
     try {
@@ -287,10 +354,18 @@ class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
         subset,
         "Response data does not contain expected properties",
       );
+      if (this.#negate) {
+        throw new Error(
+          `Expected data to not contain ${JSON.stringify(subset)}, but it did`,
+        );
+      }
     } catch (_error) {
+      if (this.#negate) {
+        return this;
+      }
       const diffs = formatDifferences(data, subset);
       const message = buildErrorMessage(
-        "dataContains",
+        "toHaveDataContaining",
         diffs,
         subset,
         data,
@@ -301,20 +376,73 @@ class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
     return this;
   }
 
-  dataMatch(fn: (data: unknown) => boolean): this {
+  toHaveDataMatching(fn: (data: unknown) => void): this {
     const data = this.#response.data();
-    if (!fn(data)) {
+    try {
+      fn(data);
+      if (this.#negate) {
+        throw new Error(
+          `Expected data to not match predicate, but it did. Data: ${
+            JSON.stringify(data)
+          }`,
+        );
+      }
+    } catch (error) {
+      if (this.#negate) {
+        return this;
+      }
       throw new Error(
-        `Data does not match predicate. Data: ${JSON.stringify(data)}`,
+        `Data does not match predicate. Data: ${JSON.stringify(data)}. Error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
     }
     return this;
   }
 
-  durationLessThan(ms: number): this {
-    if (this.#response.duration >= ms) {
+  toHaveDurationLessThan(ms: number): this {
+    const isLess = this.#response.duration < ms;
+    if (this.#negate ? isLess : !isLess) {
       throw new Error(
-        `Expected duration less than ${ms}ms, but got ${this.#response.duration}ms`,
+        this.#negate
+          ? `Expected duration to not be less than ${ms}ms, but got ${this.#response.duration}ms`
+          : `Expected duration less than ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    const isLessOrEqual = this.#response.duration <= ms;
+    if (this.#negate ? isLessOrEqual : !isLessOrEqual) {
+      throw new Error(
+        this.#negate
+          ? `Expected duration to not be <= ${ms}ms, but got ${this.#response.duration}ms`
+          : `Expected duration <= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    const isGreater = this.#response.duration > ms;
+    if (this.#negate ? isGreater : !isGreater) {
+      throw new Error(
+        this.#negate
+          ? `Expected duration to not be > ${ms}ms, but got ${this.#response.duration}ms`
+          : `Expected duration > ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    const isGreaterOrEqual = this.#response.duration >= ms;
+    if (this.#negate ? isGreaterOrEqual : !isGreaterOrEqual) {
+      throw new Error(
+        this.#negate
+          ? `Expected duration to not be >= ${ms}ms, but got ${this.#response.duration}ms`
+          : `Expected duration >= ${ms}ms, but got ${this.#response.duration}ms`,
       );
     }
     return this;
@@ -333,10 +461,10 @@ class GrpcResponseExpectationImpl implements GrpcResponseExpectation {
  *
  * const response = await client.call("GetUser", { id: "1" });
  * expectGrpcResponse(response)
- *   .ok()
- *   .code(0)
- *   .hasContent()
- *   .dataContains({ id: "1", name: "Alice" });
+ *   .toBeSuccessful()
+ *   .toHaveCode(0)
+ *   .toHaveContent()
+ *   .toHaveDataContaining({ id: "1", name: "Alice" });
  * ```
  */
 export function expectGrpcResponse(

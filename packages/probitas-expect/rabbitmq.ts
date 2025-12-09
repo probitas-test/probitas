@@ -26,6 +26,15 @@ export interface RabbitMqPublishResultExpectation {
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -58,6 +67,15 @@ export interface RabbitMqConsumeResultExpectation {
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -86,14 +104,44 @@ export interface RabbitMqQueueResultExpectation {
   /** Assert that message count equals expected */
   toHaveMessageCount(count: number): this;
 
+  /** Assert that message count is greater than specified value */
+  toHaveMessageCountGreaterThan(count: number): this;
+
   /** Assert that message count is at least min */
   toHaveMessageCountGreaterThanOrEqual(min: number): this;
+
+  /** Assert that message count is less than specified value */
+  toHaveMessageCountLessThan(count: number): this;
+
+  /** Assert that message count is less than or equal to specified value */
+  toHaveMessageCountLessThanOrEqual(count: number): this;
 
   /** Assert that consumer count equals expected */
   toHaveConsumerCount(count: number): this;
 
+  /** Assert that consumer count is greater than specified value */
+  toHaveConsumerCountGreaterThan(count: number): this;
+
+  /** Assert that consumer count is greater than or equal to specified value */
+  toHaveConsumerCountGreaterThanOrEqual(count: number): this;
+
+  /** Assert that consumer count is less than specified value */
+  toHaveConsumerCountLessThan(count: number): this;
+
+  /** Assert that consumer count is less than or equal to specified value */
+  toHaveConsumerCountLessThanOrEqual(count: number): this;
+
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -139,6 +187,33 @@ class RabbitMqPublishResultExpectationImpl<T extends SimpleResult>
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -261,6 +336,33 @@ class RabbitMqConsumeResultExpectationImpl
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 /**
@@ -304,10 +406,37 @@ class RabbitMqQueueResultExpectationImpl
     return this;
   }
 
+  toHaveMessageCountGreaterThan(count: number): this {
+    if (this.#result.messageCount <= count) {
+      throw new Error(
+        `Expected message count > ${count}, but got ${this.#result.messageCount}`,
+      );
+    }
+    return this;
+  }
+
   toHaveMessageCountGreaterThanOrEqual(min: number): this {
     if (this.#result.messageCount < min) {
       throw new Error(
         buildCountAtLeastError(min, this.#result.messageCount, "message count"),
+      );
+    }
+    return this;
+  }
+
+  toHaveMessageCountLessThan(count: number): this {
+    if (this.#result.messageCount >= count) {
+      throw new Error(
+        `Expected message count < ${count}, but got ${this.#result.messageCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveMessageCountLessThanOrEqual(count: number): this {
+    if (this.#result.messageCount > count) {
+      throw new Error(
+        `Expected message count <= ${count}, but got ${this.#result.messageCount}`,
       );
     }
     return this;
@@ -322,9 +451,72 @@ class RabbitMqQueueResultExpectationImpl
     return this;
   }
 
+  toHaveConsumerCountGreaterThan(count: number): this {
+    if (this.#result.consumerCount <= count) {
+      throw new Error(
+        `Expected consumer count > ${count}, but got ${this.#result.consumerCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveConsumerCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.consumerCount < count) {
+      throw new Error(
+        `Expected consumer count >= ${count}, but got ${this.#result.consumerCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveConsumerCountLessThan(count: number): this {
+    if (this.#result.consumerCount >= count) {
+      throw new Error(
+        `Expected consumer count < ${count}, but got ${this.#result.consumerCount}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveConsumerCountLessThanOrEqual(count: number): this {
+    if (this.#result.consumerCount > count) {
+      throw new Error(
+        `Expected consumer count <= ${count}, but got ${this.#result.consumerCount}`,
+      );
+    }
+    return this;
+  }
+
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }

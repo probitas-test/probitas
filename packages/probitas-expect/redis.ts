@@ -42,6 +42,15 @@ export interface RedisResultExpectation<T> {
 
   /** Assert that duration is less than threshold (ms) */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Assert that duration is less than or equal to threshold (ms) */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Assert that duration is greater than threshold (ms) */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Assert that duration is greater than or equal to threshold (ms) */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -130,6 +139,33 @@ class RedisResultExpectationImpl<T> implements RedisResultExpectation<T> {
   toHaveDurationLessThan(ms: number): this {
     if (this.result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.result.duration}ms`,
+      );
     }
     return this;
   }

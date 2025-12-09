@@ -74,6 +74,15 @@ export interface SqlQueryResultExpectation<T> {
 
   /** Verify query duration is below threshold */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Verify query duration is at or below threshold */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Verify query duration is above threshold */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Verify query duration is at or above threshold */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -240,6 +249,33 @@ class SqlQueryResultExpectationImpl<T> implements SqlQueryResultExpectation<T> {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }

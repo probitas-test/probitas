@@ -27,6 +27,9 @@ export interface SqsSendResultExpectation {
   toBeSuccessful(): this;
   toHaveMessageId(): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -37,8 +40,19 @@ export interface SqsSendBatchResultExpectation {
   toBeSuccessful(): this;
   toBeAllSuccessful(): this;
   toHaveSuccessfulCount(count: number): this;
+  toHaveSuccessfulCountGreaterThan(count: number): this;
+  toHaveSuccessfulCountGreaterThanOrEqual(count: number): this;
+  toHaveSuccessfulCountLessThan(count: number): this;
+  toHaveSuccessfulCountLessThanOrEqual(count: number): this;
   toHaveFailedCount(count: number): this;
+  toHaveFailedCountGreaterThan(count: number): this;
+  toHaveFailedCountGreaterThanOrEqual(count: number): this;
+  toHaveFailedCountLessThan(count: number): this;
+  toHaveFailedCountLessThanOrEqual(count: number): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -56,6 +70,9 @@ export interface SqsReceiveResultExpectation {
   ): this;
   toSatisfy(matcher: (messages: SqsMessages) => void): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -65,6 +82,9 @@ export interface SqsDeleteResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -75,7 +95,7 @@ export interface SqsMessageExpectation {
   toHaveBodyContaining(substring: string): this;
 
   /** Assert body using custom matcher function */
-  bodyMatch(matcher: (body: string) => void): this;
+  toHaveBodyMatching(matcher: (body: string) => void): this;
 
   /** Assert that body equals expected JSON (deep equality) */
   // deno-lint-ignore no-explicit-any
@@ -141,6 +161,33 @@ class SqsSendResultExpectationImpl implements SqsSendResultExpectation {
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 /**
@@ -193,6 +240,42 @@ class SqsSendBatchResultExpectationImpl
     return this;
   }
 
+  toHaveSuccessfulCountGreaterThan(count: number): this {
+    if (this.#result.successful.length <= count) {
+      throw new Error(
+        `Expected successful count > ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.successful.length < count) {
+      throw new Error(
+        `Expected successful count >= ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountLessThan(count: number): this {
+    if (this.#result.successful.length >= count) {
+      throw new Error(
+        `Expected successful count < ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountLessThanOrEqual(count: number): this {
+    if (this.#result.successful.length > count) {
+      throw new Error(
+        `Expected successful count <= ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
   toHaveFailedCount(count: number): this {
     if (this.#result.failed.length !== count) {
       throw new Error(
@@ -202,9 +285,72 @@ class SqsSendBatchResultExpectationImpl
     return this;
   }
 
+  toHaveFailedCountGreaterThan(count: number): this {
+    if (this.#result.failed.length <= count) {
+      throw new Error(
+        `Expected failed count > ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.failed.length < count) {
+      throw new Error(
+        `Expected failed count >= ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountLessThan(count: number): this {
+    if (this.#result.failed.length >= count) {
+      throw new Error(
+        `Expected failed count < ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountLessThanOrEqual(count: number): this {
+    if (this.#result.failed.length > count) {
+      throw new Error(
+        `Expected failed count <= ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -316,6 +462,33 @@ class SqsReceiveResultExpectationImpl implements SqsReceiveResultExpectation {
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 /**
@@ -352,6 +525,33 @@ class SqsDeleteResultExpectationImpl implements SqsDeleteResultExpectation {
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -408,10 +608,82 @@ class SqsDeleteBatchResultExpectationImpl
     return this;
   }
 
+  toHaveSuccessfulCountGreaterThan(count: number): this {
+    if (this.#result.successful.length <= count) {
+      throw new Error(
+        `Expected successful count > ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.successful.length < count) {
+      throw new Error(
+        `Expected successful count >= ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountLessThan(count: number): this {
+    if (this.#result.successful.length >= count) {
+      throw new Error(
+        `Expected successful count < ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveSuccessfulCountLessThanOrEqual(count: number): this {
+    if (this.#result.successful.length > count) {
+      throw new Error(
+        `Expected successful count <= ${count}, but got ${this.#result.successful.length}`,
+      );
+    }
+    return this;
+  }
+
   toHaveFailedCount(count: number): this {
     if (this.#result.failed.length !== count) {
       throw new Error(
         buildCountError(count, this.#result.failed.length, "failed"),
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountGreaterThan(count: number): this {
+    if (this.#result.failed.length <= count) {
+      throw new Error(
+        `Expected failed count > ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountGreaterThanOrEqual(count: number): this {
+    if (this.#result.failed.length < count) {
+      throw new Error(
+        `Expected failed count >= ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountLessThan(count: number): this {
+    if (this.#result.failed.length >= count) {
+      throw new Error(
+        `Expected failed count < ${count}, but got ${this.#result.failed.length}`,
+      );
+    }
+    return this;
+  }
+
+  toHaveFailedCountLessThanOrEqual(count: number): this {
+    if (this.#result.failed.length > count) {
+      throw new Error(
+        `Expected failed count <= ${count}, but got ${this.#result.failed.length}`,
       );
     }
     return this;
@@ -429,6 +701,33 @@ class SqsDeleteBatchResultExpectationImpl
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }
@@ -453,7 +752,7 @@ class SqsMessageExpectationImpl implements SqsMessageExpectation {
     return this;
   }
 
-  bodyMatch(matcher: (body: string) => void): this {
+  toHaveBodyMatching(matcher: (body: string) => void): this {
     matcher(this.#message.body);
     return this;
   }
@@ -540,6 +839,9 @@ export interface SqsEnsureQueueResultExpectation {
   toHaveQueueUrl(expected: string): this;
   toHaveQueueUrlContaining(substring: string): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -549,6 +851,9 @@ export interface SqsDeleteQueueResultExpectation {
   readonly not: this;
   toBeSuccessful(): this;
   toHaveDurationLessThan(ms: number): this;
+  toHaveDurationLessThanOrEqual(ms: number): this;
+  toHaveDurationGreaterThan(ms: number): this;
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 /**
@@ -613,6 +918,33 @@ class SqsEnsureQueueResultExpectationImpl
     }
     return this;
   }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
 }
 
 /**
@@ -650,6 +982,33 @@ class SqsDeleteQueueResultExpectationImpl
   toHaveDurationLessThan(ms: number): this {
     if (this.#result.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#result.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#result.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#result.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#result.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#result.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#result.duration}ms`,
+      );
     }
     return this;
   }

@@ -24,7 +24,7 @@ export interface ConnectRpcResponseExpectation {
   toHaveCode(expected: ConnectRpcStatusCode): this;
 
   /** Verify the status code is one of the specified values. */
-  toHaveCodeIn(codes: ConnectRpcStatusCode[]): this;
+  toHaveCodeOneOf(codes: ConnectRpcStatusCode[]): this;
 
   /** Verify the error message matches exactly or by regex. */
   toHaveError(expected: string | RegExp): this;
@@ -33,7 +33,7 @@ export interface ConnectRpcResponseExpectation {
   toHaveErrorContaining(substring: string): this;
 
   /** Verify the error message using a custom matcher. */
-  errorMatch(matcher: (message: string) => void): this;
+  toHaveErrorMatching(matcher: (message: string) => void): this;
 
   /** Verify a header value matches exactly or by regex. */
   toHaveHeaderValue(name: string, expected: string | RegExp): this;
@@ -72,6 +72,15 @@ export interface ConnectRpcResponseExpectation {
 
   /** Verify that response duration is less than the threshold. */
   toHaveDurationLessThan(ms: number): this;
+
+  /** Verify that response duration is less than or equal to the threshold. */
+  toHaveDurationLessThanOrEqual(ms: number): this;
+
+  /** Verify that response duration is greater than the threshold. */
+  toHaveDurationGreaterThan(ms: number): this;
+
+  /** Verify that response duration is greater than or equal to the threshold. */
+  toHaveDurationGreaterThanOrEqual(ms: number): this;
 }
 
 class ConnectRpcResponseExpectationImpl
@@ -112,7 +121,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  toHaveCodeIn(codes: ConnectRpcStatusCode[]): this {
+  toHaveCodeOneOf(codes: ConnectRpcStatusCode[]): this {
     if (!codes.includes(this.#response.code)) {
       throw new Error(
         `Expected code to be one of [${
@@ -146,7 +155,7 @@ class ConnectRpcResponseExpectationImpl
     return this;
   }
 
-  errorMatch(matcher: (message: string) => void): this {
+  toHaveErrorMatching(matcher: (message: string) => void): this {
     matcher(this.#response.message);
     return this;
   }
@@ -283,6 +292,33 @@ class ConnectRpcResponseExpectationImpl
   toHaveDurationLessThan(ms: number): this {
     if (this.#response.duration >= ms) {
       throw new Error(buildDurationError(ms, this.#response.duration));
+    }
+    return this;
+  }
+
+  toHaveDurationLessThanOrEqual(ms: number): this {
+    if (this.#response.duration > ms) {
+      throw new Error(
+        `Expected duration <= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThan(ms: number): this {
+    if (this.#response.duration <= ms) {
+      throw new Error(
+        `Expected duration > ${ms}ms, but got ${this.#response.duration}ms`,
+      );
+    }
+    return this;
+  }
+
+  toHaveDurationGreaterThanOrEqual(ms: number): this {
+    if (this.#response.duration < ms) {
+      throw new Error(
+        `Expected duration >= ${ms}ms, but got ${this.#response.duration}ms`,
+      );
     }
     return this;
   }

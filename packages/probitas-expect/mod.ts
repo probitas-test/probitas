@@ -29,6 +29,10 @@ export type { GraphqlResponse } from "@probitas/client-graphql";
 export { expectConnectRpcResponse } from "./connectrpc.ts";
 export type { ConnectRpcResponse } from "@probitas/client-connectrpc";
 
+// gRPC
+export { expectGrpcResponse } from "./grpc.ts";
+export type { GrpcResponse } from "@probitas/client-grpc";
+
 // Redis
 export { expectRedisResult } from "./redis.ts";
 export type { RedisResult } from "@probitas/client-redis";
