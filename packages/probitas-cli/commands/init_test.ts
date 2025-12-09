@@ -304,11 +304,11 @@ describe("init command", () => {
 
       const skillContent = await Deno.readTextFile(skillPath);
       assertStringIncludes(skillContent, "Probitas Skill");
-      assertStringIncludes(skillContent, "documents.probitas.deno.net");
+      assertStringIncludes(skillContent, "jsr-probitas.github.io/documents");
 
       const overviewContent = await Deno.readTextFile(overviewPath);
       assertStringIncludes(overviewContent, "Probitas Overview");
-      assertStringIncludes(overviewContent, "documents.probitas.deno.net");
+      assertStringIncludes(overviewContent, "jsr-probitas.github.io/documents");
     });
 
     it("returns error when example exists without --force", async () => {
