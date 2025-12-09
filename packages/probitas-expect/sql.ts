@@ -100,9 +100,9 @@ export interface SqlQueryResultExpectation<T> {
  * const result = await client.query("SELECT * FROM users WHERE active = true");
  *
  * expectSqlQueryResult(result)
- *   .ok()
- *   .countAtLeast(1)
- *   .dataContains({ name: "Alice" });
+ *   .toBeSuccessful()
+ *   .toHaveLengthGreaterThanOrEqual(1)
+ *   .toMatchObject({ name: "Alice" });
  * ```
  *
  * @example Insert/Update assertions
@@ -113,16 +113,16 @@ export interface SqlQueryResultExpectation<T> {
  * );
  *
  * expectSqlQueryResult(result)
- *   .ok()
- *   .rowCount(1)
- *   .hasLastInsertId();
+ *   .toBeSuccessful()
+ *   .toHaveRowCount(1)
+ *   .toHaveLastInsertId();
  * ```
  *
  * @example Custom matcher with mapped data
  * ```ts
  * expectSqlQueryResult(result)
- *   .ok()
- *   .mapMatch(
+ *   .toBeSuccessful()
+ *   .toHaveMapMatching(
  *     (row) => row.name.toUpperCase(),
  *     (names) => assertEquals(names, ["ALICE", "BOB"])
  *   );
@@ -131,8 +131,8 @@ export interface SqlQueryResultExpectation<T> {
  * @example Performance assertions
  * ```ts
  * expectSqlQueryResult(result)
- *   .ok()
- *   .durationLessThan(100);  // Must complete within 100ms
+ *   .toBeSuccessful()
+ *   .toHaveDurationLessThan(100);  // Must complete within 100ms
  * ```
  */
 // deno-lint-ignore no-explicit-any

@@ -878,19 +878,19 @@ export type MongoExpectation<R extends MongoResult> = R extends
  * ```ts
  * // For find result - returns MongoFindResultExpectation
  * const findResult = await users.find({ age: { $gte: 30 } });
- * expectMongoResult(findResult).toBeSuccessful().toHaveContent().count(2);
+ * expectMongoResult(findResult).toBeSuccessful().toHaveContent().toHaveLength(2);
  *
  * // For insert result - returns MongoInsertResultExpectation
  * const insertResult = await users.insertOne({ name: "Alice", age: 30 });
- * expectMongoResult(insertResult).toBeSuccessful().hasInsertedId();
+ * expectMongoResult(insertResult).toBeSuccessful().toHaveInsertedId();
  *
  * // For update result - returns MongoUpdateResultExpectation
  * const updateResult = await users.updateOne({ name: "Alice" }, { $set: { age: 31 } });
- * expectMongoResult(updateResult).toBeSuccessful().matchedCount(1).modifiedCount(1);
+ * expectMongoResult(updateResult).toBeSuccessful().toHaveMatchedCount(1).toHaveModifiedCount(1);
  *
  * // For delete result - returns MongoDeleteResultExpectation
  * const deleteResult = await users.deleteOne({ name: "Alice" });
- * expectMongoResult(deleteResult).toBeSuccessful().deletedCount(1);
+ * expectMongoResult(deleteResult).toBeSuccessful().toHaveDeletedCount(1);
  *
  * // For findOne result - returns MongoFindOneResultExpectation
  * const findOneResult = await users.findOne({ name: "Alice" });
@@ -898,7 +898,7 @@ export type MongoExpectation<R extends MongoResult> = R extends
  *
  * // For count result - returns MongoCountResultExpectation
  * const countResult = await users.countDocuments();
- * expectMongoResult(countResult).toBeSuccessful().count(10);
+ * expectMongoResult(countResult).toBeSuccessful().toHaveLength(10);
  * ```
  */
 // deno-lint-ignore no-explicit-any

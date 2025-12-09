@@ -102,9 +102,9 @@ export interface ConnectRpcResponseExpectation {
  * );
  *
  * expectConnectRpcResponse(response)
- *   .ok()
- *   .hasContent()
- *   .dataContains({ message: "Hello!" });
+ *   .toBeSuccessful()
+ *   .toHaveContent()
+ *   .toMatchObject({ message: "Hello!" });
  * ```
  *
  * @example Error status assertions
@@ -117,24 +117,24 @@ export interface ConnectRpcResponseExpectation {
  * );
  *
  * expectConnectRpcResponse(response)
- *   .notOk()
- *   .code(5)  // NOT_FOUND
- *   .errorContains("not found");
+ *   .not.toBeSuccessful()
+ *   .toHaveCode(5)  // NOT_FOUND
+ *   .toHaveErrorContaining("not found");
  * ```
  *
  * @example Header and trailer assertions
  * ```ts
  * expectConnectRpcResponse(response)
- *   .ok()
- *   .headerExists("x-request-id")
- *   .trailerExists("grpc-status");
+ *   .toBeSuccessful()
+ *   .toHaveHeader("x-request-id")
+ *   .toHaveTrailer("grpc-status");
  * ```
  *
  * @example Performance assertions
  * ```ts
  * expectConnectRpcResponse(response)
- *   .ok()
- *   .durationLessThan(500);  // Must respond within 500ms
+ *   .toBeSuccessful()
+ *   .toHaveDurationLessThan(500);  // Must respond within 500ms
  * ```
  */
 export function expectConnectRpcResponse(

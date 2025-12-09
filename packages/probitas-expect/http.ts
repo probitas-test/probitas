@@ -90,9 +90,9 @@ export interface HttpResponseExpectation {
  * const response = await http.get("/users/123");
  *
  * expectHttpResponse(response)
- *   .ok()
- *   .contentType("application/json")
- *   .dataContains({ id: 123, name: "Alice" });
+ *   .toBeSuccessful()
+ *   .toHaveContentType("application/json")
+ *   .toMatchObject({ id: 123, name: "Alice" });
  * ```
  *
  * @example Error response assertions
@@ -100,15 +100,15 @@ export interface HttpResponseExpectation {
  * const response = await http.get("/not-found", { throwOnError: false });
  *
  * expectHttpResponse(response)
- *   .notOk()
- *   .status(404);
+ *   .not.toBeSuccessful()
+ *   .toHaveStatus(404);
  * ```
  *
  * @example Performance assertions
  * ```ts
  * expectHttpResponse(response)
- *   .ok()
- *   .durationLessThan(1000);  // Must respond within 1 second
+ *   .toBeSuccessful()
+ *   .toHaveDurationLessThan(1000);  // Must respond within 1 second
  * ```
  */
 export function expectHttpResponse(

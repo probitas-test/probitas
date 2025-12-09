@@ -364,15 +364,15 @@ export type RedisExpectation<R extends RedisResult> = R extends RedisCountResult
  * ```ts
  * // For GET result - returns RedisResultExpectation<string | null>
  * const getResult = await client.get("key");
- * expectRedisResult(getResult).ok().data("expected");
+ * expectRedisResult(getResult).toBeSuccessful().toHaveValue("expected");
  *
  * // For COUNT result - returns RedisCountResultExpectation
  * const countResult = await client.del("key");
- * expectRedisResult(countResult).ok().count(1);
+ * expectRedisResult(countResult).toBeSuccessful().toHaveCount(1);
  *
  * // For ARRAY result - returns RedisArrayResultExpectation
  * const arrayResult = await client.lrange("list", 0, -1);
- * expectRedisResult(arrayResult).ok().count(3).contains("item");
+ * expectRedisResult(arrayResult).toBeSuccessful().toHaveLength(3).toContain("item");
  * ```
  */
 // deno-lint-ignore no-explicit-any

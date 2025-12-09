@@ -510,23 +510,23 @@ export type DenoKvExpectation<R extends DenoKvResult> = R extends
  * ```ts
  * // For GET result - returns DenoKvGetResultExpectation<T>
  * const getResult = await kv.get(["users", "1"]);
- * expectDenoKvResult(getResult).ok().hasContent().toMatchObject({ name: "Alice" });
+ * expectDenoKvResult(getResult).toBeSuccessful().toHaveContent().toMatchObject({ name: "Alice" });
  *
  * // For SET result - returns DenoKvSetResultExpectation
  * const setResult = await kv.set(["users", "1"], { name: "Alice" });
- * expectDenoKvResult(setResult).ok().hasVersionstamp();
+ * expectDenoKvResult(setResult).toBeSuccessful().toHaveVersionstamp();
  *
  * // For LIST result - returns DenoKvListResultExpectation<T>
  * const listResult = await kv.list({ prefix: ["users"] });
- * expectDenoKvResult(listResult).ok().count(3);
+ * expectDenoKvResult(listResult).toBeSuccessful().toHaveLength(3);
  *
  * // For DELETE result - returns DenoKvDeleteResultExpectation
  * const deleteResult = await kv.delete(["users", "1"]);
- * expectDenoKvResult(deleteResult).ok();
+ * expectDenoKvResult(deleteResult).toBeSuccessful();
  *
  * // For ATOMIC result - returns DenoKvAtomicResultExpectation
  * const atomicResult = await kv.atomic().set(["counter"], 1).commit();
- * expectDenoKvResult(atomicResult).ok().hasVersionstamp();
+ * expectDenoKvResult(atomicResult).toBeSuccessful().toHaveVersionstamp();
  * ```
  */
 // deno-lint-ignore no-explicit-any

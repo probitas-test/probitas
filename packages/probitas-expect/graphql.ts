@@ -95,9 +95,9 @@ export interface GraphqlResponseExpectation {
  * `, { id: "123" });
  *
  * expectGraphqlResponse(response)
- *   .ok()
- *   .hasContent()
- *   .dataContains({ user: { name: "Alice" } });
+ *   .toBeSuccessful()
+ *   .toHaveContent()
+ *   .toMatchObject({ user: { name: "Alice" } });
  * ```
  *
  * @example Error assertions
@@ -107,8 +107,8 @@ export interface GraphqlResponseExpectation {
  * `, undefined, { throwOnError: false });
  *
  * expectGraphqlResponse(response)
- *   .notOk()
- *   .errorContains("Cannot query field");
+ *   .not.toBeSuccessful()
+ *   .toHaveErrorContaining("Cannot query field");
  * ```
  *
  * @example Mutation with custom matcher
@@ -120,8 +120,8 @@ export interface GraphqlResponseExpectation {
  * `, { input: { name: "Bob" } });
  *
  * expectGraphqlResponse(response)
- *   .ok()
- *   .dataMatch((data) => {
+ *   .toBeSuccessful()
+ *   .toSatisfy((data) => {
  *     assertEquals(data.createUser.name, "Bob");
  *   });
  * ```
@@ -129,8 +129,8 @@ export interface GraphqlResponseExpectation {
  * @example Performance assertions
  * ```ts
  * expectGraphqlResponse(response)
- *   .ok()
- *   .durationLessThan(500);  // Must respond within 500ms
+ *   .toBeSuccessful()
+ *   .toHaveDurationLessThan(500);  // Must respond within 500ms
  * ```
  */
 export function expectGraphqlResponse(

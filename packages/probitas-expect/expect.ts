@@ -1,5 +1,5 @@
 /**
- * Unified expect function that dispatches to the appropriate expectXXXXX function
+ * Unified expect function that dispatches to the appropriate expectation function
  * based on the type of the input object.
  *
  * @module
@@ -44,26 +44,26 @@ function hasType(value: unknown): value is { type: string } {
 }
 
 /**
- * Unified expect function that dispatches to the appropriate expectXXXXX function
+ * Unified expect function that dispatches to the appropriate expectation function
  * based on the type of the input object.
  *
  * @example
  * ```ts
  * // HTTP response
  * const httpRes = await http.get("/users");
- * expect(httpRes).ok().dataContains({ users: [] });
+ * expect(httpRes).toBeSuccessful().toHaveContentContaining({ users: [] });
  *
  * // GraphQL response
  * const gqlRes = await graphql.query("{ users { id name } }");
- * expect(gqlRes).ok().hasContent();
+ * expect(gqlRes).toBeSuccessful().toHaveContent();
  *
  * // SQL query result
  * const sqlRes = await db.query("SELECT * FROM users");
- * expect(sqlRes).ok().count(10);
+ * expect(sqlRes).toBeSuccessful().toHaveCount(10);
  *
  * // MongoDB result
  * const mongoRes = await mongo.find({ status: "active" });
- * expect(mongoRes).ok().count(10);
+ * expect(mongoRes).toBeSuccessful().toHaveLength(10);
  *
  * // Falls back to expectAnything (chainable @std/expect) for other values
  * expect(42).toBe(42).toBeGreaterThan(40);

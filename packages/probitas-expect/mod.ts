@@ -54,7 +54,8 @@
  *
  *     expect(response)
  *       .toBeSuccessful()
- *       .toHaveContent({ user: { name: "Alice" } })
+ *       .toHaveContent()
+ *       .toMatchObject({ user: { name: "Alice" } })
  *       .toHaveErrorCount(0);
  *   })
  *   .build();
@@ -76,7 +77,7 @@
  *     expect(result)
  *       .toBeSuccessful()
  *       .toHaveLength(10)
- *       .toHaveContent([{ id: 1, name: "Alice" }]);
+ *       .toMatchObject({ name: "Alice" });
  *   })
  *   .build();
  * ```
