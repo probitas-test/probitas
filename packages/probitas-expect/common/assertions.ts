@@ -147,9 +147,9 @@ export function assertContains(
  * @throws Error if value is null or undefined
  */
 export function getNonNull<T>(
-  value: T | null | undefined,
+  value: T,
   valueName: string,
-): T {
+): NonNullable<T> {
   if (value === null || value === undefined) {
     throw new Error(`Expected ${valueName} to exist, but got ${value}`);
   }
