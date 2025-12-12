@@ -1,5 +1,5 @@
 import type { HttpResponse } from "@probitas/client-http";
-import { ensureNonNullish } from "./common.ts";
+import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
 /**

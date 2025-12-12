@@ -1,5 +1,5 @@
 import type { GraphqlResponse } from "@probitas/client-graphql";
-import { ensureNonNullish } from "./common.ts";
+import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
 /**

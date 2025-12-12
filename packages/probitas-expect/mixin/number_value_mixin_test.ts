@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
-import { catchError } from "../common/catch_error.ts";
+import { catchError } from "../utils.ts";
 import { createNumberValueMixin } from "./number_value_mixin.ts";
 
 Deno.test("createNumberValueMixin - type check", () => {

@@ -221,9 +221,6 @@ export { expect } from "./expect.ts";
 // Chainable wrapper for @std/expect
 export { type AnythingExpectation, expectAnything } from "./anything.ts";
 
-// Common utilities
-export { formatValue } from "./common.ts";
-
 // HTTP
 export { expectHttpResponse } from "./http.ts";
 export type * from "@probitas/client-http";

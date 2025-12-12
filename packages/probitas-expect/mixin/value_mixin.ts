@@ -1,8 +1,8 @@
 import { expect as stdExpect } from "@std/expect";
-import { formatValue } from "../common/format_value.ts";
-import { toPascalCase } from "../common/pascal_case.ts";
-import { tryOk } from "../common/try_ok.ts";
-import { xor } from "../common/xor.ts";
+import { formatValue } from "../utils.ts";
+import { toPascalCase } from "../utils.ts";
+import { tryOk } from "../utils.ts";
+import { xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
   MixinApplied,

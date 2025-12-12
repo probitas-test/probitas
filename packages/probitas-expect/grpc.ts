@@ -8,7 +8,7 @@
  */
 
 import type { GrpcResponse } from "@probitas/client-grpc";
-import { ensureNonNullish } from "./common.ts";
+import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
 /**

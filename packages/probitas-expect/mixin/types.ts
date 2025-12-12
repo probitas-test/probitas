@@ -1,4 +1,4 @@
-import type { ToPascalCase } from "../common/pascal_case.ts";
+import type { ToPascalCase } from "../utils.ts";
 import type { PatchTypedChainMethod, Simplify } from "./_typeutils.ts";
 
 /**

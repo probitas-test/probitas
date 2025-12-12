@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
-import { catchError } from "../common/catch_error.ts";
+import { catchError } from "../utils.ts";
 import { createNullishValueMixin } from "./nullish_value_mixin.ts";
 
 type Nullish<T> = T | null | undefined;

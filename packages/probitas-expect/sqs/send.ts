@@ -1,5 +1,5 @@
 import type { SqsSendResult } from "@probitas/client-sqs";
-import { ensureNonNullish } from "../common.ts";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**

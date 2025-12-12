@@ -1,5 +1,5 @@
 import type { SqlQueryResult } from "@probitas/client-sql";
-import { ensureNonNullish } from "./common.ts";
+import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
 /**

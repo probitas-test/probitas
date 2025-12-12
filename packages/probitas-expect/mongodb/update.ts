@@ -1,5 +1,5 @@
 import type { MongoUpdateResult } from "@probitas/client-mongodb";
-import { ensureNonNullish } from "../common.ts";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
