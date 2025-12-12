@@ -69,6 +69,12 @@ describe("list command", { sanitizeResources: false }, () => {
 
     const result = await child.output();
     const stdout = new TextDecoder().decode(result.stdout);
+    const stderr = new TextDecoder().decode(result.stderr);
+
+    // Log stderr if test fails to help debug CI issues
+    if (result.code !== 0) {
+      console.error("Subprocess failed with stderr:", stderr);
+    }
 
     assertEquals(result.code, 0);
     assertEquals(stdout.includes("Test 1"), true);

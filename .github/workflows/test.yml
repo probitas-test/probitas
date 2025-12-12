@@ -31,6 +31,13 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
       - run: |
           sudo apt-get update && sudo apt-get install -y sqlite3
+      # Workaround for native library download race condition in parallel tests.
+      # Multiple subprocesses may simultaneously download the same FFI library,
+      # causing "file too short" errors. Pre-loading prevents this conflict.
+      # See: https://github.com/jsr-probitas/probitas/issues/32
+      - name: Pre-load native libraries
+        run: |
+          deno eval "import { Database } from 'jsr:@db/sqlite@0.12'; const db = new Database(':memory:'); db.close();"
       - run: |
           deno task test:coverage
         timeout-minutes: 5
