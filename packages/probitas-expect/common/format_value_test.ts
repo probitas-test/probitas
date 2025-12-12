@@ -5,7 +5,7 @@
  */
 
 import { assertSnapshot } from "@std/testing/snapshot";
-import { formatValue } from "./format.ts";
+import { formatValue } from "./format_value.ts";
 
 Deno.test("formatValue", async (t) => {
   await t.step("formats null", async (t) => {

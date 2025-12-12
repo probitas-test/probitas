@@ -1,5 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
-import { formatValue } from "../common/format.ts";
+import { formatValue } from "../common/format_value.ts";
 import { toPascalCase } from "../common/pascal_case.ts";
 import { tryOk } from "../common/try_ok.ts";
 import { xor } from "../common/xor.ts";

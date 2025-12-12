@@ -1,4 +1,4 @@
-import { formatValue } from "../common/format.ts";
+import { formatValue } from "../common/format_value.ts";
 import { toPascalCase } from "../common/pascal_case.ts";
 import type {
   ExtractMethodBase,
