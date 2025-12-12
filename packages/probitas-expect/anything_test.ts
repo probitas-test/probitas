@@ -268,6 +268,51 @@ Deno.test("expectAnything - negation with .not", async (t) => {
   });
 });
 
+Deno.test("expectAnything - state-based negation", async (t) => {
+  await t.step("double negation (.not.not) cancels out", () => {
+    // .not.not should result in positive assertion
+    expectAnything(42).not.not.toBe(42);
+    assertThrows(() => expectAnything(42).not.not.toBe(43));
+  });
+
+  await t.step("triple negation (.not.not.not) results in negation", () => {
+    // .not.not.not should result in negated assertion
+    expectAnything(42).not.not.not.toBe(43);
+    assertThrows(() => expectAnything(42).not.not.not.toBe(42));
+  });
+
+  await t.step("independent negations in chain", () => {
+    // Both .not calls are independent - negation resets after each method
+    expectAnything(42)
+      .not.toBe(43) // First: negated assertion (42 != 43) ✓
+      .not.toBe(43); // Second: negated assertion (42 != 43) ✓
+  });
+
+  await t.step("alternating negations and positives", () => {
+    expectAnything(42)
+      .not.toBe(41) // negated: 42 != 41 ✓
+      .toBe(42) // positive: 42 === 42 ✓
+      .not.toBe(43) // negated: 42 != 43 ✓
+      .not.toBeNull(); // negated: 42 != null ✓
+  });
+
+  await t.step("negation state resets between method calls", () => {
+    // Calling .not followed by method consumes the flag, resetting for next call
+    expectAnything("hello")
+      .not.toBe("world") // Negated
+      .toBe("hello") // Not negated (flag was reset)
+      .not.toBeUndefined(); // Negated
+  });
+
+  await t.step(".not returns same object instance", () => {
+    const instance = expectAnything(42);
+    const negated = instance.not;
+    const negatedAgain = negated.not;
+    // All should work on the same underlying object
+    negatedAgain.toBe(42);
+  });
+});
+
 Deno.test("expectAnything - method chaining", async (t) => {
   await t.step("chain multiple assertions", () => {
     expectAnything(42)

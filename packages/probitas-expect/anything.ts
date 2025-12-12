@@ -445,155 +445,208 @@ export interface AnythingExpectation {
  */
 export function expectAnything<T>(
   value: T,
-  negate = false,
 ): AnythingExpectation {
-  // Always create a fresh @std/expect instance to avoid Proxy state contamination
-  const originalExpect = expectStd(value);
+  // State to track whether the next method call should be negated
+  const state = { nextNegate: false };
 
-  // Apply negation if needed
-  const stdExpect = negate
-    ? (originalExpect as unknown as Record<string, Expected<false>>).not
-    : originalExpect;
+  // Getter function that returns and consumes the negation flag
+  const getNegate = () => {
+    const result = state.nextNegate;
+    state.nextNegate = false; // Reset after consumption
+    return result;
+  };
+
+  // Helper to apply negation to @std/expect
+  const getExpect = (negate: boolean) => {
+    const originalExpect = expectStd(value);
+    return negate
+      ? (originalExpect as unknown as Record<string, Expected<false>>).not
+      : originalExpect;
+  };
 
   const self: AnythingExpectation = {
     get not(): AnythingExpectation {
-      // Create new negated instance
-      return expectAnything(value, !negate);
+      // Toggle the negation flag for the next method call
+      state.nextNegate = !state.nextNegate;
+      return self; // Return the same object
     },
 
     // Common matchers
     toBe(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBe(expected);
-      // Return new instance with negation reset
-      return expectAnything(value, false);
+      return self;
     },
 
     toEqual(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toEqual(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toStrictEqual(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toStrictEqual(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toMatch(expected: string | RegExp) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toMatch(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toMatchObject(expected: Record<string, unknown>) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toMatchObject(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeDefined() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeDefined();
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeUndefined() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeUndefined();
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeNull() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeNull();
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeNaN() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeNaN();
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeTruthy() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeTruthy();
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeFalsy() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeFalsy();
-      return expectAnything(value, false);
+      return self;
     },
 
     toContain(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toContain(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toContainEqual(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toContainEqual(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveLength(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveLength(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeGreaterThan(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeGreaterThan(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeGreaterThanOrEqual(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeGreaterThanOrEqual(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeLessThan(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeLessThan(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeLessThanOrEqual(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeLessThanOrEqual(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toBeCloseTo(expected: number, numDigits?: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeCloseTo(expected, numDigits);
-      return expectAnything(value, false);
+      return self;
     },
 
     // deno-lint-ignore no-explicit-any
     toBeInstanceOf(expected: new (...args: any[]) => any) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toBeInstanceOf(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toThrow(expected?: string | RegExp | Error) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toThrow(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveProperty(
       keyPath: string | string[],
       expectedValue?: unknown,
     ) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       if (expectedValue !== undefined) {
         (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
           .toHaveProperty(keyPath, expectedValue);
@@ -601,68 +654,88 @@ export function expectAnything<T>(
         (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
           .toHaveProperty(keyPath);
       }
-      return expectAnything(value, false);
+      return self;
     },
 
     // Mock related matchers
     toHaveBeenCalled() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveBeenCalled();
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveBeenCalledTimes(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveBeenCalledTimes(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveBeenCalledWith(...expected: unknown[]) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveBeenCalledWith(...expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveBeenLastCalledWith(...expected: unknown[]) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveBeenLastCalledWith(...expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveBeenNthCalledWith(n: number, ...expected: unknown[]) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveBeenNthCalledWith(n, ...expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveReturned() {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveReturned();
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveReturnedTimes(expected: number) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveReturnedTimes(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveReturnedWith(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveReturnedWith(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveLastReturnedWith(expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveLastReturnedWith(expected);
-      return expectAnything(value, false);
+      return self;
     },
 
     toHaveNthReturnedWith(n: number, expected: unknown) {
+      const negate = getNegate();
+      const stdExpect = getExpect(negate);
       (stdExpect as unknown as Record<string, (...args: unknown[]) => void>)
         .toHaveNthReturnedWith(n, expected);
-      return expectAnything(value, false);
+      return self;
     },
   };
 
