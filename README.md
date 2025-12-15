@@ -52,23 +52,12 @@ nix profile install github:jsr-probitas/probitas#probitas
 The flake packages a wrapper that runs the bundled CLI with the repository
 import map and lockfile.
 
-### Initialize a Project
-
-```bash
-probitas init
-```
-
-This creates:
-
-- `deno.json` - Configuration with probitas import and settings
-- `probitas/example.probitas.ts` - Example scenario
-
 ### Write Your First Scenario
 
 Create `probitas/hello.probitas.ts`:
 
 ```typescript
-import { scenario, Skip } from "probitas";
+import { scenario, Skip } from "jsr:@probitas/probitas";
 
 export default scenario("Hello Probitas", { tags: ["example"] })
   .step(() => {
@@ -172,20 +161,16 @@ Choose output format based on your needs:
 
 ## Configuration
 
-Add to `deno.json` or `deno.jsonc`:
+Create a `probitas.json` file in your project root:
 
 ```json
 {
-  "imports": {
-    "probitas": "jsr:@probitas/probitas"
-  },
-  "probitas": {
-    "includes": ["probitas/**/*.probitas.ts"],
-    "excludes": ["**/*.skip.probitas.ts"],
-    "reporter": "list",
-    "maxConcurrency": 4,
-    "selectors": ["!tag:wip"]
-  }
+  "includes": ["probitas/**/*.probitas.ts"],
+  "excludes": ["**/*.skip.probitas.ts"],
+  "reporter": "list",
+  "maxConcurrency": 4,
+  "timeout": "30s",
+  "selectors": ["!tag:wip"]
 }
 ```
 
@@ -195,7 +180,7 @@ Probitas provides specialized expectation functions for various client
 responses:
 
 ```typescript
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas";
 
 export default scenario("API Test Example")
   .resource("http", () =>
@@ -244,8 +229,10 @@ All expectation methods follow a consistent naming pattern (`toBeXxx`,
 
 ## Documentation
 
-- [Migration from 0.4.0](docs/migration-from-0.4.0.md) - **Breaking changes in
-  0.5.0**
+- [Migration from 0.5.0](docs/migration-from-0.5.0.md) - **Breaking changes in
+  0.6.0**
+- [Migration from 0.4.0](docs/migration-from-0.4.0.md) - Breaking changes in
+  0.5.0
 - [Migration from 0.3.6](docs/migration-from-0.3.6.md) - Breaking changes in
   0.4.0
 - [Guide](docs/guide.md) - Comprehensive usage guide

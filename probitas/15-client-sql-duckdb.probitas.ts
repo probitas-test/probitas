@@ -6,7 +6,7 @@
  *
  * For file-based database, set path like "./probitas/assets/analytics.duckdb"
  */
-import { client, expect, outdent, scenario } from "probitas";
+import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("DuckDB Client Example", {
   tags: ["integration", "sql", "duckdb"],

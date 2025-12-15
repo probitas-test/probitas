@@ -33,4 +33,12 @@ export interface ReporterOptions {
    * if `Deno.noColor` is true).
    */
   readonly theme?: Theme;
+
+  /**
+   * Base directory for making paths relative in output.
+   *
+   * If provided, absolute paths in source locations will be displayed
+   * relative to this directory.
+   */
+  readonly cwd?: string;
 }

@@ -1,4 +1,9 @@
 {
+  "lint": {
+    "exclude": [
+      "probitas/**/*.probitas.ts"
+    ]
+  },
   "workspace": [
     "./packages/probitas",
     "./packages/probitas-scenario",
@@ -14,7 +19,7 @@
     ".coverage/**"
   ],
   "tasks": {
-    "probitas": "deno run -A ./packages/probitas-cli/mod.ts",
+    "probitas": "deno run -A --unstable-kv ./packages/probitas-cli/mod.ts",
     "check": "deno check ./**/*.ts",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",

@@ -5,9 +5,6 @@
  */
 
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
-import { exists } from "@std/fs/exists";
-import { parse as parseJsonc } from "@std/jsonc";
-import { dirname, resolve, toFileUrl } from "@std/path";
 import { getLogger } from "@probitas/logger";
 import {
   DotReporter,
@@ -27,14 +24,6 @@ type DenoJson = {
 const isDenoJson = is.ObjectOf({
   version: as.Optional(is.String),
 }) satisfies Predicate<DenoJson>;
-
-type DenoConfig = {
-  imports?: Record<string, string>;
-};
-
-const isDenoConfig = is.ObjectOf({
-  imports: as.Optional(is.RecordOf(is.String, is.String)),
-}) satisfies Predicate<DenoConfig>;
 
 const reporterMap: Record<string, (opts?: ReporterOptions) => Reporter> = {
   list: (opts) => new ListReporter(opts),
@@ -165,16 +154,6 @@ export function parseTimeout(
 }
 
 /**
- * Read template file from assets/templates
- *
- * @param filename - Template filename
- * @returns Template content
- */
-export async function readTemplate(filename: string): Promise<string> {
-  return await readAsset(`templates/${filename}`);
-}
-
-/**
  * Read asset file from assets directory
  *
  * @param path - Asset path relative to assets/ (e.g., "usage.txt", "templates/deno.json")
@@ -205,148 +184,4 @@ export async function getVersion(): Promise<string | undefined> {
     });
     return undefined;
   }
-}
-
-/**
- * Options for findDenoConfigFile
- */
-export interface FindDenoConfigFileOptions {
-  /** Recursively search parent directories */
-  parentLookup?: boolean;
-}
-
-/**
- * Find deno.json or deno.jsonc in the given directory
- *
- * Search order (per directory):
- * 1. deno.json
- * 2. deno.jsonc
- *
- * @param path - Directory to search in
- * @param options - Search options
- * @returns Absolute path to config file, or undefined if not found
- */
-export async function findDenoConfigFile(
-  path: string,
-  options?: FindDenoConfigFileOptions,
-): Promise<string | undefined> {
-  logger.debug("Searching for deno config file", {
-    startPath: path,
-    parentLookup: options?.parentLookup ?? false,
-  });
-
-  let currentDir = resolve(path);
-
-  while (true) {
-    const searchPaths = [
-      resolve(currentDir, "deno.json"),
-      resolve(currentDir, "deno.jsonc"),
-    ];
-
-    for (const searchPath of searchPaths) {
-      if (await exists(searchPath)) {
-        logger.debug("Found deno config file", { configPath: searchPath });
-        return searchPath;
-      }
-    }
-
-    // Stop if parentLookup is disabled or we've reached the root
-    if (!options?.parentLookup) {
-      logger.debug("Config file not found, parentLookup disabled");
-      return undefined;
-    }
-
-    const parent = dirname(currentDir);
-    if (parent === currentDir) {
-      // Reached filesystem root
-      logger.debug("Config file not found, reached filesystem root");
-      return undefined;
-    }
-
-    currentDir = parent;
-  }
-}
-
-/**
- * Get user dependencies from their deno.json
- *
- * Reads the user's config file and resolves relative paths to file:// URLs.
- * This ensures imports work correctly when the temporary subprocess config
- * is placed in a different directory.
- *
- * @param userConfigPath - Path to user's deno.json/deno.jsonc
- * @returns Record of dependencies with resolved paths
- */
-async function getUserDependencies(
-  userConfigPath: string | undefined,
-): Promise<Record<string, string>> {
-  if (!userConfigPath) {
-    return {};
-  }
-  const text = await Deno.readTextFile(userConfigPath);
-  const denoJson = ensure(parseJsonc(text), isDenoConfig);
-  const imports = denoJson.imports ?? {};
-  const baseDir = dirname(userConfigPath);
-  return Object.fromEntries(
-    Object.entries(imports).map(([key, value]) => {
-      if (value.startsWith("./") || value.startsWith("../")) {
-        return [key, toFileUrl(resolve(baseDir, value)).href];
-      }
-      return [key, value];
-    }),
-  );
-}
-
-/**
- * Get probitas dependencies by reading the CLI package's deno.json
- *
- * Reads the deno.json bundled with the CLI package and resolves probitas
- * package imports (jsr:@probitas/*) to absolute URLs using import.meta.resolve().
- * External dependencies are kept as JSR specifiers for Deno to resolve directly.
- *
- * @returns Record of dependencies for import map
- */
-async function getProbitasDependencies(): Promise<Record<string, string>> {
-  const denoJsonUrl = new URL("./deno.json", import.meta.url);
-  const resp = await fetch(denoJsonUrl);
-  const denoJson = ensure(await resp.json(), isDenoConfig);
-  const imports = denoJson.imports ?? {};
-  return Object.fromEntries(
-    Object.entries(imports).map(([key, value]) => {
-      if (value.startsWith("jsr:@probitas/")) {
-        return [key, import.meta.resolve(value)];
-      }
-      return [key, value];
-    }),
-  );
-}
-
-/**
- * Create temporary deno.json for subprocess execution
- *
- * @param userConfigPath - Path to user's deno.json/deno.jsonc
- * @returns Path to temporary deno.json file
- */
-export async function createTempSubprocessConfig(
-  userConfigPath?: string | undefined,
-): Promise<string> {
-  const userDeps = await getUserDependencies(userConfigPath);
-  const probitasDeps = await getProbitasDependencies();
-
-  // Merge user imports with probitas deps (probitas deps override user's)
-  const denoJson = {
-    imports: {
-      ...userDeps,
-      ...probitasDeps,
-    },
-  };
-
-  // Create temporary config file
-  const tempConfigPath = await Deno.makeTempFile({ suffix: ".json" });
-  await Deno.writeTextFile(
-    tempConfigPath,
-    JSON.stringify(denoJson, null, 2),
-  );
-
-  return tempConfigPath;
 }

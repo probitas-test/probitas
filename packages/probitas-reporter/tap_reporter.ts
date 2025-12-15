@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
 import { sanitizeStack } from "./utils/stack.ts";
@@ -31,7 +31,7 @@ export class TAPReporter implements Reporter {
   }
 
   async onRunStart(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
   ): Promise<void> {
     // Store step counts per scenario for skip handling
     for (const scenario of scenarios) {
@@ -52,13 +52,13 @@ export class TAPReporter implements Reporter {
   /**
    * Called when step completes - output TAP result
    *
-   * @param _step The step definition
+   * @param _step The step metadata
    * @param result The step execution result
    * @param scenario The scenario being executed
    */
   async onStepEnd(
-    scenario: ScenarioDefinition,
-    _step: StepDefinition,
+    scenario: ScenarioMetadata,
+    _step: StepMetadata,
     result: StepResult,
   ): Promise<void> {
     this.#testNumber++;
@@ -101,7 +101,7 @@ export class TAPReporter implements Reporter {
   }
 
   onRunEnd(
-    _scenarios: readonly ScenarioDefinition[],
+    _scenarios: readonly ScenarioMetadata[],
     _result: RunResult,
   ): void {
     this.#skippedScenarioSteps.clear();

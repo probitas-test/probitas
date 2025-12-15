@@ -138,29 +138,31 @@ The Reporter layer formats and displays test execution results.
 
 ### Reporter Interface Architecture
 
-Reporters implement the `Reporter` interface with lifecycle methods:
+Reporters implement the `Reporter` interface with lifecycle methods. The
+interface uses `Metadata` types (serializable, without `fn` property) instead of
+`Definition` types to support Worker-based parallel execution:
 
 ```ts
 interface Reporter {
-  onRunStart?(scenarios: readonly ScenarioDefinition[]): Promise<void> | void;
+  onRunStart?(scenarios: readonly ScenarioMetadata[]): Promise<void> | void;
   onRunEnd?(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> | void;
 
-  onScenarioStart?(scenario: ScenarioDefinition): Promise<void> | void;
+  onScenarioStart?(scenario: ScenarioMetadata): Promise<void> | void;
   onScenarioEnd?(
-    scenario: ScenarioDefinition,
+    scenario: ScenarioMetadata,
     result: ScenarioResult,
   ): Promise<void> | void;
 
   onStepStart?(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
   ): Promise<void> | void;
   onStepEnd?(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
     result: StepResult,
   ): Promise<void> | void;
 }

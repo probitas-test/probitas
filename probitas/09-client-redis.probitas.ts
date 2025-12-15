@@ -3,7 +3,7 @@
  *
  * Target: redis service on port 16379 (compose.yaml)
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Redis Client Example", {
   tags: ["integration", "redis"],

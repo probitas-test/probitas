@@ -4,7 +4,7 @@
  * Target: rabbitmq service on port 5672 (compose.yaml)
  * Credentials: guest/guest
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 const encoder = new TextEncoder();
 

@@ -7,7 +7,7 @@ import type {
   ScenarioResult,
 } from "./types.ts";
 import { ScenarioRunner } from "./scenario_runner.ts";
-
+import { toScenarioMetadata } from "./metadata.ts";
 import { timeit } from "./utils/timeit.ts";
 
 /**
@@ -56,7 +56,8 @@ export class Runner {
     scenarios: readonly ScenarioDefinition[],
     options?: RunOptions,
   ): Promise<RunResult> {
-    await this.reporter.onRunStart?.(scenarios);
+    const scenariosMetadata = scenarios.map(toScenarioMetadata);
+    await this.reporter.onRunStart?.(scenariosMetadata);
 
     // Create abort controller for outer context
     const controller = new AbortController();
@@ -86,7 +87,7 @@ export class Runner {
       scenarios: scenarioResults,
     };
 
-    await this.reporter.onRunEnd?.(scenarios, runResult);
+    await this.reporter.onRunEnd?.(scenariosMetadata, runResult);
 
     return runResult;
   }

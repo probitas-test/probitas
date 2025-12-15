@@ -8,13 +8,14 @@ import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
 import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { discoverScenarioFiles } from "@probitas/discover";
-import { EXIT_CODE } from "../constants.ts";
-import { loadConfig } from "../config.ts";
 import {
-  createTempSubprocessConfig,
-  findDenoConfigFile,
-  readAsset,
-} from "../utils.ts";
+  applySelectors,
+  loadScenarios,
+  type ScenarioDefinition,
+} from "@probitas/scenario";
+import { EXIT_CODE } from "../constants.ts";
+import { findProbitasConfigFile, loadConfig } from "../config.ts";
+import { readAsset } from "../utils.ts";
 
 const logger = getLogger("probitas", "cli", "list");
 
@@ -87,7 +88,7 @@ export async function listCommand(
 
     // Load configuration
     const configPath = parsed.config ??
-      await findDenoConfigFile(cwd, { parentLookup: true });
+      await findProbitasConfigFile(cwd, { parentLookup: true });
     const config = configPath ? await loadConfig(configPath) : {};
 
     // Determine includes/excludes: CLI > config
@@ -112,67 +113,112 @@ export async function listCommand(
       files: scenarioFiles,
     });
 
-    // Build subprocess input
+    // Build selectors
     const selectors = parsed.selector ?? config?.selectors ?? [];
-    const subprocessInput = {
-      files: scenarioFiles,
-      selectors,
-      json: parsed.json,
-      logLevel,
-    };
 
-    // Prepare config file for subprocess with scopes
-    await using stack = new AsyncDisposableStack();
+    // Handle empty files case
+    if (scenarioFiles.length === 0) {
+      logger.debug("No files specified, returning empty list");
+      if (parsed.json) {
+        console.log("[]");
+      } else {
+        console.log("\nTotal: 0 scenarios in 0 files");
+      }
+      return EXIT_CODE.SUCCESS;
+    }
 
-    // Create temporary deno.json with scopes
-    const subprocessConfigPath = await createTempSubprocessConfig(configPath);
-    stack.defer(async () => {
-      await Deno.remove(subprocessConfigPath);
+    // Load scenarios
+    logger.info("Loading scenarios", { fileCount: scenarioFiles.length });
+
+    const scenarios = await loadScenarios(scenarioFiles, {
+      onImportError: (file, err) => {
+        const m = err instanceof Error ? err.message : String(err);
+        throw new Error(`Failed to load scenario from ${file}: ${m}`);
+      },
     });
 
-    // Subprocess path
-    const subprocessPath = new URL(
-      "./list/subprocess.ts",
-      import.meta.url,
-    ).href;
+    logger.debug("Scenarios loaded", { scenarioCount: scenarios.length });
 
-    // Build subprocess arguments
-    const subprocessArgs = [
-      "run",
-      "-A", // All permissions
-      "--no-lock",
-      "--config",
-      subprocessConfigPath,
-      ...(parsed.reload ? ["--reload"] : []),
-      subprocessPath,
-    ];
+    // Apply selectors to filter scenarios
+    const filteredScenarios = selectors && selectors.length > 0
+      ? applySelectors(scenarios, selectors)
+      : scenarios;
 
-    // Spawn subprocess
-    const cmd = new Deno.Command("deno", {
-      args: subprocessArgs,
-      cwd,
-      stdin: "piped",
-      stdout: "inherit", // Pass through to parent
-      stderr: "inherit", // Pass through to parent
+    if (selectors && selectors.length > 0) {
+      logger.debug("Applied selectors", {
+        selectors,
+        filteredCount: filteredScenarios.length,
+      });
+    }
+
+    // Output results
+    if (parsed.json) {
+      outputJson(filteredScenarios);
+    } else {
+      outputText(scenarios, filteredScenarios);
+    }
+
+    logger.info("List completed", {
+      totalScenarios: scenarios.length,
+      filteredScenarios: filteredScenarios.length,
     });
 
-    const child = cmd.spawn();
-
-    // Send configuration via stdin
-    const writer = child.stdin.getWriter();
-    await writer.write(
-      new TextEncoder().encode(JSON.stringify(subprocessInput)),
-    );
-    await writer.close();
-
-    // Wait for subprocess to complete
-    const result = await child.status;
-
-    logger.debug("Subprocess completed", { exitCode: result.code });
-
-    return result.code === 0 ? EXIT_CODE.SUCCESS : EXIT_CODE.FAILURE;
+    return EXIT_CODE.SUCCESS;
   } catch (err: unknown) {
+    const m = err instanceof Error ? err.message : String(err);
     logger.error("Unexpected error in list command", { error: err });
-    return EXIT_CODE.USAGE_ERROR;
+    console.error(`Error: ${m}`);
+    return EXIT_CODE.FAILURE;
   }
+}
+
+/**
+ * Output scenarios in text format
+ */
+function outputText(
+  allScenarios: ScenarioDefinition[],
+  filteredScenarios: ScenarioDefinition[],
+): void {
+  // Group scenarios by file
+  const byFile = new Map<string, ScenarioDefinition[]>();
+
+  for (const scenario of allScenarios) {
+    const file = scenario.source?.file || "unknown";
+    if (!byFile.has(file)) {
+      byFile.set(file, []);
+    }
+    byFile.get(file)!.push(scenario);
+  }
+
+  // Output grouped scenarios
+  let outputCount = 0;
+  for (const [file, scenariosInFile] of byFile) {
+    console.log(file);
+    for (const scenario of scenariosInFile) {
+      if (filteredScenarios.includes(scenario)) {
+        console.log(`  ${scenario.name}`);
+        outputCount++;
+      }
+    }
+  }
+
+  console.log(
+    `\nTotal: ${outputCount} scenario${
+      outputCount === 1 ? "" : "s"
+    } in ${byFile.size} file${byFile.size === 1 ? "" : "s"}`,
+  );
+}
+
+/**
+ * Output scenarios in JSON format
+ */
+function outputJson(scenarios: ScenarioDefinition[]): void {
+  const output = scenarios.map((scenario) => ({
+    name: scenario.name,
+    tags: scenario.tags,
+    steps: scenario.steps.filter((e) => e.kind === "step").length,
+    file: scenario.source?.file || "unknown",
+  }));
+
+  console.log(JSON.stringify(output, null, 2));
 }

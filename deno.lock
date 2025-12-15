@@ -1420,53 +1420,6 @@
       "jsr:@std/testing@^1.0.16",
       "npm:@aws-sdk/client-sqs@^3.946.0",
       "npm:jsonc-parser@^3.3.1"
-    ],
-    "members": {
-      "packages/probitas-cli": {
-        "dependencies": [
-          "jsr:@core/errorutil@^1.2.1",
-          "jsr:@core/unknownutil@^4.3.0",
-          "jsr:@cspotcode/outdent@0.8",
-          "jsr:@jackfiszr/faker@1.1.6",
-          "jsr:@logtape/logtape@^1.2.2",
-          "jsr:@logtape/pretty@^1.2.2",
-          "jsr:@probitas/builder@0",
-          "jsr:@probitas/client-connectrpc@0",
-          "jsr:@probitas/client-deno-kv@0",
-          "jsr:@probitas/client-graphql@0",
-          "jsr:@probitas/client-grpc@0",
-          "jsr:@probitas/client-http@0",
-          "jsr:@probitas/client-mongodb@0",
-          "jsr:@probitas/client-rabbitmq@0",
-          "jsr:@probitas/client-redis@0",
-          "jsr:@probitas/client-sql-duckdb@0",
-          "jsr:@probitas/client-sql-mysql@0",
-          "jsr:@probitas/client-sql-postgres@0",
-          "jsr:@probitas/client-sql-sqlite@0",
-          "jsr:@probitas/client-sql@0",
-          "jsr:@probitas/client-sqs@0",
-          "jsr:@probitas/discover@0",
-          "jsr:@probitas/expect@0",
-          "jsr:@probitas/logger@0",
-          "jsr:@probitas/probitas@0",
-          "jsr:@probitas/reporter@0",
-          "jsr:@probitas/runner@0",
-          "jsr:@probitas/scenario@0",
-          "jsr:@std/assert@^1.0.16",
-          "jsr:@std/async@^1.0.15",
-          "jsr:@std/cli@^1.0.24",
-          "jsr:@std/collections@^1.1.3",
-          "jsr:@std/expect@^1.0.17",
-          "jsr:@std/fmt@^1.0.8",
-          "jsr:@std/fs@^1.0.20",
-          "jsr:@std/internal@^1.0.12",
-          "jsr:@std/jsonc@^1.0.2",
-          "jsr:@std/path@^1.1.3",
-          "jsr:@std/streams@^1.0.14",
-          "jsr:@std/testing@^1.0.16",
-          "npm:jsonc-parser@^3.3.1"
-        ]
-      }
-    }
+    ]
   }
 }

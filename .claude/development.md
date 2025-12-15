@@ -68,16 +68,13 @@ Follow test-driven development principles:
 ## Custom Reporter Implementation
 
 Custom reporters should implement the `Reporter` interface and compose a
-`Writer` for output:
+`Writer` for output. The interface uses `Metadata` types (serializable) instead
+of `Definition` types:
 
 ```ts
 import { Writer, type WriterOptions } from "@probitas/reporter";
-import type {
-  Reporter,
-  RunResult,
-  ScenarioDefinition,
-  StepResult,
-} from "@probitas/runner";
+import type { Reporter, RunResult, StepResult } from "@probitas/runner";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
 import { defaultTheme, type Theme } from "@probitas/reporter";
 
 export interface CustomReporterOptions extends WriterOptions {
@@ -93,13 +90,13 @@ export class CustomReporter implements Reporter {
     this.#theme = options.theme ?? defaultTheme;
   }
 
-  async onRunStart(scenarios: readonly ScenarioDefinition[]): Promise<void> {
+  async onRunStart(scenarios: readonly ScenarioMetadata[]): Promise<void> {
     await this.#writer.write(`Running ${scenarios.length} scenarios\n`);
   }
 
   async onStepEnd(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
     result: StepResult,
   ): Promise<void> {
     // result is a discriminated union - access status-specific fields safely
@@ -113,7 +110,7 @@ export class CustomReporter implements Reporter {
   }
 
   async onRunEnd(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> {
     await this.#writer.write(`\nCompleted: ${result.passed}/${result.total}\n`);

@@ -4,7 +4,7 @@
  * Uses in-memory database for testing (no external dependencies required).
  * For file-based database, set path to a file path like "./probitas/assets/test.db"
  */
-import { client, expect, outdent, scenario } from "probitas";
+import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("SQLite Client Example", {
   tags: ["integration", "sql", "sqlite"],

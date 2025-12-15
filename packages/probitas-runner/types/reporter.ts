@@ -1,32 +1,39 @@
-import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
 import type { ScenarioResult } from "./scenario.ts";
 import type { StepResult } from "./step.ts";
 import type { RunResult } from "./run.ts";
 
+/**
+ * Reporter interface for receiving test execution events.
+ *
+ * All callbacks receive serializable metadata types (ScenarioMetadata, StepMetadata)
+ * instead of definition types, enabling use across process/thread boundaries
+ * (e.g., Web Workers).
+ */
 export interface Reporter {
   /**
    * Called when the test run starts, before any scenarios execute.
    */
-  onRunStart?(scenarios: readonly ScenarioDefinition[]): void | Promise<void>;
+  onRunStart?(scenarios: readonly ScenarioMetadata[]): void | Promise<void>;
 
   /**
    * Called when test run completes
    */
   onRunEnd?(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): void | Promise<void>;
 
   /**
    * Called when a scenario begins execution.
    */
-  onScenarioStart?(scenario: ScenarioDefinition): void | Promise<void>;
+  onScenarioStart?(scenario: ScenarioMetadata): void | Promise<void>;
 
   /**
    * Called when scenario completes
    */
   onScenarioEnd?(
-    scenario: ScenarioDefinition,
+    scenario: ScenarioMetadata,
     result: ScenarioResult,
   ): void | Promise<void>;
 
@@ -34,8 +41,8 @@ export interface Reporter {
    * Called when step starts
    */
   onStepStart?(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
   ): void | Promise<void>;
 
   /**
@@ -46,8 +53,8 @@ export interface Reporter {
    * - If status is "failed" or "skipped": contains `error` information
    */
   onStepEnd?(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
     result: StepResult,
   ): void | Promise<void>;
 }

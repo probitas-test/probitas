@@ -4,7 +4,7 @@
  * Target: echo-connectrpc service on port 18082 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-connectrpc/docs/api.md
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("ConnectRPC Client Example", {
   tags: ["integration", "connectrpc"],

@@ -9,21 +9,141 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { sandbox } from "@lambdalisue/sandbox";
-import { loadConfig } from "./config.ts";
+import { findProbitasConfigFile, loadConfig } from "./config.ts";
 
 describe("config loader", () => {
-  describe("loadConfig", () => {
-    it("loads probitas section from deno.json", async () => {
+  describe("findProbitasConfigFile", () => {
+    it("finds probitas.json in current directory", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("probitas.json"));
+    });
+
+    it("finds probitas.jsonc in current directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("probitas.jsonc"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("probitas.jsonc"));
+    });
+
+    it("finds .probitas.json in current directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve(".probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve(".probitas.json"));
+    });
+
+    it("finds .probitas.jsonc in current directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve(".probitas.jsonc"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve(".probitas.jsonc"));
+    });
+
+    it("prefers probitas.json over probitas.jsonc", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await Deno.writeTextFile(sbox.resolve("probitas.jsonc"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("probitas.json"));
+    });
+
+    it("prefers probitas.json over .probitas.json", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await Deno.writeTextFile(sbox.resolve(".probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, sbox.resolve("probitas.json"));
+    });
+
+    it("returns undefined when no config file exists", async () => {
+      await using sbox = await sandbox();
+
+      const result = await findProbitasConfigFile(sbox.path);
+
+      assertEquals(result, undefined);
+    });
+
+    it("finds config in parent directory with parentLookup", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.resolve("subdir"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, sbox.resolve("probitas.json"));
+    });
+
+    it("finds config in deeply nested parent directory", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.mkdir(sbox.resolve("a/b/c"), { recursive: true });
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.resolve("a/b/c"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, sbox.resolve("probitas.json"));
+    });
+
+    it("does not search parent directories without parentLookup", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+
+      const result = await findProbitasConfigFile(sbox.resolve("subdir"));
+
+      assertEquals(result, undefined);
+    });
+
+    it("stops at filesystem root with parentLookup", async () => {
+      await using sbox = await sandbox();
+
+      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+      // No config file in any parent
+
+      const result = await findProbitasConfigFile(sbox.resolve("subdir"), {
+        parentLookup: true,
+      });
+
+      assertEquals(result, undefined);
+    });
+  });
+
+  describe("loadConfig", () => {
+    it("loads configuration from probitas.json", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            reporter: "dot",
-            includes: ["**/*.test.ts"],
-          },
+          reporter: "dot",
+          includes: ["**/*.test.ts"],
         }),
       );
 
@@ -33,18 +153,16 @@ describe("config loader", () => {
       assertEquals(config.includes, ["**/*.test.ts"]);
     });
 
-    it("loads probitas section from deno.jsonc with comments", async () => {
+    it("loads configuration from probitas.jsonc with comments", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.jsonc");
+      const configPath = sbox.resolve("probitas.jsonc");
       await Deno.writeTextFile(
         configPath,
         `{
-          // Probitas configuration
-          "probitas": {
-            "reporter": "json",
-            "maxConcurrency": 4
-          }
+          // Reporter type
+          "reporter": "json",
+          "maxConcurrency": 4
         }`,
       );
 
@@ -54,14 +172,11 @@ describe("config loader", () => {
       assertEquals(config.maxConcurrency, 4);
     });
 
-    it("returns empty config when no probitas section exists", async () => {
+    it("returns empty config for empty object", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
-      await Deno.writeTextFile(
-        configPath,
-        JSON.stringify({ imports: {} }),
-      );
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(configPath, "{}");
 
       const config = await loadConfig(configPath);
 
@@ -71,19 +186,17 @@ describe("config loader", () => {
     it("handles all valid config fields", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            reporter: "list",
-            includes: ["**/*.probitas.ts"],
-            excludes: ["**/*.skip.ts"],
-            selectors: ["tag:smoke", "!tag:slow"],
-            maxConcurrency: 5,
-            maxFailures: 3,
-            timeout: "30s",
-          },
+          reporter: "list",
+          includes: ["**/*.probitas.ts"],
+          excludes: ["**/*.skip.ts"],
+          selectors: ["tag:smoke", "!tag:slow"],
+          maxConcurrency: 5,
+          maxFailures: 3,
+          timeout: "30s",
         }),
       );
 
@@ -101,13 +214,11 @@ describe("config loader", () => {
     it("validates reporter values", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            reporter: "invalid-reporter",
-          },
+          reporter: "invalid-reporter",
         }),
       );
 
@@ -120,13 +231,11 @@ describe("config loader", () => {
     it("validates array fields", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            includes: "not-an-array",
-          },
+          includes: "not-an-array",
         }),
       );
 
@@ -139,13 +248,11 @@ describe("config loader", () => {
     it("allows partial config with only some fields", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            reporter: "dot",
-          },
+          reporter: "dot",
         }),
       );
 
@@ -159,7 +266,7 @@ describe("config loader", () => {
     it("throws error for invalid JSON syntax", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         "{ invalid json",
@@ -173,7 +280,7 @@ describe("config loader", () => {
 
     it("throws error for non-existent file", async () => {
       await assertRejects(
-        async () => await loadConfig("/nonexistent/deno.json"),
+        async () => await loadConfig("/nonexistent/probitas.json"),
         Error,
       );
     });
@@ -181,13 +288,11 @@ describe("config loader", () => {
     it("loads timeout configuration", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            timeout: "10m",
-          },
+          timeout: "10m",
         }),
       );
 
@@ -199,13 +304,11 @@ describe("config loader", () => {
     it("validates timeout must be string", async () => {
       await using sbox = await sandbox();
 
-      const configPath = sbox.resolve("deno.json");
+      const configPath = sbox.resolve("probitas.json");
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          probitas: {
-            timeout: 123,
-          },
+          timeout: 123,
         }),
       );
 

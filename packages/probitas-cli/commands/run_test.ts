@@ -15,7 +15,6 @@ import { describe, it } from "@std/testing/bdd";
 import { stub } from "@std/testing/mock";
 import { sandbox } from "@lambdalisue/sandbox";
 import { EXIT_CODE } from "../constants.ts";
-import { stubDenoCommand } from "./_test_utils.ts";
 import { runCommand } from "./run.ts";
 
 const createScenario = (name: string, file: string, failing = false) =>
@@ -202,34 +201,6 @@ describe("run command", () => {
     });
   });
 
-  describe("reload option", () => {
-    it("forwards --reload to subprocess", async () => {
-      await using sbox = await sandbox();
-
-      const scenarioPath = sbox.resolve("reload.probitas.ts");
-      await Deno.writeTextFile(
-        scenarioPath,
-        createScenario("Reload Test", scenarioPath),
-      );
-
-      const commandArgs: string[][] = [];
-      using _commandStub = stubDenoCommand((args) => {
-        commandArgs.push(args);
-      });
-
-      const exitCode = await runCommand(["--reload"], sbox.path);
-
-      assertEquals(exitCode, EXIT_CODE.SUCCESS);
-      const args = commandArgs[0] ?? [];
-      const subprocessPath = new URL(
-        "./run/subprocess.ts",
-        import.meta.url,
-      ).href;
-      assertEquals(args.includes("--reload"), true);
-      assertEquals(
-        args.indexOf("--reload") < args.indexOf(subprocessPath),
-        true,
-      );
-    });
-  });
+  // Note: --reload option was for subprocess execution which is no longer used.
+  // The option is still parsed but has no effect in the Worker-based execution model.
 });

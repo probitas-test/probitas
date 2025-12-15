@@ -37,9 +37,6 @@ graph TD
 - **Workspace-level dependencies**: All dependencies are managed in the
   workspace root `deno.jsonc`. Individual package `deno.json` files should not
   contain `imports` or `scopes`.
-  - **Exception**: `@probitas/cli` intentionally contains its own `imports`
-    because it programmatically reads them to inject dependencies into
-    subprocesses.
 - **JSR protocol for internal deps**: Use `jsr:@probitas/xxx@^0` for
   inter-package dependencies (workspace root provides path overrides for
   development)

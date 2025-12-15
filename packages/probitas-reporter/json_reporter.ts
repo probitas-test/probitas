@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioDefinition, StepDefinition } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
 import type {
   Reporter,
   RunResult,
@@ -30,7 +30,7 @@ export class JSONReporter implements Reporter {
   }
 
   async onRunStart(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
   ): Promise<void> {
     await this.#put({
       type: "runStart",
@@ -39,7 +39,7 @@ export class JSONReporter implements Reporter {
   }
 
   async onRunEnd(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> {
     await this.#put({
@@ -49,7 +49,7 @@ export class JSONReporter implements Reporter {
     });
   }
 
-  async onScenarioStart(scenario: ScenarioDefinition): Promise<void> {
+  async onScenarioStart(scenario: ScenarioMetadata): Promise<void> {
     await this.#put({
       type: "scenarioStart",
       scenario,
@@ -57,7 +57,7 @@ export class JSONReporter implements Reporter {
   }
 
   async onScenarioEnd(
-    scenario: ScenarioDefinition,
+    scenario: ScenarioMetadata,
     result: ScenarioResult,
   ): Promise<void> {
     await this.#put({
@@ -68,8 +68,8 @@ export class JSONReporter implements Reporter {
   }
 
   async onStepStart(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
   ): Promise<void> {
     await this.#put({
       type: "stepStart",
@@ -79,8 +79,8 @@ export class JSONReporter implements Reporter {
   }
 
   async onStepEnd(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
     result: StepResult,
   ): Promise<void> {
     await this.#put({

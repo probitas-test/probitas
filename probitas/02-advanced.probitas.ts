@@ -10,7 +10,7 @@
  * - Async operations
  * - Skip for conditional execution
  */
-import { scenario, Skip } from "probitas";
+import { scenario, Skip } from "jsr:@probitas/probitas@^0";
 
 // Simulated database for demonstration
 class MockDatabase {
