@@ -60,7 +60,7 @@
  *
  * @example Loading scenarios from files
  * ```ts
- * import { loadScenarios } from "@probitas/core";
+ * import { loadScenarios } from "@probitas/core/loader";
  *
  * const scenarios = await loadScenarios([
  *   "/path/to/auth.probitas.ts",
@@ -71,7 +71,7 @@
  *
  * @example Filtering scenarios with selectors
  * ```ts
- * import { applySelectors } from "@probitas/core";
+ * import { applySelectors } from "@probitas/core/selector";
  *
  * // Filter by tag (OR logic between strings)
  * const apiOrDb = applySelectors(scenarios, ["tag:api", "tag:db"]);
@@ -111,5 +111,3 @@
  */
 
 export type * from "./types.ts";
-export * from "./loader.ts";
-export * from "./selector.ts";

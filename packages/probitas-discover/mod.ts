@@ -72,7 +72,7 @@
  * @example Integration with loader
  * ```ts
  * import { discoverScenarioFiles } from "@probitas/discover";
- * import { loadScenarios } from "@probitas/core";
+ * import { loadScenarios } from "@probitas/core/loader";
  * import { ScenarioRunner } from "@probitas/runner";
  *
  * // Complete workflow: discover -> load -> run

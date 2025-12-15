@@ -48,7 +48,7 @@
  * ```ts
  * import { ScenarioRunner } from "@probitas/runner";
  * import { ListReporter } from "@probitas/reporter";
- * import { loadScenarios } from "@probitas/core";
+ * import { loadScenarios } from "@probitas/core/loader";
  *
  * const scenarios = await loadScenarios(["./tests/*.probitas.ts"]);
  * const runner = new ScenarioRunner();

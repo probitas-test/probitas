@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "exports": {
     ".": "./mod.ts",
+    "./loader": "./loader.ts",
+    "./selector": "./selector.ts",
     "./stack": "./stack.ts"
   },
   "publish": {
