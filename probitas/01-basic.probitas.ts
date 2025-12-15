@@ -7,7 +7,7 @@
  * - Passing data between steps via ctx.previous
  * - Simple validation with thrown errors
  */
-import { scenario } from "probitas";
+import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Basic Example")
   .step("Initialize data", () => {

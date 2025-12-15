@@ -4,7 +4,7 @@
  * Target: postgres service on port 15432 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { client, expect, outdent, scenario } from "probitas";
+import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("PostgreSQL Client Example", {
   tags: ["integration", "sql", "postgres"],

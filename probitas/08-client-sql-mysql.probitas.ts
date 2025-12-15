@@ -4,7 +4,7 @@
  * Target: mysql service on port 13306 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { client, expect, outdent, scenario } from "probitas";
+import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("MySQL Client Example", {
   tags: ["integration", "sql", "mysql"],

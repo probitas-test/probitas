@@ -4,7 +4,7 @@
  * Target: localstack service on port 4566 (compose.yaml)
  * Uses LocalStack for AWS SQS emulation
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("SQS Client Example", {
   tags: ["integration", "sqs", "aws"],

@@ -4,7 +4,7 @@
  * Target: echo-grpc service on port 50051 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-grpc/docs/api.md
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("gRPC Client Example", {
   tags: ["integration", "grpc"],

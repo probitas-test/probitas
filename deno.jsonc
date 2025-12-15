@@ -1,4 +1,7 @@
 {
+  "lint": {
+    "exclude": ["probitas/**/*.probitas.ts"]
+  },
   "workspace": [
     "./packages/probitas",
     "./packages/probitas-scenario",

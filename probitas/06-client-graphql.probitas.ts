@@ -4,7 +4,7 @@
  * Target: echo-graphql service on port 14000 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-graphql/docs/api.md
  */
-import { client, expect, outdent, scenario } from "probitas";
+import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("GraphQL Client Example", {
   tags: ["integration", "graphql"],

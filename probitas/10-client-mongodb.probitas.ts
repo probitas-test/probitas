@@ -4,7 +4,7 @@
  * Target: mongodb service on port 27017 (compose.yaml)
  * Database: testdb (replica set mode for transactions)
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("MongoDB Client Example", {
   tags: ["integration", "mongodb"],

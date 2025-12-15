@@ -3,7 +3,7 @@
  *
  * Uses in-memory Deno KV storage for testing.
  */
-import { client, expect, scenario } from "probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Deno KV Client Example", {
   tags: ["integration", "deno-kv"],
