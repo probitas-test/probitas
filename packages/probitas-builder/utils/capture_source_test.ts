@@ -9,30 +9,28 @@ import { describe, it } from "@std/testing/bdd";
 import { captureSource, parseStackLine } from "./capture_source.ts";
 
 describe("parseStackLine", () => {
-  const cwd = "/Users/test/project";
-
   it("parses stack line with function name and parentheses", () => {
     const line =
       "    at myFunction (file:///Users/test/project/src/file.ts:42:10)";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertExists(source);
-    assertEquals(source.file, "src/file.ts");
+    assertEquals(source.file, "/Users/test/project/src/file.ts");
     assertEquals(source.line, 42);
   });
 
   it("parses stack line without function name", () => {
     const line = "    at file:///Users/test/project/src/file.ts:123:5";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertExists(source);
-    assertEquals(source.file, "src/file.ts");
+    assertEquals(source.file, "/Users/test/project/src/file.ts");
     assertEquals(source.line, 123);
   });
 
-  it("handles absolute paths outside cwd", () => {
+  it("returns absolute paths", () => {
     const line = "    at file:///other/path/file.ts:10:1";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertExists(source);
     assertEquals(source.file, "/other/path/file.ts");
@@ -41,14 +39,14 @@ describe("parseStackLine", () => {
 
   it("returns undefined for non-matching lines", () => {
     const line = "Error: something went wrong";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertEquals(source, undefined);
   });
 
   it("returns undefined for lines without file:// prefix", () => {
     const line = "    at someFunction (native)";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertEquals(source, undefined);
   });
@@ -56,10 +54,10 @@ describe("parseStackLine", () => {
   it("handles complex function names", () => {
     const line =
       "    at Object.<anonymous> (file:///Users/test/project/test.ts:5:10)";
-    const source = parseStackLine(line, cwd);
+    const source = parseStackLine(line);
 
     assertExists(source);
-    assertEquals(source.file, "test.ts");
+    assertEquals(source.file, "/Users/test/project/test.ts");
     assertEquals(source.line, 5);
   });
 });
@@ -107,12 +105,12 @@ describe("captureSource", () => {
     );
   });
 
-  it("returns relative path from cwd", () => {
+  it("returns absolute path", () => {
     const source = captureSource(1);
     assertExists(source);
-    // Should be relative path, not absolute
-    assertEquals(source.file.startsWith("/"), false);
-    assertEquals(source.file.startsWith("packages/"), true);
+    // Should be absolute path
+    assertEquals(source.file.startsWith("/"), true);
+    assertEquals(source.file.includes("capture_source_test.ts"), true);
   });
 
   it("handles file:// URLs in stack traces", () => {

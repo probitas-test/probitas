@@ -13,15 +13,16 @@ import type { Source } from "@probitas/scenario";
  * - With function name: "at functionName (file:///path/to/file.ts:123:45)"
  * - Without function name: "at file:///path/to/file.ts:123:45"
  *
+ * Returns absolute file paths. Conversion to relative paths should be done
+ * at display time (e.g., in reporters).
+ *
  * @param line - Single line from stack trace
- * @param cwd - Current working directory for making paths relative
  * @returns Source source or undefined if line doesn't match expected format
  *
  * @internal
  */
 export function parseStackLine(
   line: string,
-  cwd: string,
 ): Source | undefined {
   // Try format with parentheses first: "at functionName (file:///path:line:col)"
   let match = line.match(/\((file:\/\/[^:]+):(\d+):/);
@@ -42,11 +43,7 @@ export function parseStackLine(
     file = file.slice(7);
   }
 
-  // Make relative to current working directory
-  if (file.startsWith(cwd)) {
-    file = file.slice(cwd.length + 1);
-  }
-
+  // Keep absolute path - conversion to relative is done at display time
   return {
     file,
     line: parseInt(lineNum, 10),
@@ -83,11 +80,10 @@ export function captureSource(
     }
 
     const stackLines = stack.split("\n");
-    const cwd = Deno.cwd();
 
     const skipLines = depth + 1;
     for (let i = skipLines; i < stackLines.length; i++) {
-      const source = parseStackLine(stackLines[i], cwd);
+      const source = parseStackLine(stackLines[i]);
       if (source) {
         return source;
       }
