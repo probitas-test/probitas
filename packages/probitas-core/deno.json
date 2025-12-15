@@ -6,7 +6,8 @@
     "./loader": "./loader.ts",
     "./origin": "./origin.ts",
     "./selector": "./selector.ts",
-    "./stack": "./stack.ts"
+    "./stack": "./stack.ts",
+    "./theme": "./theme.ts"
   },
   "publish": {
     "exclude": [

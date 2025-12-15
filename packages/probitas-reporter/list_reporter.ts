@@ -24,7 +24,11 @@ import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import { formatOrigin, type Origin } from "@probitas/core/origin";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
-import { defaultTheme, type Theme, type ThemeFunction } from "./theme.ts";
+import {
+  defaultTheme,
+  type Theme,
+  type ThemeFunction,
+} from "@probitas/core/theme";
 
 /**
  * Options for ListReporter initialization.

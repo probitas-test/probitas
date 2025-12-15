@@ -11,7 +11,7 @@ import type { ScenarioMetadata } from "@probitas/core";
 import { formatOrigin } from "@probitas/core/origin";
 import type { Reporter, RunResult, ScenarioResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
-import { defaultTheme, type Theme } from "./theme.ts";
+import { defaultTheme, type Theme } from "@probitas/core/theme";
 
 export interface DotReporterOptions extends WriterOptions {
   theme?: Theme;

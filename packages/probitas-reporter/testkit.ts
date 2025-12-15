@@ -24,7 +24,7 @@ import type {
   StepResult,
 } from "@probitas/runner";
 import type { ReporterOptions } from "./types.ts";
-import { colorTheme, noColorTheme } from "./theme.ts";
+import { colorTheme, noColorTheme } from "@probitas/core/theme";
 
 // Origin locations for testing
 export const originLocations = {

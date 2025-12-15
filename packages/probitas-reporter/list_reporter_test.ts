@@ -19,7 +19,7 @@ import {
   stepResults,
   testReporter,
 } from "./testkit.ts";
-import { colorTheme, noColorTheme } from "./theme.ts";
+import { colorTheme, noColorTheme } from "@probitas/core/theme";
 import type { StepDefinition } from "@probitas/core";
 
 testReporter(ListReporter);

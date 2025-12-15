@@ -139,6 +139,5 @@ export * from "./tap_reporter.ts";
 export * from "./list_reporter.ts";
 export * from "./json_reporter.ts";
 export * from "./dot_reporter.ts";
-export * from "./theme.ts";
 
 export type * from "./types.ts";
