@@ -5,7 +5,6 @@ Usage: probitas <command> [options]
 Commands:
   run      Run scenarios
   list     List available scenarios
-  init     Initialize a new Probitas project
 
 Options:
   -h, --help     Show help message

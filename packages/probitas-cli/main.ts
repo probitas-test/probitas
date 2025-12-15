@@ -7,7 +7,6 @@
 import { parseArgs } from "@std/cli";
 import { getLogger } from "@probitas/logger";
 import { EXIT_CODE } from "./constants.ts";
-import { initCommand } from "./commands/init.ts";
 import { listCommand } from "./commands/list.ts";
 import { runCommand } from "./commands/run.ts";
 import { getVersion, readAsset } from "./utils.ts";
@@ -23,7 +22,6 @@ const logger = getLogger("probitas", "cli");
  * @returns Exit code
  *
  * @requires --allow-read For loading config and scenario files
- * @requires --allow-write For init command
  */
 export async function main(args: string[]): Promise<number> {
   const cwd = Deno.cwd();
@@ -68,9 +66,6 @@ export async function main(args: string[]): Promise<number> {
 
     case "list":
       return await listCommand(commandArgs, cwd);
-
-    case "init":
-      return await initCommand(commandArgs, cwd);
 
     default:
       logger.error("Unknown command", { command });
