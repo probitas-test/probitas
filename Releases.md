@@ -1,3 +1,63 @@
+### 2025.12.15
+
+#### @probitas/builder 0.2.9 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(@probitas/builder): store absolute paths in Source.file
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/cli 0.6.0 (minor)
+
+- BREAKING(@probitas/cli): remove init command
+- feat(@probitas/cli): add Worker-based parallel execution infrastructure
+- docs(*): update documentation for 0.6.0 release
+- refactor(@probitas/cli): remove obsolete import map for subprocess execution
+- refactor(@probitas/cli): migrate config to probitas.json format
+- refactor(@probitas/cli): migrate list command to in-process execution
+- refactor(@probitas/cli): migrate run command from subprocess to Worker
+  execution
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/discover 0.2.9 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/expect 0.2.1 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/logger 0.2.9 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/probitas 0.5.1 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/reporter 0.4.0 (minor)
+
+- BREAKING(@probitas/runner,@probitas/reporter): change Reporter interface to
+  use Metadata types
+- feat(@probitas/reporter): add cwd option for relative path display
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/runner 0.3.0 (minor)
+
+- BREAKING(@probitas/runner,@probitas/reporter): change Reporter interface to
+  use Metadata types
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
+#### @probitas/scenario 0.2.9 (patch)
+
+- docs(*): update documentation for 0.6.0 release
+- refactor(*): use jsr: specifier in example scenarios
+
 ### 2025.12.12
 
 #### @probitas/builder 0.2.8 (patch)
