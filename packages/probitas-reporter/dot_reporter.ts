@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioDefinition } from "@probitas/scenario";
+import type { ScenarioMetadata } from "@probitas/scenario";
 import type { Reporter, RunResult, ScenarioResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
 import { defaultTheme, type Theme } from "./theme.ts";
@@ -37,7 +37,7 @@ export class DotReporter implements Reporter {
   }
 
   async onScenarioEnd(
-    _scenario: ScenarioDefinition,
+    _scenario: ScenarioMetadata,
     result: ScenarioResult,
   ): Promise<void> {
     if (result.status === "passed") {
@@ -50,7 +50,7 @@ export class DotReporter implements Reporter {
   }
 
   async onRunEnd(
-    _scenarios: readonly ScenarioDefinition[],
+    _scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> {
     await this.#write("\n\n");

@@ -21,9 +21,9 @@
  */
 
 import type {
-  ScenarioDefinition,
+  ScenarioMetadata,
   Source,
-  StepDefinition,
+  StepMetadata,
 } from "@probitas/scenario";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
@@ -125,8 +125,8 @@ export class ListReporter implements Reporter {
   }
 
   async onStepEnd(
-    scenario: ScenarioDefinition,
-    step: StepDefinition,
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
     result: StepResult,
   ): Promise<void> {
     const kind = step.kind as "resource" | "setup" | "step";
@@ -180,7 +180,7 @@ export class ListReporter implements Reporter {
    * @param summary The execution summary
    */
   async onRunEnd(
-    scenarios: readonly ScenarioDefinition[],
+    scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> {
     const {

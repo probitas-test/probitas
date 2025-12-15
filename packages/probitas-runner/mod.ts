@@ -119,3 +119,4 @@
 export type * from "./types.ts";
 export { Skip } from "./skip.ts";
 export { Runner } from "./runner.ts";
+export { toScenarioMetadata, toStepMetadata } from "./metadata.ts";

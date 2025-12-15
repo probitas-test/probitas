@@ -1,8 +1,8 @@
-import { omit } from "@std/collections/omit";
-import type { ScenarioDefinition, ScenarioMetadata } from "@probitas/scenario";
+import type { ScenarioDefinition } from "@probitas/scenario";
 import type { Reporter, ScenarioResult, StepResult } from "./types.ts";
 import { Skip } from "./skip.ts";
 import { StepRunner } from "./step_runner.ts";
+import { toScenarioMetadata } from "./metadata.ts";
 import { timeit } from "./utils/timeit.ts";
 import { createScenarioContext } from "./context.ts";
 
@@ -17,36 +17,29 @@ export class ScenarioRunner {
     this.#reporter = reporter;
   }
 
-  #createScenarioMetadata(scenario: ScenarioDefinition): ScenarioMetadata {
-    const steps = scenario.steps.map((s) => omit(s, ["fn"]));
-    return {
-      ...omit(scenario, ["steps"]),
-      steps,
-    };
-  }
-
   async run(
     scenario: ScenarioDefinition,
     { signal }: RunOptions = {},
   ): Promise<ScenarioResult> {
-    this.#reporter.onScenarioStart?.(scenario);
+    const metadata = toScenarioMetadata(scenario);
+    this.#reporter.onScenarioStart?.(metadata);
     const stepResults: StepResult[] = [];
     const result = await timeit(() => this.#run(scenario, stepResults, signal));
     const scenarioResult: ScenarioResult = result.status === "passed"
       ? {
         status: "passed",
         duration: result.duration,
-        metadata: this.#createScenarioMetadata(scenario),
+        metadata,
         steps: stepResults,
       }
       : {
         status: result.error instanceof Skip ? "skipped" : "failed",
         duration: result.duration,
-        metadata: this.#createScenarioMetadata(scenario),
+        metadata,
         steps: stepResults,
         error: result.error,
       };
-    this.#reporter.onScenarioEnd?.(scenario, scenarioResult);
+    this.#reporter.onScenarioEnd?.(metadata, scenarioResult);
     return scenarioResult;
   }
 
@@ -58,9 +51,10 @@ export class ScenarioRunner {
     await using stack = new AsyncDisposableStack();
 
     const scenarioCtx = createScenarioContext(scenario, signal);
+    const scenarioMetadata = toScenarioMetadata(scenario);
     const stepRunner = new StepRunner(
       this.#reporter,
-      scenario,
+      scenarioMetadata,
       scenarioCtx,
     );
 

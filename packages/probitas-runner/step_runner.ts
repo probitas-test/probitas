@@ -1,13 +1,12 @@
-import { omit } from "@std/collections/omit";
 import { deadline } from "@std/async/deadline";
 import type {
-  ScenarioDefinition,
+  ScenarioMetadata,
   SetupCleanup,
   StepContext,
   StepDefinition,
-  StepMetadata,
 } from "@probitas/scenario";
 import type { Reporter, ScenarioContext, StepResult } from "./types.ts";
+import { toStepMetadata } from "./metadata.ts";
 import { timeit } from "./utils/timeit.ts";
 import { retry } from "./utils/retry.ts";
 import { createStepContext } from "./context.ts";
@@ -20,21 +19,17 @@ type ExecutionStep<T> = StepDefinition<T> & { kind: "step" };
 
 export class StepRunner {
   #reporter: Reporter;
-  #scenario: ScenarioDefinition;
+  #scenarioMetadata: ScenarioMetadata;
   #scenarioCtx: ScenarioContext;
 
   constructor(
     reporter: Reporter,
-    scenario: ScenarioDefinition,
+    scenarioMetadata: ScenarioMetadata,
     scenarioCtx: ScenarioContext,
   ) {
     this.#reporter = reporter;
-    this.#scenario = scenario;
+    this.#scenarioMetadata = scenarioMetadata;
     this.#scenarioCtx = scenarioCtx;
-  }
-
-  #createStepMetadata(step: StepDefinition): StepMetadata {
-    return omit(step, ["fn"]);
   }
 
   async run(
@@ -42,7 +37,8 @@ export class StepRunner {
     stack: AsyncDisposableStack,
   ): Promise<StepResult> {
     const ctx = createStepContext(this.#scenarioCtx);
-    this.#reporter.onStepStart?.(this.#scenario, step);
+    const stepMetadata = toStepMetadata(step);
+    this.#reporter.onStepStart?.(this.#scenarioMetadata, stepMetadata);
     const timeout = step.timeout;
     const signal = mergeSignals(
       ctx.signal,
@@ -62,15 +58,19 @@ export class StepRunner {
         status: "passed",
         value: result.value,
         duration: result.duration,
-        metadata: this.#createStepMetadata(step),
+        metadata: stepMetadata,
       }
       : {
         status: result.error instanceof Skip ? "skipped" : "failed",
         error: result.error,
         duration: result.duration,
-        metadata: this.#createStepMetadata(step),
+        metadata: stepMetadata,
       };
-    this.#reporter.onStepEnd?.(this.#scenario, step, stepResult);
+    this.#reporter.onStepEnd?.(
+      this.#scenarioMetadata,
+      stepMetadata,
+      stepResult,
+    );
     return stepResult;
   }
 
