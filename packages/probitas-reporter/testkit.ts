@@ -16,7 +16,7 @@ import type {
   Source,
   StepDefinition,
   StepOptions,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import type {
   Reporter,
   RunResult,

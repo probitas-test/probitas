@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { StepMetadata } from "@probitas/scenario";
+import type { StepMetadata } from "@probitas/core";
 
 /**
  * Result from executing a single step.

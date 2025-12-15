@@ -6,7 +6,7 @@
 
 import { getLogger } from "@probitas/logger";
 import type { ScenarioResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type {
   WorkerInput,
   WorkerOutput,

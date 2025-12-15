@@ -14,7 +14,7 @@
  *
  * | Package | Description |
  * |---------|-------------|
- * | [@probitas/scenario](https://jsr.io/@probitas/scenario) | Load discovered files with `loadScenarios` |
+ * | [@probitas/core](https://jsr.io/@probitas/core) | Load discovered files with `loadScenarios` |
  * | [@probitas/cli](https://jsr.io/@probitas/cli) | CLI that uses this discovery |
  *
  * ## Core Function
@@ -72,7 +72,7 @@
  * @example Integration with loader
  * ```ts
  * import { discoverScenarioFiles } from "@probitas/discover";
- * import { loadScenarios } from "@probitas/scenario";
+ * import { loadScenarios } from "@probitas/core";
  * import { ScenarioRunner } from "@probitas/runner";
  *
  * // Complete workflow: discover -> load -> run

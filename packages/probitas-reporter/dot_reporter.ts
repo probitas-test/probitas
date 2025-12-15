@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata } from "@probitas/core";
 import type { Reporter, RunResult, ScenarioResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
 import { defaultTheme, type Theme } from "./theme.ts";

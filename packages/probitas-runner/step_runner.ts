@@ -4,7 +4,7 @@ import type {
   SetupCleanup,
   StepContext,
   StepDefinition,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import type { Reporter, ScenarioContext, StepResult } from "./types.ts";
 import { toStepMetadata } from "./metadata.ts";
 import { timeit } from "./utils/timeit.ts";

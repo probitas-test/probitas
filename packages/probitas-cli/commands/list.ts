@@ -12,7 +12,7 @@ import {
   applySelectors,
   loadScenarios,
   type ScenarioDefinition,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import { EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { readAsset } from "../utils.ts";

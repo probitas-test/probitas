@@ -14,7 +14,7 @@ import type {
   StepDefinition,
   StepFunction,
   StepOptions,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import type { BuilderStepFunction } from "./types.ts";
 import { captureSource } from "./utils/capture_source.ts";
 

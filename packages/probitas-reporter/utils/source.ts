@@ -1,4 +1,4 @@
-import type { Source } from "@probitas/scenario";
+import type { Source } from "@probitas/core";
 
 export interface FormatSourceOptions {
   prefix?: string;

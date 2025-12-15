@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
 import { sanitizeStack } from "./utils/stack.ts";

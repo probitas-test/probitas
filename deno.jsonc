@@ -6,7 +6,7 @@
   },
   "workspace": [
     "./packages/probitas",
-    "./packages/probitas-scenario",
+    "./packages/probitas-core",
     "./packages/probitas-runner",
     "./packages/probitas-builder",
     "./packages/probitas-reporter",
@@ -79,7 +79,7 @@
     "jsr:@probitas/probitas@^0": "./packages/probitas/mod.ts",
     "jsr:@probitas/reporter@^0": "./packages/probitas-reporter/mod.ts",
     "jsr:@probitas/runner@^0": "./packages/probitas-runner/mod.ts",
-    "jsr:@probitas/scenario@^0": "./packages/probitas-scenario/mod.ts",
+    "jsr:@probitas/core@^0": "./packages/probitas-core/mod.ts",
     // Convenience aliases (required for type-checking probitas/ directory)
     "probitas": "./packages/probitas/mod.ts"
   },

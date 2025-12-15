@@ -14,7 +14,7 @@
  *
  * | Package | Description |
  * |---------|-------------|
- * | [@probitas/scenario](https://jsr.io/@probitas/scenario) | Core type definitions used by this builder |
+ * | [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions used by this builder |
  * | [@probitas/runner](https://jsr.io/@probitas/runner) | Executes scenarios built with this package |
  *
  * ## Key Features

@@ -1,5 +1,5 @@
 import { chunk } from "@std/collections/chunk";
-import type { ScenarioDefinition } from "@probitas/scenario";
+import type { ScenarioDefinition } from "@probitas/core";
 import type {
   Reporter,
   RunOptions,

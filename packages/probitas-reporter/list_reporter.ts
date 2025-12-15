@@ -20,11 +20,7 @@
  * ```
  */
 
-import type {
-  ScenarioMetadata,
-  Source,
-  StepMetadata,
-} from "@probitas/scenario";
+import type { ScenarioMetadata, Source, StepMetadata } from "@probitas/core";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import { Writer, type WriterOptions } from "./writer.ts";
 import { defaultTheme, type Theme, type ThemeFunction } from "./theme.ts";

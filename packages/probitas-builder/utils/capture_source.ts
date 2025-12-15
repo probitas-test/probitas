@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Source } from "@probitas/scenario";
+import type { Source } from "@probitas/core";
 
 /**
  * Parse a single stack trace line to extract file source

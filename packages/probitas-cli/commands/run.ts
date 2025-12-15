@@ -15,7 +15,7 @@ import {
   applySelectors,
   loadScenarios,
   type ScenarioDefinition,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import {
   type Reporter,
   type RunResult,

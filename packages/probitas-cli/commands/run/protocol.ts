@@ -5,7 +5,7 @@
  */
 
 import type { ScenarioResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 
 /**
  * Message sent from main thread to worker

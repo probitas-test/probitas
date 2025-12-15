@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { ScenarioMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata } from "@probitas/core";
 import type { StepResult } from "./step.ts";
 
 /**

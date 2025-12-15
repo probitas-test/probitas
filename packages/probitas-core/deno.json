@@ -1,6 +1,6 @@
 {
-  "name": "@probitas/scenario",
-  "version": "0.2.9",
+  "name": "@probitas/core",
+  "version": "0.1.0",
   "exports": "./mod.ts",
   "publish": {
     "exclude": [

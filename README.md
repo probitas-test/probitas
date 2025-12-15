@@ -265,7 +265,7 @@ consistent tooling.
 | [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API        |
 | [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine                |
 | [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, Dot, JSON, TAP) |
-| [@probitas/scenario](https://jsr.io/@probitas/scenario) | [![JSR](https://jsr.io/badges/@probitas/scenario)](https://jsr.io/@probitas/scenario) | Scenario loading and filtering           |
+| [@probitas/core](https://jsr.io/@probitas/core)         | [![JSR](https://jsr.io/badges/@probitas/core)](https://jsr.io/@probitas/core)         | Scenario loading and filtering           |
 | [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns        |
 | [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                      |
 

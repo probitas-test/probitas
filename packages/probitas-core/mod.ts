@@ -60,7 +60,7 @@
  *
  * @example Loading scenarios from files
  * ```ts
- * import { loadScenarios } from "@probitas/scenario";
+ * import { loadScenarios } from "@probitas/core";
  *
  * const scenarios = await loadScenarios([
  *   "/path/to/auth.probitas.ts",
@@ -71,7 +71,7 @@
  *
  * @example Filtering scenarios with selectors
  * ```ts
- * import { applySelectors } from "@probitas/scenario";
+ * import { applySelectors } from "@probitas/core";
  *
  * // Filter by tag (OR logic between strings)
  * const apiOrDb = applySelectors(scenarios, ["tag:api", "tag:db"]);
@@ -88,7 +88,7 @@
  *
  * @example Working with scenario definitions
  * ```ts
- * import type { ScenarioDefinition, StepContext } from "@probitas/scenario";
+ * import type { ScenarioDefinition, StepContext } from "@probitas/core";
  *
  * function inspectScenario(scenario: ScenarioDefinition) {
  *   console.log(`Scenario: ${scenario.name}`);

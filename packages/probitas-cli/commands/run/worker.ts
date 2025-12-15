@@ -9,8 +9,8 @@
 
 /// <reference lib="deno.worker" />
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
-import { loadScenarios } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import { loadScenarios } from "@probitas/core";
 import type { Reporter, ScenarioResult, StepResult } from "@probitas/runner";
 import { Runner } from "@probitas/runner";
 import type {
