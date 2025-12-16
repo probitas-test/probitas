@@ -1,6 +1,6 @@
 {
   "name": "@probitas/discover",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "exports": "./mod.ts",
   "publish": {
     "exclude": [

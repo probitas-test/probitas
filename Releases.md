@@ -1,5 +1,39 @@
 ### 2025.12.16
 
+#### @probitas/builder 0.3.1 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/core 0.1.1 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/discover 0.2.11 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/expect 0.2.3 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/logger 0.2.11 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/probitas 0.5.3 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/reporter 0.5.1 (patch)
+
+- refactor(*): move CLI to separate repository
+
+#### @probitas/runner 0.3.2 (patch)
+
+- refactor(*): move CLI to separate repository
+
+### 2025.12.16
+
 #### @probitas/cli 0.7.1 (patch)
 
 - feat(@probitas/cli): enable logging in worker processes
