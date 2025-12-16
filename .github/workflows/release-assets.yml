@@ -31,10 +31,6 @@ jobs:
             os: ubuntu-latest
             platform: windows-x86_64
             archive: zip
-          - target: aarch64-pc-windows-msvc
-            os: ubuntu-latest
-            platform: windows-arm64
-            archive: zip
           - target: x86_64-apple-darwin
             os: macos-latest
             platform: macos-x86_64
