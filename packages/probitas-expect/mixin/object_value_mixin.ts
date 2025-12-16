@@ -152,6 +152,7 @@ export function createObjectValueMixin<
           expectOrigin: config.expectOrigin,
           theme: config.theme,
           diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
         });
       }
       return this;
@@ -195,6 +196,7 @@ export function createObjectValueMixin<
             expectOrigin: config.expectOrigin,
             theme: config.theme,
             diff: { actual: obj, expected, negated: isNegated },
+            subject: config.subject,
           });
         } else {
           throw createExpectationError({
@@ -204,6 +206,7 @@ export function createObjectValueMixin<
             expectOrigin: config.expectOrigin,
             theme: config.theme,
             diff: { actual: obj, expected, negated: isNegated },
+            subject: config.subject,
           });
         }
       }
@@ -236,6 +239,7 @@ export function createObjectValueMixin<
             : `Expected ${valueName} property "${keyPathStr}" to contain ${expectedStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -267,6 +271,7 @@ export function createObjectValueMixin<
             : `Expected ${valueName} property "${keyPathStr}" to match ${subsetStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -312,6 +317,7 @@ export function createObjectValueMixin<
               `Expected ${valueName} property "${keyPathStr}" to exist and satisfy the matcher, but it does not exist`,
             expectOrigin: config.expectOrigin,
             theme: config.theme,
+            subject: config.subject,
           });
         }
 
@@ -321,6 +327,7 @@ export function createObjectValueMixin<
             : `Expected ${valueName} property "${keyPathStr}" to satisfy the matcher, but it failed: ${matcherError?.message}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

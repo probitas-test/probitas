@@ -35,6 +35,8 @@ export interface MixinConfig<
   readonly expectOrigin?: Origin;
   /** Theme for styling error messages */
   readonly theme?: Theme;
+  /** The subject (value being tested) for error messages */
+  readonly subject?: unknown;
 }
 
 /**

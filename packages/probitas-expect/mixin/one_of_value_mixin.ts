@@ -82,6 +82,7 @@ export function createOneOfValueMixin<
             : `Expected ${valueName} to be one of ${valuesStr}, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

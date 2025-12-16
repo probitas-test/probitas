@@ -87,22 +87,18 @@ export interface SqsDeleteResultExpectation {
 export function expectSqsDeleteResult(
   result: SqsDeleteResult,
 ): SqsDeleteResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "delete result", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("delete result")),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

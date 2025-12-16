@@ -148,38 +148,34 @@ export interface DenoKvAtomicResultExpectation {
 export function expectDenoKvAtomicResult(
   result: DenoKvAtomicResult,
 ): DenoKvAtomicResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "result", expectOrigin },
-    ),
-    // Versionstamp
-    mixin.createValueMixin(
-      () => result.versionstamp,
-      negate,
-      { valueName: "versionstamp", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.versionstamp,
-      negate,
-      { valueName: "versionstamp", expectOrigin },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.versionstamp, "versionstamp"),
-      negate,
-      { valueName: "versionstamp", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("result")),
+      // Versionstamp
+      mixin.createValueMixin(
+        () => result.versionstamp,
+        negate,
+        cfg("versionstamp"),
+      ),
+      mixin.createNullishValueMixin(
+        () => result.versionstamp,
+        negate,
+        cfg("versionstamp"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.versionstamp, "versionstamp"),
+        negate,
+        cfg("versionstamp"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

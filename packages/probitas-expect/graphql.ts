@@ -537,108 +537,80 @@ export interface GraphqlResponseExpectation {
 export function expectGraphqlResponse(
   response: GraphqlResponse,
 ): GraphqlResponseExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => response.ok,
-      negate,
-      { valueName: "response", expectOrigin },
-    ),
-    // Status
-    mixin.createValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status", expectOrigin },
-    ),
-    mixin.createOneOfValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status", expectOrigin },
-    ),
-    // Headers
-    mixin.createValueMixin(
-      () => response.headers,
-      negate,
-      { valueName: "headers", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => Object.fromEntries(response.headers.entries()),
-      negate,
-      { valueName: "headers", expectOrigin },
-    ),
-    // Errors
-    mixin.createValueMixin(
-      () => response.errors,
-      negate,
-      { valueName: "errors", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.errors,
-      negate,
-      { valueName: "errors", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => ensureNonNullish(response.errors, "errors"),
-      negate,
-      { valueName: "errors", expectOrigin },
-    ),
-    // Error count
-    mixin.createValueMixin(
-      () => response.errors?.length ?? 0,
-      negate,
-      { valueName: "error count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.errors?.length ?? 0,
-      negate,
-      { valueName: "error count", expectOrigin },
-    ),
-    // Extensions
-    mixin.createValueMixin(
-      () => response.extensions,
-      negate,
-      { valueName: "extensions", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.extensions,
-      negate,
-      { valueName: "extensions", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(response.extensions, "extensions"),
-      negate,
-      { valueName: "extensions", expectOrigin },
-    ),
-    // Data
-    mixin.createValueMixin(
-      () => response.data,
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.data,
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(response.data, "data"),
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: response }) as const;
+    return [
+      mixin.createOkMixin(() => response.ok, negate, cfg("response")),
+      // Status
+      mixin.createValueMixin(() => response.status, negate, cfg("status")),
+      mixin.createNumberValueMixin(
+        () => response.status,
+        negate,
+        cfg("status"),
+      ),
+      mixin.createOneOfValueMixin(() => response.status, negate, cfg("status")),
+      // Headers
+      mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
+      mixin.createObjectValueMixin(
+        () => Object.fromEntries(response.headers.entries()),
+        negate,
+        cfg("headers"),
+      ),
+      // Errors
+      mixin.createValueMixin(() => response.errors, negate, cfg("errors")),
+      mixin.createNullishValueMixin(
+        () => response.errors,
+        negate,
+        cfg("errors"),
+      ),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(response.errors, "errors"),
+        negate,
+        cfg("errors"),
+      ),
+      // Error count
+      mixin.createValueMixin(
+        () => response.errors?.length ?? 0,
+        negate,
+        cfg("error count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => response.errors?.length ?? 0,
+        negate,
+        cfg("error count"),
+      ),
+      // Extensions
+      mixin.createValueMixin(
+        () => response.extensions,
+        negate,
+        cfg("extensions"),
+      ),
+      mixin.createNullishValueMixin(
+        () => response.extensions,
+        negate,
+        cfg("extensions"),
+      ),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(response.extensions, "extensions"),
+        negate,
+        cfg("extensions"),
+      ),
+      // Data
+      mixin.createValueMixin(() => response.data, negate, cfg("data")),
+      mixin.createNullishValueMixin(() => response.data, negate, cfg("data")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(response.data, "data"),
+        negate,
+        cfg("data"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => response.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => response.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

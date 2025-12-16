@@ -90,6 +90,7 @@ export function createBooleanValueMixin<
             : `Expected ${valueName} to be truthy, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -111,6 +112,7 @@ export function createBooleanValueMixin<
             : `Expected ${valueName} to be falsy, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

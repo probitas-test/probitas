@@ -71,6 +71,8 @@ export interface ExpectationErrorOptions {
   readonly theme?: Theme;
   /** Diff information for showing actual vs expected */
   readonly diff?: DiffInfo;
+  /** The subject (value being tested) for error messages */
+  readonly subject?: unknown;
 }
 
 /**
@@ -106,6 +108,12 @@ export function createExpectationError(
     if (diffSection) {
       parts.push(diffSection);
     }
+  }
+
+  // Add subject section if provided
+  if (options.subject !== undefined) {
+    const subjectSection = buildSubjectSection(options.subject, theme);
+    parts.push(subjectSection);
   }
 
   // Capture matcher origin from current call stack
@@ -153,4 +161,15 @@ function buildDiffSection(diff: DiffInfo, theme: Theme): string | undefined {
     return `${theme.title(header)}\n\n${diffStr}`;
   }
   return undefined;
+}
+
+/**
+ * Build the subject section for an error message.
+ *
+ * Displays the full object being tested to help debugging.
+ */
+function buildSubjectSection(subject: unknown, theme: Theme): string {
+  const subjectStr = Deno.inspect(subject, { depth: Infinity, colors: false });
+  const lines = subjectStr.split("\n").map((line) => theme.dim(`  ${line}`));
+  return `${theme.title("Subject")}\n\n${lines.join("\n")}`;
 }

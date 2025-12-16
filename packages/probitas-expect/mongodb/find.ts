@@ -194,44 +194,32 @@ export interface MongoFindResultExpectation<_T = unknown> {
 export function expectMongoFindResult<T>(
   result: MongoFindResult<T>,
 ): MongoFindResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "find result", expectOrigin },
-    ),
-    // Docs
-    mixin.createValueMixin(
-      () => result.docs,
-      negate,
-      { valueName: "docs", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.docs,
-      negate,
-      { valueName: "docs", expectOrigin },
-    ),
-    // Docs count
-    mixin.createValueMixin(
-      () => result.docs.length,
-      negate,
-      { valueName: "docs count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.docs.length,
-      negate,
-      { valueName: "docs count", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("find result")),
+      // Docs
+      mixin.createValueMixin(() => result.docs, negate, cfg("docs")),
+      mixin.createArrayValueMixin(() => result.docs, negate, cfg("docs")),
+      // Docs count
+      mixin.createValueMixin(
+        () => result.docs.length,
+        negate,
+        cfg("docs count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.docs.length,
+        negate,
+        cfg("docs count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

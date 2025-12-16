@@ -197,44 +197,32 @@ export interface RedisArrayResultExpectation {
 export function expectRedisArrayResult<T>(
   result: RedisArrayResult<T>,
 ): RedisArrayResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "array result", expectOrigin },
-    ),
-    // Value
-    mixin.createValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value", expectOrigin },
-    ),
-    // Value count
-    mixin.createValueMixin(
-      () => result.value.length,
-      negate,
-      { valueName: "value count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.value.length,
-      negate,
-      { valueName: "value count", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("array result")),
+      // Value
+      mixin.createValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createArrayValueMixin(() => result.value, negate, cfg("value")),
+      // Value count
+      mixin.createValueMixin(
+        () => result.value.length,
+        negate,
+        cfg("value count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.value.length,
+        negate,
+        cfg("value count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

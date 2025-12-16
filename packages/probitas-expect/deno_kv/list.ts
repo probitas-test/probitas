@@ -200,44 +200,32 @@ export interface DenoKvListResultExpectation<_T = unknown> {
 export function expectDenoKvListResult<T>(
   result: DenoKvListResult<T>,
 ): DenoKvListResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "result", expectOrigin },
-    ),
-    // Entries
-    mixin.createValueMixin(
-      () => result.entries,
-      negate,
-      { valueName: "entries", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.entries,
-      negate,
-      { valueName: "entries", expectOrigin },
-    ),
-    // Entry count
-    mixin.createValueMixin(
-      () => result.entries?.length ?? 0,
-      negate,
-      { valueName: "entry count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.entries?.length ?? 0,
-      negate,
-      { valueName: "entry count", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("result")),
+      // Entries
+      mixin.createValueMixin(() => result.entries, negate, cfg("entries")),
+      mixin.createArrayValueMixin(() => result.entries, negate, cfg("entries")),
+      // Entry count
+      mixin.createValueMixin(
+        () => result.entries?.length ?? 0,
+        negate,
+        cfg("entry count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.entries?.length ?? 0,
+        negate,
+        cfg("entry count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

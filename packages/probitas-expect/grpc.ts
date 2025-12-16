@@ -455,92 +455,72 @@ export interface GrpcResponseExpectation {
 export function expectGrpcResponse(
   response: GrpcResponse,
 ): GrpcResponseExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => response.ok,
-      negate,
-      { valueName: "response", expectOrigin },
-    ),
-    // Status code
-    mixin.createValueMixin(
-      () => response.statusCode,
-      negate,
-      { valueName: "status code", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.statusCode,
-      negate,
-      { valueName: "status code", expectOrigin },
-    ),
-    mixin.createOneOfValueMixin(
-      () => response.statusCode,
-      negate,
-      { valueName: "status code", expectOrigin },
-    ),
-    // Status message
-    mixin.createValueMixin(
-      () => response.statusMessage,
-      negate,
-      { valueName: "status message", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.statusMessage,
-      negate,
-      { valueName: "status message", expectOrigin },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(response.statusMessage, "status message"),
-      negate,
-      { valueName: "status message", expectOrigin },
-    ),
-    // Headers
-    mixin.createValueMixin(
-      () => response.headers,
-      negate,
-      { valueName: "headers", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => Object.fromEntries(response.headers.entries()),
-      negate,
-      { valueName: "headers", expectOrigin },
-    ),
-    // Trailers
-    mixin.createValueMixin(
-      () => response.trailers,
-      negate,
-      { valueName: "trailers", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => Object.fromEntries(response.trailers.entries()),
-      negate,
-      { valueName: "trailers", expectOrigin },
-    ),
-    // Data
-    mixin.createValueMixin(
-      () => response.data(),
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.data(),
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(response.data(), "data"),
-      negate,
-      { valueName: "data", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: response }) as const;
+    return [
+      mixin.createOkMixin(() => response.ok, negate, cfg("response")),
+      // Status code
+      mixin.createValueMixin(
+        () => response.statusCode,
+        negate,
+        cfg("status code"),
+      ),
+      mixin.createNumberValueMixin(
+        () => response.statusCode,
+        negate,
+        cfg("status code"),
+      ),
+      mixin.createOneOfValueMixin(
+        () => response.statusCode,
+        negate,
+        cfg("status code"),
+      ),
+      // Status message
+      mixin.createValueMixin(
+        () => response.statusMessage,
+        negate,
+        cfg("status message"),
+      ),
+      mixin.createNullishValueMixin(
+        () => response.statusMessage,
+        negate,
+        cfg("status message"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(response.statusMessage, "status message"),
+        negate,
+        cfg("status message"),
+      ),
+      // Headers
+      mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
+      mixin.createObjectValueMixin(
+        () => Object.fromEntries(response.headers.entries()),
+        negate,
+        cfg("headers"),
+      ),
+      // Trailers
+      mixin.createValueMixin(() => response.trailers, negate, cfg("trailers")),
+      mixin.createObjectValueMixin(
+        () => Object.fromEntries(response.trailers.entries()),
+        negate,
+        cfg("trailers"),
+      ),
+      // Data
+      mixin.createValueMixin(() => response.data(), negate, cfg("data")),
+      mixin.createNullishValueMixin(() => response.data(), negate, cfg("data")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(response.data(), "data"),
+        negate,
+        cfg("data"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => response.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => response.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

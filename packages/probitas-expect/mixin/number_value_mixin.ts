@@ -110,6 +110,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be NaN, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -130,6 +131,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be greater than ${expected}, but got ${value}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -150,6 +152,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be greater than or equal to ${expected}, but got ${value}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -170,6 +173,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be less than ${expected}, but got ${value}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -190,6 +194,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be less than or equal to ${expected}, but got ${value}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -215,6 +220,7 @@ export function createNumberValueMixin<
             : `Expected ${valueName} to be close to ${expected} (within ${digits} digits), but got ${value}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

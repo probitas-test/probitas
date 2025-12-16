@@ -106,6 +106,7 @@ export function createArrayValueMixin<
             : `Expected ${valueName} to contain ${itemStr}, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -133,6 +134,7 @@ export function createArrayValueMixin<
           expectOrigin: config.expectOrigin,
           theme: config.theme,
           diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
         });
       }
       return this;
@@ -163,6 +165,7 @@ export function createArrayValueMixin<
           expectOrigin: config.expectOrigin,
           theme: config.theme,
           diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
         });
       }
       return this;
@@ -183,6 +186,7 @@ export function createArrayValueMixin<
             : `Expected ${valueName} to be empty, but got length ${value.length}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

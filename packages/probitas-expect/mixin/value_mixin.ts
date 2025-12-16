@@ -107,6 +107,7 @@ export function createValueMixin<
             : `Expected ${valueName} to be ${expectedStr}, but got ${valueStr}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;
@@ -131,6 +132,7 @@ export function createValueMixin<
           expectOrigin: config.expectOrigin,
           theme: config.theme,
           diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
         });
       }
       return this;
@@ -155,6 +157,7 @@ export function createValueMixin<
           expectOrigin: config.expectOrigin,
           theme: config.theme,
           diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
         });
       }
       return this;
@@ -187,6 +190,7 @@ export function createValueMixin<
             : `Expected ${valueName} to satisfy the matcher, but it failed: ${matcherError?.message}`,
           expectOrigin: config.expectOrigin,
           theme: config.theme,
+          subject: config.subject,
         });
       }
       return this;

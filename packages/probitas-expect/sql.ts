@@ -315,71 +315,51 @@ export interface SqlQueryResultExpectation {
 export function expectSqlQueryResult<T = Record<string, any>>(
   result: SqlQueryResult<T>,
 ): SqlQueryResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "result", expectOrigin },
-    ),
-    // Rows
-    mixin.createValueMixin(
-      () => result.rows,
-      negate,
-      { valueName: "rows", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.rows,
-      negate,
-      { valueName: "rows", expectOrigin },
-    ),
-    // Row count
-    mixin.createValueMixin(
-      () => result.rowCount,
-      negate,
-      { valueName: "row count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.rowCount,
-      negate,
-      { valueName: "row count", expectOrigin },
-    ),
-    // LastInsertedId
-    mixin.createValueMixin(
-      () => result.lastInsertId,
-      negate,
-      { valueName: "last insert id", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.lastInsertId,
-      negate,
-      { valueName: "last insert id", expectOrigin },
-    ),
-    // Warnings
-    mixin.createValueMixin(
-      () => result.warnings,
-      negate,
-      { valueName: "warnings", expectOrigin },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.warnings,
-      negate,
-      { valueName: "warnings", expectOrigin },
-    ),
-    mixin.createArrayValueMixin(
-      () => ensureNonNullish(result.warnings, "warnings"),
-      negate,
-      { valueName: "warnings", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("result")),
+      // Rows
+      mixin.createValueMixin(() => result.rows, negate, cfg("rows")),
+      mixin.createArrayValueMixin(() => result.rows, negate, cfg("rows")),
+      // Row count
+      mixin.createValueMixin(() => result.rowCount, negate, cfg("row count")),
+      mixin.createNumberValueMixin(
+        () => result.rowCount,
+        negate,
+        cfg("row count"),
+      ),
+      // LastInsertedId
+      mixin.createValueMixin(
+        () => result.lastInsertId,
+        negate,
+        cfg("last insert id"),
+      ),
+      mixin.createNullishValueMixin(
+        () => result.lastInsertId,
+        negate,
+        cfg("last insert id"),
+      ),
+      // Warnings
+      mixin.createValueMixin(() => result.warnings, negate, cfg("warnings")),
+      mixin.createNullishValueMixin(
+        () => result.warnings,
+        negate,
+        cfg("warnings"),
+      ),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.warnings, "warnings"),
+        negate,
+        cfg("warnings"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

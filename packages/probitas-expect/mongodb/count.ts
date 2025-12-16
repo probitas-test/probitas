@@ -144,33 +144,21 @@ export interface MongoCountResultExpectation {
 export function expectMongoCountResult(
   result: MongoCountResult,
 ): MongoCountResultExpectation {
-  return mixin.defineExpectation((negate, expectOrigin) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "count result", expectOrigin },
-    ),
-    // Count
-    mixin.createValueMixin(
-      () => result.count,
-      negate,
-      { valueName: "count", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.count,
-      negate,
-      { valueName: "count", expectOrigin },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration", expectOrigin },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("count result")),
+      // Count
+      mixin.createValueMixin(() => result.count, negate, cfg("count")),
+      mixin.createNumberValueMixin(() => result.count, negate, cfg("count")),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

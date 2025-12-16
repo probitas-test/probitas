@@ -16,6 +16,7 @@ Deno.test("MixinConfig - type check with default methodBase", () => {
     readonly methodBase?: "String";
     readonly expectOrigin?: Origin;
     readonly theme?: Theme;
+    readonly subject?: unknown;
   };
   assertType<IsExact<Config, Expected>>(true);
 });
@@ -27,6 +28,7 @@ Deno.test("MixinConfig - type check with custom methodBase", () => {
     readonly methodBase?: "CustomType";
     readonly expectOrigin?: Origin;
     readonly theme?: Theme;
+    readonly subject?: unknown;
   };
   assertType<IsExact<Config, Expected>>(true);
 });
