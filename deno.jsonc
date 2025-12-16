@@ -12,14 +12,12 @@
     "./packages/probitas-reporter",
     "./packages/probitas-discover",
     "./packages/probitas-logger",
-    "./packages/probitas-cli",
     "./packages/probitas-expect"
   ],
   "exclude": [
     ".coverage/**"
   ],
   "tasks": {
-    "probitas": "deno run -A --unstable-kv ./packages/probitas-cli/mod.ts",
     "check": "deno check ./**/*.ts",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
@@ -73,7 +71,6 @@
     "jsonc-parser": "npm:jsonc-parser@^3.3.1",
     // Override JSR packages with local paths for development
     "jsr:@probitas/builder@^0": "./packages/probitas-builder/mod.ts",
-    "jsr:@probitas/cli@^0": "./packages/probitas-cli/mod.ts",
     "jsr:@probitas/discover@^0": "./packages/probitas-discover/mod.ts",
     "jsr:@probitas/expect@^0": "./packages/probitas-expect/mod.ts",
     "jsr:@probitas/logger@^0": "./packages/probitas-logger/mod.ts",

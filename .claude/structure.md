@@ -12,24 +12,27 @@ probitas/
 │   ├── probitas-builder/         # @probitas/builder - Type-safe scenario definition
 │   ├── probitas-runner/          # @probitas/runner - Scenario execution engine
 │   ├── probitas-reporter/        # @probitas/reporter - Output formatters
-│   ├── probitas-core/        # @probitas/core - Scenario loading/filtering
+│   ├── probitas-core/            # @probitas/core - Scenario loading/filtering
 │   ├── probitas-discover/        # @probitas/discover - File discovery
-│   └── probitas-cli/             # @probitas/cli - Command-line interface
+│   ├── probitas-expect/          # @probitas/expect - Expectation library
+│   └── probitas-logger/          # @probitas/logger - Logging utilities
 └── probitas/                     # Example scenarios
 ```
+
+Note: The CLI is maintained in a
+[separate repository](https://github.com/jsr-probitas/cli).
 
 ## Package Hierarchy
 
 ```mermaid
 graph TD
-    std[probitas-std] --> builder[probitas-builder]
-    std --> runner[probitas-runner]
-    cli[probitas-cli] --> runner
-    cli --> reporter[probitas-reporter]
-    cli --> scenario[probitas-core]
-    cli --> discover[probitas-discover]
+    probitas[probitas] --> builder[probitas-builder]
+    probitas --> runner[probitas-runner]
+    probitas --> expect[probitas-expect]
     runner --> builder
-    scenario --> builder
+    runner --> logger[probitas-logger]
+    core[probitas-core] --> builder
+    reporter[probitas-reporter] --> runner
 ```
 
 ## Dependency Management

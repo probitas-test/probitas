@@ -4,7 +4,7 @@
 
 <h1 align="center">Probitas</h1>
 
-[![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)
+[![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![Test](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml)
 [![Publish](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml)
 [![codecov](https://codecov.io/github/jsr-probitas/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/jsr-probitas/probitas)
@@ -27,17 +27,17 @@ Scenario-based testing & workflow execution framework.
 ### Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | bash
 ```
 
 Options via environment variables:
 
 ```bash
 # Install specific version
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | PROBITAS_VERSION=0.7.1 bash
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | PROBITAS_VERSION=0.7.1 bash
 
 # Install to custom directory
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
 ```
 
 #### Using Nix
@@ -257,13 +257,15 @@ consistent tooling.
 | Package                                                 | JSR                                                                                   | Description                           |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------- |
 | [@probitas/probitas](https://jsr.io/@probitas/probitas) | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios |
-| [@probitas/cli](https://jsr.io/@probitas/cli)           | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           | Command-line interface                |
 | [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API     |
 | [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine             |
 | [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, JSON)        |
 | [@probitas/core](https://jsr.io/@probitas/core)         | [![JSR](https://jsr.io/badges/@probitas/core)](https://jsr.io/@probitas/core)         | Scenario loading and filtering        |
 | [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns     |
 | [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                   |
+
+The CLI is maintained in a
+[separate repository](https://github.com/jsr-probitas/cli).
 
 ## License
 
