@@ -6,7 +6,7 @@
   },
   "workspace": [
     "./packages/probitas",
-    "./packages/probitas-scenario",
+    "./packages/probitas-core",
     "./packages/probitas-runner",
     "./packages/probitas-builder",
     "./packages/probitas-reporter",
@@ -69,6 +69,7 @@
     "@std/semver": "jsr:@std/semver@^1.0.7",
     "@std/streams": "jsr:@std/streams@^1.0.14",
     "@std/testing": "jsr:@std/testing@^1.0.16",
+    "diff": "npm:diff@^8.0.2",
     "jsonc-parser": "npm:jsonc-parser@^3.3.1",
     // Override JSR packages with local paths for development
     "jsr:@probitas/builder@^0": "./packages/probitas-builder/mod.ts",
@@ -79,7 +80,7 @@
     "jsr:@probitas/probitas@^0": "./packages/probitas/mod.ts",
     "jsr:@probitas/reporter@^0": "./packages/probitas-reporter/mod.ts",
     "jsr:@probitas/runner@^0": "./packages/probitas-runner/mod.ts",
-    "jsr:@probitas/scenario@^0": "./packages/probitas-scenario/mod.ts",
+    "jsr:@probitas/core@^0": "./packages/probitas-core/mod.ts",
     // Convenience aliases (required for type-checking probitas/ directory)
     "probitas": "./packages/probitas/mod.ts"
   },

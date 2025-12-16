@@ -1,3 +1,5 @@
+import type { Origin } from "@probitas/core/origin";
+import type { Theme } from "@probitas/core/theme";
 import type { ToPascalCase } from "../utils.ts";
 import type { PatchTypedChainMethod, Simplify } from "./_typeutils.ts";
 
@@ -29,6 +31,12 @@ export interface MixinConfig<
 > {
   readonly valueName: ValueName;
   readonly methodBase?: MethodBase;
+  /** Origin of the expect() call site for error context */
+  readonly expectOrigin?: Origin;
+  /** Theme for styling error messages */
+  readonly theme?: Theme;
+  /** The subject (value being tested) for error messages */
+  readonly subject?: unknown;
 }
 
 /**

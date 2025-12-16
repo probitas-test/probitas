@@ -13,10 +13,10 @@ import { Buffer } from "@std/streams/buffer";
 import type {
   ScenarioDefinition,
   ScenarioOptions,
-  Source,
   StepDefinition,
   StepOptions,
-} from "@probitas/scenario";
+} from "@probitas/core";
+import type { Origin } from "@probitas/core/origin";
 import type {
   Reporter,
   RunResult,
@@ -24,16 +24,16 @@ import type {
   StepResult,
 } from "@probitas/runner";
 import type { ReporterOptions } from "./types.ts";
-import { colorTheme, noColorTheme } from "./theme.ts";
+import { colorTheme, noColorTheme } from "@probitas/core/theme";
 
-// Source sources for testing
-export const sourceLocations = {
-  scenario1: { file: "test.scenario.ts", line: 10 },
-  scenario2: { file: "test.scenario.ts", line: 50 },
-  step1: { file: "test.scenario.ts", line: 15 },
-  step2: { file: "test.scenario.ts", line: 20 },
-  step3: { file: "test.scenario.ts", line: 25 },
-} as const satisfies Record<string, Source>;
+// Origin locations for testing
+export const originLocations = {
+  scenario1: { path: "test.scenario.ts", line: 10 },
+  scenario2: { path: "test.scenario.ts", line: 50 },
+  step1: { path: "test.scenario.ts", line: 15 },
+  step2: { path: "test.scenario.ts", line: 20 },
+  step3: { path: "test.scenario.ts", line: 25 },
+} as const satisfies Record<string, Origin>;
 
 // Default step options for testing
 const defaultStepOptions: StepOptions = {
@@ -59,7 +59,7 @@ export const stepDefinitions = {
   passing: {
     kind: "step",
     name: "Step that passes",
-    source: sourceLocations.step1,
+    origin: originLocations.step1,
     fn: () => {
       return Promise.resolve();
     },
@@ -70,7 +70,7 @@ export const stepDefinitions = {
   failing: {
     kind: "step",
     name: "Step that fails",
-    source: sourceLocations.step2,
+    origin: originLocations.step2,
     fn: () => {
       throw new Error("Step failed");
     },
@@ -81,7 +81,7 @@ export const stepDefinitions = {
   slow: {
     kind: "step",
     name: "Slow step",
-    source: sourceLocations.step3,
+    origin: originLocations.step3,
     fn: async () => {
       // Intentionally empty - just simulates a step that could be slow
     },
@@ -98,7 +98,7 @@ export const stepResults = {
       name: "Step that passes",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step1,
+      origin: originLocations.step1,
     },
     status: "passed" as const,
     duration: 10,
@@ -111,7 +111,7 @@ export const stepResults = {
       name: "Step that passes",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step1,
+      origin: originLocations.step1,
     },
     status: "passed" as const,
     duration: 15,
@@ -124,7 +124,7 @@ export const stepResults = {
       name: "Step that fails",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step2,
+      origin: originLocations.step2,
     },
     status: "failed" as const,
     duration: 5,
@@ -137,7 +137,7 @@ export const stepResults = {
       name: "Step that is skipped",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step3,
+      origin: originLocations.step3,
     },
     status: "skipped" as const,
     duration: 0,
@@ -150,7 +150,7 @@ export const stepResults = {
       name: "Step with multiline error",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step2,
+      origin: originLocations.step2,
     },
     status: "failed" as const,
     duration: 5,
@@ -165,7 +165,7 @@ export const stepResults = {
       name: "Step skipped with multiline reason",
       timeout: 5000,
       retry: { maxAttempts: 1, backoff: "linear" as const },
-      source: sourceLocations.step3,
+      origin: originLocations.step3,
     },
     status: "skipped" as const,
     duration: 0,
@@ -178,14 +178,14 @@ export const scenarioDefinitions = {
   simple: {
     name: "Simple passing scenario",
     tags: [],
-    source: sourceLocations.scenario1,
+    origin: originLocations.scenario1,
     steps: [stepDefinitions.passing],
   },
 
   withMultipleSteps: {
     name: "Scenario with multiple steps",
     tags: [],
-    source: sourceLocations.scenario1,
+    origin: originLocations.scenario1,
     steps: [
       stepDefinitions.passing,
       stepDefinitions.passing,
@@ -196,7 +196,7 @@ export const scenarioDefinitions = {
   withFailingStep: {
     name: "Scenario with failing step",
     tags: [],
-    source: sourceLocations.scenario1,
+    origin: originLocations.scenario1,
     steps: [
       stepDefinitions.passing,
       stepDefinitions.failing,
@@ -206,7 +206,7 @@ export const scenarioDefinitions = {
   withTags: {
     name: "Tagged scenario",
     tags: ["@smoke", "@api"],
-    source: sourceLocations.scenario2,
+    origin: originLocations.scenario2,
     steps: [stepDefinitions.passing],
   },
 } as const satisfies Record<string, ScenarioDefinition>;
@@ -216,7 +216,7 @@ export const scenarioResults = {
   passed: {
     metadata: {
       name: "Simple passing scenario",
-      source: sourceLocations.scenario1,
+      origin: originLocations.scenario1,
       tags: [],
       steps: [
         {
@@ -224,7 +224,7 @@ export const scenarioResults = {
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
       ],
     },
@@ -236,7 +236,7 @@ export const scenarioResults = {
   passedMultipleSteps: {
     metadata: {
       name: "Scenario with multiple steps",
-      source: sourceLocations.scenario1,
+      origin: originLocations.scenario1,
       tags: [],
       steps: [
         {
@@ -244,21 +244,21 @@ export const scenarioResults = {
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
         {
           kind: "step" as const,
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
         {
           kind: "step" as const,
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
       ],
     },
@@ -270,7 +270,7 @@ export const scenarioResults = {
   failed: {
     metadata: {
       name: "Scenario with failing step",
-      source: sourceLocations.scenario1,
+      origin: originLocations.scenario1,
       tags: [],
       steps: [
         {
@@ -278,14 +278,14 @@ export const scenarioResults = {
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
         {
           kind: "step" as const,
           name: "Step that fails",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step2,
+          origin: originLocations.step2,
         },
       ],
     },
@@ -298,7 +298,7 @@ export const scenarioResults = {
   withTags: {
     metadata: {
       name: "Tagged scenario",
-      source: sourceLocations.scenario2,
+      origin: originLocations.scenario2,
       tags: ["@smoke", "@api"],
       steps: [
         {
@@ -306,7 +306,7 @@ export const scenarioResults = {
           name: "Step that passes",
           timeout: 5000,
           retry: { maxAttempts: 1, backoff: "linear" as const },
-          source: sourceLocations.step1,
+          origin: originLocations.step1,
         },
       ],
     },
@@ -405,7 +405,7 @@ function getRawBufferOutput(buffer: Buffer): string {
  *
  * @example
  * ```typescript
- * testReporter(DotReporter);
+ * testReporter(ListReporter);
  * ```
  */
 export function testReporter(

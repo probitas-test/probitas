@@ -1,5 +1,9 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import {
+  Any,
+  buildMatchingExpected,
+  buildPropertyExpected,
   ensureNonNullish,
   formatValue,
   toPascalCase,
@@ -133,11 +137,23 @@ export function createObjectValueMixin<
         const valueStr = formatValue(value);
         const subsetStr = formatValue(subset);
 
-        throw new Error(
-          isNegated
+        // Build expected object for diff (uses actual values for non-pattern keys)
+        const expected = Array.isArray(subset) || Array.isArray(value)
+          ? subset
+          : buildMatchingExpected(
+            value as Record<string, unknown>,
+            subset as Record<string, unknown>,
+          );
+
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not match ${subsetStr}, but it did`
             : `Expected ${valueName} to match ${subsetStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -163,19 +179,35 @@ export function createObjectValueMixin<
       if (!passes) {
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
 
+        // Build expected object for diff
+        // Uses <Any> marker when no expected value is specified
+        const expected = buildPropertyExpected(
+          obj as Record<string, unknown>,
+          keyPathStr,
+          value !== undefined ? value : Any,
+        );
+
         if (value !== undefined) {
           const valueStr = formatValue(value);
-          throw new Error(
-            isNegated
+          throw createExpectationError({
+            message: isNegated
               ? `Expected ${valueName} to not have property "${keyPathStr}" with value ${valueStr}, but it did`
               : `Expected ${valueName} to have property "${keyPathStr}" with value ${valueStr}`,
-          );
+            expectOrigin: config.expectOrigin,
+            theme: config.theme,
+            diff: { actual: obj, expected, negated: isNegated },
+            subject: config.subject,
+          });
         } else {
-          throw new Error(
-            isNegated
+          throw createExpectationError({
+            message: isNegated
               ? `Expected ${valueName} to not have property "${keyPathStr}", but it did`
               : `Expected ${valueName} to have property "${keyPathStr}"`,
-          );
+            expectOrigin: config.expectOrigin,
+            theme: config.theme,
+            diff: { actual: obj, expected, negated: isNegated },
+            subject: config.subject,
+          });
         }
       }
       return this;
@@ -201,11 +233,14 @@ export function createObjectValueMixin<
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
         const expectedStr = formatValue(expected);
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} property "${keyPathStr}" to not contain ${expectedStr}, but it did`
             : `Expected ${valueName} property "${keyPathStr}" to contain ${expectedStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -230,11 +265,14 @@ export function createObjectValueMixin<
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
         const subsetStr = formatValue(subset);
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} property "${keyPathStr}" to not match ${subsetStr}, but it did`
             : `Expected ${valueName} property "${keyPathStr}" to match ${subsetStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -274,16 +312,23 @@ export function createObjectValueMixin<
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
 
         if (!propertyExists && !isNegated) {
-          throw new Error(
-            `Expected ${valueName} property "${keyPathStr}" to exist and satisfy the matcher, but it does not exist`,
-          );
+          throw createExpectationError({
+            message:
+              `Expected ${valueName} property "${keyPathStr}" to exist and satisfy the matcher, but it does not exist`,
+            expectOrigin: config.expectOrigin,
+            theme: config.theme,
+            subject: config.subject,
+          });
         }
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} property "${keyPathStr}" to not satisfy the matcher, but it did`
             : `Expected ${valueName} property "${keyPathStr}" to satisfy the matcher, but it failed: ${matcherError?.message}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

@@ -1,4 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase, tryOk, xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -103,11 +104,14 @@ export function createNumberValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be NaN, but got ${valueStr}`
             : `Expected ${valueName} to be NaN, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -121,11 +125,14 @@ export function createNumberValueMixin<
       );
 
       if (!passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be greater than ${expected}, but got ${value}`
             : `Expected ${valueName} to be greater than ${expected}, but got ${value}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -139,11 +146,14 @@ export function createNumberValueMixin<
       );
 
       if (!passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be greater than or equal to ${expected}, but got ${value}`
             : `Expected ${valueName} to be greater than or equal to ${expected}, but got ${value}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -157,11 +167,14 @@ export function createNumberValueMixin<
       );
 
       if (!passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be less than ${expected}, but got ${value}`
             : `Expected ${valueName} to be less than ${expected}, but got ${value}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -175,11 +188,14 @@ export function createNumberValueMixin<
       );
 
       if (!passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be less than or equal to ${expected}, but got ${value}`
             : `Expected ${valueName} to be less than or equal to ${expected}, but got ${value}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -198,11 +214,14 @@ export function createNumberValueMixin<
 
       if (!passes) {
         const digits = numDigits ?? 2;
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be close to ${expected} (within ${digits} digits), but got ${value}`
             : `Expected ${valueName} to be close to ${expected} (within ${digits} digits), but got ${value}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

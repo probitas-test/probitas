@@ -286,65 +286,49 @@ export interface DenoKvGetResultExpectation<_T = unknown> {
 export function expectDenoKvGetResult<T>(
   result: DenoKvGetResult<T>,
 ): DenoKvGetResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "result" },
-    ),
-    // Key
-    mixin.createValueMixin(
-      () => result.key,
-      negate,
-      { valueName: "key" },
-    ),
-    mixin.createArrayValueMixin(
-      () => ensureNonNullish(result.key, "key"),
-      negate,
-      { valueName: "key" },
-    ),
-    // Value
-    mixin.createValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(result.value, "value"),
-      negate,
-      { valueName: "value" },
-    ),
-    // Versionstamp
-    mixin.createValueMixin(
-      () => result.versionstamp,
-      negate,
-      { valueName: "versionstamp" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.versionstamp,
-      negate,
-      { valueName: "versionstamp" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.versionstamp, "versionstamp"),
-      negate,
-      { valueName: "versionstamp" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("result")),
+      // Key
+      mixin.createValueMixin(() => result.key, negate, cfg("key")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.key, "key"),
+        negate,
+        cfg("key"),
+      ),
+      // Value
+      mixin.createValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createNullishValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(result.value, "value"),
+        negate,
+        cfg("value"),
+      ),
+      // Versionstamp
+      mixin.createValueMixin(
+        () => result.versionstamp,
+        negate,
+        cfg("versionstamp"),
+      ),
+      mixin.createNullishValueMixin(
+        () => result.versionstamp,
+        negate,
+        cfg("versionstamp"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.versionstamp, "versionstamp"),
+        negate,
+        cfg("versionstamp"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

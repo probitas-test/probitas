@@ -281,60 +281,52 @@ export interface RabbitMqConsumeResultExpectation {
 export function expectRabbitMqConsumeResult(
   result: RabbitMqConsumeResult,
 ): RabbitMqConsumeResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "consume result" },
-    ),
-    // Message
-    mixin.createValueMixin(
-      () => result.message,
-      negate,
-      { valueName: "message" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.message,
-      negate,
-      { valueName: "message" },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(result.message, "message"),
-      negate,
-      { valueName: "message" },
-    ),
-    // Content
-    mixin.createValueMixin(
-      () => result.message?.content,
-      negate,
-      { valueName: "content" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.message?.content,
-      negate,
-      { valueName: "content" },
-    ),
-    // Content length
-    mixin.createValueMixin(
-      () => result.message?.content.length ?? 0,
-      negate,
-      { valueName: "content length" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.message?.content.length ?? 0,
-      negate,
-      { valueName: "content length" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("consume result")),
+      // Message
+      mixin.createValueMixin(() => result.message, negate, cfg("message")),
+      mixin.createNullishValueMixin(
+        () => result.message,
+        negate,
+        cfg("message"),
+      ),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(result.message, "message"),
+        negate,
+        cfg("message"),
+      ),
+      // Content
+      mixin.createValueMixin(
+        () => result.message?.content,
+        negate,
+        cfg("content"),
+      ),
+      mixin.createNullishValueMixin(
+        () => result.message?.content,
+        negate,
+        cfg("content"),
+      ),
+      // Content length
+      mixin.createValueMixin(
+        () => result.message?.content.length ?? 0,
+        negate,
+        cfg("content length"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.message?.content.length ?? 0,
+        negate,
+        cfg("content length"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

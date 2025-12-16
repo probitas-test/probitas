@@ -1,4 +1,4 @@
-import type { Source } from "./source.ts";
+import type { Origin } from "../origin.ts";
 
 /**
  * Configuration options for individual step execution.
@@ -258,8 +258,8 @@ export interface StepDefinition<T = unknown> {
     readonly backoff: "linear" | "exponential";
   };
 
-  /** Source source where the step was defined (for error messages) */
-  readonly source?: Source;
+  /** Origin where the step was defined (for error messages) */
+  readonly origin?: Origin;
 }
 
 /**

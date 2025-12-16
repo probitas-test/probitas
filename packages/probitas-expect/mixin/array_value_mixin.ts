@@ -1,4 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase, tryOk, xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -99,11 +100,14 @@ export function createArrayValueMixin<
         const valueStr = formatValue(value);
         const itemStr = formatValue(item);
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not contain ${itemStr}, but got ${valueStr}`
             : `Expected ${valueName} to contain ${itemStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -120,11 +124,18 @@ export function createArrayValueMixin<
         const valueStr = formatValue(value);
         const itemStr = formatValue(item);
 
-        throw new Error(
-          isNegated
+        // For containEqual, expected is the array with the expected item added
+        const expected = [...value, item];
+
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not contain equal ${itemStr}, but it did`
             : `Expected ${valueName} to contain equal ${itemStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -144,11 +155,18 @@ export function createArrayValueMixin<
         const valueStr = formatValue(value);
         const subsetStr = formatValue(subset);
 
-        throw new Error(
-          isNegated
+        // For matching, expected is the array with the expected subset added
+        const expected = [...value, subset];
+
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not contain item matching ${subsetStr}, but it did`
             : `Expected ${valueName} to contain item matching ${subsetStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          diff: { actual: value, expected, negated: isNegated },
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -162,11 +180,14 @@ export function createArrayValueMixin<
       );
 
       if (!passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be empty, but it is`
             : `Expected ${valueName} to be empty, but got length ${value.length}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

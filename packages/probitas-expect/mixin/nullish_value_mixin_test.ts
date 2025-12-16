@@ -1,8 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
+import { assertType, type IsExact } from "@std/testing/types";
+import { colorTheme } from "@probitas/core/theme";
 import { catchError } from "../utils.ts";
+import { assertSnapshotWithoutColors } from "./_testutils.ts";
 import { createNullishValueMixin } from "./nullish_value_mixin.ts";
+
+const testFilePath = new URL(import.meta.url).pathname;
 
 type Nullish<T> = T | null | undefined;
 
@@ -67,7 +71,7 @@ Deno.test("createNullishValueMixin - toHaveValueNull", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValueNull()).message,
     );
@@ -82,7 +86,7 @@ Deno.test("createNullishValueMixin - toHaveValueNull", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValueNull()).message,
     );
@@ -111,7 +115,7 @@ Deno.test("createNullishValueMixin - toHaveValueUndefined", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValueUndefined()).message,
     );
@@ -126,7 +130,7 @@ Deno.test("createNullishValueMixin - toHaveValueUndefined", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValueUndefined()).message,
     );
@@ -167,7 +171,7 @@ Deno.test("createNullishValueMixin - toHaveValueNullish", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValueNull()).message,
     );
@@ -196,7 +200,7 @@ Deno.test("createNullishValueMixin - toHaveValuePresent", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValuePresent()).message,
     );
@@ -211,9 +215,44 @@ Deno.test("createNullishValueMixin - toHaveValuePresent", async (t) => {
       },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveValuePresent()).message,
+    );
+  });
+});
+
+Deno.test("createNullishValueMixin - toHaveValueNull with source context", async (t) => {
+  await t.step("fail (noColor)", async () => {
+    const mixin = createNullishValueMixin(
+      () => 200 as Nullish<number>,
+      () => false,
+      {
+        valueName: "value",
+        expectOrigin: { path: testFilePath, line: 228, column: 5 },
+      },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveValueNull()).message,
+    );
+  });
+
+  await t.step("fail (withColor)", async () => {
+    const mixin = createNullishValueMixin(
+      () => 200 as Nullish<number>,
+      () => false,
+      {
+        valueName: "value",
+        expectOrigin: { path: testFilePath, line: 243, column: 5 },
+        theme: colorTheme,
+      },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshot(
+      t,
+      catchError(() => applied.toHaveValueNull()).message,
     );
   });
 });

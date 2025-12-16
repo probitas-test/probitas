@@ -6,13 +6,19 @@
  * @module
  */
 
-import { bold, cyan, gray, green, red, yellow } from "@std/fmt/colors";
+import { cyan, gray, green, red, yellow } from "@std/fmt/colors";
 
 /**
  * Apply light gray color (ANSI 256-color mode).
  * Used for resource and setup step titles as subtle secondary information.
  */
 const lightGray = (text: string): string => `\x1b[38;5;243m${text}\x1b[0m`;
+
+/**
+ * Apply bold style with full reset.
+ * Uses \x1b[0m instead of \x1b[22m for better terminal compatibility.
+ */
+const boldWithReset = (text: string): string => `\x1b[1m${text}\x1b[0m`;
 
 /**
  * Function type for theme color/styling transformations.
@@ -84,7 +90,7 @@ export const colorTheme: Theme = {
   failure: red,
   skip: yellow,
   dim: gray,
-  title: bold,
+  title: boldWithReset,
   info: cyan,
   warning: yellow,
   lightGray: lightGray,
@@ -105,3 +111,36 @@ export const noColorTheme: Theme = {
 };
 
 export const defaultTheme = Deno.noColor ? noColorTheme : colorTheme;
+
+/**
+ * Regular expression pattern for ANSI escape sequences.
+ *
+ * Matches SGR (Select Graphic Rendition) sequences like:
+ * - `\x1b[0m` (reset)
+ * - `\x1b[32m` (green)
+ * - `\x1b[1;31m` (bold red)
+ */
+// deno-lint-ignore no-control-regex
+const ANSI_ESCAPE_SEQUENCE_PATTERN = /\x1b\[[0-9;]*m/g;
+
+/**
+ * Remove ANSI color codes from a string.
+ *
+ * Useful for testing output that may contain color codes,
+ * ensuring consistent snapshot comparisons across environments.
+ *
+ * @param text - The text to strip color codes from
+ * @returns The text without ANSI color codes
+ *
+ * @example
+ * ```ts
+ * import { removeColors } from "@probitas/core/theme";
+ *
+ * const colored = "\x1b[32mSuccess\x1b[0m";
+ * const plain = removeColors(colored);
+ * // => "Success"
+ * ```
+ */
+export function removeColors(text: string): string {
+  return text.replace(ANSI_ESCAPE_SEQUENCE_PATTERN, "");
+}

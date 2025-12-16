@@ -9,15 +9,17 @@
 
 /// <reference lib="deno.worker" />
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
-import { loadScenarios } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import { loadScenarios } from "@probitas/core/loader";
 import type { Reporter, ScenarioResult, StepResult } from "@probitas/runner";
 import { Runner } from "@probitas/runner";
-import type {
-  SerializedError,
-  WorkerInput,
-  WorkerOutput,
-  WorkerRunInput,
+import {
+  serializeError,
+  serializeScenarioResult,
+  serializeStepResult,
+  type WorkerInput,
+  type WorkerOutput,
+  type WorkerRunInput,
 } from "./protocol.ts";
 
 /**
@@ -40,7 +42,7 @@ function createWorkerReporter(taskId: string): Reporter {
         type: "scenario_end",
         taskId,
         scenario,
-        result,
+        result: serializeScenarioResult(result),
       });
     },
     onStepStart(scenario: ScenarioMetadata, step: StepMetadata): void {
@@ -61,26 +63,9 @@ function createWorkerReporter(taskId: string): Reporter {
         taskId,
         scenario,
         step,
-        result,
+        result: serializeStepResult(result),
       });
     },
-  };
-}
-
-/**
- * Serialize an error for transmission to main thread
- */
-function serializeError(error: unknown): SerializedError {
-  if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    };
-  }
-  return {
-    name: "Error",
-    message: String(error),
   };
 }
 
@@ -134,7 +119,7 @@ async function runScenario(input: WorkerRunInput): Promise<void> {
     postOutput({
       type: "result",
       taskId,
-      result,
+      result: serializeScenarioResult(result),
     });
   } catch (error) {
     postOutput({

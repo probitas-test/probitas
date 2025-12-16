@@ -17,7 +17,7 @@
  * | [@probitas/discover](https://jsr.io/@probitas/discover) | File discovery used by CLI |
  * | [@probitas/runner](https://jsr.io/@probitas/runner) | Test execution engine |
  * | [@probitas/reporter](https://jsr.io/@probitas/reporter) | Output formatters |
- * | [@probitas/scenario](https://jsr.io/@probitas/scenario) | Scenario loading and filtering |
+ * | [@probitas/core](https://jsr.io/@probitas/core) | Scenario loading and filtering |
  *
  * ## Installation
  *

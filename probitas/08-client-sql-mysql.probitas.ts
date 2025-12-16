@@ -4,14 +4,31 @@
  * Target: mysql service on port 13306 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
+import {
+  client,
+  expect,
+  outdent,
+  scenario,
+  Skip,
+} from "jsr:@probitas/probitas@^0";
+
+const HOST = "localhost";
+const PORT = 13306;
 
 export default scenario("MySQL Client Example", {
   tags: ["integration", "sql", "mysql"],
 })
+  .setup("Check MySQL server availability", async () => {
+    try {
+      const conn = await Deno.connect({ hostname: HOST, port: PORT });
+      conn.close();
+    } catch {
+      throw new Skip(`MySQL server not available at ${HOST}:${PORT}`);
+    }
+  })
   .resource("mysql", () =>
     client.sql.mysql.createMySqlClient({
-      url: "mysql://testuser:testpassword@localhost:13306/testdb",
+      url: `mysql://testuser:testpassword@${HOST}:${PORT}/testdb`,
     }))
   .setup(async (ctx) => {
     const { mysql } = ctx.resources;

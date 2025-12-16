@@ -1,8 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
+import { assertType, type IsExact } from "@std/testing/types";
+import { colorTheme } from "@probitas/core/theme";
 import { catchError } from "../utils.ts";
+import { assertSnapshotWithoutColors } from "./_testutils.ts";
 import { createObjectValueMixin } from "./object_value_mixin.ts";
+
+const testFilePath = new URL(import.meta.url).pathname;
 
 Deno.test("createObjectValueMixin - type check", () => {
   const mixin = createObjectValueMixin(
@@ -78,7 +82,7 @@ Deno.test("createObjectValueMixin - toHaveUserMatching", async (t) => {
       { valueName: "user" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,
     );
@@ -113,7 +117,7 @@ Deno.test("createObjectValueMixin - toHaveUserProperty", async (t) => {
       { valueName: "user" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveUserProperty("email")).message,
     );
@@ -126,7 +130,7 @@ Deno.test("createObjectValueMixin - toHaveUserProperty", async (t) => {
       { valueName: "user" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveUserProperty("name", "Bob")).message,
     );
@@ -154,7 +158,7 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyContaining", async (t) => 
       { valueName: "data" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() =>
         applied.toHaveDataPropertyContaining("message", "goodbye")
@@ -184,7 +188,7 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyMatching", async (t) => {
       { valueName: "data" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() =>
         applied.toHaveDataPropertyMatching("config", { port: 3000 })
@@ -216,13 +220,48 @@ Deno.test("createObjectValueMixin - toHaveUserPropertySatisfying", async (t) => 
       { valueName: "data" },
     );
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() =>
         applied.toHaveDataPropertySatisfying("message", (v) => {
           if (v !== "goodbye") throw new Error("Must be goodbye");
         })
       ).message,
+    );
+  });
+});
+
+Deno.test("createObjectValueMixin - toHaveUserMatching with source context", async (t) => {
+  await t.step("fail (noColor)", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ name: "Alice", age: 30 }),
+      () => false,
+      {
+        valueName: "user",
+        expectOrigin: { path: testFilePath, line: 236, column: 5 },
+      },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,
+    );
+  });
+
+  await t.step("fail (withColor)", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ name: "Alice", age: 30 }),
+      () => false,
+      {
+        valueName: "user",
+        expectOrigin: { path: testFilePath, line: 251, column: 5 },
+        theme: colorTheme,
+      },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshot(
+      t,
+      catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,
     );
   });
 });

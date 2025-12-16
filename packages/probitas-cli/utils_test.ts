@@ -18,20 +18,13 @@ import {
   readAsset,
   resolveReporter,
 } from "./utils.ts";
-import {
-  DotReporter,
-  JSONReporter,
-  ListReporter,
-  TAPReporter,
-} from "@probitas/reporter";
+import { JSONReporter, ListReporter } from "@probitas/reporter";
 
 describe("utils", () => {
   describe("resolveReporter", () => {
     const reporters = [
       { name: "list", class: ListReporter },
-      { name: "dot", class: DotReporter },
       { name: "json", class: JSONReporter },
-      { name: "tap", class: TAPReporter },
     ];
 
     for (const { name, class: ReporterClass } of reporters) {

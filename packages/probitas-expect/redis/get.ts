@@ -143,38 +143,26 @@ export interface RedisGetResultExpectation {
 export function expectRedisGetResult(
   result: RedisGetResult,
 ): RedisGetResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "get result" },
-    ),
-    // Value
-    mixin.createValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.value, "value"),
-      negate,
-      { valueName: "value" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("get result")),
+      // Value
+      mixin.createValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createNullishValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.value, "value"),
+        negate,
+        cfg("value"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

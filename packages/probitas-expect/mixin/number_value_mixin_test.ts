@@ -1,8 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
+import { assertType, type IsExact } from "@std/testing/types";
+import { colorTheme } from "@probitas/core/theme";
 import { catchError } from "../utils.ts";
+import { assertSnapshotWithoutColors } from "./_testutils.ts";
 import { createNumberValueMixin } from "./number_value_mixin.ts";
+
+const testFilePath = new URL(import.meta.url).pathname;
 
 Deno.test("createNumberValueMixin - type check", () => {
   const mixin = createNumberValueMixin(() => 100, () => false, {
@@ -60,7 +64,7 @@ Deno.test("createNumberValueMixin - toHaveScoreNaN", async (t) => {
       valueName: "score",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveScoreNaN()).message,
     );
@@ -81,7 +85,7 @@ Deno.test("createNumberValueMixin - toHaveScoreGreaterThan", async (t) => {
       valueName: "score",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveScoreGreaterThan(200)).message,
     );
@@ -104,7 +108,7 @@ Deno.test(
         valueName: "score",
       });
       const applied = mixin({ dummy: true });
-      await assertSnapshot(
+      await assertSnapshotWithoutColors(
         t,
         catchError(() => applied.toHaveScoreGreaterThanOrEqual(200)).message,
       );
@@ -126,7 +130,7 @@ Deno.test("createNumberValueMixin - toHaveScoreLessThan", async (t) => {
       valueName: "score",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveScoreLessThan(50)).message,
     );
@@ -147,7 +151,7 @@ Deno.test("createNumberValueMixin - toHaveScoreLessThanOrEqual", async (t) => {
       valueName: "score",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveScoreLessThanOrEqual(50)).message,
     );
@@ -168,9 +172,36 @@ Deno.test("createNumberValueMixin - toHaveScoreCloseTo", async (t) => {
       valueName: "score",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveScoreCloseTo(200, 2)).message,
+    );
+  });
+});
+
+Deno.test("createNumberValueMixin - toHaveScoreGreaterThan with source context", async (t) => {
+  await t.step("fail (noColor)", async () => {
+    const mixin = createNumberValueMixin(() => 100, () => false, {
+      valueName: "score",
+      expectOrigin: { path: testFilePath, line: 184, column: 5 },
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveScoreGreaterThan(200)).message,
+    );
+  });
+
+  await t.step("fail (withColor)", async () => {
+    const mixin = createNumberValueMixin(() => 100, () => false, {
+      valueName: "score",
+      expectOrigin: { path: testFilePath, line: 196, column: 5 },
+      theme: colorTheme,
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshot(
+      t,
+      catchError(() => applied.toHaveScoreGreaterThan(200)).message,
     );
   });
 });

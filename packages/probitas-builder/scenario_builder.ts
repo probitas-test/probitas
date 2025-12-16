@@ -14,13 +14,32 @@ import type {
   StepDefinition,
   StepFunction,
   StepOptions,
-} from "@probitas/scenario";
+} from "@probitas/core";
+import type { Origin } from "@probitas/core/origin";
+import { captureStack } from "@probitas/core/stack";
 import type { BuilderStepFunction } from "./types.ts";
-import { captureSource } from "./utils/capture_source.ts";
 
 export const DEFAULT_STEP_TIMEOUT = 30000;
 export const DEFAULT_STEP_RETRY_MAX_ATTEMPTS = 1;
 export const DEFAULT_STEP_RETRY_BACKOFF = "linear";
+
+/**
+ * Capture the origin (file path and line number) of the caller.
+ *
+ * Filters out internal frames from scenario_builder.ts and stack.ts
+ * to find the first user code frame.
+ *
+ * @returns Origin object with path and line, or undefined if not found
+ * @internal
+ */
+function captureOrigin(): Origin | undefined {
+  return captureStack()
+    .filter((frame) =>
+      !frame.path.endsWith("/scenario_builder.ts") &&
+      !frame.path.endsWith("/stack.ts")
+    )
+    .find((frame) => frame.user);
+}
 
 /**
  * Internal state class for ScenarioBuilder
@@ -68,7 +87,7 @@ class ScenarioBuilderState<
     fn: StepFunction<T>,
     options?: StepOptions,
   ): void {
-    const source = captureSource(4);
+    const origin = captureOrigin();
     const timeout = options?.timeout ??
       this.#scenarioOptions?.stepOptions?.timeout ??
       DEFAULT_STEP_TIMEOUT;
@@ -87,7 +106,7 @@ class ScenarioBuilderState<
         maxAttempts: retryMaxAttempts,
         backoff: retryBackoff,
       },
-      source,
+      origin,
     };
     this.#steps.push(step);
   }
@@ -143,14 +162,12 @@ class ScenarioBuilderState<
   }
 
   build(): ScenarioDefinition {
-    // Capture source at build time
-    // depth=3 to skip: captureSource -> State.build -> BuilderClass.build
-    const source = captureSource(3);
+    const origin = captureOrigin();
     const definition: ScenarioDefinition = Object.freeze({
       name: this.#name,
       tags: [...(this.#scenarioOptions.tags ?? [])],
       steps: [...this.#steps],
-      source,
+      origin,
     });
     return definition;
   }
@@ -466,7 +483,7 @@ class ScenarioBuilderInit<
    * that can be executed by the runner. The definition includes:
    * - All registered resources, setups, and steps in declaration order
    * - Merged options with defaults applied
-   * - Source source information for error reporting
+   * - Origin information for error reporting
    *
    * @returns Immutable scenario definition ready for execution
    *

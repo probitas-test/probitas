@@ -5,7 +5,13 @@
  */
 
 import type { ScenarioResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import {
+  type ErrorObject,
+  fromErrorObject,
+  isErrorObject,
+  toErrorObject,
+} from "@core/errorutil/error-object";
 
 /**
  * Message sent from main thread to worker
@@ -74,7 +80,7 @@ export interface WorkerErrorOutput {
   /** Task ID for correlation */
   readonly taskId: string;
   /** Serialized error information */
-  readonly error: SerializedError;
+  readonly error: ErrorObject;
 }
 
 /**
@@ -130,39 +136,89 @@ export interface WorkerStepEndOutput {
 }
 
 /**
- * Serializable error representation
- */
-export interface SerializedError {
-  readonly name: string;
-  readonly message: string;
-  readonly stack?: string;
-}
-
-/**
  * Serialize an error for transmission
  */
-export function serializeError(error: unknown): SerializedError {
+export function serializeError(error: unknown): ErrorObject {
   if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    };
+    return toErrorObject(error);
   }
   return {
+    proto: "Error",
     name: "Error",
     message: String(error),
+    attributes: {},
   };
 }
 
 /**
  * Deserialize an error from transmission
  */
-export function deserializeError(serialized: SerializedError): Error {
-  const error = new Error(serialized.message);
-  error.name = serialized.name;
-  if (serialized.stack) {
-    error.stack = serialized.stack;
+export function deserializeError(serialized: ErrorObject): Error {
+  return fromErrorObject(serialized);
+}
+
+/**
+ * Serialize StepResult error for transmission
+ */
+export function serializeStepResult(result: StepResult): StepResult {
+  if (result.status === "passed") {
+    return result;
   }
-  return error;
+  return {
+    ...result,
+    error: serializeError(result.error),
+  };
+}
+
+/**
+ * Serialize ScenarioResult errors for transmission
+ */
+export function serializeScenarioResult(
+  result: ScenarioResult,
+): ScenarioResult {
+  const steps = result.steps.map(serializeStepResult);
+  if (result.status === "passed") {
+    return { ...result, steps };
+  }
+  return {
+    ...result,
+    steps,
+    error: serializeError(result.error),
+  };
+}
+
+/**
+ * Deserialize StepResult error from transmission
+ */
+export function deserializeStepResult(result: StepResult): StepResult {
+  if (result.status === "passed") {
+    return result;
+  }
+  if (isErrorObject(result.error)) {
+    return {
+      ...result,
+      error: deserializeError(result.error),
+    };
+  }
+  return result;
+}
+
+/**
+ * Deserialize ScenarioResult errors from transmission
+ */
+export function deserializeScenarioResult(
+  result: ScenarioResult,
+): ScenarioResult {
+  const steps = result.steps.map(deserializeStepResult);
+  if (result.status === "passed") {
+    return { ...result, steps };
+  }
+  if (isErrorObject(result.error)) {
+    return {
+      ...result,
+      steps,
+      error: deserializeError(result.error),
+    };
+  }
+  return { ...result, steps };
 }

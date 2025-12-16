@@ -33,7 +33,7 @@ const createScenario = (name: string, file: string, failing = false) =>
         retry: { maxAttempts: 1, backoff: "linear" }
       }
     ],
-    source: { file: "${file}" }
+    origin: { path: "${file}" }
   };
 `;
 

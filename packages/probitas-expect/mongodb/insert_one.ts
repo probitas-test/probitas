@@ -120,33 +120,29 @@ export interface MongoInsertOneResultExpectation {
 export function expectMongoInsertOneResult(
   result: MongoInsertOneResult,
 ): MongoInsertOneResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "insert result" },
-    ),
-    // Inserted id
-    mixin.createValueMixin(
-      () => result.insertedId,
-      negate,
-      { valueName: "inserted id" },
-    ),
-    mixin.createStringValueMixin(
-      () => result.insertedId,
-      negate,
-      { valueName: "inserted id" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("insert result")),
+      // Inserted id
+      mixin.createValueMixin(
+        () => result.insertedId,
+        negate,
+        cfg("inserted id"),
+      ),
+      mixin.createStringValueMixin(
+        () => result.insertedId,
+        negate,
+        cfg("inserted id"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

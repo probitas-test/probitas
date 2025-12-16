@@ -1,3 +1,4 @@
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -75,11 +76,14 @@ export function createOneOfValueMixin<
       const valuesStr = formatValueList(values);
 
       if (isNegated ? passes : !passes) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be one of ${valuesStr}, but got ${valueStr}`
             : `Expected ${valueName} to be one of ${valuesStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

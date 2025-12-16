@@ -34,7 +34,7 @@
  *
  * - {@linkcode ScenarioOptions} - Scenario-level configuration (tags, default step options)
  * - {@linkcode StepOptions} - Step execution settings (timeout, retry strategy)
- * - {@linkcode Source} - File and line number for error reporting
+ * - Import `Origin` from `@probitas/core/origin` for file and line information
  *
  * ## Function Types
  *
@@ -60,7 +60,7 @@
  *
  * @example Loading scenarios from files
  * ```ts
- * import { loadScenarios } from "@probitas/scenario";
+ * import { loadScenarios } from "@probitas/core/loader";
  *
  * const scenarios = await loadScenarios([
  *   "/path/to/auth.probitas.ts",
@@ -71,7 +71,7 @@
  *
  * @example Filtering scenarios with selectors
  * ```ts
- * import { applySelectors } from "@probitas/scenario";
+ * import { applySelectors } from "@probitas/core/selector";
  *
  * // Filter by tag (OR logic between strings)
  * const apiOrDb = applySelectors(scenarios, ["tag:api", "tag:db"]);
@@ -88,7 +88,7 @@
  *
  * @example Working with scenario definitions
  * ```ts
- * import type { ScenarioDefinition, StepContext } from "@probitas/scenario";
+ * import type { ScenarioDefinition, StepContext } from "@probitas/core";
  *
  * function inspectScenario(scenario: ScenarioDefinition) {
  *   console.log(`Scenario: ${scenario.name}`);
@@ -111,5 +111,3 @@
  */
 
 export type * from "./types.ts";
-export * from "./loader.ts";
-export * from "./selector.ts";

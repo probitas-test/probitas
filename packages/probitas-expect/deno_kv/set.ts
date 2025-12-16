@@ -128,33 +128,29 @@ export interface DenoKvSetResultExpectation {
 export function expectDenoKvSetResult(
   result: DenoKvSetResult,
 ): DenoKvSetResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "result" },
-    ),
-    // Versionstamp
-    mixin.createValueMixin(
-      () => result.versionstamp,
-      negate,
-      { valueName: "versionstamp" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.versionstamp, "versionstamp"),
-      negate,
-      { valueName: "versionstamp" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("result")),
+      // Versionstamp
+      mixin.createValueMixin(
+        () => result.versionstamp,
+        negate,
+        cfg("versionstamp"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.versionstamp, "versionstamp"),
+        negate,
+        cfg("versionstamp"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

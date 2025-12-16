@@ -263,60 +263,56 @@ export interface MongoUpdateResultExpectation {
 export function expectMongoUpdateResult(
   result: MongoUpdateResult,
 ): MongoUpdateResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "update result" },
-    ),
-    // Matched count
-    mixin.createValueMixin(
-      () => result.matchedCount,
-      negate,
-      { valueName: "matched count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.matchedCount,
-      negate,
-      { valueName: "matched count" },
-    ),
-    // Modified count
-    mixin.createValueMixin(
-      () => result.modifiedCount,
-      negate,
-      { valueName: "modified count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.modifiedCount,
-      negate,
-      { valueName: "modified count" },
-    ),
-    // Upserted ID
-    mixin.createValueMixin(
-      () => result.upsertedId,
-      negate,
-      { valueName: "upserted id" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.upsertedId,
-      negate,
-      { valueName: "upserted id" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.upsertedId, "upserted id"),
-      negate,
-      { valueName: "upserted id" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("update result")),
+      // Matched count
+      mixin.createValueMixin(
+        () => result.matchedCount,
+        negate,
+        cfg("matched count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.matchedCount,
+        negate,
+        cfg("matched count"),
+      ),
+      // Modified count
+      mixin.createValueMixin(
+        () => result.modifiedCount,
+        negate,
+        cfg("modified count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.modifiedCount,
+        negate,
+        cfg("modified count"),
+      ),
+      // Upserted ID
+      mixin.createValueMixin(
+        () => result.upsertedId,
+        negate,
+        cfg("upserted id"),
+      ),
+      mixin.createNullishValueMixin(
+        () => result.upsertedId,
+        negate,
+        cfg("upserted id"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.upsertedId, "upserted id"),
+        negate,
+        cfg("upserted id"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

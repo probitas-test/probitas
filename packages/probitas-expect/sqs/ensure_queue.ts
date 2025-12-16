@@ -123,33 +123,25 @@ export interface SqsEnsureQueueResultExpectation {
 export function expectSqsEnsureQueueResult(
   result: SqsEnsureQueueResult,
 ): SqsEnsureQueueResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "ensure queue result" },
-    ),
-    // Queue url
-    mixin.createValueMixin(
-      () => result.queueUrl,
-      negate,
-      { valueName: "queue url" },
-    ),
-    mixin.createStringValueMixin(
-      () => result.queueUrl,
-      negate,
-      { valueName: "queue url" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("ensure queue result")),
+      // Queue url
+      mixin.createValueMixin(() => result.queueUrl, negate, cfg("queue url")),
+      mixin.createStringValueMixin(
+        () => result.queueUrl,
+        negate,
+        cfg("queue url"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

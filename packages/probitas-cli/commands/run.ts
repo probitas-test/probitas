@@ -11,11 +11,9 @@ import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { DEFAULT_TIMEOUT, EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
-import {
-  applySelectors,
-  loadScenarios,
-  type ScenarioDefinition,
-} from "@probitas/scenario";
+import type { ScenarioDefinition } from "@probitas/core";
+import { loadScenarios } from "@probitas/core/loader";
+import { applySelectors } from "@probitas/core/selector";
 import {
   type Reporter,
   type RunResult,
@@ -350,13 +348,13 @@ async function runWithWorkers(
         const metadata = {
           name: task.scenario.name,
           tags: task.scenario.tags,
-          source: task.scenario.source,
+          origin: task.scenario.origin,
           steps: task.scenario.steps.map((s) => ({
             kind: s.kind,
             name: s.name,
             timeout: s.timeout,
             retry: s.retry,
-            source: s.source,
+            origin: s.origin,
           })),
         };
         const errorResult: ScenarioResult = {
@@ -390,7 +388,7 @@ async function runWithWorkers(
  * Build task list from scenarios
  *
  * Groups scenarios by file and assigns indices.
- * Source file paths are expected to be absolute (from captureSource).
+ * Origin paths are expected to be absolute (from captureStack).
  */
 function buildTaskList(
   scenarios: readonly ScenarioDefinition[],
@@ -399,7 +397,7 @@ function buildTaskList(
   const byFile = new Map<string, ScenarioDefinition[]>();
 
   for (const scenario of scenarios) {
-    const file = scenario.source?.file || "unknown";
+    const file = scenario.origin?.path || "unknown";
     if (!byFile.has(file)) {
       byFile.set(file, []);
     }

@@ -1,4 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase, tryOk, xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -83,11 +84,14 @@ export function createBooleanValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be truthy, but got ${valueStr}`
             : `Expected ${valueName} to be truthy, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -102,11 +106,14 @@ export function createBooleanValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be falsy, but got ${valueStr}`
             : `Expected ${valueName} to be falsy, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

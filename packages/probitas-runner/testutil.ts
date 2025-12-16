@@ -3,7 +3,7 @@ import type {
   ScenarioDefinition,
   StepContext,
   StepDefinition,
-} from "@probitas/scenario";
+} from "@probitas/core";
 import type { ScenarioContext } from "./types.ts";
 import { createScenarioContext, createStepContext } from "./context.ts";
 

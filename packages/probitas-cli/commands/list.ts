@@ -8,11 +8,9 @@ import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
 import { configureLogging, getLogger, type LogLevel } from "@probitas/logger";
 import { discoverScenarioFiles } from "@probitas/discover";
-import {
-  applySelectors,
-  loadScenarios,
-  type ScenarioDefinition,
-} from "@probitas/scenario";
+import type { ScenarioDefinition } from "@probitas/core";
+import { loadScenarios } from "@probitas/core/loader";
+import { applySelectors } from "@probitas/core/selector";
 import { EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { readAsset } from "../utils.ts";
@@ -183,7 +181,7 @@ function outputText(
   const byFile = new Map<string, ScenarioDefinition[]>();
 
   for (const scenario of allScenarios) {
-    const file = scenario.source?.file || "unknown";
+    const file = scenario.origin?.path || "unknown";
     if (!byFile.has(file)) {
       byFile.set(file, []);
     }
@@ -217,7 +215,7 @@ function outputJson(scenarios: ScenarioDefinition[]): void {
     name: scenario.name,
     tags: scenario.tags,
     steps: scenario.steps.filter((e) => e.kind === "step").length,
-    file: scenario.source?.file || "unknown",
+    file: scenario.origin?.path || "unknown",
   }));
 
   console.log(JSON.stringify(output, null, 2));

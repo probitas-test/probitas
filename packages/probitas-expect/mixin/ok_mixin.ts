@@ -1,3 +1,4 @@
+import { createExpectationError } from "../error.ts";
 import type { MixinApplied, MixinConfig, MixinDefinition } from "./types.ts";
 
 /**
@@ -56,11 +57,14 @@ export function createOkMixin(
       const isOk = getter.call(this);
 
       if (isNegated ? isOk : !isOk) {
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be ok, but it succeeded`
             : `Expected ${valueName} to be ok, but it failed`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

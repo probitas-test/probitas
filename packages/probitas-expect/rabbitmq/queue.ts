@@ -243,55 +243,43 @@ export interface RabbitMqQueueResultExpectation {
 export function expectRabbitMqQueueResult(
   result: RabbitMqQueueResult,
 ): RabbitMqQueueResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "queue result" },
-    ),
-    // Queue
-    mixin.createValueMixin(
-      () => result.queue,
-      negate,
-      { valueName: "queue" },
-    ),
-    mixin.createStringValueMixin(
-      () => result.queue,
-      negate,
-      { valueName: "queue" },
-    ),
-    // Message count
-    mixin.createValueMixin(
-      () => result.messageCount,
-      negate,
-      { valueName: "message count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.messageCount,
-      negate,
-      { valueName: "message count" },
-    ),
-    // Consumer count
-    mixin.createValueMixin(
-      () => result.consumerCount,
-      negate,
-      { valueName: "consumer count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.consumerCount,
-      negate,
-      { valueName: "consumer count" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("queue result")),
+      // Queue
+      mixin.createValueMixin(() => result.queue, negate, cfg("queue")),
+      mixin.createStringValueMixin(() => result.queue, negate, cfg("queue")),
+      // Message count
+      mixin.createValueMixin(
+        () => result.messageCount,
+        negate,
+        cfg("message count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.messageCount,
+        negate,
+        cfg("message count"),
+      ),
+      // Consumer count
+      mixin.createValueMixin(
+        () => result.consumerCount,
+        negate,
+        cfg("consumer count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.consumerCount,
+        negate,
+        cfg("consumer count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

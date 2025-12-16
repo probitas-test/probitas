@@ -50,7 +50,7 @@ feat(@probitas/builder): add retry option to step execution
 fix(@probitas/runner): handle timeout errors correctly
 
 # Multiple packages (comma-separated)
-fix(@probitas/runner,@probitas/scenario): fix shared type definitions
+fix(@probitas/runner,@probitas/core): fix shared type definitions
 
 # All packages (wildcard)
 docs(*): update copyright headers

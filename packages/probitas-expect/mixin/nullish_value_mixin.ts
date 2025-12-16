@@ -1,4 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase, tryOk, xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -91,11 +92,14 @@ export function createNullishValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be null, but got ${valueStr}`
             : `Expected ${valueName} to be null, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -109,11 +113,14 @@ export function createNullishValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be undefined, but got ${valueStr}`
             : `Expected ${valueName} to be undefined, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -124,11 +131,14 @@ export function createNullishValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be null nor undefined, but got ${valueStr}`
             : `Expected ${valueName} to be null or undefined, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -145,11 +155,14 @@ export function createNullishValueMixin<
 
       if (!passes) {
         const valueStr = formatValue(value);
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not be present, but got ${valueStr}`
             : `Expected ${valueName} to be present, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

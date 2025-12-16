@@ -4,14 +4,34 @@
  * Target: echo-graphql service on port 14000 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-graphql/docs/api.md
  */
-import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
+import {
+  client,
+  expect,
+  outdent,
+  scenario,
+  Skip,
+} from "jsr:@probitas/probitas@^0";
+
+const BASE_URL = "http://localhost:14000";
 
 export default scenario("GraphQL Client Example", {
   tags: ["integration", "graphql"],
 })
+  .setup("Check GraphQL server availability", async () => {
+    try {
+      await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: "{ __typename }" }),
+        signal: AbortSignal.timeout(1000),
+      });
+    } catch {
+      throw new Skip(`GraphQL server not available at ${BASE_URL}`);
+    }
+  })
   .resource("gql", () =>
     client.graphql.createGraphqlClient({
-      url: "http://localhost:14000/graphql",
+      url: `${BASE_URL}/graphql`,
     }))
   .step("echo - simple query", async (ctx) => {
     const { gql } = ctx.resources;

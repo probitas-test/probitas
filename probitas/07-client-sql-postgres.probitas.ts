@@ -4,14 +4,31 @@
  * Target: postgres service on port 15432 (compose.yaml)
  * Credentials: testuser/testpassword, database: testdb
  */
-import { client, expect, outdent, scenario } from "jsr:@probitas/probitas@^0";
+import {
+  client,
+  expect,
+  outdent,
+  scenario,
+  Skip,
+} from "jsr:@probitas/probitas@^0";
+
+const HOST = "localhost";
+const PORT = 15432;
 
 export default scenario("PostgreSQL Client Example", {
   tags: ["integration", "sql", "postgres"],
 })
+  .setup("Check PostgreSQL server availability", async () => {
+    try {
+      const conn = await Deno.connect({ hostname: HOST, port: PORT });
+      conn.close();
+    } catch {
+      throw new Skip(`PostgreSQL server not available at ${HOST}:${PORT}`);
+    }
+  })
   .resource("pg", () =>
     client.sql.postgres.createPostgresClient({
-      url: "postgres://testuser:testpassword@localhost:15432/testdb",
+      url: `postgres://testuser:testpassword@${HOST}:${PORT}/testdb`,
     }))
   .setup(async (ctx) => {
     const { pg } = ctx.resources;

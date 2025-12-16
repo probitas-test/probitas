@@ -6,14 +6,16 @@
 
 import { getLogger } from "@probitas/logger";
 import type { ScenarioResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
-import type {
-  WorkerInput,
-  WorkerOutput,
-  WorkerResultOutput,
-  WorkerRunInput,
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import {
+  deserializeError,
+  deserializeScenarioResult,
+  deserializeStepResult,
+  type WorkerInput,
+  type WorkerOutput,
+  type WorkerResultOutput,
+  type WorkerRunInput,
 } from "./protocol.ts";
-import { deserializeError } from "./protocol.ts";
 
 const logger = getLogger("probitas", "cli", "run", "pool");
 
@@ -197,7 +199,7 @@ export class WorkerPool implements AsyncDisposable {
         const resolver = this.#taskResolvers.get(output.taskId);
         if (resolver) {
           this.#taskResolvers.delete(output.taskId);
-          resolver.resolve(output.result);
+          resolver.resolve(deserializeScenarioResult(output.result));
         }
         this.#onTaskComplete(poolWorker);
         break;
@@ -222,7 +224,10 @@ export class WorkerPool implements AsyncDisposable {
 
       case "scenario_end": {
         const resolver = this.#taskResolvers.get(output.taskId);
-        resolver?.callbacks?.onScenarioEnd?.(output.scenario, output.result);
+        resolver?.callbacks?.onScenarioEnd?.(
+          output.scenario,
+          deserializeScenarioResult(output.result),
+        );
         break;
       }
 
@@ -237,7 +242,7 @@ export class WorkerPool implements AsyncDisposable {
         resolver?.callbacks?.onStepEnd?.(
           output.scenario,
           output.step,
-          output.result,
+          deserializeStepResult(output.result),
         );
         break;
       }

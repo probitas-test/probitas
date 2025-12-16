@@ -16,7 +16,7 @@
  * | Package | Description |
  * |---------|-------------|
  * | [@probitas/builder](https://jsr.io/@probitas/builder) | Build scenario definitions to execute |
- * | [@probitas/scenario](https://jsr.io/@probitas/scenario) | Core type definitions |
+ * | [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions |
  * | [@probitas/reporter](https://jsr.io/@probitas/reporter) | Output formatters for results |
  * | [@probitas/cli](https://jsr.io/@probitas/cli) | CLI that uses this runner |
  *
@@ -48,7 +48,7 @@
  * ```ts
  * import { ScenarioRunner } from "@probitas/runner";
  * import { ListReporter } from "@probitas/reporter";
- * import { loadScenarios } from "@probitas/scenario";
+ * import { loadScenarios } from "@probitas/core/loader";
  *
  * const scenarios = await loadScenarios(["./tests/*.probitas.ts"]);
  * const runner = new ScenarioRunner();

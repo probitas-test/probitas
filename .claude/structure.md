@@ -12,7 +12,7 @@ probitas/
 │   ├── probitas-builder/         # @probitas/builder - Type-safe scenario definition
 │   ├── probitas-runner/          # @probitas/runner - Scenario execution engine
 │   ├── probitas-reporter/        # @probitas/reporter - Output formatters
-│   ├── probitas-scenario/        # @probitas/scenario - Scenario loading/filtering
+│   ├── probitas-core/        # @probitas/core - Scenario loading/filtering
 │   ├── probitas-discover/        # @probitas/discover - File discovery
 │   └── probitas-cli/             # @probitas/cli - Command-line interface
 └── probitas/                     # Example scenarios
@@ -26,7 +26,7 @@ graph TD
     std --> runner[probitas-runner]
     cli[probitas-cli] --> runner
     cli --> reporter[probitas-reporter]
-    cli --> scenario[probitas-scenario]
+    cli --> scenario[probitas-core]
     cli --> discover[probitas-discover]
     runner --> builder
     scenario --> builder

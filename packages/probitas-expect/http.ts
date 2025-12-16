@@ -611,136 +611,88 @@ export interface HttpResponseExpectation {
 export function expectHttpResponse(
   response: HttpResponse,
 ): HttpResponseExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => response.ok,
-      negate,
-      { valueName: "response" },
-    ),
-    // Status
-    mixin.createValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status" },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status" },
-    ),
-    mixin.createOneOfValueMixin(
-      () => response.status,
-      negate,
-      { valueName: "status" },
-    ),
-    // Status text
-    mixin.createValueMixin(
-      () => response.statusText,
-      negate,
-      { valueName: "status text" },
-    ),
-    mixin.createStringValueMixin(
-      () => response.statusText,
-      negate,
-      { valueName: "status text" },
-    ),
-    // Headers
-    mixin.createValueMixin(
-      () => response.headers,
-      negate,
-      { valueName: "headers" },
-    ),
-    mixin.createObjectValueMixin(
-      () => Object.fromEntries(response.headers.entries()),
-      negate,
-      { valueName: "headers" },
-    ),
-    // URL
-    mixin.createValueMixin(
-      () => response.url,
-      negate,
-      { valueName: "url" },
-    ),
-    mixin.createStringValueMixin(
-      () => response.url,
-      negate,
-      { valueName: "url" },
-    ),
-    // Body
-    mixin.createValueMixin(
-      () => response.body,
-      negate,
-      { valueName: "body" },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.body,
-      negate,
-      { valueName: "body" },
-    ),
-    // Body length
-    mixin.createValueMixin(
-      () => ensureNonNullish(response.body?.length, "body length"),
-      negate,
-      { valueName: "body length" },
-    ),
-    mixin.createNumberValueMixin(
-      () => ensureNonNullish(response.body?.length, "body length"),
-      negate,
-      { valueName: "body length" },
-    ),
-    // Text
-    mixin.createValueMixin(
-      () => response.text(),
-      negate,
-      { valueName: "text" },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.text(),
-      negate,
-      { valueName: "text" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(response.text(), "text"),
-      negate,
-      { valueName: "text" },
-    ),
-    // Text length
-    mixin.createValueMixin(
-      () => ensureNonNullish(response.text(), "text length").length,
-      negate,
-      { valueName: "text length" },
-    ),
-    mixin.createNumberValueMixin(
-      () => ensureNonNullish(response.text(), "text length").length,
-      negate,
-      { valueName: "text length" },
-    ),
-    // Data
-    mixin.createValueMixin(
-      () => response.data(),
-      negate,
-      { valueName: "data" },
-    ),
-    mixin.createNullishValueMixin(
-      () => response.data(),
-      negate,
-      { valueName: "data" },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(response.data(), "response data"),
-      negate,
-      { valueName: "data" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => response.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: response }) as const;
+    return [
+      mixin.createOkMixin(() => response.ok, negate, cfg("response")),
+      // Status
+      mixin.createValueMixin(() => response.status, negate, cfg("status")),
+      mixin.createNumberValueMixin(
+        () => response.status,
+        negate,
+        cfg("status"),
+      ),
+      mixin.createOneOfValueMixin(() => response.status, negate, cfg("status")),
+      // Status text
+      mixin.createValueMixin(
+        () => response.statusText,
+        negate,
+        cfg("status text"),
+      ),
+      mixin.createStringValueMixin(
+        () => response.statusText,
+        negate,
+        cfg("status text"),
+      ),
+      // Headers
+      mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
+      mixin.createObjectValueMixin(
+        () => Object.fromEntries(response.headers.entries()),
+        negate,
+        cfg("headers"),
+      ),
+      // URL
+      mixin.createValueMixin(() => response.url, negate, cfg("url")),
+      mixin.createStringValueMixin(() => response.url, negate, cfg("url")),
+      // Body
+      mixin.createValueMixin(() => response.body, negate, cfg("body")),
+      mixin.createNullishValueMixin(() => response.body, negate, cfg("body")),
+      // Body length
+      mixin.createValueMixin(
+        () => ensureNonNullish(response.body?.length, "body length"),
+        negate,
+        cfg("body length"),
+      ),
+      mixin.createNumberValueMixin(
+        () => ensureNonNullish(response.body?.length, "body length"),
+        negate,
+        cfg("body length"),
+      ),
+      // Text
+      mixin.createValueMixin(() => response.text(), negate, cfg("text")),
+      mixin.createNullishValueMixin(() => response.text(), negate, cfg("text")),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(response.text(), "text"),
+        negate,
+        cfg("text"),
+      ),
+      // Text length
+      mixin.createValueMixin(
+        () => ensureNonNullish(response.text(), "text length").length,
+        negate,
+        cfg("text length"),
+      ),
+      mixin.createNumberValueMixin(
+        () => ensureNonNullish(response.text(), "text length").length,
+        negate,
+        cfg("text length"),
+      ),
+      // Data
+      mixin.createValueMixin(() => response.data(), negate, cfg("data")),
+      mixin.createNullishValueMixin(() => response.data(), negate, cfg("data")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(response.data(), "response data"),
+        negate,
+        cfg("data"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => response.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => response.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

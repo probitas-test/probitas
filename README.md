@@ -17,7 +17,6 @@ Scenario-based testing & workflow execution framework.
   type-safe result passing
 - **Flexible Execution**: Run scenarios in parallel or sequentially with
   configurable concurrency
-- **Multiple Reporters**: Output in various formats (List, Dot, JSON, TAP)
 - **Resource Management**: Automatic cleanup with Disposable/AsyncDisposable
   pattern
 - **Retry Logic**: Built-in retry with exponential/linear backoff
@@ -86,8 +85,8 @@ probitas run
 # Run scenarios with specific tag
 probitas run -s tag:example
 
-# Run with different reporter
-probitas run --reporter dot
+# Run with JSON reporter
+probitas run --reporter json
 ```
 
 ## Key Concepts
@@ -155,9 +154,7 @@ probitas run -s "!tag:slow"              # NOT logic
 Choose output format based on your needs:
 
 - `list` - Detailed human-readable output (default)
-- `dot` - Compact progress dots
 - `json` - Machine-readable JSON
-- `tap` - TAP format for CI integration
 
 ## Configuration
 
@@ -258,16 +255,16 @@ consistent tooling.
 
 ## Packages
 
-| Package                                                 | JSR                                                                                   | Description                              |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------- |
-| [@probitas/probitas](https://jsr.io/@probitas/probitas) | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios    |
-| [@probitas/cli](https://jsr.io/@probitas/cli)           | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           | Command-line interface                   |
-| [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API        |
-| [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine                |
-| [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, Dot, JSON, TAP) |
-| [@probitas/scenario](https://jsr.io/@probitas/scenario) | [![JSR](https://jsr.io/badges/@probitas/scenario)](https://jsr.io/@probitas/scenario) | Scenario loading and filtering           |
-| [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns        |
-| [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                      |
+| Package                                                 | JSR                                                                                   | Description                           |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------- |
+| [@probitas/probitas](https://jsr.io/@probitas/probitas) | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios |
+| [@probitas/cli](https://jsr.io/@probitas/cli)           | [![JSR](https://jsr.io/badges/@probitas/cli)](https://jsr.io/@probitas/cli)           | Command-line interface                |
+| [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API     |
+| [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine             |
+| [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, JSON)        |
+| [@probitas/core](https://jsr.io/@probitas/core)         | [![JSR](https://jsr.io/badges/@probitas/core)](https://jsr.io/@probitas/core)         | Scenario loading and filtering        |
+| [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns     |
+| [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                   |
 
 ## License
 

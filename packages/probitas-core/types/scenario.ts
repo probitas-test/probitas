@@ -1,4 +1,4 @@
-import type { Source } from "./source.ts";
+import type { Origin } from "../origin.ts";
 import type { StepDefinition, StepMetadata, StepOptions } from "./step.ts";
 
 /**
@@ -68,7 +68,7 @@ export interface ScenarioOptions {
  *     { kind: "step", value: { name: "Login", fn: ..., options: ... } },
  *     { kind: "step", value: { name: "Verify", fn: ..., options: ... } }
  *   ],
- *   source: { file: "/tests/auth.probitas.ts", line: 5 }
+ *   origin: { path: "/tests/auth.probitas.ts", line: 5 }
  * };
  * ```
  */
@@ -91,8 +91,8 @@ export interface ScenarioDefinition {
   /** Ordered sequence of entries (resources → setups → steps) */
   readonly steps: readonly StepDefinition[];
 
-  /** Source source where the scenario was defined */
-  readonly source?: Source;
+  /** Origin where the scenario was defined */
+  readonly origin?: Origin;
 }
 
 /**
@@ -109,7 +109,7 @@ export interface ScenarioDefinition {
  *   "entries": [
  *     { "kind": "step", "value": { "name": "Login", "options": { ... } } }
  *   ],
- *   "source": { "file": "/tests/auth.probitas.ts", "line": 5 }
+ *   "origin": { "path": "/tests/auth.probitas.ts", "line": 5 }
  * }
  * ```
  */
@@ -132,6 +132,6 @@ export interface ScenarioMetadata {
   /** Entry metadata (functions omitted for serialization) */
   readonly steps: readonly StepMetadata[];
 
-  /** Source source where the scenario was defined */
-  readonly source?: Source;
+  /** Origin where the scenario was defined */
+  readonly origin?: Origin;
 }

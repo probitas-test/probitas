@@ -14,14 +14,23 @@
  * Target: echo-http service on port 18080 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-http/docs/api.md
  */
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+
+const BASE_URL = "http://localhost:18080";
 
 export default scenario("HTTP Client Example", {
   tags: ["integration", "http"],
 })
+  .setup("Check HTTP server availability", async () => {
+    try {
+      await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(1000) });
+    } catch {
+      throw new Skip(`HTTP server not available at ${BASE_URL}`);
+    }
+  })
   .resource("http", () =>
     client.http.createHttpClient({
-      url: "http://localhost:18080",
+      url: BASE_URL,
     }))
   .step("GET /get - echo request info", async (ctx) => {
     const { http } = ctx.resources;

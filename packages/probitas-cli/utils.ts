@@ -6,12 +6,7 @@
 
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
 import { getLogger } from "@probitas/logger";
-import {
-  DotReporter,
-  JSONReporter,
-  ListReporter,
-  TAPReporter,
-} from "@probitas/reporter";
+import { JSONReporter, ListReporter } from "@probitas/reporter";
 import type { Reporter } from "@probitas/runner";
 import type { ReporterOptions } from "@probitas/reporter";
 
@@ -27,15 +22,13 @@ const isDenoJson = is.ObjectOf({
 
 const reporterMap: Record<string, (opts?: ReporterOptions) => Reporter> = {
   list: (opts) => new ListReporter(opts),
-  dot: (opts) => new DotReporter(opts),
   json: (opts) => new JSONReporter(opts),
-  tap: (opts) => new TAPReporter(opts),
 };
 
 /**
  * Resolve reporter by name
  *
- * @param reporter - Reporter name (dot/list/json/tap) or undefined for default
+ * @param reporter - Reporter name (list/json) or undefined for default
  * @param options - Optional reporter options
  * @returns Reporter instance
  */

@@ -1,7 +1,9 @@
+import type { Origin } from "@probitas/core/origin";
 import type {
   IntersectReturnTypes,
   PatchTypedChainMethod,
 } from "./_typeutils.ts";
+import { captureOrigin } from "../context.ts";
 
 /**
  * A function that takes a base object and returns an extended object with additional methods.
@@ -70,9 +72,9 @@ type ApplyMixins<
  * import { createValueMixin } from "./mixin/value_mixin.ts";
  *
  * function expectResult(result: { ok: boolean; value: string }) {
- *   return defineExpectation((negate) => [
- *     createOkMixin(() => result.ok, negate, { valueName: "result" }),
- *     createValueMixin(() => result.value, negate, { valueName: "value" }),
+ *   return defineExpectation((negate, expectOrigin) => [
+ *     createOkMixin(() => result.ok, negate, { valueName: "result", expectOrigin }),
+ *     createValueMixin(() => result.value, negate, { valueName: "value", expectOrigin }),
  *   ]);
  * }
  *
@@ -94,9 +96,12 @@ type ApplyMixins<
 export function defineExpectation<
   const M extends readonly Mixin<object, unknown>[],
 >(
-  mixins: (negate: () => boolean) => M,
+  mixins: (negate: () => boolean, expectOrigin: Origin | undefined) => M,
 ) {
   type Result = ApplyMixins<{ readonly not: Result }, M>;
+
+  // Capture the expect() call site origin
+  const expectOrigin = captureOrigin();
 
   // State to track whether the next method call should be negated
   const state = { nextNegate: false };
@@ -110,7 +115,7 @@ export function defineExpectation<
 
   // deno-lint-ignore no-explicit-any
   let applied: any = {};
-  for (const mixin of mixins(getNegate)) {
+  for (const mixin of mixins(getNegate, expectOrigin)) {
     applied = mixin(applied);
   }
 

@@ -4,16 +4,26 @@
  * Target: rabbitmq service on port 5672 (compose.yaml)
  * Credentials: guest/guest
  */
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
+const HOST = "localhost";
+const PORT = 5672;
 const encoder = new TextEncoder();
 
 export default scenario("RabbitMQ Client Example", {
   tags: ["integration", "rabbitmq"],
 })
+  .setup("Check RabbitMQ server availability", async () => {
+    try {
+      const conn = await Deno.connect({ hostname: HOST, port: PORT });
+      conn.close();
+    } catch {
+      throw new Skip(`RabbitMQ server not available at ${HOST}:${PORT}`);
+    }
+  })
   .resource("mq", () =>
     client.rabbitmq.createRabbitMqClient({
-      url: "amqp://guest:guest@localhost:5672",
+      url: `amqp://guest:guest@${HOST}:${PORT}`,
     }))
   .setup((ctx) => {
     const { mq } = ctx.resources;

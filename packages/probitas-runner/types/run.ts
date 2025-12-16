@@ -96,7 +96,7 @@ export interface RunFilter {
  * @example Parallel execution with limit
  * ```ts
  * const options: RunOptions = {
- *   reporter: new DotReporter(),
+ *   reporter: new ListReporter(),
  *   maxConcurrency: 4   // Run up to 4 scenarios at once
  * };
  * ```

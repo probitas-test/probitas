@@ -1,8 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
+import { assertType, type IsExact } from "@std/testing/types";
+import { colorTheme } from "@probitas/core/theme";
 import { catchError } from "../utils.ts";
+import { assertSnapshotWithoutColors } from "./_testutils.ts";
 import { createStringValueMixin } from "./string_value_mixin.ts";
+
+const testFilePath = new URL(import.meta.url).pathname;
 
 Deno.test("createStringValueMixin - type check", () => {
   const mixin = createStringValueMixin(() => "hello world", () => false, {
@@ -45,7 +49,7 @@ Deno.test("createStringValueMixin - toHaveMessageContaining", async (t) => {
       valueName: "message",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveMessageContaining("hello")).message,
     );
@@ -66,9 +70,36 @@ Deno.test("createStringValueMixin - toHaveMessageMatching", async (t) => {
       valueName: "message",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveMessageMatching(/hello/)).message,
+    );
+  });
+});
+
+Deno.test("createStringValueMixin - toHaveMessageContaining with source context", async (t) => {
+  await t.step("fail (noColor)", async () => {
+    const mixin = createStringValueMixin(() => "goodbye world", () => false, {
+      valueName: "message",
+      expectOrigin: { path: testFilePath, line: 82, column: 5 },
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveMessageContaining("hello")).message,
+    );
+  });
+
+  await t.step("fail (withColor)", async () => {
+    const mixin = createStringValueMixin(() => "goodbye world", () => false, {
+      valueName: "message",
+      expectOrigin: { path: testFilePath, line: 94, column: 5 },
+      theme: colorTheme,
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshot(
+      t,
+      catchError(() => applied.toHaveMessageContaining("hello")).message,
     );
   });
 });

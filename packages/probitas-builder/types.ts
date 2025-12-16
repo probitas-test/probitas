@@ -1,4 +1,4 @@
-import type { StepContext, StepDefinition } from "@probitas/scenario";
+import type { StepContext, StepDefinition } from "@probitas/core";
 
 /**
  * Execution context provided to steps, resources, and setup hooks.

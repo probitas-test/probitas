@@ -176,38 +176,26 @@ export interface MongoFindOneResultExpectation<_T = unknown> {
 export function expectMongoFindOneResult<T>(
   result: MongoFindOneResult<T>,
 ): MongoFindOneResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "findOne result" },
-    ),
-    // Doc
-    mixin.createValueMixin(
-      () => result.doc,
-      negate,
-      { valueName: "doc" },
-    ),
-    mixin.createNullishValueMixin(
-      () => result.doc,
-      negate,
-      { valueName: "doc" },
-    ),
-    mixin.createObjectValueMixin(
-      () => ensureNonNullish(result.doc, "doc"),
-      negate,
-      { valueName: "doc" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("findOne result")),
+      // Doc
+      mixin.createValueMixin(() => result.doc, negate, cfg("doc")),
+      mixin.createNullishValueMixin(() => result.doc, negate, cfg("doc")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(result.doc, "doc"),
+        negate,
+        cfg("doc"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

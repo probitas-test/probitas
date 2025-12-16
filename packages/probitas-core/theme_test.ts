@@ -6,7 +6,7 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { defaultTheme, noColorTheme } from "./theme.ts";
+import { defaultTheme, noColorTheme, removeColors } from "./theme.ts";
 
 describe("theme", () => {
   describe("defaultTheme", () => {
@@ -28,6 +28,41 @@ describe("theme", () => {
       assertEquals(noColorTheme.title("test"), "test");
       assertEquals(noColorTheme.info("test"), "test");
       assertEquals(noColorTheme.warning("test"), "test");
+    });
+  });
+
+  describe("removeColors", () => {
+    it("removes single color code", () => {
+      assertEquals(removeColors("\x1b[32mtext\x1b[0m"), "text");
+    });
+
+    it("removes multiple color codes", () => {
+      assertEquals(
+        removeColors("\x1b[1m\x1b[31mBold Red\x1b[0m"),
+        "Bold Red",
+      );
+    });
+
+    it("removes combined codes", () => {
+      assertEquals(
+        removeColors("\x1b[1;31mBold Red\x1b[0m"),
+        "Bold Red",
+      );
+    });
+
+    it("handles text without escape sequences", () => {
+      assertEquals(removeColors("plain text"), "plain text");
+    });
+
+    it("handles empty string", () => {
+      assertEquals(removeColors(""), "");
+    });
+
+    it("removes 256-color codes", () => {
+      assertEquals(
+        removeColors("\x1b[38;5;243mLight Gray\x1b[0m"),
+        "Light Gray",
+      );
     });
   });
 });

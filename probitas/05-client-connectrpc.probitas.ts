@@ -4,14 +4,25 @@
  * Target: echo-connectrpc service on port 18082 (compose.yaml)
  * API Reference: https://github.com/jsr-probitas/echo-servers/blob/main/echo-connectrpc/docs/api.md
  */
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+
+const HOST = "localhost";
+const PORT = 18082;
 
 export default scenario("ConnectRPC Client Example", {
   tags: ["integration", "connectrpc"],
 })
+  .setup("Check ConnectRPC server availability", async () => {
+    try {
+      const conn = await Deno.connect({ hostname: HOST, port: PORT });
+      conn.close();
+    } catch {
+      throw new Skip(`ConnectRPC server not available at ${HOST}:${PORT}`);
+    }
+  })
   .resource("rpc", () =>
     client.connectrpc.createConnectRpcClient({
-      url: "localhost:18082",
+      url: `${HOST}:${PORT}`,
     }))
   .step("Echo - simple message", async (ctx) => {
     const { rpc } = ctx.resources;

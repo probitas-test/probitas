@@ -1,4 +1,4 @@
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { ScenarioResult } from "./scenario.ts";
 import type { StepResult } from "./step.ts";
 import type { RunResult } from "./run.ts";

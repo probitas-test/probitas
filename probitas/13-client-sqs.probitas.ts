@@ -4,14 +4,25 @@
  * Target: localstack service on port 4566 (compose.yaml)
  * Uses LocalStack for AWS SQS emulation
  */
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+
+const BASE_URL = "http://localhost:4566";
 
 export default scenario("SQS Client Example", {
   tags: ["integration", "sqs", "aws"],
 })
+  .setup("Check LocalStack availability", async () => {
+    try {
+      await fetch(`${BASE_URL}/_localstack/health`, {
+        signal: AbortSignal.timeout(1000),
+      });
+    } catch {
+      throw new Skip(`LocalStack not available at ${BASE_URL}`);
+    }
+  })
   .resource("sqs", () =>
     client.sqs.createSqsClient({
-      url: "http://localhost:4566",
+      url: BASE_URL,
       region: "us-east-1",
       credentials: {
         accessKeyId: "test",

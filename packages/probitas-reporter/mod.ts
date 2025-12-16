@@ -21,27 +21,7 @@
  * ## Available Reporters
  *
  * - {@linkcode ListReporter} - Detailed hierarchical output showing scenario and step names
- * - {@linkcode DotReporter} - Compact single-character output (`.` for pass, `F` for fail)
- * - {@linkcode TapReporter} - TAP (Test Anything Protocol) format for CI integration
  * - {@linkcode JsonReporter} - JSON output for machine-readable results
- *
- * ## Base Class
- *
- * - {@linkcode BaseReporter} - Abstract base class with common functionality:
- *   - Output stream management (defaults to stderr)
- *   - Serialized write operations for concurrent scenarios
- *   - Customizable color themes (use `noColor` option to disable)
- *
- * ## Theming
- *
- * - {@linkcode Theme} - Interface defining semantic color functions
- * - {@linkcode defaultTheme} - Default colored theme
- * - {@linkcode noColorTheme} - Theme without ANSI color codes
- *
- * ## Configuration Types
- *
- * - {@linkcode ReporterOptions} - Options for reporter initialization
- * - {@linkcode ThemeFunction} - Type for theme color functions
  *
  * @example Using ListReporter (default for CLI)
  * ```ts
@@ -61,38 +41,6 @@
  * //   ✓ Authenticate (45ms)
  * //   ✗ Fetch data (102ms)
  * //     Error: Connection timeout
- * ```
- *
- * @example Using DotReporter for minimal output
- * ```ts
- * import { DotReporter } from "@probitas/reporter";
- *
- * const summary = await runner.run(scenarios, {
- *   reporter: new DotReporter(),
- * });
- *
- * // Output:
- * // ....F..S..
- * // (. = passed, F = failed, S = skipped)
- * ```
- *
- * @example Using TapReporter for CI systems
- * ```ts
- * import { TapReporter } from "@probitas/reporter";
- *
- * const summary = await runner.run(scenarios, {
- *   reporter: new TapReporter(),
- * });
- *
- * // Output:
- * // TAP version 14
- * // 1..5
- * // ok 1 - User Registration
- * // ok 2 - API Integration
- * // not ok 3 - Payment Flow
- * //   ---
- * //   message: "Card declined"
- * //   ...
  * ```
  *
  * @example Using JsonReporter for programmatic analysis
@@ -117,28 +65,10 @@
  * });
  * ```
  *
- * @example Creating a custom reporter
- * ```ts
- * import { BaseReporter } from "@probitas/reporter";
- * import type { ScenarioDefinition, ScenarioResult } from "@probitas/reporter";
- *
- * class EmojiReporter extends BaseReporter {
- *   async onScenarioEnd(scenario: ScenarioDefinition, result: ScenarioResult) {
- *     const emoji = result.status === "passed" ? "🎉"
- *                 : result.status === "failed" ? "💥"
- *                 : "⏭️";
- *     await this.write(`${emoji} ${scenario.name}\n`);
- *   }
- * }
- * ```
- *
  * @module
  */
 
-export * from "./tap_reporter.ts";
 export * from "./list_reporter.ts";
 export * from "./json_reporter.ts";
-export * from "./dot_reporter.ts";
-export * from "./theme.ts";
 
 export type * from "./types.ts";

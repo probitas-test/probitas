@@ -1,3 +1,33 @@
 export const snapshot = {};
 
 snapshot[`createOkMixin - toBeOk 1`] = `"Expected response to be ok, but it failed"`;
+
+snapshot[`createOkMixin - toBeOk 2`] = `
+'Expected response to be ok, but it failed
+
+Context (packages/probitas-expect/mixin/ok_mixin_test.ts:57:5)
+
+  56│   await t.step("fail with source context (noColor)", async () => {
+  57│     const applier = createOkMixin(() => false, () => false, {
+  58│       valueName: "response",
+    ┆
+  63│       t,
+  64│       catchError(() => applied.toBeOk()).message,
+    │                                ^
+  65│     );'
+`;
+
+snapshot[`createOkMixin - toBeOk 3`] = `
+'[1m[31mExpected response to be ok, but it failed[39m[0m
+
+[1mContext[0m [90m(packages/probitas-expect/mixin/ok_mixin_test.ts:69:5)[39m
+
+  [90m68│   await t.step("fail with source context (withColor)", async () => {[39m
+  [90m69│     const applier = createOkMixin(() => false, () => false, {[39m
+  [90m70│       valueName: "response",[39m
+  [90m  ┆[39m
+  [90m76│       t,[39m
+  [90m77│       catchError(() => applied.toBeOk()).message,[39m
+  [90m  │                                [39m[31m^[39m
+  [90m78│     );[39m'
+`;

@@ -14,13 +14,13 @@ import { assertSnapshot } from "@std/testing/snapshot";
 import { Buffer } from "@std/streams/buffer";
 import { ListReporter } from "./list_reporter.ts";
 import {
+  originLocations,
   scenarioDefinitions,
-  sourceLocations,
   stepResults,
   testReporter,
 } from "./testkit.ts";
-import { colorTheme, noColorTheme } from "./theme.ts";
-import type { StepDefinition } from "@probitas/scenario";
+import { colorTheme, noColorTheme } from "@probitas/core/theme";
+import type { StepDefinition } from "@probitas/core";
 
 testReporter(ListReporter);
 
@@ -28,7 +28,7 @@ describe("ListReporter - multiline error messages", () => {
   const stepWithMultilineError: StepDefinition = {
     kind: "step",
     name: "Step with multiline error",
-    source: sourceLocations.step2,
+    origin: originLocations.step2,
     fn: () => {
       throw new Error(
         "First line of error\nSecond line of error\nThird line of error",
@@ -41,7 +41,7 @@ describe("ListReporter - multiline error messages", () => {
   const stepSkippedWithMultilineReason: StepDefinition = {
     kind: "step",
     name: "Step skipped with multiline reason",
-    source: sourceLocations.step3,
+    origin: originLocations.step3,
     fn: () => Promise.resolve(),
     timeout: 5000,
     retry: { maxAttempts: 1, backoff: "linear" },

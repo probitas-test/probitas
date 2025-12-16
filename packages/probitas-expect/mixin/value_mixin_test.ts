@@ -1,8 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { assertType, type IsExact } from "@std/testing/types";
 import { assertSnapshot } from "@std/testing/snapshot";
+import { assertType, type IsExact } from "@std/testing/types";
+import { colorTheme } from "@probitas/core/theme";
 import { catchError } from "../utils.ts";
+import { assertSnapshotWithoutColors } from "./_testutils.ts";
 import { createValueMixin } from "./value_mixin.ts";
+
+const testFilePath = new URL(import.meta.url).pathname;
 
 Deno.test("createValueMixin - type check", () => {
   const mixin = createValueMixin(() => 200, () => false, {
@@ -52,7 +56,7 @@ Deno.test("createValueMixin - toHaveStatus", async (t) => {
       valueName: "status",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveStatus(404)).message,
     );
@@ -73,7 +77,7 @@ Deno.test("createValueMixin - toHaveStatusEqual", async (t) => {
       valueName: "data",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveDataEqual({ x: 2 })).message,
     );
@@ -94,7 +98,7 @@ Deno.test("createValueMixin - toHaveStatusStrictEqual", async (t) => {
       valueName: "data",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveDataStrictEqual({ x: 1, y: undefined }))
         .message,
@@ -121,13 +125,40 @@ Deno.test("createValueMixin - toHaveStatusSatisfying", async (t) => {
       valueName: "status",
     });
     const applied = mixin({ dummy: true });
-    await assertSnapshot(
+    await assertSnapshotWithoutColors(
       t,
       catchError(() =>
         applied.toHaveStatusSatisfying((v) => {
           if (v !== 404) throw new Error("Must be 404");
         })
       ).message,
+    );
+  });
+});
+
+Deno.test("createValueMixin - toHaveStatus with source context", async (t) => {
+  await t.step("fail (noColor)", async () => {
+    const mixin = createValueMixin(() => 200, () => false, {
+      valueName: "status",
+      expectOrigin: { path: testFilePath, line: 141, column: 5 },
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveStatus(404)).message,
+    );
+  });
+
+  await t.step("fail (withColor)", async () => {
+    const mixin = createValueMixin(() => 200, () => false, {
+      valueName: "status",
+      expectOrigin: { path: testFilePath, line: 153, column: 5 },
+      theme: colorTheme,
+    });
+    const applied = mixin({ dummy: true });
+    await assertSnapshot(
+      t,
+      catchError(() => applied.toHaveStatus(404)).message,
     );
   });
 });

@@ -196,55 +196,47 @@ export interface SqsSendResultExpectation {
 export function expectSqsSendResult(
   result: SqsSendResult,
 ): SqsSendResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "send result" },
-    ),
-    // Message id
-    mixin.createValueMixin(
-      () => result.messageId,
-      negate,
-      { valueName: "message id" },
-    ),
-    mixin.createStringValueMixin(
-      () => result.messageId,
-      negate,
-      { valueName: "message id" },
-    ),
-    // md5 of body
-    mixin.createValueMixin(
-      () => result.md5OfBody,
-      negate,
-      { valueName: "md5 of body" },
-    ),
-    mixin.createStringValueMixin(
-      () => result.md5OfBody,
-      negate,
-      { valueName: "md5 of body" },
-    ),
-    // Sequence number
-    mixin.createValueMixin(
-      () => result.sequenceNumber,
-      negate,
-      { valueName: "sequence number" },
-    ),
-    mixin.createStringValueMixin(
-      () => ensureNonNullish(result.sequenceNumber, "sequence number"),
-      negate,
-      { valueName: "sequence number" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("send result")),
+      // Message id
+      mixin.createValueMixin(() => result.messageId, negate, cfg("message id")),
+      mixin.createStringValueMixin(
+        () => result.messageId,
+        negate,
+        cfg("message id"),
+      ),
+      // md5 of body
+      mixin.createValueMixin(
+        () => result.md5OfBody,
+        negate,
+        cfg("md5 of body"),
+      ),
+      mixin.createStringValueMixin(
+        () => result.md5OfBody,
+        negate,
+        cfg("md5 of body"),
+      ),
+      // Sequence number
+      mixin.createValueMixin(
+        () => result.sequenceNumber,
+        negate,
+        cfg("sequence number"),
+      ),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.sequenceNumber, "sequence number"),
+        negate,
+        cfg("sequence number"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

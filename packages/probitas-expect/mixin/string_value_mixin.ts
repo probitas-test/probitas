@@ -1,4 +1,5 @@
 import { expect as stdExpect } from "@std/expect";
+import { createExpectationError } from "../error.ts";
 import { formatValue, toPascalCase, tryOk, xor } from "../utils.ts";
 import type {
   ExtractMethodBase,
@@ -85,11 +86,14 @@ export function createStringValueMixin<
         const valueStr = formatValue(value);
         const substrStr = formatValue(substr);
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not contain ${substrStr}, but got ${valueStr}`
             : `Expected ${valueName} to contain ${substrStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },
@@ -106,11 +110,14 @@ export function createStringValueMixin<
         const valueStr = formatValue(value);
         const expectedStr = formatValue(expected);
 
-        throw new Error(
-          isNegated
+        throw createExpectationError({
+          message: isNegated
             ? `Expected ${valueName} to not match ${expectedStr}, but got ${valueStr}`
             : `Expected ${valueName} to match ${expectedStr}, but got ${valueStr}`,
-        );
+          expectOrigin: config.expectOrigin,
+          theme: config.theme,
+          subject: config.subject,
+        });
       }
       return this;
     },

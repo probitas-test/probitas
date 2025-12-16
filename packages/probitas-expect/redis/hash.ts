@@ -156,33 +156,21 @@ export interface RedisHashResultExpectation {
 export function expectRedisHashResult(
   result: RedisHashResult,
 ): RedisHashResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "hash result" },
-    ),
-    // Value
-    mixin.createValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    mixin.createObjectValueMixin(
-      () => result.value,
-      negate,
-      { valueName: "value" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("hash result")),
+      // Value
+      mixin.createValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createObjectValueMixin(() => result.value, negate, cfg("value")),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

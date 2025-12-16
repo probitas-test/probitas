@@ -54,7 +54,7 @@ export interface LoadScenariosOptions {
  * @example Loading discovered files
  * ```ts
  * import { discoverScenarioFiles } from "@probitas/discover";
- * import { loadScenarios } from "@probitas/scenario";
+ * import { loadScenarios } from "@probitas/core/loader";
  *
  * const files = await discoverScenarioFiles({
  *   includes: ["**\/*.probitas.ts"]

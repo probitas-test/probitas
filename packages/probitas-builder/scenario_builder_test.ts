@@ -7,7 +7,7 @@
 import { assertEquals, assertExists } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { FakeTime } from "@std/testing/time";
-import type { StepDefinition } from "@probitas/scenario";
+import type { StepDefinition } from "@probitas/core";
 import { scenario } from "./scenario_builder.ts";
 
 // Helper to extract steps from steps
@@ -32,12 +32,12 @@ describe("ScenarioBuilder", () => {
       assertEquals(definition.name, "My Scenario");
     });
 
-    it("captures scenario source at build time", () => {
+    it("captures scenario origin at build time", () => {
       const definition = scenario("Test").build();
-      assertExists(definition.source);
+      assertExists(definition.origin);
       // Location should point to the test file where build() was called
       assertEquals(
-        definition.source.file.includes("scenario_builder_test.ts"),
+        definition.origin.path.includes("scenario_builder_test.ts"),
         true,
       );
     });

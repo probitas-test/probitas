@@ -1,4 +1,4 @@
-import type { Theme } from "./theme.ts";
+import type { Theme } from "@probitas/core/theme";
 
 /**
  * Configuration options for reporter initialization.

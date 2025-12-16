@@ -68,64 +68,52 @@ export interface SqsDeleteBatchResultExpectation {
 export function expectSqsDeleteBatchResult(
   result: SqsDeleteBatchResult,
 ): SqsDeleteBatchResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "delete batch result" },
-    ),
-    // Successful
-    mixin.createValueMixin(
-      () => result.successful,
-      negate,
-      { valueName: "successful" },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.successful,
-      negate,
-      { valueName: "successful" },
-    ),
-    mixin.createValueMixin(
-      () => result.successful.length,
-      negate,
-      { valueName: "successful count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.successful.length,
-      negate,
-      { valueName: "successful count" },
-    ),
-    // Failed
-    mixin.createValueMixin(
-      () => result.failed,
-      negate,
-      { valueName: "failed" },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.failed,
-      negate,
-      { valueName: "failed" },
-    ),
-    mixin.createValueMixin(
-      () => result.failed.length,
-      negate,
-      { valueName: "failed count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.failed.length,
-      negate,
-      { valueName: "failed count" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("delete batch result")),
+      // Successful
+      mixin.createValueMixin(
+        () => result.successful,
+        negate,
+        cfg("successful"),
+      ),
+      mixin.createArrayValueMixin(
+        () => result.successful,
+        negate,
+        cfg("successful"),
+      ),
+      mixin.createValueMixin(
+        () => result.successful.length,
+        negate,
+        cfg("successful count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.successful.length,
+        negate,
+        cfg("successful count"),
+      ),
+      // Failed
+      mixin.createValueMixin(() => result.failed, negate, cfg("failed")),
+      mixin.createArrayValueMixin(() => result.failed, negate, cfg("failed")),
+      mixin.createValueMixin(
+        () => result.failed.length,
+        negate,
+        cfg("failed count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.failed.length,
+        negate,
+        cfg("failed count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

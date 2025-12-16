@@ -1,22 +1,57 @@
 export const snapshot = {};
 
-snapshot[`createValueMixin - toHaveStatusStrictEqual 1`] = `
-"Expected data to strictly equal {
-  x: 1,
-  y: undefined,
-}, but got {
-  x: 1,
-}"
+snapshot[`createValueMixin - toHaveStatus 1`] = `"Expected status to be 404, but got 200"`;
+
+snapshot[`createValueMixin - toHaveStatusEqual 1`] = `
+"Expected data to equal { x: 2 }, but got { x: 1 }
+
+Diff (-Actual / +Expected):
+
+    {
+  -   x: 1,
+  +   x: 2,
+    }"
 `;
 
-snapshot[`createValueMixin - toHaveStatus 1`] = `"Expected status to be 404, but got 200"`;
+snapshot[`createValueMixin - toHaveStatusStrictEqual 1`] = `
+"Expected data to strictly equal { x: 1, y: undefined }, but got { x: 1 }
+
+Diff (-Actual / +Expected):
+
+    {
+      x: 1,
+  +   y: undefined,
+    }"
+`;
 
 snapshot[`createValueMixin - toHaveStatusSatisfying 1`] = `"Expected status to satisfy the matcher, but it failed: Must be 404"`;
 
-snapshot[`createValueMixin - toHaveStatusEqual 1`] = `
-"Expected data to equal {
-  x: 2,
-}, but got {
-  x: 1,
-}"
+snapshot[`createValueMixin - toHaveStatus with source context 1`] = `
+'Expected status to be 404, but got 200
+
+Context (packages/probitas-expect/mixin/value_mixin_test.ts:141:5)
+
+  140│   await t.step("fail (noColor)", async () => {
+  141│     const mixin = createValueMixin(() => 200, () => false, {
+  142│       valueName: "status",
+     ┆
+  147│       t,
+  148│       catchError(() => applied.toHaveStatus(404)).message,
+     │                                ^
+  149│     );'
+`;
+
+snapshot[`createValueMixin - toHaveStatus with source context 2`] = `
+'[1m[31mExpected status to be 404, but got 200[39m[0m
+
+[1mContext[0m [90m(packages/probitas-expect/mixin/value_mixin_test.ts:153:5)[39m
+
+  [90m152│   await t.step("fail (withColor)", async () => {[39m
+  [90m153│     const mixin = createValueMixin(() => 200, () => false, {[39m
+  [90m154│       valueName: "status",[39m
+  [90m   ┆[39m
+  [90m160│       t,[39m
+  [90m161│       catchError(() => applied.toHaveStatus(404)).message,[39m
+  [90m   │                                [39m[31m^[39m
+  [90m162│     );[39m'
 `;

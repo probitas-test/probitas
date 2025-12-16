@@ -218,6 +218,9 @@
 // Unified expect function (recommended)
 export { expect } from "./expect.ts";
 
+// Error types
+export { ExpectationError, isExpectationError } from "./error.ts";
+
 // Chainable wrapper for @std/expect
 export { type AnythingExpectation, expectAnything } from "./anything.ts";
 

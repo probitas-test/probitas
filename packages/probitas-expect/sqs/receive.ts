@@ -196,44 +196,36 @@ export interface SqsReceiveResultExpectation {
 export function expectSqsReceiveResult(
   result: SqsReceiveResult,
 ): SqsReceiveResultExpectation {
-  return mixin.defineExpectation((negate) => [
-    mixin.createOkMixin(
-      () => result.ok,
-      negate,
-      { valueName: "receive result" },
-    ),
-    // Messages
-    mixin.createValueMixin(
-      () => result.messages,
-      negate,
-      { valueName: "messages" },
-    ),
-    mixin.createArrayValueMixin(
-      () => result.messages,
-      negate,
-      { valueName: "messages" },
-    ),
-    // Message count
-    mixin.createValueMixin(
-      () => result.messages.length,
-      negate,
-      { valueName: "messages count" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.messages.length,
-      negate,
-      { valueName: "messages count" },
-    ),
-    // Duration
-    mixin.createValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-    mixin.createNumberValueMixin(
-      () => result.duration,
-      negate,
-      { valueName: "duration" },
-    ),
-  ]);
+  return mixin.defineExpectation((negate, expectOrigin) => {
+    const cfg = <T extends string>(valueName: T) =>
+      ({ valueName, expectOrigin, subject: result }) as const;
+    return [
+      mixin.createOkMixin(() => result.ok, negate, cfg("receive result")),
+      // Messages
+      mixin.createValueMixin(() => result.messages, negate, cfg("messages")),
+      mixin.createArrayValueMixin(
+        () => result.messages,
+        negate,
+        cfg("messages"),
+      ),
+      // Message count
+      mixin.createValueMixin(
+        () => result.messages.length,
+        negate,
+        cfg("messages count"),
+      ),
+      mixin.createNumberValueMixin(
+        () => result.messages.length,
+        negate,
+        cfg("messages count"),
+      ),
+      // Duration
+      mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
+      mixin.createNumberValueMixin(
+        () => result.duration,
+        negate,
+        cfg("duration"),
+      ),
+    ] as const;
+  });
 }

@@ -74,7 +74,7 @@ of `Definition` types:
 ```ts
 import { Writer, type WriterOptions } from "@probitas/reporter";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/scenario";
+import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import { defaultTheme, type Theme } from "@probitas/reporter";
 
 export interface CustomReporterOptions extends WriterOptions {
