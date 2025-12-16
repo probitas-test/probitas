@@ -11,7 +11,7 @@
 
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import { loadScenarios } from "@probitas/core/loader";
-import { configureLogging } from "@probitas/logger";
+import { configureLogging, getLogger } from "@probitas/logger";
 import type { Reporter, ScenarioResult, StepResult } from "@probitas/runner";
 import { Runner } from "@probitas/runner";
 import {
@@ -152,6 +152,29 @@ self.onmessage = async (event: MessageEvent<WorkerInput>) => {
       break;
   }
 };
+
+const logger = getLogger("probitas", "cli", "run", "worker");
+
+// Handle unhandled promise rejections from Deno's node:http2 compatibility layer.
+// The "Bad resource ID" error occurs during HTTP/2 stream cleanup and doesn't
+// affect test correctness, but causes the worker to crash without this handler.
+self.addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
+  event.preventDefault();
+
+  const error = event.reason;
+  const errorMessage = error instanceof Error ? error.message : String(error);
+
+  // Silently ignore "Bad resource ID" errors from node:http2
+  if (
+    errorMessage.includes("Bad resource ID") ||
+    (error instanceof Error && error.stack?.includes("node:http2"))
+  ) {
+    return;
+  }
+
+  // Log other unhandled rejections
+  logger.error`Unhandled promise rejection in worker: ${error}`;
+});
 
 // Signal that worker is ready
 postOutput({ type: "ready" });
