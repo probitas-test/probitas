@@ -26,17 +26,19 @@ Scenario-based testing & workflow execution framework.
 
 ### Installation
 
-#### Using Deno
-
 ```bash
-deno install -grAf -n probitas jsr:@probitas/cli
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | bash
 ```
 
-- `-g` Global install
-- `-r` Reload cache (fetch latest version)
-- `-A` All permissions
-- `-f` Force overwrite existing
-- `-n probitas` Command name
+Options via environment variables:
+
+```bash
+# Install specific version
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | PROBITAS_VERSION=0.7.1 bash
+
+# Install to custom directory
+curl -fsSL https://raw.githubusercontent.com/jsr-probitas/probitas/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
+```
 
 #### Using Nix
 
@@ -47,9 +49,6 @@ nix run github:jsr-probitas/probitas
 # Install into your profile
 nix profile install github:jsr-probitas/probitas#probitas
 ```
-
-The flake packages a wrapper that runs the bundled CLI with the repository
-import map and lockfile.
 
 ### Write Your First Scenario
 
