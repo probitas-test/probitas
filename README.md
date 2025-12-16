@@ -44,10 +44,10 @@ curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | 
 
 ```bash
 # Run without installing
-nix run github:jsr-probitas/probitas
+nix run github:jsr-probitas/cli
 
 # Install into your profile
-nix profile install github:jsr-probitas/probitas#probitas
+nix profile install github:jsr-probitas/cli
 ```
 
 ### Write Your First Scenario
