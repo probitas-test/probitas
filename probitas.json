@@ -1,0 +1,5 @@
+{
+  "selectors": [
+    "!tag:failure"
+  ]
+}
