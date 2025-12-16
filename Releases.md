@@ -1,5 +1,12 @@
 ### 2025.12.16
 
+#### @probitas/cli 0.7.1 (patch)
+
+- feat(@probitas/cli): enable logging in worker processes
+- fix(@probitas/cli): handle unhandled promise rejections in worker
+
+### 2025.12.16
+
 #### @probitas/builder 0.3.0 (minor)
 
 - BREAKING(@probitas/core,@probitas/reporter,@probitas/builder,@probitas/cli):
