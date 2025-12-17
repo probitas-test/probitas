@@ -108,10 +108,6 @@ export async function loadScenarios(
         scenarios.push(exported);
       }
     } catch (err: unknown) {
-      logger.error("Failed to import scenario file", {
-        file: scenarioFile,
-        error: err,
-      });
       options?.onImportError?.(scenarioFile, err);
     }
   }

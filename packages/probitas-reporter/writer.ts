@@ -64,9 +64,6 @@ export class Writer {
       try {
         await writer.write(new TextEncoder().encode(text));
         logger.debug("Write completed", { byteLength: text.length });
-      } catch (error) {
-        logger.debug("Write failed", { error, byteLength: text.length });
-        throw error;
       } finally {
         writer.releaseLock();
       }

@@ -146,7 +146,6 @@ export async function discoverScenarioFiles(
     } catch (err) {
       // Only skip if file not found, otherwise propagate error
       if (!(err instanceof Deno.errors.NotFound)) {
-        logger.error("Unexpected error processing path", { path, error: err });
         throw err;
       }
       logger.debug("Path not found, skipping", { path });
