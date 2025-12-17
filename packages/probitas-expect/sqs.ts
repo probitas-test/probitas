@@ -24,7 +24,10 @@ import {
   expectSqsDeleteResult,
   type SqsDeleteResultExpectation,
 } from "./sqs/delete.ts";
-import { expectSqsDeleteBatchResult } from "./sqs/delete_batch.ts";
+import {
+  expectSqsDeleteBatchResult,
+  type SqsDeleteBatchResultExpectation,
+} from "./sqs/delete_batch.ts";
 import {
   expectSqsEnsureQueueResult,
   type SqsEnsureQueueResultExpectation,
@@ -36,6 +39,7 @@ import {
 
 // Re-export interfaces
 export type {
+  SqsDeleteBatchResultExpectation,
   SqsDeleteQueueResultExpectation,
   SqsDeleteResultExpectation,
   SqsEnsureQueueResultExpectation,
