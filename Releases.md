@@ -1,5 +1,12 @@
 ### 2025.12.17
 
+#### @probitas/probitas 0.5.5 (patch)
+
+- docs(probitas): add JSDoc for re-exported external packages
+- refactor(probitas): replace @jackfiszr/faker with @faker-js/faker
+
+### 2025.12.17
+
 #### @probitas/builder 0.3.2 (patch)
 
 - docs(*): fix docstring examples to pass --doc type checking
