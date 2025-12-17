@@ -2,26 +2,6 @@
 
 Coding conventions and development practices for Probitas.
 
-## Module Organization
-
-- **Single entry point**: Each package exports through `mod.ts`
-- **Use `export *`**: Prefer `export *` over explicit `export { ... }` in mod.ts
-- **Type-only exports**: Use `export type *` for types (tree-shaking)
-- **Colocated tests**: `*_test.ts` files adjacent to implementation
-
-## Package Config (deno.json)
-
-```json
-{
-  "name": "@probitas/{package-name}",
-  "version": "0.2.2",
-  "exports": "./mod.ts",
-  "publish": {
-    "exclude": ["**/*_test.ts", "**/*_bench.ts"]
-  }
-}
-```
-
 ## User-Facing API
 
 The `@probitas/probitas` package is the primary user-facing API:
@@ -42,15 +22,6 @@ Key exports:
 - `scenario` - Scenario builder function (from `@probitas/builder`)
 - `Skip` - Skip class for conditional skipping (from `@probitas/runner`)
 - `StepContext` - Type for step context (from `@probitas/builder`)
-
-## Implementation Style (T-Wada Style)
-
-Follow test-driven development principles:
-
-1. Write a failing test first
-2. Write minimal code to make the test pass
-3. Refactor while keeping tests green
-4. Repeat
 
 ## Testing Strategy
 
@@ -126,9 +97,3 @@ export class CustomReporter implements Reporter {
 4. **Access discriminated unions safely** - Check `result.status` before
    accessing fields
 5. **Support options** - Allow users to customize output stream and theme
-
-## Development Environment
-
-- A Nix flake is provided to supply the Deno toolchain without global installs.
-- Enter the shell with `nix develop`, or add `use flake` to `.envrc` and
-  `direnv allow` for auto-activation.
