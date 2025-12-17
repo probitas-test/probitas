@@ -1,5 +1,11 @@
 ### 2025.12.17
 
+#### @probitas/expect 0.2.6 (patch)
+
+- fix(@probitas/expect): export missing type
+
+### 2025.12.17
+
 #### @probitas/probitas 0.5.5 (patch)
 
 - docs(probitas): add JSDoc for re-exported external packages
