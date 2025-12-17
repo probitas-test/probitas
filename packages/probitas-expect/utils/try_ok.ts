@@ -21,6 +21,8 @@
  * import { tryOk } from "./try_ok.ts";
  * import { expect } from "@std/expect";
  *
+ * const value = 42;
+ * const expected = 42;
  * const ok = tryOk(() => expect(value).toEqual(expected));
  * if (!ok) {
  *   throw new Error("Values are not equal");

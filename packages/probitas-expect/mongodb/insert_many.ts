@@ -10,7 +10,17 @@ export interface MongoInsertManyResultExpectation {
    *
    * @example
    * ```ts
-   * expectMongoInsertManyResult(insertResult).not.toHaveInsertedCount(0);
+   * import type { MongoInsertManyResult } from "@probitas/client-mongodb";
+   * import { expectMongoInsertManyResult } from "./insert_many.ts";
+   * const result = {
+   *   kind: "mongo:insert-many",
+   *   ok: true,
+   *   insertedIds: ["1", "2", "3"],
+   *   insertedCount: 3,
+   *   duration: 0,
+   * } as unknown as MongoInsertManyResult;
+   *
+   * expectMongoInsertManyResult(result).not.toHaveInsertedCount(0);
    * ```
    */
   readonly not: this;

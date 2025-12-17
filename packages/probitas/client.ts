@@ -21,14 +21,15 @@
  *
  * @example HTTP client usage
  * ```ts
- * import { scenario, client, expect } from "@probitas/probitas";
+ * import { scenario, client } from "@probitas/probitas";
+ * import { expectHttpResponse } from "@probitas/expect";
  *
- * const api = client.http({ baseUrl: "https://api.example.com" });
+ * const api = client.http.createHttpClient({ url: "https://api.example.com" });
  *
  * export default scenario("API Test")
  *   .step("Fetch users", async () => {
  *     const response = await api.get("/users");
- *     expect(response.status).toBe(200);
+ *     expectHttpResponse(response).toBeOk().toHaveStatus(200);
  *     return response.data();
  *   })
  *   .build();
@@ -38,13 +39,19 @@
  * ```ts
  * import { scenario, client } from "@probitas/probitas";
  *
+ * // Mock environment variable for this example
+ * const mongoUrl = "mongodb://localhost:27017";
+ *
  * export default scenario("Database Test")
  *   .resource("db", async () => {
- *     return await client.mongodb({ uri: process.env.MONGO_URI });
+ *     return await client.mongodb.createMongoClient({
+ *       url: mongoUrl,
+ *       database: "testdb",
+ *     });
  *   })
  *   .step("Query data", async (ctx) => {
- *     const users = await ctx.resources.db.collection("users").find().toArray();
- *     return { count: users.length };
+ *     const result = await ctx.resources.db.collection("users").find({});
+ *     return { count: result.docs.length };
  *   })
  *   .build();
  * ```

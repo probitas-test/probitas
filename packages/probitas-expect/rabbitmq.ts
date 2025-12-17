@@ -55,24 +55,51 @@ export type RabbitMqExpectation<R extends RabbitMqResult> = R extends
  *
  * @example
  * ```ts
+ * import type { RabbitMqPublishResult, RabbitMqConsumeResult, RabbitMqQueueResult, RabbitMqExchangeResult, RabbitMqAckResult } from "@probitas/client-rabbitmq";
+ * import { expectRabbitMqResult } from "./rabbitmq.ts";
+ *
  * // For publish result - returns RabbitMqPublishResultExpectation
- * const publishResult = await channel.sendToQueue(queue, content);
+ * const publishResult = {
+ *   kind: "rabbitmq:publish",
+ *   ok: true,
+ *   duration: 0,
+ * } as unknown as RabbitMqPublishResult;
  * expectRabbitMqResult(publishResult).toBeOk();
  *
  * // For consume result - returns RabbitMqConsumeResultExpectation
- * const consumeResult = await channel.get(queue);
- * expectRabbitMqResult(consumeResult).toBeOk().toHaveContent().routingKey("key");
+ * const consumeResult = {
+ *   kind: "rabbitmq:consume",
+ *   ok: true,
+ *   message: { content: new Uint8Array() },
+ *   duration: 0,
+ * } as unknown as RabbitMqConsumeResult;
+ * expectRabbitMqResult(consumeResult).toBeOk().toHaveMessagePresent();
  *
  * // For queue result - returns RabbitMqQueueResultExpectation
- * const queueResult = await channel.assertQueue("my-queue");
- * expectRabbitMqResult(queueResult).toBeOk().messageCount(0);
+ * const queueResult = {
+ *   kind: "rabbitmq:queue",
+ *   ok: true,
+ *   queue: "my-queue",
+ *   messageCount: 0,
+ *   consumerCount: 0,
+ *   duration: 0,
+ * } as unknown as RabbitMqQueueResult;
+ * expectRabbitMqResult(queueResult).toBeOk().toHaveMessageCount(0);
  *
  * // For exchange result - returns RabbitMqExchangeResultExpectation
- * const exchangeResult = await channel.assertExchange("my-exchange", "direct");
+ * const exchangeResult = {
+ *   kind: "rabbitmq:exchange",
+ *   ok: true,
+ *   duration: 0,
+ * } as unknown as RabbitMqExchangeResult;
  * expectRabbitMqResult(exchangeResult).toBeOk();
  *
  * // For ack result - returns RabbitMqAckResultExpectation
- * const ackResult = await channel.ack(message);
+ * const ackResult = {
+ *   kind: "rabbitmq:ack",
+ *   ok: true,
+ *   duration: 0,
+ * } as unknown as RabbitMqAckResult;
  * expectRabbitMqResult(ackResult).toBeOk();
  * ```
  */

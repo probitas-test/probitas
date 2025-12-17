@@ -15,10 +15,14 @@ const logger = getLogger("probitas", "scenario");
  *
  * @example Handling import errors
  * ```ts
+ * import { loadScenarios } from "@probitas/core/loader";
+ *
+ * const files: string[] = [];
+ *
  * const scenarios = await loadScenarios(files, {
  *   onImportError: (file, err) => {
  *     console.error(`Failed to load ${file}:`, err);
- *   }
+ *   },
  * });
  * ```
  */
@@ -53,20 +57,27 @@ export interface LoadScenariosOptions {
  *
  * @example Loading discovered files
  * ```ts
- * import { discoverScenarioFiles } from "@probitas/discover";
  * import { loadScenarios } from "@probitas/core/loader";
  *
+ * // Use with discoverScenarioFiles from @probitas/discover
+ * const discoverScenarioFiles = async (_opts: {
+ *   includes: string[];
+ * }): Promise<string[]> => [];
+ *
  * const files = await discoverScenarioFiles({
- *   includes: ["**\/*.probitas.ts"]
+ *   includes: ["**" + "/*.probitas.ts"], // glob pattern
  * });
  * const scenarios = await loadScenarios(files);
+ * console.log(scenarios);
  * ```
  *
  * @example Loading specific files
  * ```ts
+ * import { loadScenarios } from "@probitas/core/loader";
+ *
  * const scenarios = await loadScenarios([
  *   "/project/tests/auth.probitas.ts",
- *   "/project/tests/api.probitas.ts"
+ *   "/project/tests/api.probitas.ts",
  * ]);
  * ```
  */

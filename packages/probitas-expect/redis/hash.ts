@@ -13,7 +13,16 @@ export interface RedisHashResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveValueProperty("field");
+   * import type { RedisHashResult } from "@probitas/client-redis";
+   * import { expectRedisHashResult } from "./hash.ts";
+   * const result = {
+   *   kind: "redis:hash",
+   *   ok: true,
+   *   value: { name: "Alice" },
+   *   duration: 0,
+   * } as unknown as RedisHashResult;
+   *
+   * expectRedisHashResult(result).not.toHaveValueProperty("age");
    * ```
    */
   readonly not: this;

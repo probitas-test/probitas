@@ -55,22 +55,31 @@ nix profile install github:jsr-probitas/cli
 Create `probitas/hello.probitas.ts`:
 
 ```typescript
-import { scenario, Skip } from "jsr:@probitas/probitas";
+import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
-export default scenario("Hello Probitas", { tags: ["example"] })
-  .step(() => {
-    // Unnamed steps are auto-named as "Step N"
-    if (!Deno.env.get("RUN_EXAMPLE")) {
-      throw new Skip("Example skipped");
+const apiUrl = Deno.env.get("API_URL");
+
+export default scenario("User API Test", { tags: ["api", "user"] })
+  .step("Check API availability", () => {
+    if (!apiUrl) {
+      throw new Skip("API_URL not configured");
     }
   })
-  .step("Greet", () => {
-    return { message: "Hello, World!" };
+  .resource("http", () => client.http.createHttpClient({ url: apiUrl! }))
+  .step("Create user", async (ctx) => {
+    const response = await ctx.resources.http.post("/users", {
+      name: "Alice",
+      email: "alice@example.com",
+    });
+    expect(response).toBeOk().toHaveStatus(201);
+    return response.data<{ id: string }>();
   })
-  .step("Verify", (ctx) => {
-    if (ctx.previous.message !== "Hello, World!") {
-      throw new Error("Unexpected message");
-    }
+  .step("Verify user exists", async (ctx) => {
+    const { id } = ctx.previous!;
+    const response = await ctx.resources.http.get(`/users/${id}`);
+    expect(response)
+      .toBeOk()
+      .toHaveDataProperty("name", "Alice");
   })
   .build();
 ```
@@ -104,40 +113,97 @@ A scenario is a sequence of steps that execute in order. Each step can:
 Lifecycle-managed objects with automatic cleanup:
 
 ```typescript
-scenario("Database Test")
-  .resource("db", async () => {
-    const conn = await Database.connect();
-    return conn; // Auto-disposed after scenario
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+
+export default scenario("Database Query Test", { tags: ["db"] })
+  .resource("db", () =>
+    client.sql.postgres.createPostgresClient({
+      url: Deno.env.get("DATABASE_URL")!,
+    }))
+  .step("Insert test data", async (ctx) => {
+    const result = await ctx.resources.db.query(
+      "INSERT INTO users (name) VALUES ($1) RETURNING id",
+      ["TestUser"],
+    );
+    expect(result).toBeOk().toHaveRowCount(1);
+    return { userId: result.rows[0].id };
   })
-  .step("Query data", (ctx) => {
-    return ctx.resources.db.query("SELECT * FROM users");
+  .step("Query inserted user", async (ctx) => {
+    const { userId } = ctx.previous!;
+    const result = await ctx.resources.db.query(
+      "SELECT * FROM users WHERE id = $1",
+      [userId],
+    );
+    expect(result)
+      .toBeOk()
+      .toHaveRowCount(1)
+      .toHaveRowsMatching({ name: "TestUser" });
   })
   .build();
+// Resource is auto-disposed (connection closed) after scenario
 ```
 
 ### Setup with Cleanup
 
-For side effects that need cleanup:
+For side effects that need cleanup (use `.setup()` instead of `.resource()` when
+you need to perform setup actions that don't return a reusable client):
 
 ```typescript
-scenario("File Test")
-  .setup((ctx) => {
-    const tempFile = Deno.makeTempFileSync();
-    ctx.store.set("tempFile", tempFile);
-    return () => Deno.removeSync(tempFile); // Cleanup function
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+
+export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
+  .resource("redis", () =>
+    client.redis.createRedisClient({
+      url: Deno.env.get("REDIS_URL")!,
+    }))
+  .setup(async (ctx) => {
+    // Create test keys before scenario
+    await ctx.resources.redis.set("test:counter", "0");
+    // Return cleanup function
+    return async () => {
+      await ctx.resources.redis.del("test:counter");
+    };
   })
-  .step("Write to file", (ctx) => {
-    Deno.writeTextFileSync(ctx.store.get("tempFile") as string, "test");
+  .step("Increment counter", async (ctx) => {
+    const result = await ctx.resources.redis.incr("test:counter");
+    expect(result).toBeOk().toHaveValue(1);
+  })
+  .step("Verify counter value", async (ctx) => {
+    const result = await ctx.resources.redis.get("test:counter");
+    expect(result).toBeOk().toHaveValue("1");
   })
   .build();
 ```
 
 ### Tags
 
-Organize scenarios with tags for easy filtering:
+Organize scenarios with tags for filtering. Tags help categorize tests by
+feature, priority, or environment:
 
 ```typescript
-scenario("Login Test", { tags: ["auth", "critical"] });
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+
+export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
+  .resource(
+    "http",
+    () => client.http.createHttpClient({ url: Deno.env.get("API_URL")! }),
+  )
+  .step("Login with valid credentials", async (ctx) => {
+    const response = await ctx.resources.http.post("/auth/login", {
+      email: "test@example.com",
+      password: "secret",
+    });
+    expect(response).toBeOk().toHaveStatus(200);
+    return response.data<{ token: string }>();
+  })
+  .step("Access protected resource", async (ctx) => {
+    const { token } = ctx.previous!;
+    const response = await ctx.resources.http.get("/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(response).toBeOk().toHaveDataProperty("email", "test@example.com");
+  })
+  .build();
 ```
 
 Run specific scenarios:
@@ -173,37 +239,51 @@ Create a `probitas.json` file in your project root:
 ## Expectation API
 
 Probitas provides specialized expectation functions for various client
-responses:
+responses. Each client type has tailored assertions:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas";
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
 
-export default scenario("API Test Example")
-  .resource("http", () =>
-    client.http.createHttpClient({
-      url: "http://localhost:3000",
+export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
+  .resource(
+    "http",
+    () => client.http.createHttpClient({ url: Deno.env.get("API_URL")! }),
+  )
+  .resource("db", () =>
+    client.sql.postgres.createPostgresClient({
+      url: Deno.env.get("DATABASE_URL")!,
     }))
-  .step("GET /api/users", async (ctx) => {
-    const { http } = ctx.resources;
-    const response = await http.get("/api/users");
-
-    // HTTP Response expectations
+  .step("Create order via API", async (ctx) => {
+    const response = await ctx.resources.http.post("/orders", {
+      items: [{ productId: "prod-1", quantity: 2 }],
+    });
+    // HTTP-specific assertions
     expect(response)
-      .toBeOk() // Status 2xx
-      .toHaveStatus(200) // Specific status
-      .toHaveHeadersProperty("content-type", /application\/json/)
-      .toHaveDataMatching({ users: [] });
+      .toBeOk()
+      .toHaveStatus(201)
+      .toHaveHeadersProperty("content-type", /application\/json/);
+    return response.data<{ orderId: string }>();
   })
-  .step("Validate count", (ctx) => {
-    const count = 42;
-
-    // Chainable expectations for any value
-    expect(count).toBe(42).toBeGreaterThan(40).toBeLessThan(50);
+  .step("Verify order in database", async (ctx) => {
+    const { orderId } = ctx.previous!;
+    const result = await ctx.resources.db.query(
+      "SELECT * FROM orders WHERE id = $1",
+      [orderId],
+    );
+    // SQL-specific assertions
+    expect(result)
+      .toBeOk()
+      .toHaveRowCount(1)
+      .toHaveRowsMatching({ status: "pending" });
   })
-  .step("Validate message", (ctx) => {
-    const message = "hello";
-
-    expect(message).not.toBe("world").toContain("ello");
+  .step("Validate order total", async (ctx) => {
+    const { orderId } = ctx.results[0] as { orderId: string };
+    const response = await ctx.resources.http.get(`/orders/${orderId}`);
+    const order = response.data<{ total: number }>()!;
+    // Generic value assertions (chainable)
+    expect(order.total)
+      .toBeGreaterThan(0)
+      .toBeLessThan(10000);
   })
   .build();
 ```

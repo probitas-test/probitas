@@ -13,7 +13,15 @@ export interface RabbitMqExchangeResultExpectation {
    *
    * @example
    * ```ts
-   * expectRabbitMqResult(result).not.toBeOk();
+   * import type { RabbitMqExchangeResult } from "@probitas/client-rabbitmq";
+   * import { expectRabbitMqExchangeResult } from "./exchange.ts";
+   * const result = {
+   *   kind: "rabbitmq:exchange",
+   *   ok: false,
+   *   duration: 0,
+   * } as unknown as RabbitMqExchangeResult;
+   *
+   * expectRabbitMqExchangeResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

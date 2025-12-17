@@ -12,11 +12,13 @@
  *
  * @example
  * ```ts
+ * import { ListReporter } from "@probitas/reporter";
+ * import { colorTheme } from "@probitas/core/theme";
+ *
  * const reporter = new ListReporter({
  *   theme: colorTheme,  // Optional: customize colors
  * });
- * const runner = new Runner(reporter);
- * await runner.run(scenarios);
+ * void reporter;
  * ```
  */
 
@@ -62,9 +64,10 @@ export interface ListReporterOptions extends WriterOptions {
  *
  * @example
  * ```ts
+ * import { ListReporter } from "@probitas/reporter";
+ *
  * const reporter = new ListReporter();
- * const runner = new Runner(reporter);
- * const result = await runner.run(scenarios);
+ * void reporter;
  *
  * // Output:
  * // ✓ Login scenario > Step that passes  (test.ts:15) [10.000ms]

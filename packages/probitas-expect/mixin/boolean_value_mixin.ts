@@ -51,14 +51,18 @@ export type BooleanValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createBooleanValueMixin } from "./boolean_value_mixin.ts";
+ *
+ * const response = { success: true };
+ * const negate = () => false;
+ *
  * const booleanMixin = createBooleanValueMixin(
  *   () => response.success,
- *   false,
+ *   negate,
  *   { valueName: "success", methodBase: "Success" }
  * );
- * const expectation = applyMixins(base, [booleanMixin]);
+ * const expectation = booleanMixin({});
  * expectation.toHaveSuccessTruthy();
- * expectation.not.toHaveSuccessFalsy();
  * ```
  */
 export function createBooleanValueMixin<

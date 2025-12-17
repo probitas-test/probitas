@@ -63,16 +63,18 @@ export type ArrayValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createArrayValueMixin } from "./array_value_mixin.ts";
+ *
+ * const response = { items: ["apple", "banana"] };
+ * const negate = () => false;
+ *
  * const arrayMixin = createArrayValueMixin(
  *   () => response.items,
- *   false,
+ *   negate,
  *   { valueName: "items", methodBase: "Items" }
  * );
- * const expectation = applyMixins(base, [arrayMixin]);
+ * const expectation = arrayMixin({});
  * expectation.toHaveItemsContaining("apple");
- * expectation.toHaveItemsContainingEqual({ id: 1, name: "apple" });
- * expectation.toHaveItemsMatching({ id: 1 });
- * expectation.not.toHaveItemsEmpty();
  * ```
  */
 export function createArrayValueMixin<

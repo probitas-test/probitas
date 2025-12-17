@@ -13,7 +13,16 @@ export interface SqsEnsureQueueResultExpectation {
    *
    * @example
    * ```ts
-   * expectSqsResult(ensureQueueResult).not.toBeOk();
+   * import type { SqsEnsureQueueResult } from "@probitas/client-sqs";
+   * import { expectSqsEnsureQueueResult } from "./ensure_queue.ts";
+   * const result = {
+   *   kind: "sqs:ensure-queue",
+   *   ok: false,
+   *   queueUrl: "https://sqs.example.com/test-queue",
+   *   duration: 0,
+   * } as unknown as SqsEnsureQueueResult;
+   *
+   * expectSqsEnsureQueueResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

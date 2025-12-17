@@ -55,6 +55,13 @@
  * ```ts
  * import { scenario } from "@probitas/builder";
  *
+ * // Mock database connection for example
+ * const connectDatabase = () =>
+ *   Promise.resolve({
+ *     query: (_sql: string) => Promise.resolve(),
+ *     async [Symbol.asyncDispose]() {},
+ *   });
+ *
  * export default scenario("Database Test")
  *   .resource("db", async () => {
  *     const conn = await connectDatabase();

@@ -69,16 +69,18 @@ export type NumberValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createNumberValueMixin } from "./number_value_mixin.ts";
+ *
+ * const response = { score: 95 };
+ * const negate = () => false;
+ *
  * const numberMixin = createNumberValueMixin(
  *   () => response.score,
- *   false,
+ *   negate,
  *   { valueName: "score", methodBase: "Score" }
  * );
- * const expectation = applyMixins(base, [numberMixin]);
+ * const expectation = numberMixin({});
  * expectation.toHaveScoreGreaterThan(90);
- * expectation.toHaveScoreLessThanOrEqual(100);
- * expectation.toHaveScoreCloseTo(95.5, 1);
- * expectation.not.toHaveScoreNaN();
  * ```
  */
 export function createNumberValueMixin<

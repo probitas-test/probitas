@@ -13,7 +13,17 @@ export interface SqsSendBatchResultExpectation {
    *
    * @example
    * ```ts
-   * expectSqsResult(batchResult).not.toBeOk();
+   * import type { SqsSendBatchResult } from "@probitas/client-sqs";
+   * import { expectSqsSendBatchResult } from "./send_batch.ts";
+   * const result = {
+   *   kind: "sqs:send-batch",
+   *   ok: false,
+   *   successful: [],
+   *   failed: [],
+   *   duration: 0,
+   * } as unknown as SqsSendBatchResult;
+   *
+   * expectSqsSendBatchResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

@@ -13,7 +13,15 @@ export interface RabbitMqAckResultExpectation {
    *
    * @example
    * ```ts
-   * expectRabbitMqResult(result).not.toBeOk();
+   * import type { RabbitMqAckResult } from "@probitas/client-rabbitmq";
+   * import { expectRabbitMqAckResult } from "./ack.ts";
+   * const result = {
+   *   kind: "rabbitmq:ack",
+   *   ok: false,
+   *   duration: 0,
+   * } as unknown as RabbitMqAckResult;
+   *
+   * expectRabbitMqAckResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

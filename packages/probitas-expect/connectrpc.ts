@@ -11,6 +11,20 @@ export interface ConnectRpcResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { ConnectRpcResponse } from "@probitas/client-connectrpc";
+   * import { expectConnectRpcResponse } from "./connectrpc.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "connectrpc",
+   *   ok: false,
+   *   statusCode: 2,
+   *   statusMessage: "Not Found",
+   *   headers: mockHeaders,
+   *   trailers: mockHeaders,
+   *   data: () => null,
+   *   duration: 0,
+   * } as unknown as ConnectRpcResponse;
+   *
    * expectConnectRpcResponse(response).not.toBeOk();
    * expectConnectRpcResponse(response).not.toHaveStatusCode(0);
    * ```
@@ -22,6 +36,20 @@ export interface ConnectRpcResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { ConnectRpcResponse } from "@probitas/client-connectrpc";
+   * import { expectConnectRpcResponse } from "./connectrpc.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "connectrpc",
+   *   ok: true,
+   *   statusCode: 0,
+   *   statusMessage: undefined,
+   *   headers: mockHeaders,
+   *   trailers: mockHeaders,
+   *   data: () => ({ result: "success" }),
+   *   duration: 0,
+   * } as unknown as ConnectRpcResponse;
+   *
    * expectConnectRpcResponse(response).toBeOk();
    * ```
    */

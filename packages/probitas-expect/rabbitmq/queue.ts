@@ -13,7 +13,18 @@ export interface RabbitMqQueueResultExpectation {
    *
    * @example
    * ```ts
-   * expectRabbitMqResult(result).not.toBeOk();
+   * import type { RabbitMqQueueResult } from "@probitas/client-rabbitmq";
+   * import { expectRabbitMqQueueResult } from "./queue.ts";
+   * const result = {
+   *   kind: "rabbitmq:queue",
+   *   ok: false,
+   *   queue: "test-queue",
+   *   messageCount: 0,
+   *   consumerCount: 0,
+   *   duration: 0,
+   * } as unknown as RabbitMqQueueResult;
+   *
+   * expectRabbitMqQueueResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

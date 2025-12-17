@@ -136,16 +136,23 @@ export function parseSelector(input: string): Selector[] {
  *
  * @example
  * ```ts
- * const scenario = { name: "Login Test", options: { tags: ["auth"] } };
+ * import { matchesSelector } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenario: ScenarioDefinition = {
+ *   name: "Login Test",
+ *   tags: ["auth"],
+ *   steps: [],
+ * };
  *
  * matchesSelector(scenario, { type: "tag", value: /auth/i, negated: false });
- * // → true
+ * // => true
  *
  * matchesSelector(scenario, { type: "name", value: /login/i, negated: false });
- * // → true
+ * // => true
  *
  * matchesSelector(scenario, { type: "tag", value: /api/i, negated: false });
- * // → false
+ * // => false
  * ```
  */
 export function matchesSelector(
@@ -180,27 +187,47 @@ export function matchesSelector(
  *
  * @example OR logic - match any selector string
  * ```ts
+ * import { applySelectors } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenarios: ScenarioDefinition[] = [];
+ *
  * // Scenarios with "api" tag OR "db" tag
  * applySelectors(scenarios, ["tag:api", "tag:db"]);
  * ```
  *
  * @example AND logic - match all within comma-separated
  * ```ts
+ * import { applySelectors } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenarios: ScenarioDefinition[] = [];
+ *
  * // Scenarios with BOTH "api" AND "critical" tags
  * applySelectors(scenarios, ["tag:api,tag:critical"]);
  * ```
  *
  * @example Combined AND/OR/NOT
  * ```ts
+ * import { applySelectors } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenarios: ScenarioDefinition[] = [];
+ *
  * // (api AND critical) OR (db AND !slow)
  * applySelectors(scenarios, [
  *   "tag:api,tag:critical",
- *   "tag:db,!tag:slow"
+ *   "tag:db,!tag:slow",
  * ]);
  * ```
  *
  * @example Exclude by name pattern
  * ```ts
+ * import { applySelectors } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenarios: ScenarioDefinition[] = [];
+ *
  * // All scenarios except those with "wip" in name
  * applySelectors(scenarios, ["!wip"]);
  * ```

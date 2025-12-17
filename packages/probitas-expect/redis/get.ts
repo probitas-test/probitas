@@ -13,7 +13,16 @@ export interface RedisGetResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveValue();
+   * import type { RedisGetResult } from "@probitas/client-redis";
+   * import { expectRedisGetResult } from "./get.ts";
+   * const result = {
+   *   kind: "redis:get",
+   *   ok: true,
+   *   value: "hello",
+   *   duration: 0,
+   * } as unknown as RedisGetResult;
+   *
+   * expectRedisGetResult(result).not.toHaveValue("world");
    * ```
    */
   readonly not: this;

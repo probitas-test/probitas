@@ -12,7 +12,16 @@ export interface RedisSetResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveValue("OK");
+   * import type { RedisSetResult } from "@probitas/client-redis";
+   * import { expectRedisSetResult } from "./set.ts";
+   * const result = {
+   *   kind: "redis:set",
+   *   ok: true,
+   *   value: "OK",
+   *   duration: 0,
+   * } as unknown as RedisSetResult;
+   *
+   * expectRedisSetResult(result).not.toHaveValue("ERROR");
    * ```
    */
   readonly not: this;

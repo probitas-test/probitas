@@ -35,13 +35,18 @@ export type OkMixin = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createOkMixin } from "./ok_mixin.ts";
+ *
+ * const result = { success: true };
+ * const negate = () => false;
+ *
  * const okMixin = createOkMixin(
  *   () => result.success,
- *   false,
+ *   negate,
  *   { valueName: "operation" }
  * );
- * const expectation = applyMixins(base, [okMixin]);
- * expectation.toBeOk(); // Throws if result.success is false
+ * const expectation = okMixin({});
+ * expectation.toBeOk();
  * ```
  */
 export function createOkMixin(

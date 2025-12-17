@@ -21,19 +21,16 @@
  * ## Available Reporters
  *
  * - {@linkcode ListReporter} - Detailed hierarchical output showing scenario and step names
- * - {@linkcode JsonReporter} - JSON output for machine-readable results
+ * - {@linkcode JSONReporter} - JSON output for machine-readable results
  *
  * @example Using ListReporter (default for CLI)
  * ```ts
- * import { ScenarioRunner } from "@probitas/runner";
  * import { ListReporter } from "@probitas/reporter";
  *
- * const runner = new ScenarioRunner();
- * const summary = await runner.run(scenarios, {
- *   reporter: new ListReporter(),
- * });
+ * const reporter = new ListReporter();
+ * void reporter;
  *
- * // Output:
+ * // Output example when used with ScenarioRunner:
  * // ● User Registration
  * //   ✓ Create user (15ms)
  * //   ✓ Verify email (23ms)
@@ -43,13 +40,12 @@
  * //     Error: Connection timeout
  * ```
  *
- * @example Using JsonReporter for programmatic analysis
+ * @example Using JSONReporter for programmatic analysis
  * ```ts
- * import { JsonReporter } from "@probitas/reporter";
+ * import { JSONReporter } from "@probitas/reporter";
  *
- * const summary = await runner.run(scenarios, {
- *   reporter: new JsonReporter(),
- * });
+ * const reporter = new JSONReporter();
+ * void reporter;
  *
  * // Output: JSON object with full run details
  * ```
@@ -60,9 +56,8 @@
  *
  * const reporter = new ListReporter({
  *   output: Deno.stdout.writable,  // Write to stdout instead of stderr
- *   logLevel: "debug",             // Show all log messages
- *   noColor: Deno.noColor,         // Use Deno's NO_COLOR detection
  * });
+ * void reporter;
  * ```
  *
  * @module

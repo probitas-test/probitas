@@ -50,9 +50,12 @@ export type TypedChainMethod<T extends object, A extends unknown[]> = (
  *
  * @example
  * ```ts
- * // Before patching: expect().toBeString().toHaveLength() - toHaveLength not visible
- * // After patching: expect().toBeString().toHaveLength() - all methods properly typed
- * type Patched = PatchTypedChainMethod<StringMixin & ArrayMixin>;
+ * import type { PatchTypedChainMethod } from "./_typeutils.ts";
+ *
+ * type StringMixin = { toBeString(): StringMixin };
+ * type ArrayMixin = { toHaveLength(n: number): ArrayMixin };
+ * type Combined = StringMixin & ArrayMixin;
+ * type Patched = PatchTypedChainMethod<Combined>;
  * ```
  */
 export type PatchTypedChainMethod<

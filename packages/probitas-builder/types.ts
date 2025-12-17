@@ -16,6 +16,8 @@ import type { StepContext, StepDefinition } from "@probitas/core";
  *
  * @example Accessing previous result
  * ```ts
+ * import { scenario } from "@probitas/builder";
+ *
  * scenario("Chained Steps")
  *   .step("First", () => ({ id: 123 }))
  *   .step("Second", (ctx) => {
@@ -26,6 +28,8 @@ import type { StepContext, StepDefinition } from "@probitas/core";
  *
  * @example Using shared store
  * ```ts
+ * import { scenario } from "@probitas/builder";
+ *
  * scenario("Store Example")
  *   .setup((ctx) => {
  *     ctx.store.set("startTime", Date.now());
@@ -54,10 +58,8 @@ export type BuilderStepContext<
    * All accumulated results as a typed tuple.
    *
    * Allows accessing any previous result by index:
-   * ```ts
-   * ctx.results[0]  // First step's result
-   * ctx.results[1]  // Second step's result
-   * ```
+   * - `ctx.results[0]` - First step's result
+   * - `ctx.results[1]` - Second step's result
    */
   readonly results: A;
 
@@ -66,8 +68,15 @@ export type BuilderStepContext<
    *
    * Resources are typed based on their registration:
    * ```ts
-   * .resource("db", () => createDbConnection())
-   * .step((ctx) => ctx.resources.db.query(...))
+   * import { scenario } from "@probitas/builder";
+   *
+   * // Mock database connection for example
+   * const createDbConnection = () => ({ query: (_sql: string) => [{ id: 1 }] });
+   *
+   * scenario("test")
+   *   .resource("db", () => createDbConnection())
+   *   .step((ctx) => ctx.resources.db.query("SELECT 1"))
+   *   .build();
    * ```
    */
   readonly resources: R;
@@ -86,14 +95,20 @@ export type BuilderStepContext<
  *
  * @example Sync step returning data
  * ```ts
- * const step: StepFunction<{ name: string }> = (ctx) => {
+ * import type { BuilderStepFunction } from "@probitas/builder";
+ *
+ * const step: BuilderStepFunction<{ name: string }> = (_ctx) => {
  *   return { name: "Alice" };
  * };
  * ```
  *
  * @example Async step with API call
  * ```ts
- * const step: StepFunction<User> = async (ctx) => {
+ * import type { BuilderStepFunction } from "@probitas/builder";
+ *
+ * type User = { id: string; name: string };
+ *
+ * const step: BuilderStepFunction<User> = async (ctx) => {
  *   const response = await fetch("/api/user", { signal: ctx.signal });
  *   return response.json();
  * };

@@ -51,14 +51,18 @@ export type StringValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createStringValueMixin } from "./string_value_mixin.ts";
+ *
+ * const response = { message: "Operation success" };
+ * const negate = () => false;
+ *
  * const stringMixin = createStringValueMixin(
  *   () => response.message,
- *   false,
+ *   negate,
  *   { valueName: "message", methodBase: "Message" }
  * );
- * const expectation = applyMixins(base, [stringMixin]);
+ * const expectation = stringMixin({});
  * expectation.toHaveMessageContaining("success");
- * expectation.toHaveMessageMatching(/^[A-Z]/);
  * ```
  */
 export function createStringValueMixin<

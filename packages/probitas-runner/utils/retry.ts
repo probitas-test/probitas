@@ -40,23 +40,29 @@ export type RetryOptions = {
  * @returns Promise resolving to the function's return value
  * @throws The last error encountered if all retry attempts fail
  *
- * @example
+ * @example Retry up to 3 times with exponential backoff
  * ```ts
- * // Retry up to 3 times with exponential backoff
+ * import { retry } from "./retry.ts";
+ *
+ * const mockFetch = async () => ({ ok: true });
  * const data = await retry(
- *   () => fetch("https://api.example.com/data"),
+ *   () => mockFetch(),
  *   { maxAttempts: 3, backoff: "exponential" }
  * );
+ * console.log(data);
  * ```
  *
- * @example
+ * @example With abort signal
  * ```ts
- * // With abort signal
+ * import { retry } from "./retry.ts";
+ *
+ * const fetchData = async () => ({ status: "ok" });
  * const controller = new AbortController();
  * const data = await retry(
  *   () => fetchData(),
  *   { maxAttempts: 5, backoff: "linear", signal: controller.signal }
  * );
+ * console.log(data);
  * ```
  */
 export async function retry<T>(

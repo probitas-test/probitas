@@ -44,14 +44,18 @@ export type OneOfValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createOneOfValueMixin } from "./one_of_value_mixin.ts";
+ *
+ * const user = { role: "admin" };
+ * const negate = () => false;
+ *
  * const oneOfMixin = createOneOfValueMixin(
  *   () => user.role,
- *   false,
+ *   negate,
  *   { valueName: "role", methodBase: "Role" }
  * );
- * const expectation = applyMixins(base, [oneOfMixin]);
+ * const expectation = oneOfMixin({});
  * expectation.toHaveRoleOneOf(["admin", "user", "guest"]);
- * // Throws if user.role is not one of the allowed values
  * ```
  */
 export function createOneOfValueMixin<

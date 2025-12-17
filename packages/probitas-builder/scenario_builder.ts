@@ -208,6 +208,15 @@ class ScenarioBuilderState<
  * ```ts
  * import { scenario } from "@probitas/builder";
  *
+ * // Mock Database for example
+ * const Database = {
+ *   connect: () =>
+ *     Promise.resolve({
+ *       query: (_sql: string) => [{ id: 1, name: "Alice" }],
+ *       async [Symbol.asyncDispose]() {},
+ *     }),
+ * };
+ *
  * scenario("Database Test")
  *   .resource("db", async () => {
  *     const conn = await Database.connect();
@@ -256,6 +265,18 @@ class ScenarioBuilderInit<
    *
    * @example Database connection resource
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
+   * // Mock pg driver for example
+   * const pg = {
+   *   connect: (_url: string) =>
+   *     Promise.resolve({
+   *       query: (_sql: string) => ({ rows: [] }),
+   *       async [Symbol.asyncDispose]() {},
+   *     }),
+   * };
+   * const DATABASE_URL = "postgres://localhost/test";
+   *
    * scenario("DB Test")
    *   .resource("db", async () => {
    *     const conn = await pg.connect(DATABASE_URL);
@@ -267,6 +288,14 @@ class ScenarioBuilderInit<
    *
    * @example Resource depending on another resource
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
+   * // Mock config and API client for example
+   * const loadConfig = () => Promise.resolve({ apiUrl: "https://api.example.com" });
+   * class ApiClient {
+   *   constructor(public url: string) {}
+   * }
+   *
    * scenario("Service Test")
    *   .resource("config", async () => loadConfig())
    *   .resource("api", async (ctx) => {
@@ -304,6 +333,8 @@ class ScenarioBuilderInit<
    *
    * @example Temporary file setup
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
    * scenario("File Test")
    *   .setup((ctx) => {
    *     const tempFile = Deno.makeTempFileSync();
@@ -311,13 +342,15 @@ class ScenarioBuilderInit<
    *     return () => Deno.removeSync(tempFile);  // Cleanup function
    *   })
    *   .step("Write file", (ctx) => {
-   *     Deno.writeTextFileSync(ctx.store.get("tempFile"), "test");
+   *     Deno.writeTextFileSync(ctx.store.get("tempFile") as string, "test");
    *   })
    *   .build();
    * ```
    *
    * @example Environment variable setup
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
    * scenario("Env Test")
    *   .setup(() => {
    *     const original = Deno.env.get("DEBUG");
@@ -354,6 +387,8 @@ class ScenarioBuilderInit<
    *
    * @example Temporary file setup
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
    * scenario("File Test")
    *   .setup((ctx) => {
    *     const tempFile = Deno.makeTempFileSync();
@@ -361,13 +396,15 @@ class ScenarioBuilderInit<
    *     return () => Deno.removeSync(tempFile);  // Cleanup function
    *   })
    *   .step("Write file", (ctx) => {
-   *     Deno.writeTextFileSync(ctx.store.get("tempFile"), "test");
+   *     Deno.writeTextFileSync(ctx.store.get("tempFile") as string, "test");
    *   })
    *   .build();
    * ```
    *
    * @example Environment variable setup
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
    * scenario("Env Test")
    *   .setup(() => {
    *     const original = Deno.env.get("DEBUG");
@@ -417,6 +454,17 @@ class ScenarioBuilderInit<
    *
    * @example Named step with result passing
    * ```ts
+   * import { scenario } from "@probitas/builder";
+   *
+   * // Mock API client for example
+   * const api = {
+   *   post: (_url: string, _data: unknown) => Promise.resolve({ id: "123" }),
+   *   get: (_url: string) => Promise.resolve({ name: "test" }),
+   * };
+   * const expect = (value: unknown) => ({
+   *   toBe: (_expected: unknown) => console.log("Assertion:", value),
+   * });
+   *
    * scenario("API Flow")
    *   .step("Create resource", async () => {
    *     const res = await api.post("/items", { name: "test" });
@@ -498,8 +546,12 @@ class ScenarioBuilderInit<
    * import { scenario } from "@probitas/builder";
    *
    * export default scenario("Authentication")
-   *   .step("Login", async () => { ... })
-   *   .step("Verify session", async (ctx) => { ... })
+   *   .step("Login", async () => {
+   *     return { token: "abc123" };
+   *   })
+   *   .step("Verify session", async (ctx) => {
+   *     console.log(ctx.previous.token);
+   *   })
    *   .build();
    * ```
    */
@@ -528,6 +580,11 @@ class ScenarioBuilderInit<
  * ```ts
  * import { scenario } from "@probitas/builder";
  *
+ * // Mock user service for example
+ * const createUser = (_data: { email: string }) =>
+ *   Promise.resolve({ id: "user-123" });
+ * const verifyEmail = (_userId: string) => Promise.resolve();
+ *
  * export default scenario("User Registration")
  *   .step("Create user", async () => {
  *     const user = await createUser({ email: "test@example.com" });
@@ -542,11 +599,15 @@ class ScenarioBuilderInit<
  *
  * @example Scenario with tags for filtering
  * ```ts
+ * import { scenario } from "@probitas/builder";
+ *
  * scenario("Payment Integration", {
  *   tags: ["integration", "payment", "slow"],
  *   stepOptions: { timeout: 60000 }  // 1 minute timeout for all steps
  * })
- *   .step("Process payment", async () => { ... })
+ *   .step("Process payment", async () => {
+ *     return { success: true };
+ *   })
  *   .build();
  *
  * // Run with: probitas run -s "tag:payment"
@@ -554,14 +615,26 @@ class ScenarioBuilderInit<
  *
  * @example Scenario with resources and setup
  * ```ts
+ * import { scenario } from "@probitas/builder";
+ *
+ * // Mock Database for example
+ * const Database = {
+ *   connect: () =>
+ *     Promise.resolve({
+ *       rollback: () => {},
+ *       insert: (_data: { id: number }) => {},
+ *       query: (_sql: string) => [{ id: 1 }],
+ *     }),
+ * };
+ *
  * scenario("Database Test")
  *   .resource("db", async () => await Database.connect())
  *   .setup((ctx) => {
  *     // Run migrations
  *     return () => ctx.resources.db.rollback();
  *   })
- *   .step("Insert data", (ctx) => ctx.resources.db.insert(...))
- *   .step("Query data", (ctx) => ctx.resources.db.query(...))
+ *   .step("Insert data", (ctx) => ctx.resources.db.insert({ id: 1 }))
+ *   .step("Query data", (ctx) => ctx.resources.db.query("SELECT * FROM users"))
  *   .build();
  * ```
  *

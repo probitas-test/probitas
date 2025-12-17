@@ -10,7 +10,16 @@ export interface MongoInsertOneResultExpectation {
    *
    * @example
    * ```ts
-   * expectMongoInsertOneResult(insertResult).not.toBeOk();
+   * import type { MongoInsertOneResult } from "@probitas/client-mongodb";
+   * import { expectMongoInsertOneResult } from "./insert_one.ts";
+   * const result = {
+   *   kind: "mongo:insert-one",
+   *   ok: false,
+   *   insertedId: "123",
+   *   duration: 0,
+   * } as unknown as MongoInsertOneResult;
+   *
+   * expectMongoInsertOneResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

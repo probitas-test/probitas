@@ -20,6 +20,20 @@ export interface GrpcResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { GrpcResponse } from "@probitas/client-grpc";
+   * import { expectGrpcResponse } from "./grpc.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "grpc",
+   *   ok: false,
+   *   statusCode: 5,
+   *   statusMessage: "NOT_FOUND",
+   *   headers: mockHeaders,
+   *   trailers: mockHeaders,
+   *   data: () => null,
+   *   duration: 0,
+   * } as unknown as GrpcResponse;
+   *
    * expectGrpcResponse(response).not.toBeOk();
    * expectGrpcResponse(response).not.toHaveStatusCode(0);
    * ```
@@ -31,6 +45,20 @@ export interface GrpcResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { GrpcResponse } from "@probitas/client-grpc";
+   * import { expectGrpcResponse } from "./grpc.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "grpc",
+   *   ok: true,
+   *   statusCode: 0,
+   *   statusMessage: undefined,
+   *   headers: mockHeaders,
+   *   trailers: mockHeaders,
+   *   data: () => ({ result: "success" }),
+   *   duration: 0,
+   * } as unknown as GrpcResponse;
+   *
    * expectGrpcResponse(response).toBeOk();
    * ```
    */

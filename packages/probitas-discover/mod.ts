@@ -73,12 +73,14 @@
  * ```ts
  * import { discoverScenarioFiles } from "@probitas/discover";
  * import { loadScenarios } from "@probitas/core/loader";
- * import { ScenarioRunner } from "@probitas/runner";
+ * import type { Reporter } from "@probitas/runner";
+ * import { Runner } from "@probitas/runner";
  *
  * // Complete workflow: discover -> load -> run
  * const files = await discoverScenarioFiles(["./scenarios"]);
  * const scenarios = await loadScenarios(files);
- * const runner = new ScenarioRunner();
+ * const reporter: Reporter = {}; // Minimal reporter (all methods optional)
+ * const runner = new Runner(reporter);
  * const summary = await runner.run(scenarios);
  * ```
  *

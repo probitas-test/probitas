@@ -96,17 +96,18 @@ export type ObjectValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createObjectValueMixin } from "./object_value_mixin.ts";
+ *
+ * const response = { user: { name: "Alice", email: "alice@example.com" } };
+ * const negate = () => false;
+ *
  * const objectMixin = createObjectValueMixin(
  *   () => response.user,
- *   false,
+ *   negate,
  *   { valueName: "user", methodBase: "User" }
  * );
- * const expectation = applyMixins(base, [objectMixin]);
+ * const expectation = objectMixin({});
  * expectation.toHaveUserMatching({ name: "Alice" });
- * expectation.toHaveUserProperty("email");
- * expectation.toHaveUserProperty("age", 30);
- * expectation.toHaveUserPropertyContaining("tags", "admin");
- * expectation.toHaveUserPropertyMatching("profile", { verified: true });
  * ```
  */
 export function createObjectValueMixin<

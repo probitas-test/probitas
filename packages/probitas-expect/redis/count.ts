@@ -13,7 +13,16 @@ export interface RedisCountResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveValue(0);
+   * import type { RedisCountResult } from "@probitas/client-redis";
+   * import { expectRedisCountResult } from "./count.ts";
+   * const result = {
+   *   kind: "redis:count",
+   *   ok: true,
+   *   value: 5,
+   *   duration: 0,
+   * } as unknown as RedisCountResult;
+   *
+   * expectRedisCountResult(result).not.toHaveValue(0);
    * ```
    */
   readonly not: this;

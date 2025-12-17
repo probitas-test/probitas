@@ -14,8 +14,19 @@ export interface DenoKvGetResultExpectation<_T = unknown> {
    *
    * @example
    * ```ts
-   * expectDenoKvResult(result).not.toBeOk();
-   * expectDenoKvResult(result).not.toHaveContent();
+   * import type { DenoKvGetResult } from "@probitas/client-deno-kv";
+   * import { expectDenoKvGetResult } from "./get.ts";
+   * const result = {
+   *   kind: "deno-kv:get",
+   *   ok: false,
+   *   key: ["users", "1"],
+   *   value: null,
+   *   versionstamp: null,
+   *   duration: 0,
+   * } as unknown as DenoKvGetResult<unknown>;
+   *
+   * expectDenoKvGetResult(result).not.toBeOk();
+   * expectDenoKvGetResult(result).not.toHaveValuePresent();
    * ```
    */
   readonly not: this;

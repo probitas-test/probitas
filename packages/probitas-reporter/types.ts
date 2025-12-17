@@ -5,17 +5,24 @@ import type { Theme } from "@probitas/core/theme";
  *
  * @example Basic usage
  * ```ts
+ * import { ListReporter } from "@probitas/reporter";
+ *
  * const reporter = new ListReporter({
  *   output: Deno.stdout.writable
  * });
+ * void reporter;
  * ```
  *
- * @example Custom output stream
+ * @example Custom output stream (using a buffer)
  * ```ts
- * const file = await Deno.open("results.txt", { write: true });
+ * import { ListReporter } from "@probitas/reporter";
+ * import { Buffer } from "@std/streams";
+ *
+ * const buffer = new Buffer();
  * const reporter = new ListReporter({
- *   output: file.writable
+ *   output: buffer.writable
  * });
+ * void reporter;
  * ```
  */
 export interface ReporterOptions {

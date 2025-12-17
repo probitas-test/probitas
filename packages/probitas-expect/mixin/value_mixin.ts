@@ -63,17 +63,18 @@ export type ValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
+ * import { createValueMixin } from "./value_mixin.ts";
+ *
+ * const response = { status: 200 };
+ * const negate = () => false;
+ *
  * const valueMixin = createValueMixin(
  *   () => response.status,
- *   false,
+ *   negate,
  *   { valueName: "status", methodBase: "Status" }
  * );
- * const expectation = applyMixins(base, [valueMixin]);
+ * const expectation = valueMixin({});
  * expectation.toHaveStatus(200);
- * expectation.toHaveStatusEqual(200);
- * expectation.toHaveStatusSatisfying((v) => {
- *   if (v < 200 || v >= 300) throw new Error("Not 2xx");
- * });
  * ```
  */
 export function createValueMixin<

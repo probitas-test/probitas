@@ -49,24 +49,12 @@ function hasKind(value: unknown): value is { kind: string } {
  *
  * @example
  * ```ts
- * // HTTP response
- * const httpRes = await http.get("/users");
- * expect(httpRes).toBeOk().toHaveContentContaining({ users: [] });
- *
- * // GraphQL response
- * const gqlRes = await graphql.query("{ users { id name } }");
- * expect(gqlRes).toBeOk().toHaveContent();
- *
- * // SQL query result
- * const sqlRes = await db.query("SELECT * FROM users");
- * expect(sqlRes).toBeOk().toHaveCount(10);
- *
- * // MongoDB result
- * const mongoRes = await mongo.find({ status: "active" });
- * expect(mongoRes).toBeOk().toHaveLength(10);
+ * import { expect } from "./expect.ts";
  *
  * // Falls back to expectAnything (chainable @std/expect) for other values
  * expect(42).toBe(42).toBeGreaterThan(40);
+ * expect("hello world").toContain("world");
+ * expect({ a: 1, b: 2 }).toMatchObject({ a: 1 });
  * ```
  */
 export function expect<T extends HttpResponse>(

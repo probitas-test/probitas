@@ -19,15 +19,22 @@ import type { StepResult } from "./step.ts";
  *
  * @typeParam Resources - Record of available resource types
  *
- * @example Accessing context in a step
+ * @example ScenarioContext structure
  * ```ts
- * scenario("Context Example")
- *   .step("Use context", (ctx) => {
- *     console.log(`Running: ${ctx.name}`);
- *     console.log(`Tags: ${ctx.options.tags.join(", ")}`);
- *     console.log(`Previous results: ${ctx.results.length}`);
- *   })
- *   .build();
+ * import type { ScenarioContext } from "@probitas/runner";
+ *
+ * // ScenarioContext is created by the runner for each scenario execution
+ * const ctx: ScenarioContext = {
+ *   name: "My Test",
+ *   tags: ["api", "integration"],
+ *   results: [],
+ *   store: new Map(),
+ *   resources: {},
+ *   signal: undefined,
+ * };
+ * console.log(`Running: ${ctx.name}`);
+ * console.log(`Tags: ${ctx.tags.join(", ")}`);
+ * console.log(`Previous results: ${ctx.results.length}`);
  * ```
  */
 export interface ScenarioContext {
@@ -58,23 +65,29 @@ export interface ScenarioContext {
  *
  * @example Passed scenario
  * ```ts
+ * import type { ScenarioResult } from "@probitas/runner";
+ *
  * const result: ScenarioResult = {
- *   metadata: { name: "Login Flow", options: { ... }, entries: [...] },
+ *   metadata: { name: "Login Flow", tags: [], steps: [], origin: { path: "", line: 0 } },
  *   status: "passed",
  *   duration: 1250,
- *   steps: [{ status: "passed", ... }, { status: "passed", ... }]
+ *   steps: [{ metadata: { kind: "step", name: "step1", timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } }, status: "passed", value: null, duration: 100 }]
  * };
+ * console.log(result);
  * ```
  *
  * @example Skipped scenario
  * ```ts
+ * import type { ScenarioResult } from "@probitas/runner";
+ *
  * const result: ScenarioResult = {
- *   metadata: { name: "Premium Feature", ... },
+ *   metadata: { name: "Premium Feature", tags: [], steps: [], origin: { path: "", line: 0 } },
  *   status: "skipped",
  *   duration: 5,
  *   steps: [],
- *   skipReason: "Feature flag not enabled"
+ *   error: "Feature flag not enabled"
  * };
+ * console.log(result);
  * ```
  */
 export type ScenarioResult = {

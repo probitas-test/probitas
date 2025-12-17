@@ -21,87 +21,87 @@
  *
  * @example HTTP Response expectations
  * ```typescript
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import type { HttpResponse } from "@probitas/client-http";
+ * import { expectHttpResponse } from "./mod.ts";
  *
- * export default scenario("API Test")
- *   .resource("http", () =>
- *     client.http.createHttpClient({ url: "http://localhost:3000" }))
- *   .step("GET /api/users", async (ctx) => {
- *     const { http } = ctx.resources;
- *     const response = await http.get("/api/users");
+ * // Mock HTTP response for example
+ * const response = {
+ *   kind: "http",
+ *   ok: true,
+ *   status: 200,
+ *   statusText: "OK",
+ *   headers: new Headers({ "content-type": "application/json" }),
+ *   url: "http://example.com/api/users",
+ *   body: null,
+ *   duration: 100,
+ *   text: () => null,
+ *   data: () => ({ users: [] }),
+ * } as unknown as HttpResponse;
  *
- *     expect(response)
- *       .toBeOk()                    // Status 2xx
- *       .toHaveStatus(200)                   // Specific status code
- *       .toHaveContentType(/application\/json/)
- *       .toMatchObject({ users: [] });
- *   })
- *   .build();
+ * expectHttpResponse(response)
+ *   .toBeOk()                        // Status 2xx
+ *   .toHaveStatus(200);              // Specific status code
  * ```
  *
  * @example GraphQL Response expectations
  * ```typescript
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import type { GraphqlResponse } from "@probitas/client-graphql";
+ * import { expectGraphqlResponse } from "./mod.ts";
  *
- * export default scenario("GraphQL Test")
- *   .resource("gql", () =>
- *     client.graphql.createGraphQLClient({
- *       endpoint: "http://localhost:4000/graphql",
- *     }))
- *   .step("Query user", async (ctx) => {
- *     const { gql } = ctx.resources;
- *     const response = await gql.query("{ user(id: 1) { name } }");
+ * // Mock GraphQL response for example
+ * const response = {
+ *   kind: "graphql",
+ *   ok: true,
+ *   status: 200,
+ *   headers: {},
+ *   raw: { data: { user: { name: "Alice" } } },
+ *   data: () => ({ user: { name: "Alice" } }),
+ *   errors: () => [],
+ *   duration: 50,
+ * } as unknown as GraphqlResponse;
  *
- *     expect(response)
- *       .toBeOk()
- *       .toHaveContent()
- *       .toMatchObject({ user: { name: "Alice" } })
- *       .toHaveErrorCount(0);
- *   })
- *   .build();
+ * expectGraphqlResponse(response)
+ *   .toBeOk()
+ *   .toHaveDataPresent()
+ *   .toHaveErrorCount(0);
  * ```
  *
  * @example SQL Query Result expectations
  * ```typescript
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import type { SqlQueryResult } from "@probitas/client-sql";
+ * import { expectSqlQueryResult } from "./mod.ts";
  *
- * export default scenario("Database Test")
- *   .resource("db", () =>
- *     client.sql.postgres.createPostgresClient({
- *       url: "postgres://localhost/testdb",
- *     }))
- *   .step("Query users", async (ctx) => {
- *     const { db } = ctx.resources;
- *     const result = await db.query("SELECT * FROM users");
+ * // Mock SQL query result for example
+ * const result = {
+ *   kind: "sql",
+ *   ok: true,
+ *   rows: Array.from({ length: 10 }, (_, i) => ({ id: i + 1, name: `User ${i + 1}` })),
+ *   rowCount: 10,
+ *   duration: 25,
+ *   map: <U>(_fn: (row: Record<string, unknown>) => U) => [],
+ *   as: <U>() => ({ rows: [] as U[], rowCount: 0 }),
+ * } as unknown as SqlQueryResult;
  *
- *     expect(result)
- *       .toBeOk()
- *       .toHaveLength(10)
- *       .toMatchObject({ name: "Alice" });
- *   })
- *   .build();
+ * expectSqlQueryResult(result)
+ *   .toBeOk()
+ *   .toHaveRowCount(10);
  * ```
  *
  * @example Generic value expectations (chainable @std/expect)
  * ```typescript
- * import { expect, scenario } from "@probitas/probitas";
+ * import { expect } from "./mod.ts";
  *
- * export default scenario("Value Test")
- *   .step("Validate number", () => {
- *     // All @std/expect matchers are supported
- *     expect(42)
- *       .toBe(42)
- *       .toBeGreaterThan(40)
- *       .toBeLessThan(50);
- *   })
- *   .step("Validate string", () => {
- *     // .not modifier works correctly
- *     expect("hello")
- *       .not.toBe("world")
- *       .not.toBeNull()
- *       .toContain("ello");
- *   })
- *   .build();
+ * // All @std/expect matchers are supported
+ * expect(42)
+ *   .toBe(42)
+ *   .toBeGreaterThan(40)
+ *   .toBeLessThan(50);
+ *
+ * // .not modifier works correctly
+ * expect("hello")
+ *   .not.toBe("world")
+ *   .not.toBeNull()
+ *   .toContain("ello");
  * ```
  *
  * ## Supported Client Types
@@ -134,31 +134,38 @@
  *
  * @example Using .not modifier
  * ```typescript
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import type { HttpResponse } from "@probitas/client-http";
+ * import { expect, expectHttpResponse } from "./mod.ts";
  *
- * export default scenario("Negation Test")
- *   .resource("http", () =>
- *     client.http.createHttpClient({ url: "http://localhost:3000" }))
- *   .step("Check response", async (ctx) => {
- *     const { http } = ctx.resources;
- *     const response = await http.get("/api/data");
+ * // Mock HTTP response for example
+ * const response = {
+ *   kind: "http",
+ *   ok: true,
+ *   status: 200,
+ *   statusText: "OK",
+ *   headers: new Headers(),
+ *   url: "http://example.com",
+ *   body: null,
+ *   duration: 50,
+ *   text: () => null,
+ *   data: () => ({}),
+ * } as unknown as HttpResponse;
  *
- *     expect(response)
- *       .not.toHaveStatus(404)
- *       .not.toHaveHeader("x-custom-header");
- *   })
- *   .step("Check value", () => {
- *     expect(42)
- *       .not.toBe(43)
- *       .not.toBeNull();
- *   })
- *   .build();
+ * expectHttpResponse(response)
+ *   .not.toHaveStatus(404)
+ *   .toHaveStatus(200);
+ *
+ * expect(42)
+ *   .not.toBe(43)
+ *   .not.toBeNull();
  * ```
  *
  * The `.not` modifier only affects the immediately following assertion, then resets to non-negated state:
  *
  * @example .not scoping
  * ```typescript
+ * import { expect } from "./mod.ts";
+ *
  * expect(42)
  *   .not.toBe(43)         // Negated
  *   .toBeGreaterThan(40); // Not negated
@@ -171,31 +178,25 @@
  *
  * @example Chaining generic expectations
  * ```typescript
- * import { expect, scenario } from "@probitas/probitas";
+ * import { expect } from "./mod.ts";
  *
- * export default scenario("Generic Value Test")
- *   .step("Validate number", () => {
- *     // All @std/expect matchers are supported
- *     expect(42)
- *       .toBe(42)
- *       .toBeGreaterThan(40)
- *       .toBeLessThan(50);
- *   })
- *   .step("Validate string", () => {
- *     // .not modifier works correctly
- *     expect("hello")
- *       .not.toBe("world")
- *       .not.toBeNull()
- *       .toContain("ello");
- *   })
- *   .step("Validate object", () => {
- *     // Complex assertions
- *     expect({ a: 1, b: 2, c: 3 })
- *       .toMatchObject({ a: 1 })
- *       .toHaveProperty("b", 2)
- *       .not.toBeNull();
- *   })
- *   .build();
+ * // All @std/expect matchers are supported
+ * expect(42)
+ *   .toBe(42)
+ *   .toBeGreaterThan(40)
+ *   .toBeLessThan(50);
+ *
+ * // .not modifier works correctly
+ * expect("hello")
+ *   .not.toBe("world")
+ *   .not.toBeNull()
+ *   .toContain("ello");
+ *
+ * // Complex assertions
+ * expect({ a: 1, b: 2, c: 3 })
+ *   .toMatchObject({ a: 1 })
+ *   .toHaveProperty("b", 2)
+ *   .not.toBeNull();
  * ```
  *
  * **Note:** `.resolves` and `.rejects` are intentionally not supported as they require `.then()` chaining,

@@ -20,6 +20,8 @@ export interface WriterOptions {
  *
  * @example
  * ```ts
+ * import { Writer } from "./writer.ts";
+ *
  * const writer = new Writer({ output: Deno.stdout.writable });
  * await writer.write("Test output\n");
  * ```
@@ -48,8 +50,11 @@ export class Writer {
    *
    * @example
    * ```ts
-   * await this.write("✓ Test passed\n");
-   * await this.write(this.theme.success("PASSED") + "\n");
+   * import { Writer } from "./writer.ts";
+   *
+   * const writer = new Writer({ output: Deno.stdout.writable });
+   * await writer.write("✓ Test passed\n");
+   * await writer.write("PASSED\n");
    * ```
    */
   async write(text: string): Promise<void> {

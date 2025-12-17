@@ -10,7 +10,16 @@ export interface MongoDeleteResultExpectation {
    *
    * @example
    * ```ts
-   * expectMongoResult(deleteResult).not.toHaveDeletedCount(0);
+   * import type { MongoDeleteResult } from "@probitas/client-mongodb";
+   * import { expectMongoDeleteResult } from "./delete.ts";
+   * const result = {
+   *   kind: "mongo:delete",
+   *   ok: true,
+   *   deletedCount: 3,
+   *   duration: 0,
+   * } as unknown as MongoDeleteResult;
+   *
+   * expectMongoDeleteResult(result).not.toHaveDeletedCount(0);
    * ```
    */
   readonly not: this;

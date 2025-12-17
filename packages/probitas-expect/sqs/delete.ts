@@ -13,7 +13,15 @@ export interface SqsDeleteResultExpectation {
    *
    * @example
    * ```ts
-   * expectSqsResult(deleteResult).not.toBeOk();
+   * import type { SqsDeleteResult } from "@probitas/client-sqs";
+   * import { expectSqsDeleteResult } from "./delete.ts";
+   * const result = {
+   *   kind: "sqs:delete",
+   *   ok: false,
+   *   duration: 0,
+   * } as unknown as SqsDeleteResult;
+   *
+   * expectSqsDeleteResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

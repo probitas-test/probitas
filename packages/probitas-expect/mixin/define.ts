@@ -67,30 +67,16 @@ type ApplyMixins<
  *
  * @example
  * ```ts
- * import { defineExpectation } from "./mixin/define.ts";
- * import { createOkMixin } from "./mixin/ok_mixin.ts";
- * import { createValueMixin } from "./mixin/value_mixin.ts";
+ * import { defineExpectation } from "./define.ts";
+ * import { createOkMixin } from "./ok_mixin.ts";
  *
- * function expectResult(result: { ok: boolean; value: string }) {
- *   return defineExpectation((negate, expectOrigin) => [
- *     createOkMixin(() => result.ok, negate, { valueName: "result", expectOrigin }),
- *     createValueMixin(() => result.value, negate, { valueName: "value", expectOrigin }),
- *   ]);
- * }
- *
- * // Basic usage
  * const result = { ok: true, value: "test" };
- * expectResult(result).toBeOk(); // Passes
- * expectResult(result).not.toBeOk(); // Fails
  *
- * // Chaining with one-shot negation
- * expectResult(result).not.toBeOk().toHaveValue("test");
- * // ↑ .not only affects toBeOk(), toHaveValue("test") is positive
+ * const expectation = defineExpectation((negate, expectOrigin) => [
+ *   createOkMixin(() => result.ok, negate, { valueName: "result", expectOrigin }),
+ * ]);
  *
- * // Multiple independent negations
- * const badResult = { ok: false, value: "wrong" };
- * expectResult(badResult).not.toBeOk().not.toHaveValue("test");
- * // ↑ Both assertions are negated independently
+ * expectation.toBeOk();
  * ```
  */
 export function defineExpectation<

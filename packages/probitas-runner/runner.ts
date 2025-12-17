@@ -21,13 +21,19 @@ import { timeit } from "./utils/timeit.ts";
  *
  * @example
  * ```ts
- * const reporter = new ListReporter();
+ * import { Runner } from "@probitas/runner";
+ * import type { Reporter } from "@probitas/runner";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const reporter: Reporter = {};
+ * const scenarios: ScenarioDefinition[] = [];
  * const runner = new Runner(reporter);
  *
  * const result = await runner.run(scenarios, {
  *   maxConcurrency: 4,
  *   maxFailures: 1,
  * });
+ * console.log(result);
  * ```
  */
 export class Runner {

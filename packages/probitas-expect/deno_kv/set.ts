@@ -14,8 +14,17 @@ export interface DenoKvSetResultExpectation {
    *
    * @example
    * ```ts
-   * expectDenoKvResult(result).not.toBeOk();
-   * expectDenoKvResult(result).not.toHaveVersionstamp();
+   * import type { DenoKvSetResult } from "@probitas/client-deno-kv";
+   * import { expectDenoKvSetResult } from "./set.ts";
+   * const result = {
+   *   kind: "deno-kv:set",
+   *   ok: false,
+   *   versionstamp: "00000000000000010000",
+   *   duration: 0,
+   * } as unknown as DenoKvSetResult;
+   *
+   * expectDenoKvSetResult(result).not.toBeOk();
+   * expectDenoKvSetResult(result).not.toHaveVersionstamp("other");
    * ```
    */
   readonly not: this;

@@ -14,7 +14,18 @@ export interface SqsSendResultExpectation {
    *
    * @example
    * ```ts
-   * expectSqsResult(sendResult).not.toBeOk();
+   * import type { SqsSendResult } from "@probitas/client-sqs";
+   * import { expectSqsSendResult } from "./send.ts";
+   * const result = {
+   *   kind: "sqs:send",
+   *   ok: false,
+   *   messageId: "msg-123",
+   *   md5OfBody: "abc123",
+   *   sequenceNumber: undefined,
+   *   duration: 0,
+   * } as unknown as SqsSendResult;
+   *
+   * expectSqsSendResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

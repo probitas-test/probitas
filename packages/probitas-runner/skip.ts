@@ -22,21 +22,30 @@
  *
  * @example Skip based on environment
  * ```ts
- * import { scenario, Skip } from "@probitas/probitas";
+ * import { scenario } from "@probitas/builder";
+ * import { Skip } from "@probitas/runner";
  *
- * scenario("Production Only")
+ * const def = scenario("Production Only")
  *   .step("Check environment", () => {
  *     if (Deno.env.get("ENV") !== "production") {
  *       throw new Skip("Only runs in production");
  *     }
  *   })
- *   .step("Production test", () => { ... })
+ *   .step("Production test", () => {
+ *     console.log("Running in production");
+ *   })
  *   .build();
+ * console.log(def.name);
  * ```
  *
  * @example Skip based on resource availability
  * ```ts
- * scenario("Database Test")
+ * import { scenario } from "@probitas/builder";
+ * import { Skip } from "@probitas/runner";
+ *
+ * const Database = { connect: async () => ({ query: (sql: string) => sql }) };
+ *
+ * const def = scenario("Database Test")
  *   .resource("db", async () => {
  *     try {
  *       return await Database.connect();
@@ -44,19 +53,24 @@
  *       throw new Skip("Database not available");
  *     }
  *   })
- *   .step("Query data", (ctx) => ctx.resources.db.query(...))
+ *   .step("Query data", (ctx) => ctx.resources.db.query("SELECT 1"))
  *   .build();
+ * console.log(def.name);
  * ```
  *
  * @example Skip with feature flag
  * ```ts
- * scenario("Beta Feature")
+ * import { scenario } from "@probitas/builder";
+ * import { Skip } from "@probitas/runner";
+ *
+ * const def = scenario("Beta Feature")
  *   .step("Check feature flag", (ctx) => {
  *     if (!ctx.store.get("betaEnabled")) {
  *       throw new Skip("Beta feature not enabled");
  *     }
  *   })
  *   .build();
+ * console.log(def.name);
  * ```
  */
 export class Skip extends Error {
@@ -77,8 +91,11 @@ export class Skip extends Error {
    *
    * @example
    * ```ts
-   * throw new Skip();                    // message: "Skipped", reason: undefined
-   * throw new Skip("Not on Windows");    // message: "Not on Windows", reason: "Not on Windows"
+   * import { Skip } from "@probitas/runner";
+   *
+   * const skip1 = new Skip();                    // message: "Skipped", reason: undefined
+   * const skip2 = new Skip("Not on Windows");    // message: "Not on Windows", reason: "Not on Windows"
+   * console.log(skip1.message, skip2.reason);
    * ```
    */
   constructor(reason?: string) {

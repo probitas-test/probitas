@@ -11,7 +11,15 @@ export interface RabbitMqPublishResultExpectation {
    *
    * @example
    * ```ts
-   * expectRabbitMqResult(result).not.toBeOk();
+   * import type { RabbitMqPublishResult } from "@probitas/client-rabbitmq";
+   * import { expectRabbitMqPublishResult } from "./publish.ts";
+   * const result = {
+   *   kind: "rabbitmq:publish",
+   *   ok: false,
+   *   duration: 0,
+   * } as unknown as RabbitMqPublishResult;
+   *
+   * expectRabbitMqPublishResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

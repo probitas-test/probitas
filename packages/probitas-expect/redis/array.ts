@@ -13,8 +13,17 @@ export interface RedisArrayResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveContent();
-   * expectRedisResult(result).not.toContain("item");
+   * import type { RedisArrayResult } from "@probitas/client-redis";
+   * import { expectRedisArrayResult } from "./array.ts";
+   * const result = {
+   *   kind: "redis:array",
+   *   ok: true,
+   *   value: ["a", "b"],
+   *   duration: 0,
+   * } as unknown as RedisArrayResult<string>;
+   *
+   * expectRedisArrayResult(result).not.toHaveValueEmpty();
+   * expectRedisArrayResult(result).not.toHaveValueContaining("x");
    * ```
    */
   readonly not: this;

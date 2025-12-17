@@ -45,6 +45,9 @@ const INSPECT_OPTIONS: Deno.InspectOptions = {
  *
  * @example
  * ```ts
+ * import { formatDiff } from "./format_diff.ts";
+ * import { noColorTheme } from "@probitas/core/theme";
+ *
  * const actual = { name: "Alice", age: 30 };
  * const expected = { name: "Bob", age: 30 };
  * const diffStr = formatDiff(actual, expected, { theme: noColorTheme });

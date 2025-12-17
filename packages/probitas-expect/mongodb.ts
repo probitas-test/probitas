@@ -69,29 +69,63 @@ export type MongoExpectation<R extends MongoResult> = R extends
  *
  * @example
  * ```ts
- * // For find result - returns MongoFindResultExpectation
- * const findResult = await users.find({ age: { $gte: 30 } });
- * expectMongoResult(findResult).toBeOk().toHaveContent().toHaveLength(2);
+ * import type { MongoFindResult, MongoInsertOneResult, MongoUpdateResult, MongoDeleteResult, MongoFindOneResult, MongoCountResult } from "@probitas/client-mongodb";
+ * import { expectMongoResult } from "./mongodb.ts";
  *
- * // For insert result - returns MongoInsertResultExpectation
- * const insertResult = await users.insertOne({ name: "Alice", age: 30 });
- * expectMongoResult(insertResult).toBeOk().toHaveInsertedId();
+ * // For find result - returns MongoFindResultExpectation
+ * const findResult = {
+ *   kind: "mongo:find",
+ *   ok: true,
+ *   docs: [{ name: "Alice" }],
+ *   duration: 0,
+ * } as unknown as MongoFindResult;
+ * expectMongoResult(findResult).toBeOk().toHaveDocsCount(1);
+ *
+ * // For insert result - returns MongoInsertOneResultExpectation
+ * const insertResult = {
+ *   kind: "mongo:insert-one",
+ *   ok: true,
+ *   insertedId: "123",
+ *   duration: 0,
+ * } as unknown as MongoInsertOneResult;
+ * expectMongoResult(insertResult).toBeOk().toHaveInsertedId("123");
  *
  * // For update result - returns MongoUpdateResultExpectation
- * const updateResult = await users.updateOne({ name: "Alice" }, { $set: { age: 31 } });
+ * const updateResult = {
+ *   kind: "mongo:update",
+ *   ok: true,
+ *   matchedCount: 1,
+ *   modifiedCount: 1,
+ *   duration: 0,
+ * } as unknown as MongoUpdateResult;
  * expectMongoResult(updateResult).toBeOk().toHaveMatchedCount(1).toHaveModifiedCount(1);
  *
  * // For delete result - returns MongoDeleteResultExpectation
- * const deleteResult = await users.deleteOne({ name: "Alice" });
+ * const deleteResult = {
+ *   kind: "mongo:delete",
+ *   ok: true,
+ *   deletedCount: 1,
+ *   duration: 0,
+ * } as unknown as MongoDeleteResult;
  * expectMongoResult(deleteResult).toBeOk().toHaveDeletedCount(1);
  *
  * // For findOne result - returns MongoFindOneResultExpectation
- * const findOneResult = await users.findOne({ name: "Alice" });
- * expectMongoResult(findOneResult).toBeOk().toHaveContent().toMatchObject({ name: "Alice" });
+ * const findOneResult = {
+ *   kind: "mongo:find-one",
+ *   ok: true,
+ *   doc: { name: "Alice" },
+ *   duration: 0,
+ * } as unknown as MongoFindOneResult;
+ * expectMongoResult(findOneResult).toBeOk().toHaveDocPresent();
  *
  * // For count result - returns MongoCountResultExpectation
- * const countResult = await users.countDocuments();
- * expectMongoResult(countResult).toBeOk().toHaveLength(10);
+ * const countResult = {
+ *   kind: "mongo:count",
+ *   ok: true,
+ *   count: 10,
+ *   duration: 0,
+ * } as unknown as MongoCountResult;
+ * expectMongoResult(countResult).toBeOk().toHaveCount(10);
  * ```
  */
 // deno-lint-ignore no-explicit-any

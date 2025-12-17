@@ -12,8 +12,20 @@ export interface SqlQueryResultExpectation {
    *
    * @example
    * ```ts
+   * import type { SqlQueryResult } from "@probitas/client-sql";
+   * import { expectSqlQueryResult } from "./sql.ts";
+   * const result = {
+   *   kind: "sql",
+   *   ok: false,
+   *   rows: [],
+   *   rowCount: 0,
+   *   duration: 0,
+   *   map: () => [],
+   *   as: () => [],
+   * } as unknown as SqlQueryResult;
+   *
    * expectSqlQueryResult(result).not.toBeOk();
-   * expectSqlQueryResult(result).not.toHaveContent();
+   * expectSqlQueryResult(result).not.toHaveRowCount(5);
    * ```
    */
   readonly not: this;
@@ -23,6 +35,18 @@ export interface SqlQueryResultExpectation {
    *
    * @example
    * ```ts
+   * import type { SqlQueryResult } from "@probitas/client-sql";
+   * import { expectSqlQueryResult } from "./sql.ts";
+   * const result = {
+   *   kind: "sql",
+   *   ok: true,
+   *   rows: [],
+   *   rowCount: 0,
+   *   duration: 0,
+   *   map: () => [],
+   *   as: () => [],
+   * } as unknown as SqlQueryResult;
+   *
    * expectSqlQueryResult(result).toBeOk();
    * ```
    */

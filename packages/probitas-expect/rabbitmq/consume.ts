@@ -14,7 +14,16 @@ export interface RabbitMqConsumeResultExpectation {
    *
    * @example
    * ```ts
-   * expectRabbitMqResult(result).not.toBeOk();
+   * import type { RabbitMqConsumeResult } from "@probitas/client-rabbitmq";
+   * import { expectRabbitMqConsumeResult } from "./consume.ts";
+   * const result = {
+   *   kind: "rabbitmq:consume",
+   *   ok: false,
+   *   message: null,
+   *   duration: 0,
+   * } as unknown as RabbitMqConsumeResult;
+   *
+   * expectRabbitMqConsumeResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

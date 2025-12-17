@@ -72,6 +72,9 @@
  * @example Filtering scenarios with selectors
  * ```ts
  * import { applySelectors } from "@probitas/core/selector";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const scenarios: ScenarioDefinition[] = [];
  *
  * // Filter by tag (OR logic between strings)
  * const apiOrDb = applySelectors(scenarios, ["tag:api", "tag:db"]);
@@ -88,18 +91,18 @@
  *
  * @example Working with scenario definitions
  * ```ts
- * import type { ScenarioDefinition, StepContext } from "@probitas/core";
+ * import type { ScenarioDefinition } from "@probitas/core";
  *
  * function inspectScenario(scenario: ScenarioDefinition) {
  *   console.log(`Scenario: ${scenario.name}`);
- *   console.log(`Tags: ${scenario.options.tags.join(", ")}`);
- *   console.log(`Entries: ${scenario.entries.length}`);
+ *   console.log(`Tags: ${scenario.tags.join(", ")}`);
+ *   console.log(`Steps: ${scenario.steps.length}`);
  *
- *   for (const entry of scenario.entries) {
- *     if (entry.kind === "step") {
- *       console.log(`  Step: ${entry.value.name}`);
- *     } else if (entry.kind === "resource") {
- *       console.log(`  Resource: ${entry.value.name}`);
+ *   for (const step of scenario.steps) {
+ *     if (step.kind === "step") {
+ *       console.log(`  Step: ${step.name}`);
+ *     } else if (step.kind === "resource") {
+ *       console.log(`  Resource: ${step.name}`);
  *     } else {
  *       console.log(`  Setup hook`);
  *     }

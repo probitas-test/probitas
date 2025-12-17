@@ -10,8 +10,16 @@ export interface MongoFindResultExpectation<_T = unknown> {
    *
    * @example
    * ```ts
-   * expectMongoResult(findResult).not.toHaveContent();
-   * expectMongoResult(findResult).not.toHaveLength(0);
+   * import type { MongoFindResult } from "@probitas/client-mongodb";
+   * import { expectMongoFindResult } from "./find.ts";
+   * const result = {
+   *   kind: "mongo:find",
+   *   ok: true,
+   *   docs: [{ name: "Alice" }],
+   *   duration: 0,
+   * } as unknown as MongoFindResult;
+   *
+   * expectMongoFindResult(result).not.toHaveDocsEmpty();
    * ```
    */
   readonly not: this;

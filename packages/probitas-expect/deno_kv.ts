@@ -57,25 +57,54 @@ export type DenoKvExpectation<R extends DenoKvResult> = R extends
  *
  * @example
  * ```ts
+ * import type { DenoKvGetResult, DenoKvSetResult, DenoKvListResult, DenoKvDeleteResult, DenoKvAtomicResult } from "@probitas/client-deno-kv";
+ * import { expectDenoKvResult } from "./deno_kv.ts";
+ *
  * // For GET result - returns DenoKvGetResultExpectation<T>
- * const getResult = await kv.get(["users", "1"]);
- * expectDenoKvResult(getResult).toBeOk().toHaveContent().toMatchObject({ name: "Alice" });
+ * const getResult = {
+ *   kind: "deno-kv:get",
+ *   ok: true,
+ *   key: ["users", "1"],
+ *   value: { name: "Alice" },
+ *   versionstamp: "00000000000000010000",
+ *   duration: 0,
+ * } as unknown as DenoKvGetResult<{ name: string }>;
+ * expectDenoKvResult(getResult).toBeOk().toHaveValuePresent();
  *
  * // For SET result - returns DenoKvSetResultExpectation
- * const setResult = await kv.set(["users", "1"], { name: "Alice" });
- * expectDenoKvResult(setResult).toBeOk().toHaveVersionstamp();
+ * const setResult = {
+ *   kind: "deno-kv:set",
+ *   ok: true,
+ *   versionstamp: "00000000000000010000",
+ *   duration: 0,
+ * } as unknown as DenoKvSetResult;
+ * expectDenoKvResult(setResult).toBeOk().toHaveVersionstamp("00000000000000010000");
  *
  * // For LIST result - returns DenoKvListResultExpectation<T>
- * const listResult = await kv.list({ prefix: ["users"] });
- * expectDenoKvResult(listResult).toBeOk().toHaveLength(3);
+ * const listResult = {
+ *   kind: "deno-kv:list",
+ *   ok: true,
+ *   entries: [{ key: ["users", "1"], value: { name: "Alice" }, versionstamp: "00000000000000010000" }],
+ *   duration: 0,
+ * } as unknown as DenoKvListResult<{ name: string }>;
+ * expectDenoKvResult(listResult).toBeOk().toHaveEntryCount(1);
  *
  * // For DELETE result - returns DenoKvDeleteResultExpectation
- * const deleteResult = await kv.delete(["users", "1"]);
+ * const deleteResult = {
+ *   kind: "deno-kv:delete",
+ *   ok: true,
+ *   duration: 0,
+ * } as unknown as DenoKvDeleteResult;
  * expectDenoKvResult(deleteResult).toBeOk();
  *
  * // For ATOMIC result - returns DenoKvAtomicResultExpectation
- * const atomicResult = await kv.atomic().set(["counter"], 1).commit();
- * expectDenoKvResult(atomicResult).toBeOk().toHaveVersionstamp();
+ * const atomicResult = {
+ *   kind: "deno-kv:atomic",
+ *   ok: true,
+ *   versionstamp: "00000000000000010000",
+ *   duration: 0,
+ * } as unknown as DenoKvAtomicResult;
+ * expectDenoKvResult(atomicResult).toBeOk().toHaveVersionstamp("00000000000000010000");
  * ```
  */
 // deno-lint-ignore no-explicit-any

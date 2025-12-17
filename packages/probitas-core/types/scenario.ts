@@ -56,20 +56,38 @@ export interface ScenarioOptions {
  *
  * @example Typical scenario structure
  * ```ts
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
  * // Created by: scenario("Login Flow").step(...).build()
  * const definition: ScenarioDefinition = {
  *   name: "Login Flow",
- *   options: {
- *     tags: ["auth", "smoke"],
- *     stepOptions: { timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } }
- *   },
- *   entries: [
- *     { kind: "resource", value: { name: "api", fn: ... } },
- *     { kind: "step", value: { name: "Login", fn: ..., options: ... } },
- *     { kind: "step", value: { name: "Verify", fn: ..., options: ... } }
+ *   tags: ["auth", "smoke"],
+ *   steps: [
+ *     {
+ *       kind: "resource",
+ *       name: "api",
+ *       fn: () => fetch,
+ *       timeout: 30000,
+ *       retry: { maxAttempts: 1, backoff: "linear" },
+ *     },
+ *     {
+ *       kind: "step",
+ *       name: "Login",
+ *       fn: () => {},
+ *       timeout: 30000,
+ *       retry: { maxAttempts: 1, backoff: "linear" },
+ *     },
+ *     {
+ *       kind: "step",
+ *       name: "Verify",
+ *       fn: () => {},
+ *       timeout: 30000,
+ *       retry: { maxAttempts: 1, backoff: "linear" },
+ *     },
  *   ],
- *   origin: { path: "/tests/auth.probitas.ts", line: 5 }
+ *   origin: { path: "/tests/auth.probitas.ts", line: 5 },
  * };
+ * console.log(definition);
  * ```
  */
 export interface ScenarioDefinition {

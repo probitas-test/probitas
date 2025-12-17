@@ -30,15 +30,15 @@ import { tryOrElse } from "@core/errorutil/try-or-else";
  * console.log(error.message); // "test error"
  * ```
  *
- * @example For snapshot testing
+ * @example For assertion testing
  * ```ts
- * import { assertSnapshot } from "@std/testing/snapshot";
  * import { catchError } from "./catch_error.ts";
+ * import { assertEquals } from "@std/assert";
  *
- * Deno.test("error message snapshot", async (t) => {
- *   const error = catchError(() => expectation.toHaveStatus(404));
- *   await assertSnapshot(t, error.message);
+ * const error = catchError(() => {
+ *   throw new Error("Expected status 200, got 404");
  * });
+ * assertEquals(error.message, "Expected status 200, got 404");
  * ```
  */
 export function catchError(fn: () => unknown): Error {

@@ -11,7 +11,18 @@ export interface MongoUpdateResultExpectation {
    *
    * @example
    * ```ts
-   * expectMongoResult(updateResult).not.toHaveMatchedCount(0);
+   * import type { MongoUpdateResult } from "@probitas/client-mongodb";
+   * import { expectMongoUpdateResult } from "./update.ts";
+   * const result = {
+   *   kind: "mongo:update",
+   *   ok: true,
+   *   matchedCount: 2,
+   *   modifiedCount: 2,
+   *   upsertedId: undefined,
+   *   duration: 0,
+   * } as unknown as MongoUpdateResult;
+   *
+   * expectMongoUpdateResult(result).not.toHaveMatchedCount(0);
    * ```
    */
   readonly not: this;

@@ -13,8 +13,17 @@ export interface DenoKvListResultExpectation<_T = unknown> {
    *
    * @example
    * ```ts
-   * expectDenoKvResult(result).not.toBeOk();
-   * expectDenoKvResult(result).not.toHaveContent();
+   * import type { DenoKvListResult } from "@probitas/client-deno-kv";
+   * import { expectDenoKvListResult } from "./list.ts";
+   * const result = {
+   *   kind: "deno-kv:list",
+   *   ok: false,
+   *   entries: [],
+   *   duration: 0,
+   * } as unknown as DenoKvListResult<unknown>;
+   *
+   * expectDenoKvListResult(result).not.toBeOk();
+   * expectDenoKvListResult(result).not.toHaveEntryCount(5);
    * ```
    */
   readonly not: this;

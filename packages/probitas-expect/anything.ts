@@ -21,6 +21,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(42).not.toBe(43);
    * expectAnything("hello").not.toBeNull();
    * ```
@@ -35,6 +37,8 @@ export interface AnythingExpectation {
    * @param expected - The expected value
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(42).toBe(42);
    * expectAnything("hello").toBe("hello");
    * ```
@@ -47,6 +51,8 @@ export interface AnythingExpectation {
    * @param expected - The expected value
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything({ a: 1 }).toEqual({ a: 1 });
    * expectAnything([1, 2, 3]).toEqual([1, 2, 3]);
    * ```
@@ -60,6 +66,8 @@ export interface AnythingExpectation {
    * @param expected - The expected value
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything({ a: 1 }).toStrictEqual({ a: 1 });
    * ```
    */
@@ -71,8 +79,10 @@ export interface AnythingExpectation {
    * @param expected - A string or RegExp pattern
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything("hello world").toMatch(/world/);
-   * expectAnything("hello").toMatch("ello");
+   * expectAnything("hello world").toMatch(/^hello/);
    * ```
    */
   toMatch(expected: string | RegExp): this;
@@ -83,6 +93,8 @@ export interface AnythingExpectation {
    * @param expected - An object containing expected properties
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything({ a: 1, b: 2 }).toMatchObject({ a: 1 });
    * ```
    */
@@ -93,6 +105,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(42).toBeDefined();
    * expectAnything("hello").toBeDefined();
    * ```
@@ -104,6 +118,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(undefined).toBeUndefined();
    * ```
    */
@@ -114,6 +130,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(null).toBeNull();
    * ```
    */
@@ -124,6 +142,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(NaN).toBeNaN();
    * ```
    */
@@ -134,6 +154,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(1).toBeTruthy();
    * expectAnything("hello").toBeTruthy();
    * ```
@@ -145,6 +167,8 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(0).toBeFalsy();
    * expectAnything("").toBeFalsy();
    * ```
@@ -157,6 +181,8 @@ export interface AnythingExpectation {
    * @param expected - The item or substring to check for
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything([1, 2, 3]).toContain(2);
    * expectAnything("hello").toContain("ell");
    * ```
@@ -169,6 +195,8 @@ export interface AnythingExpectation {
    * @param expected - The item to check for equality
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything([{ a: 1 }, { b: 2 }]).toContainEqual({ a: 1 });
    * ```
    */
@@ -180,6 +208,8 @@ export interface AnythingExpectation {
    * @param expected - The expected length
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything([1, 2, 3]).toHaveLength(3);
    * expectAnything("hello").toHaveLength(5);
    * ```
@@ -192,6 +222,8 @@ export interface AnythingExpectation {
    * @param expected - The value to compare against
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(10).toBeGreaterThan(5);
    * ```
    */
@@ -203,6 +235,8 @@ export interface AnythingExpectation {
    * @param expected - The value to compare against
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(10).toBeGreaterThanOrEqual(10);
    * ```
    */
@@ -214,6 +248,8 @@ export interface AnythingExpectation {
    * @param expected - The value to compare against
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(5).toBeLessThan(10);
    * ```
    */
@@ -225,6 +261,8 @@ export interface AnythingExpectation {
    * @param expected - The value to compare against
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(10).toBeLessThanOrEqual(10);
    * ```
    */
@@ -237,6 +275,8 @@ export interface AnythingExpectation {
    * @param numDigits - Number of decimal digits to check (default: 2)
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(0.1 + 0.2).toBeCloseTo(0.3);
    * expectAnything(0.123).toBeCloseTo(0.12, 2);
    * ```
@@ -249,6 +289,8 @@ export interface AnythingExpectation {
    * @param expected - The expected constructor/class
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(new Date()).toBeInstanceOf(Date);
    * expectAnything(new Error("oops")).toBeInstanceOf(Error);
    * ```
@@ -262,6 +304,8 @@ export interface AnythingExpectation {
    * @param expected - Optional string, RegExp, or Error to match
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything(() => { throw new Error("oops"); }).toThrow("oops");
    * expectAnything(() => { throw new Error("oops"); }).toThrow(/oops/);
    * ```
@@ -275,6 +319,8 @@ export interface AnythingExpectation {
    * @param expectedValue - Optional expected value at the path
    * @example
    * ```ts
+   * import { expectAnything } from "./anything.ts";
+   *
    * expectAnything({ a: { b: 1 } }).toHaveProperty("a.b");
    * expectAnything({ a: { b: 1 } }).toHaveProperty(["a", "b"], 1);
    * ```
@@ -291,9 +337,12 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
-   * const fn = mock.fn();
-   * fn();
-   * expectAnything(fn).toHaveBeenCalled();
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn();
+   * mock();
+   * expectAnything(mock).toHaveBeenCalled();
    * ```
    */
   toHaveBeenCalled(): this;
@@ -304,9 +353,12 @@ export interface AnythingExpectation {
    * @param expected - The expected number of calls
    * @example
    * ```ts
-   * const fn = mock.fn();
-   * fn(); fn();
-   * expectAnything(fn).toHaveBeenCalledTimes(2);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn();
+   * mock(); mock();
+   * expectAnything(mock).toHaveBeenCalledTimes(2);
    * ```
    */
   toHaveBeenCalledTimes(expected: number): this;
@@ -317,9 +369,12 @@ export interface AnythingExpectation {
    * @param expected - The expected arguments
    * @example
    * ```ts
-   * const fn = mock.fn();
-   * fn("hello", 42);
-   * expectAnything(fn).toHaveBeenCalledWith("hello", 42);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn();
+   * mock("hello", 42);
+   * expectAnything(mock).toHaveBeenCalledWith("hello", 42);
    * ```
    */
   toHaveBeenCalledWith(...expected: unknown[]): this;
@@ -330,9 +385,12 @@ export interface AnythingExpectation {
    * @param expected - The expected arguments
    * @example
    * ```ts
-   * const fn = mock.fn();
-   * fn("first"); fn("last");
-   * expectAnything(fn).toHaveBeenLastCalledWith("last");
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn();
+   * mock("first"); mock("last");
+   * expectAnything(mock).toHaveBeenLastCalledWith("last");
    * ```
    */
   toHaveBeenLastCalledWith(...expected: unknown[]): this;
@@ -344,9 +402,12 @@ export interface AnythingExpectation {
    * @param expected - The expected arguments
    * @example
    * ```ts
-   * const fn = mock.fn();
-   * fn("first"); fn("second");
-   * expectAnything(fn).toHaveBeenNthCalledWith(1, "first");
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn();
+   * mock("first"); mock("second");
+   * expectAnything(mock).toHaveBeenNthCalledWith(1, "first");
    * ```
    */
   toHaveBeenNthCalledWith(n: number, ...expected: unknown[]): this;
@@ -356,9 +417,12 @@ export interface AnythingExpectation {
    *
    * @example
    * ```ts
-   * const fn = mock.fn(() => 42);
-   * fn();
-   * expectAnything(fn).toHaveReturned();
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn(() => 42);
+   * mock();
+   * expectAnything(mock).toHaveReturned();
    * ```
    */
   toHaveReturned(): this;
@@ -369,9 +433,12 @@ export interface AnythingExpectation {
    * @param expected - The expected number of successful returns
    * @example
    * ```ts
-   * const fn = mock.fn(() => 42);
-   * fn(); fn();
-   * expectAnything(fn).toHaveReturnedTimes(2);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn(() => 42);
+   * mock(); mock();
+   * expectAnything(mock).toHaveReturnedTimes(2);
    * ```
    */
   toHaveReturnedTimes(expected: number): this;
@@ -382,9 +449,12 @@ export interface AnythingExpectation {
    * @param expected - The expected return value
    * @example
    * ```ts
-   * const fn = mock.fn(() => 42);
-   * fn();
-   * expectAnything(fn).toHaveReturnedWith(42);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn(() => 42);
+   * mock();
+   * expectAnything(mock).toHaveReturnedWith(42);
    * ```
    */
   toHaveReturnedWith(expected: unknown): this;
@@ -395,9 +465,12 @@ export interface AnythingExpectation {
    * @param expected - The expected return value
    * @example
    * ```ts
-   * const fn = mock.fn(() => 42);
-   * fn();
-   * expectAnything(fn).toHaveLastReturnedWith(42);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn(() => 42);
+   * mock();
+   * expectAnything(mock).toHaveLastReturnedWith(42);
    * ```
    */
   toHaveLastReturnedWith(expected: unknown): this;
@@ -409,9 +482,12 @@ export interface AnythingExpectation {
    * @param expected - The expected return value
    * @example
    * ```ts
-   * const fn = mock.fn((x: number) => x * 2);
-   * fn(1); fn(2);
-   * expectAnything(fn).toHaveNthReturnedWith(2, 4);
+   * import { expectAnything } from "./anything.ts";
+   * import { fn } from "@std/expect";
+   *
+   * const mock = fn((x: number) => x * 2);
+   * mock(1); mock(2);
+   * expectAnything(mock).toHaveNthReturnedWith(2, 4);
    * ```
    */
   toHaveNthReturnedWith(n: number, expected: unknown): this;
@@ -428,7 +504,7 @@ export interface AnythingExpectation {
  *
  * @example
  * ```ts
- * import { expectAnything } from "@probitas/expect/anything";
+ * import { expectAnything } from "@probitas/expect";
  *
  * // Method chaining
  * expectAnything(42)
@@ -440,7 +516,7 @@ export interface AnythingExpectation {
  * expectAnything("hello")
  *   .not.toBe("world")
  *   .not.toBeNull()
- *   .toContain("hello");
+ *   .toContain("ello");
  * ```
  */
 export function expectAnything<T>(

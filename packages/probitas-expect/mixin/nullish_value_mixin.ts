@@ -57,16 +57,18 @@ export type NullishValueMixin<C extends MixinConfig> = <T extends object>(
  *
  * @example
  * ```ts
- * const nullMixin = createNullValueMixin(
+ * import { createNullishValueMixin } from "./nullish_value_mixin.ts";
+ *
+ * const response = { error: null as string | null };
+ * const negate = () => false;
+ *
+ * const nullishMixin = createNullishValueMixin(
  *   () => response.error,
- *   false,
+ *   negate,
  *   { valueName: "error", methodBase: "Error" }
  * );
- * const expectation = applyMixins(base, [nullMixin]);
+ * const expectation = nullishMixin({});
  * expectation.toHaveErrorNull();
- * expectation.toHaveErrorUndefined();
- * expectation.toHaveErrorNullish();
- * expectation.toHaveErrorPresent();
  * ```
  */
 export function createNullishValueMixin<

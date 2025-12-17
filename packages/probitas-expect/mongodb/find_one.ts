@@ -11,7 +11,16 @@ export interface MongoFindOneResultExpectation<_T = unknown> {
    *
    * @example
    * ```ts
-   * expectMongoResult(findOneResult).not.toHaveContent();
+   * import type { MongoFindOneResult } from "@probitas/client-mongodb";
+   * import { expectMongoFindOneResult } from "./find_one.ts";
+   * const result = {
+   *   kind: "mongo:find-one",
+   *   ok: true,
+   *   doc: { name: "Alice" },
+   *   duration: 0,
+   * } as unknown as MongoFindOneResult;
+   *
+   * expectMongoFindOneResult(result).not.toHaveDocNullish();
    * ```
    */
   readonly not: this;

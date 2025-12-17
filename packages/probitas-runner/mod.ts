@@ -46,15 +46,17 @@
  *
  * @example Basic usage
  * ```ts
- * import { ScenarioRunner } from "@probitas/runner";
- * import { ListReporter } from "@probitas/reporter";
- * import { loadScenarios } from "@probitas/core/loader";
+ * import { Runner } from "@probitas/runner";
+ * import type { Reporter } from "@probitas/runner";
+ * import type { ScenarioDefinition } from "@probitas/core";
  *
- * const scenarios = await loadScenarios(["./tests/*.probitas.ts"]);
- * const runner = new ScenarioRunner();
+ * const loadScenarios = (_patterns: string[]): ScenarioDefinition[] => [];
+ *
+ * const reporter: Reporter = {};
+ * const scenarios = loadScenarios(["./tests/*.probitas.ts"]);
+ * const runner = new Runner(reporter);
  *
  * const summary = await runner.run(scenarios, {
- *   reporter: new ListReporter(),
  *   maxConcurrency: 4,   // Run 4 scenarios in parallel
  *   maxFailures: 5,      // Stop after 5 failures
  * });
@@ -67,9 +69,11 @@
  * import { scenario } from "@probitas/builder";
  * import { Skip } from "@probitas/runner";
  *
- * export default scenario("Database Integration Test")
- *   .resource("db", async () => {
- *     const connection = await tryConnect();
+ * const tryConnect = (): { query(sql: string): Promise<void> } | null => null;
+ *
+ * const def = scenario("Database Integration Test")
+ *   .resource("db", () => {
+ *     const connection = tryConnect();
  *     if (!connection) {
  *       throw new Skip("Database not available");
  *     }
@@ -80,37 +84,47 @@
  *     await ctx.resources.db.query("SELECT 1");
  *   })
  *   .build();
+ * console.log(def.name);
  * ```
  *
  * @example Implementing a custom reporter
  * ```ts
- * import type { Reporter, ScenarioDefinition, RunResult } from "@probitas/runner";
+ * import type { Reporter, ScenarioResult, RunResult } from "@probitas/runner";
+ * import type { ScenarioMetadata } from "@probitas/core";
  *
  * class MinimalReporter implements Reporter {
- *   onScenarioEnd(scenario: ScenarioDefinition, result: ScenarioResult) {
- *     const icon = result.status === "passed" ? "✓" : "✗";
+ *   onScenarioEnd(scenario: ScenarioMetadata, result: ScenarioResult) {
+ *     const icon = result.status === "passed" ? "+" : "-";
  *     console.log(`${icon} ${scenario.name}`);
  *   }
  *
- *   onRunEnd(summary: RunResult) {
+ *   onRunEnd(_scenarios: readonly ScenarioMetadata[], summary: RunResult) {
  *     console.log(`\n${summary.passed}/${summary.total} passed`);
  *   }
  * }
+ * console.log(MinimalReporter);
  * ```
  *
  * @example Cancelling a test run
  * ```ts
- * import { ScenarioRunner } from "@probitas/runner";
+ * import { Runner } from "@probitas/runner";
+ * import type { Reporter } from "@probitas/runner";
+ * import type { ScenarioDefinition } from "@probitas/core";
+ *
+ * const reporter: Reporter = {};
+ * const scenarios: ScenarioDefinition[] = [];
  *
  * const controller = new AbortController();
- * const runner = new ScenarioRunner();
+ * const runner = new Runner(reporter);
  *
  * // Cancel after 30 seconds
- * setTimeout(() => controller.abort(), 30000);
+ * const timeoutId = setTimeout(() => controller.abort(), 30000);
  *
  * const summary = await runner.run(scenarios, {
  *   signal: controller.signal,
  * });
+ * clearTimeout(timeoutId);
+ * console.log(summary);
  * ```
  *
  * @module

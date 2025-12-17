@@ -62,17 +62,35 @@ export type RedisExpectation<R extends RedisResult> = R extends RedisCountResult
  *
  * @example
  * ```ts
- * // For GET result - returns RedisResultExpectation<string | null>
- * const getResult = await client.get("key");
+ * import type { RedisGetResult, RedisCountResult, RedisArrayResult } from "@probitas/client-redis";
+ * import { expectRedisResult } from "./redis.ts";
+ *
+ * // For GET result - returns RedisGetResultExpectation
+ * const getResult = {
+ *   kind: "redis:get",
+ *   ok: true,
+ *   value: "expected",
+ *   duration: 0,
+ * } as unknown as RedisGetResult;
  * expectRedisResult(getResult).toBeOk().toHaveValue("expected");
  *
  * // For COUNT result - returns RedisCountResultExpectation
- * const countResult = await client.del("key");
- * expectRedisResult(countResult).toBeOk().toHaveCount(1);
+ * const countResult = {
+ *   kind: "redis:count",
+ *   ok: true,
+ *   value: 1,
+ *   duration: 0,
+ * } as unknown as RedisCountResult;
+ * expectRedisResult(countResult).toBeOk().toHaveValue(1);
  *
  * // For ARRAY result - returns RedisArrayResultExpectation
- * const arrayResult = await client.lrange("list", 0, -1);
- * expectRedisResult(arrayResult).toBeOk().toHaveLength(3).toContain("item");
+ * const arrayResult = {
+ *   kind: "redis:array",
+ *   ok: true,
+ *   value: ["a", "b", "item"],
+ *   duration: 0,
+ * } as unknown as RedisArrayResult<string>;
+ * expectRedisResult(arrayResult).toBeOk().toHaveValueCount(3).toHaveValueContaining("item");
  * ```
  */
 // deno-lint-ignore no-explicit-any

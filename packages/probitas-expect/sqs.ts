@@ -72,64 +72,67 @@ export type SqsExpectation<R extends SqsResult> = R extends SqsSendResult
  *
  * @example Send result validation
  * ```ts
- * const sendResult = await sqs.send(JSON.stringify({ orderId: "123" }));
+ * import type { SqsSendResult } from "@probitas/client-sqs";
+ * import { expectSqsResult } from "./sqs.ts";
+ * const sendResult = {
+ *   kind: "sqs:send",
+ *   ok: true,
+ *   messageId: "msg-123",
+ *   md5OfBody: "abc123",
+ *   sequenceNumber: undefined,
+ *   duration: 50,
+ * } as unknown as SqsSendResult;
  * expectSqsResult(sendResult)
  *   .toBeOk()
- *   .hasMessageId()
+ *   .toHaveMessageIdContaining("msg")
  *   .toHaveDurationLessThan(1000);
  * ```
  *
  * @example Receive result validation
  * ```ts
- * const receiveResult = await sqs.receive({ maxMessages: 10 });
+ * import type { SqsReceiveResult } from "@probitas/client-sqs";
+ * import { expectSqsResult } from "./sqs.ts";
+ * const receiveResult = {
+ *   kind: "sqs:receive",
+ *   ok: true,
+ *   messages: [{ body: "test message" }],
+ *   duration: 0,
+ * } as unknown as SqsReceiveResult;
  * expectSqsResult(receiveResult)
  *   .toBeOk()
- *   .toHaveContent()
- *   .countAtLeast(1)
- *   .toMatchObject({ body: "orderId" });
+ *   .toHaveMessagesCountGreaterThanOrEqual(1);
  * ```
  *
  * @example Batch operations
  * ```ts
- * // Send batch
- * const batchResult = await sqs.sendBatch([
- *   { id: "1", body: "msg1" },
- *   { id: "2", body: "msg2" },
- * ]);
+ * import type { SqsSendBatchResult } from "@probitas/client-sqs";
+ * import { expectSqsResult } from "./sqs.ts";
+ * const batchResult = {
+ *   kind: "sqs:send-batch",
+ *   ok: true,
+ *   successful: [{ id: "1" }, { id: "2" }],
+ *   failed: [],
+ *   duration: 0,
+ * } as unknown as SqsSendBatchResult;
  * expectSqsResult(batchResult)
  *   .toBeOk()
- *   .allSuccessful()
- *   .noFailures();
- *
- * // Delete batch
- * const deleteResult = await sqs.deleteBatch(receiptHandles);
- * expectSqsResult(deleteResult)
- *   .toBeOk()
- *   .successfulCount(2);
+ *   .toHaveSuccessfulCount(2)
+ *   .toHaveFailedEmpty();
  * ```
  *
  * @example Queue management
  * ```ts
- * // Ensure queue exists
- * const ensureResult = await sqs.ensureQueue("test-queue");
+ * import type { SqsEnsureQueueResult } from "@probitas/client-sqs";
+ * import { expectSqsResult } from "./sqs.ts";
+ * const ensureResult = {
+ *   kind: "sqs:ensure-queue",
+ *   ok: true,
+ *   queueUrl: "https://sqs.example.com/test-queue",
+ *   duration: 0,
+ * } as unknown as SqsEnsureQueueResult;
  * expectSqsResult(ensureResult)
  *   .toBeOk()
- *   .hasQueueUrl()
- *   .queueUrlContains("test-queue");
- *
- * // Delete queue
- * const deleteResult = await sqs.deleteQueue(queueUrl);
- * expectSqsResult(deleteResult).toBeOk();
- * ```
- *
- * @example Individual message validation
- * ```ts
- * const receiveResult = await sqs.receive();
- * for (const msg of receiveResult.messages) {
- *   expectSqsMessage(msg)
- *     .bodyJsonContains({ type: "ORDER" })
- *     .hasAttribute("correlationId");
- * }
+ *   .toHaveQueueUrlContaining("test-queue");
  * ```
  */
 export function expectSqsResult<R extends SqsResult>(

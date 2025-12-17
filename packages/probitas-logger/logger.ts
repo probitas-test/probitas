@@ -98,17 +98,22 @@ export async function configureLogging(
  *
  * logger.info("Starting run command");
  * logger.debug("Processing options", { maxConcurrency: 4 });
- * logger.error("Failed to load scenario", { file, error });
+ * logger.error("Failed to load scenario", { file: "test.ts", error: "not found" });
  * ```
  *
  * @example In a module
  * ```ts
+ * import { getLogger } from "@probitas/logger";
+ *
  * // At module top level
  * const logger = getLogger("probitas", "runner");
  *
+ * interface ScenarioDefinition {
+ *   name: string;
+ * }
+ *
  * export function runScenario(scenario: ScenarioDefinition) {
  *   logger.info("Running scenario", { name: scenario.name });
- *   // ...
  * }
  * ```
  */

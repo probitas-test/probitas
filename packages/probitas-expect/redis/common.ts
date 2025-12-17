@@ -12,7 +12,16 @@ export interface RedisCommonResultExpectation {
    *
    * @example
    * ```ts
-   * expectRedisResult(result).not.toHaveValue();
+   * import type { RedisCommonResult } from "@probitas/client-redis";
+   * import { expectRedisCommonResult } from "./common.ts";
+   * const result = {
+   *   kind: "redis:common",
+   *   ok: true,
+   *   value: "test",
+   *   duration: 0,
+   * } as unknown as RedisCommonResult;
+   *
+   * expectRedisCommonResult(result).not.toHaveValue("other");
    * ```
    */
   readonly not: this;

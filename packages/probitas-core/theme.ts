@@ -42,14 +42,17 @@ export type ThemeFunction = (text: string) => string;
  *
  * @example Custom theme
  * ```ts
+ * import type { Theme } from "@probitas/core/theme";
+ *
  * const myTheme: Theme = {
- *   success: (t) => chalk.green(t),
- *   failure: (t) => chalk.red.bold(t),
- *   skip: (t) => chalk.yellow(t),
- *   dim: (t) => chalk.gray(t),
- *   title: (t) => chalk.bold(t),
- *   info: (t) => chalk.cyan(t),
- *   warning: (t) => chalk.yellow(t)
+ *   success: (t) => `\x1b[32m${t}\x1b[0m`,
+ *   failure: (t) => `\x1b[1;31m${t}\x1b[0m`,
+ *   skip: (t) => `\x1b[33m${t}\x1b[0m`,
+ *   dim: (t) => `\x1b[90m${t}\x1b[0m`,
+ *   title: (t) => `\x1b[1m${t}\x1b[0m`,
+ *   info: (t) => `\x1b[36m${t}\x1b[0m`,
+ *   warning: (t) => `\x1b[33m${t}\x1b[0m`,
+ *   lightGray: (t) => `\x1b[38;5;243m${t}\x1b[0m`,
  * };
  * ```
  *

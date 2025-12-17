@@ -17,13 +17,15 @@ import type { ScenarioResult } from "./scenario.ts";
  *
  * @example
  * ```ts
+ * import type { RunResult } from "@probitas/runner";
+ *
  * const summary: RunResult = {
  *   total: 10,
  *   passed: 8,
  *   failed: 1,
  *   skipped: 1,
  *   duration: 5432,
- *   scenarios: [...]
+ *   scenarios: []
  * };
  *
  * console.log(`${summary.passed}/${summary.total} passed`);
@@ -86,19 +88,23 @@ export interface RunFilter {
  *
  * @example Sequential execution with fail-fast
  * ```ts
+ * import type { RunOptions } from "@probitas/runner";
+ *
  * const options: RunOptions = {
- *   reporter: new ListReporter(),
  *   maxConcurrency: 1,  // Run one at a time
  *   maxFailures: 1      // Stop after first failure
  * };
+ * console.log(options);
  * ```
  *
  * @example Parallel execution with limit
  * ```ts
+ * import type { RunOptions } from "@probitas/runner";
+ *
  * const options: RunOptions = {
- *   reporter: new ListReporter(),
  *   maxConcurrency: 4   // Run up to 4 scenarios at once
  * };
+ * console.log(options);
  * ```
  */
 export interface RunOptions {

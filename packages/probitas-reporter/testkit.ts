@@ -404,8 +404,14 @@ function getRawBufferOutput(buffer: Buffer): string {
  * @param reporterName The name of the reporter (used for snapshot identification), defaults to ReporterClass.name
  *
  * @example
- * ```typescript
- * testReporter(ListReporter);
+ * ```ts
+ * import { ListReporter } from "@probitas/reporter";
+ * import { testReporter } from "./testkit.ts";
+ *
+ * // Call testReporter in a test file to run snapshot tests
+ * // testReporter(ListReporter);
+ * void testReporter;
+ * void ListReporter;
  * ```
  */
 export function testReporter(

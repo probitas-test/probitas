@@ -11,6 +11,20 @@ export interface GraphqlResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { GraphqlResponse } from "@probitas/client-graphql";
+   * import { expectGraphqlResponse } from "./graphql.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "graphql",
+   *   ok: false,
+   *   status: 200,
+   *   headers: mockHeaders,
+   *   data: null,
+   *   errors: [{ message: "Not found" }],
+   *   extensions: undefined,
+   *   duration: 0,
+   * } as unknown as GraphqlResponse;
+   *
    * expectGraphqlResponse(response).not.toBeOk();
    * expectGraphqlResponse(response).not.toHaveErrorCount(0);
    * ```
@@ -22,6 +36,20 @@ export interface GraphqlResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { GraphqlResponse } from "@probitas/client-graphql";
+   * import { expectGraphqlResponse } from "./graphql.ts";
+   * const mockHeaders = new Map<string, string>();
+   * const response = {
+   *   kind: "graphql",
+   *   ok: true,
+   *   status: 200,
+   *   headers: mockHeaders,
+   *   data: { user: { name: "Alice" } },
+   *   errors: undefined,
+   *   extensions: undefined,
+   *   duration: 0,
+   * } as unknown as GraphqlResponse;
+   *
    * expectGraphqlResponse(response).toBeOk();
    * ```
    */

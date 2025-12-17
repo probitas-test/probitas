@@ -10,7 +10,16 @@ export interface MongoCountResultExpectation {
    *
    * @example
    * ```ts
-   * expectMongoResult(countResult).not.toHaveLength(0);
+   * import type { MongoCountResult } from "@probitas/client-mongodb";
+   * import { expectMongoCountResult } from "./count.ts";
+   * const result = {
+   *   kind: "mongo:count",
+   *   ok: true,
+   *   count: 5,
+   *   duration: 0,
+   * } as unknown as MongoCountResult;
+   *
+   * expectMongoCountResult(result).not.toHaveCount(0);
    * ```
    */
   readonly not: this;

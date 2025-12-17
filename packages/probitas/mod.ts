@@ -47,16 +47,20 @@
  *
  * @example Basic scenario with steps
  * ```ts
- * import { scenario, expect } from "@probitas/probitas";
+ * import { client, expect, scenario } from "@probitas/probitas";
  *
- * export default scenario("User registration flow")
- *   .step("Create user", async () => {
- *     const user = await createUser({ name: "Alice" });
- *     return { userId: user.id };
+ * export default scenario("User API Test")
+ *   .resource("http", () =>
+ *     client.http.createHttpClient({ url: "https://api.example.com" }))
+ *   .step("Create user", async (ctx) => {
+ *     const response = await ctx.resources.http.post("/users", { name: "Alice" });
+ *     expect(response).toBeOk().toHaveStatus(201);
+ *     return response.data<{ id: string }>()!;
  *   })
  *   .step("Verify user exists", async (ctx) => {
- *     const user = await getUser(ctx.previous.userId);
- *     expect(user.name).toBe("Alice");
+ *     const { id } = ctx.previous!;
+ *     const response = await ctx.resources.http.get(`/users/${id}`);
+ *     expect(response).toBeOk().toHaveDataProperty("name", "Alice");
  *   })
  *   .build();
  * ```
@@ -65,9 +69,13 @@
  * ```ts
  * import { scenario, Skip } from "@probitas/probitas";
  *
+ * // Mock Deno.env for this example
+ * const getEnv = (key: string): string | undefined =>
+ *   key === "FEATURE_FLAG" ? undefined : "value";
+ *
  * export default scenario("Feature test")
  *   .step("Check prerequisites", () => {
- *     if (!process.env.FEATURE_FLAG) {
+ *     if (!getEnv("FEATURE_FLAG")) {
  *       throw new Skip("Feature flag not enabled");
  *     }
  *   })
@@ -77,17 +85,17 @@
  *   .build();
  * ```
  *
- * @example Using HTTP client
+ * @example Using HTTP client with resource
  * ```ts
- * import { scenario, expect, client } from "@probitas/probitas";
- *
- * const http = client.http({ baseUrl: "https://api.example.com" });
+ * import { client, expect, scenario } from "@probitas/probitas";
  *
  * export default scenario("API test")
- *   .step("Fetch users", async () => {
- *     const response = await http.get("/users");
- *     expect(response.status).toBe(200);
- *     return { users: await response.data() };
+ *   .resource("http", () =>
+ *     client.http.createHttpClient({ url: "https://api.example.com" }))
+ *   .step("Fetch users", async (ctx) => {
+ *     const response = await ctx.resources.http.get("/users");
+ *     expect(response).toBeOk().toHaveStatus(200);
+ *     return { users: response.data<{ id: string; name: string }[]>() };
  *   })
  *   .build();
  * ```

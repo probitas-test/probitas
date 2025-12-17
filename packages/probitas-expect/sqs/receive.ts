@@ -13,7 +13,16 @@ export interface SqsReceiveResultExpectation {
    *
    * @example
    * ```ts
-   * expectSqsResult(receiveResult).not.toHaveContent();
+   * import type { SqsReceiveResult } from "@probitas/client-sqs";
+   * import { expectSqsReceiveResult } from "./receive.ts";
+   * const result = {
+   *   kind: "sqs:receive",
+   *   ok: true,
+   *   messages: [{ body: "test" }],
+   *   duration: 0,
+   * } as unknown as SqsReceiveResult;
+   *
+   * expectSqsReceiveResult(result).not.toHaveMessagesEmpty();
    * ```
    */
   readonly not: this;

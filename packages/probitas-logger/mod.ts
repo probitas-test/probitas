@@ -57,8 +57,8 @@
  * const logger = getLogger("probitas", "mymodule");
  *
  * logger.info("Application started");
- * logger.debug("Debug details", { config: { ... } });
- * logger.error("Something went wrong", { error });
+ * logger.debug("Debug details", { config: { verbose: true } });
+ * logger.error("Something went wrong", { error: new Error("test") });
  * ```
  *
  * @example Adjusting log level dynamically
@@ -79,6 +79,7 @@
  * // In @probitas/runner
  * const logger = getLogger("probitas", "runner");
  *
+ * const scenario = { name: "my-scenario" };
  * logger.debug("Executing scenario", { name: scenario.name });
  * logger.info("Scenario completed", { status: "passed" });
  * ```

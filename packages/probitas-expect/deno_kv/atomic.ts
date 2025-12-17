@@ -14,8 +14,17 @@ export interface DenoKvAtomicResultExpectation {
    *
    * @example
    * ```ts
-   * expectDenoKvResult(result).not.toBeOk();
-   * expectDenoKvResult(result).not.toHaveVersionstamp();
+   * import type { DenoKvAtomicResult } from "@probitas/client-deno-kv";
+   * import { expectDenoKvAtomicResult } from "./atomic.ts";
+   * const result = {
+   *   kind: "deno-kv:atomic",
+   *   ok: false,
+   *   versionstamp: null,
+   *   duration: 0,
+   * } as unknown as DenoKvAtomicResult;
+   *
+   * expectDenoKvAtomicResult(result).not.toBeOk();
+   * expectDenoKvAtomicResult(result).not.toHaveVersionstampPresent();
    * ```
    */
   readonly not: this;

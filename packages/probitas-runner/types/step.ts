@@ -23,32 +23,47 @@ import type { StepMetadata } from "@probitas/core";
  *
  * @example Passed step result
  * ```ts
+ * import type { StepResult } from "@probitas/runner";
+ * import type { StepMetadata } from "@probitas/core";
+ *
+ * const metadata: StepMetadata = { kind: "step", name: "Create user", timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } };
  * const result: StepResult = {
- *   metadata: { name: "Create user", source: {...}, kind: "step", ... },
+ *   metadata,
  *   status: "passed",
  *   duration: 150,
  *   value: { userId: "123" }
  * };
+ * console.log(result);
  * ```
  *
  * @example Failed step result
  * ```ts
+ * import type { StepResult } from "@probitas/runner";
+ * import type { StepMetadata } from "@probitas/core";
+ *
+ * const metadata: StepMetadata = { kind: "step", name: "Validate input", timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } };
  * const result: StepResult = {
- *   metadata: { name: "Validate input", source: {...}, kind: "step", ... },
+ *   metadata,
  *   status: "failed",
  *   duration: 50,
  *   error: new Error("Invalid email format")
  * };
+ * console.log(result);
  * ```
  *
  * @example Skipped step result
  * ```ts
+ * import type { StepResult } from "@probitas/runner";
+ * import type { StepMetadata } from "@probitas/core";
+ *
+ * const metadata: StepMetadata = { kind: "step", name: "Optional step", timeout: 30000, retry: { maxAttempts: 1, backoff: "linear" } };
  * const result: StepResult = {
- *   metadata: { name: "Optional step", source: {...}, kind: "step", ... },
+ *   metadata,
  *   status: "skipped",
  *   duration: 0,
  *   error: "Prerequisite not met"
  * };
+ * console.log(result);
  * ```
  */
 export type StepResult = {

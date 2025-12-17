@@ -13,7 +13,15 @@ export interface DenoKvDeleteResultExpectation {
    *
    * @example
    * ```ts
-   * expectDenoKvResult(result).not.toBeOk();
+   * import type { DenoKvDeleteResult } from "@probitas/client-deno-kv";
+   * import { expectDenoKvDeleteResult } from "./delete.ts";
+   * const result = {
+   *   kind: "deno-kv:delete",
+   *   ok: false,
+   *   duration: 0,
+   * } as unknown as DenoKvDeleteResult;
+   *
+   * expectDenoKvDeleteResult(result).not.toBeOk();
    * ```
    */
   readonly not: this;

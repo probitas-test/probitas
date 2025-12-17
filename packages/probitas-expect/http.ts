@@ -11,6 +11,21 @@ export interface HttpResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { HttpResponse } from "@probitas/client-http";
+   * import { expectHttpResponse } from "./http.ts";
+   * const response = {
+   *   kind: "http",
+   *   ok: false,
+   *   status: 500,
+   *   statusText: "Error",
+   *   headers: new Headers(),
+   *   url: "http://example.com",
+   *   body: null,
+   *   duration: 0,
+   *   text: () => null,
+   *   data: () => null,
+   * } as unknown as HttpResponse;
+   *
    * expectHttpResponse(response).not.toBeOk();
    * expectHttpResponse(response).not.toHaveStatus(404);
    * ```
@@ -22,6 +37,21 @@ export interface HttpResponseExpectation {
    *
    * @example
    * ```ts
+   * import type { HttpResponse } from "@probitas/client-http";
+   * import { expectHttpResponse } from "./http.ts";
+   * const response = {
+   *   kind: "http",
+   *   ok: true,
+   *   status: 200,
+   *   statusText: "OK",
+   *   headers: new Headers(),
+   *   url: "http://example.com",
+   *   body: null,
+   *   duration: 0,
+   *   text: () => null,
+   *   data: () => null,
+   * } as unknown as HttpResponse;
+   *
    * expectHttpResponse(response).toBeOk();
    * ```
    */

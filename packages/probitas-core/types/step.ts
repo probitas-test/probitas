@@ -68,22 +68,30 @@ export interface StepOptions {
  *
  * @example Cleanup function
  * ```ts
- * scenario("File Test")
- *   .setup(() => {
- *     const file = Deno.makeTempFileSync();
- *     return () => Deno.removeSync(file);  // Cleanup function
- *   })
- *   .build();
+ * import type { SetupCleanup } from "@probitas/core";
+ *
+ * // Setup functions can return a cleanup function
+ * const setupWithCleanup = (): SetupCleanup => {
+ *   const file = Deno.makeTempFileSync();
+ *   return () => Deno.removeSync(file); // Cleanup function
+ * };
+ * console.log(setupWithCleanup);
  * ```
  *
  * @example Disposable object
  * ```ts
- * scenario("Connection Test")
- *   .setup(async () => {
- *     const conn = await connect();
- *     return conn;  // If conn implements AsyncDisposable
- *   })
- *   .build();
+ * import type { SetupCleanup } from "@probitas/core";
+ *
+ * // Setup functions can return an AsyncDisposable
+ * const setupWithDisposable = async (): Promise<SetupCleanup> => {
+ *   const conn: AsyncDisposable = {
+ *     async [Symbol.asyncDispose]() {
+ *       // cleanup logic
+ *     },
+ *   };
+ *   return conn;
+ * };
+ * console.log(setupWithDisposable);
  * ```
  */
 export type SetupCleanup =
@@ -104,25 +112,31 @@ export type SetupCleanup =
  *
  * @example Accessing previous result
  * ```ts
- * scenario("Chained Steps")
- *   .step("First", () => ({ id: 123 }))
- *   .step("Second", (ctx) => {
- *     console.log(ctx.previous.id);  // 123 (typed as number)
- *   })
- *   .build();
+ * import type { StepContext } from "@probitas/core";
+ *
+ * // Steps receive context with the previous step's result
+ * const stepFn = (ctx: StepContext) => {
+ *   // ctx.previous contains the result from the previous step
+ *   const prev = ctx.previous as { id: number };
+ *   console.log(prev.id); // Access typed result
+ * };
+ * console.log(stepFn);
  * ```
  *
  * @example Using shared store
  * ```ts
- * scenario("Store Example")
- *   .setup((ctx) => {
- *     ctx.store.set("startTime", Date.now());
- *   })
- *   .step("Check duration", (ctx) => {
- *     const start = ctx.store.get("startTime") as number;
- *     console.log(`Elapsed: ${Date.now() - start}ms`);
- *   })
- *   .build();
+ * import type { StepContext } from "@probitas/core";
+ *
+ * // The store is shared across all steps in a scenario
+ * const setupFn = (ctx: StepContext) => {
+ *   ctx.store.set("startTime", Date.now());
+ * };
+ *
+ * const stepFn = (ctx: StepContext) => {
+ *   const start = ctx.store.get("startTime") as number;
+ *   console.log(`Elapsed: ${Date.now() - start}ms`);
+ * };
+ * console.log(setupFn, stepFn);
  * ```
  */
 export interface StepContext {
@@ -146,8 +160,13 @@ export interface StepContext {
    *
    * Allows accessing any previous result by index:
    * ```ts
-   * ctx.results[0]  // First step's result
-   * ctx.results[1]  // Second step's result
+   * import type { StepContext } from "@probitas/core";
+   *
+   * const stepFn = (ctx: StepContext) => {
+   *   ctx.results[0]; // First step's result
+   *   ctx.results[1]; // Second step's result
+   * };
+   * console.log(stepFn);
    * ```
    */
   readonly results: readonly unknown[];
@@ -165,8 +184,18 @@ export interface StepContext {
    *
    * Resources are typed based on their registration:
    * ```ts
-   * .resource("db", () => createDbConnection())
-   * .step((ctx) => ctx.resources.db.query(...))
+   * import type { StepContext } from "@probitas/core";
+   *
+   * interface DbResource {
+   *   query(sql: string): unknown;
+   * }
+   *
+   * // Access resources registered with .resource()
+   * const stepFn = (ctx: StepContext) => {
+   *   const db = ctx.resources["db"] as DbResource;
+   *   return db.query("SELECT 1");
+   * };
+   * console.log(stepFn);
    * ```
    */
   readonly resources: Record<string, unknown>;
@@ -190,13 +219,22 @@ export interface StepContext {
  *
  * @example Sync step returning data
  * ```ts
- * const step: StepFunction<{ name: string }> = (ctx) => {
+ * import type { StepFunction } from "@probitas/core";
+ *
+ * const step: StepFunction<{ name: string }> = (_ctx) => {
  *   return { name: "Alice" };
  * };
  * ```
  *
  * @example Async step with API call
  * ```ts
+ * import type { StepFunction } from "@probitas/core";
+ *
+ * interface User {
+ *   id: number;
+ *   name: string;
+ * }
+ *
  * const step: StepFunction<User> = async (ctx) => {
  *   const response = await fetch("/api/user", { signal: ctx.signal });
  *   return response.json();
