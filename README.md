@@ -303,18 +303,6 @@ Supported client types:
 All expectation methods follow a consistent naming pattern (`toBeXxx`,
 `toHaveXxx`) and support method chaining for fluent assertions.
 
-## Documentation
-
-- [Migration from 0.5.0](docs/migration-from-0.5.0.md) - **Breaking changes in
-  0.6.0**
-- [Migration from 0.4.0](docs/migration-from-0.4.0.md) - Breaking changes in
-  0.5.0
-- [Migration from 0.3.6](docs/migration-from-0.3.6.md) - Breaking changes in
-  0.4.0
-- [Guide](docs/guide.md) - Comprehensive usage guide
-- [CLI Reference](docs/cli.md) - Command-line options
-- [Architecture](docs/architecture.md) - Design overview
-
 ## Development Environment
 
 A Nix flake is available to provision the Deno toolchain without global
