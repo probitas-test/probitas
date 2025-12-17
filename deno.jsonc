@@ -20,7 +20,7 @@
     "docs/**"
   ],
   "tasks": {
-    "check": "deno check --doc",
+    "check": "deno check --doc && deno check --doc-only **/*.md",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
     "coverage": "deno coverage .coverage --include='/packages/'",
