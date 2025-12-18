@@ -175,14 +175,15 @@ describe("expect", () => {
     });
 
     it("dispatches MongoResult (mongo:find) to expectMongoResult", () => {
-      const mongoResult: MongoFindResult = {
-        kind: "mongo:find" as const,
+      const base = {
+        kind: "mongo:find",
         processed: true,
         ok: true,
         error: null,
-        docs: [] as unknown as MongoFindResult["docs"],
+        docs: [],
         duration: 100,
-      };
+      } as const;
+      const mongoResult: MongoFindResult = base;
 
       const result = expect(mongoResult);
       assertEquals(typeof result.toBeOk, "function");

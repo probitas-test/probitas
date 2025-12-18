@@ -51,7 +51,7 @@
  *   })
  *   .step("Query data", async (ctx) => {
  *     const result = await ctx.resources.db.collection("users").find({});
- *     return { count: result.docs.length };
+ *     return { count: result.docs?.length ?? 0 };
  *   })
  *   .build();
  * ```

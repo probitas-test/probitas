@@ -1,4 +1,5 @@
 import type { MongoDeleteResult } from "@probitas/client-mongodb";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -165,7 +166,7 @@ export function expectMongoDeleteResult(
         cfg("deleted count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.deletedCount,
+        () => ensureNonNullish(result.deletedCount, "deletedCount"),
         negate,
         cfg("deleted count"),
       ),
