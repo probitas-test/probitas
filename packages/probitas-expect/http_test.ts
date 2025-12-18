@@ -22,7 +22,7 @@ function createMockResponse(
     blob: () => new Blob([bodyBytes]),
     text: () => '{"message":"success"}',
     // deno-lint-ignore no-explicit-any
-    data: <T = any>(): T | null => ({ message: "success" }) as T,
+    json: <T = any>(): T | null => ({ message: "success" }) as T,
     duration: 123,
     raw: () =>
       new Response('{"message":"success"}', {
@@ -127,21 +127,21 @@ const EXPECTED_METHODS: Record<keyof HttpResponseExpectation, unknown[]> = {
   toHaveTextLengthLessThanOrEqual: [21],
   toHaveTextLengthCloseTo: [21, 0],
   // Data
-  toHaveData: [],
-  toHaveDataEqual: [],
-  toHaveDataStrictEqual: [],
-  toHaveDataSatisfying: [
+  toHaveJson: [],
+  toHaveJsonEqual: [],
+  toHaveJsonStrictEqual: [],
+  toHaveJsonSatisfying: [
     (v: Record<string, unknown> | null) => assertExists(v),
   ],
-  toHaveDataPresent: [],
-  toHaveDataNull: [],
-  toHaveDataUndefined: [],
-  toHaveDataNullish: [],
-  toHaveDataMatching: [{ message: "success" }],
-  toHaveDataProperty: ["message"],
-  toHaveDataPropertyContaining: [],
-  toHaveDataPropertyMatching: [],
-  toHaveDataPropertySatisfying: [
+  toHaveJsonPresent: [],
+  toHaveJsonNull: [],
+  toHaveJsonUndefined: [],
+  toHaveJsonNullish: [],
+  toHaveJsonMatching: [{ message: "success" }],
+  toHaveJsonProperty: ["message"],
+  toHaveJsonPropertyContaining: [],
+  toHaveJsonPropertyMatching: [],
+  toHaveJsonPropertySatisfying: [
     "message",
     (v: unknown) => assertEquals(v, "success"),
   ],
@@ -198,10 +198,10 @@ for (
     methodName === "toHaveBodyNull" ||
     methodName === "toHaveBodyUndefined" ||
     methodName === "toHaveBodyNullish" ||
-    methodName === "toHaveDataPresent" ||
-    methodName === "toHaveDataNull" ||
-    methodName === "toHaveDataUndefined" ||
-    methodName === "toHaveDataNullish" ||
+    methodName === "toHaveJsonPresent" ||
+    methodName === "toHaveJsonNull" ||
+    methodName === "toHaveJsonUndefined" ||
+    methodName === "toHaveJsonNullish" ||
     methodName === "toHaveStatusNaN" ||
     methodName === "toHaveBodyLengthNaN" ||
     methodName === "toHaveTextLengthNaN" ||
@@ -245,19 +245,19 @@ Deno.test("expectHttpResponse - nullish value methods - success", () => {
   const nullResponse = createMockResponse({
     body: null,
     headers: new Headers(),
-    data: () => null,
+    json: () => null,
   });
   const nullExpectation = expectHttpResponse(nullResponse);
 
   nullExpectation.toHaveBodyNull();
-  nullExpectation.toHaveDataNull();
+  nullExpectation.toHaveJsonNull();
   nullExpectation.toHaveBodyNullish();
-  nullExpectation.toHaveDataNullish();
+  nullExpectation.toHaveJsonNullish();
 
   // Test present values
   const presentResponse = createMockResponse();
   const presentExpectation = expectHttpResponse(presentResponse);
 
   presentExpectation.toHaveBodyPresent();
-  presentExpectation.toHaveDataPresent();
+  presentExpectation.toHaveJsonPresent();
 });

@@ -55,12 +55,12 @@
  *   .step("Create user", async (ctx) => {
  *     const response = await ctx.resources.http.post("/users", { name: "Alice" });
  *     expect(response).toBeOk().toHaveStatus(201);
- *     return response.data<{ id: string }>()!;
+ *     return response.json<{ id: string }>()!;
  *   })
  *   .step("Verify user exists", async (ctx) => {
  *     const { id } = ctx.previous!;
  *     const response = await ctx.resources.http.get(`/users/${id}`);
- *     expect(response).toBeOk().toHaveDataProperty("name", "Alice");
+ *     expect(response).toBeOk().toHaveJsonProperty("name", "Alice");
  *   })
  *   .build();
  * ```
@@ -95,7 +95,7 @@
  *   .step("Fetch users", async (ctx) => {
  *     const response = await ctx.resources.http.get("/users");
  *     expect(response).toBeOk().toHaveStatus(200);
- *     return { users: response.data<{ id: string; name: string }[]>() };
+ *     return { users: response.json<{ id: string; name: string }[]>() };
  *   })
  *   .build();
  * ```

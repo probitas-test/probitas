@@ -30,7 +30,7 @@
  *   .step("Fetch users", async () => {
  *     const response = await api.get("/users");
  *     expectHttpResponse(response).toBeOk().toHaveStatus(200);
- *     return response.data();
+ *     return response.json();
  *   })
  *   .build();
  * ```

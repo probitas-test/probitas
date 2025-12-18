@@ -44,14 +44,14 @@ describe("expect", () => {
         arrayBuffer: () => null,
         blob: () => null,
         text: () => null,
-        data: () => null,
+        json: () => null,
       };
 
       const result = expect(httpResponse);
       // HttpResponseExpectation has toBeOk() method that returns this
       assertEquals(typeof result.toBeOk, "function");
       assertEquals(typeof result.toHaveStatus, "function");
-      assertEquals(typeof result.toHaveDataMatching, "function");
+      assertEquals(typeof result.toHaveJsonMatching, "function");
     });
 
     it("dispatches ConnectRpcResponse to expectConnectRpcResponse", () => {
@@ -293,7 +293,7 @@ describe("expect", () => {
         arrayBuffer: () => null,
         blob: () => null,
         text: () => null,
-        data: () => null,
+        json: () => null,
       };
 
       // This should compile and have HttpResponseExpectation methods

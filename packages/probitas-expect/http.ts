@@ -23,7 +23,7 @@ export interface HttpResponseExpectation {
    *   body: null,
    *   duration: 0,
    *   text: () => null,
-   *   data: () => null,
+   *   json: () => null,
    * } as unknown as HttpResponse;
    *
    * expectHttpResponse(response).not.toBeOk();
@@ -49,7 +49,7 @@ export interface HttpResponseExpectation {
    *   body: null,
    *   duration: 0,
    *   text: () => null,
-   *   data: () => null,
+   *   json: () => null,
    * } as unknown as HttpResponse;
    *
    * expectHttpResponse(response).toBeOk();
@@ -487,92 +487,92 @@ export interface HttpResponseExpectation {
   toHaveTextLengthCloseTo(expected: number, numDigits?: number): this;
 
   /**
-   * Asserts that the data equals the expected value.
-   * @param expected - The expected data value
+   * Asserts that the JSON equals the expected value.
+   * @param expected - The expected JSON value
    */
-  toHaveData(expected: unknown): this;
+  toHaveJson(expected: unknown): this;
 
   /**
-   * Asserts that the data equals the expected value using deep equality.
-   * @param expected - The expected data value
+   * Asserts that the JSON equals the expected value using deep equality.
+   * @param expected - The expected JSON value
    */
-  toHaveDataEqual(expected: unknown): this;
+  toHaveJsonEqual(expected: unknown): this;
 
   /**
-   * Asserts that the data strictly equals the expected value.
-   * @param expected - The expected data value
+   * Asserts that the JSON strictly equals the expected value.
+   * @param expected - The expected JSON value
    */
-  toHaveDataStrictEqual(expected: unknown): this;
+  toHaveJsonStrictEqual(expected: unknown): this;
 
   /**
-   * Asserts that the data satisfies the provided matcher function.
-   * @param matcher - A function that receives the data and performs assertions
+   * Asserts that the JSON satisfies the provided matcher function.
+   * @param matcher - A function that receives the JSON and performs assertions
    */
-  toHaveDataSatisfying(
+  toHaveJsonSatisfying(
     matcher: (value: Record<string, unknown> | null) => void,
   ): this;
 
   /**
-   * Asserts that the data is present (not null or undefined).
+   * Asserts that the JSON is present (not null or undefined).
    */
-  toHaveDataPresent(): this;
+  toHaveJsonPresent(): this;
 
   /**
-   * Asserts that the data is null.
+   * Asserts that the JSON is null.
    */
-  toHaveDataNull(): this;
+  toHaveJsonNull(): this;
 
   /**
-   * Asserts that the data is undefined.
+   * Asserts that the JSON is undefined.
    */
-  toHaveDataUndefined(): this;
+  toHaveJsonUndefined(): this;
 
   /**
-   * Asserts that the data is nullish (null or undefined).
+   * Asserts that the JSON is nullish (null or undefined).
    */
-  toHaveDataNullish(): this;
+  toHaveJsonNullish(): this;
 
   /**
-   * Asserts that the data matches the specified subset.
+   * Asserts that the JSON matches the specified subset.
    * @param subset - The subset to match against
    */
-  toHaveDataMatching(
+  toHaveJsonMatching(
     subset: Record<PropertyKey, unknown> | Record<PropertyKey, unknown>[],
   ): this;
 
   /**
-   * Asserts that the data has the specified property.
+   * Asserts that the JSON has the specified property.
    * @param keyPath - The key path to check
    * @param value - Optional expected value at the key path
    */
-  toHaveDataProperty(keyPath: string | string[], value?: unknown): this;
+  toHaveJsonProperty(keyPath: string | string[], value?: unknown): this;
 
   /**
-   * Asserts that the data property contains the expected value.
+   * Asserts that the JSON property contains the expected value.
    * @param keyPath - The key path to check
    * @param expected - The expected contained value
    */
-  toHaveDataPropertyContaining(
+  toHaveJsonPropertyContaining(
     keyPath: string | string[],
     expected: unknown,
   ): this;
 
   /**
-   * Asserts that the data property matches the specified subset.
+   * Asserts that the JSON property matches the specified subset.
    * @param keyPath - The key path to check
    * @param subset - The subset to match against
    */
-  toHaveDataPropertyMatching(
+  toHaveJsonPropertyMatching(
     keyPath: string | string[],
     subset: Record<PropertyKey, unknown> | Record<PropertyKey, unknown>[],
   ): this;
 
   /**
-   * Asserts that the data property satisfies the provided matcher function.
+   * Asserts that the JSON property satisfies the provided matcher function.
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveDataPropertySatisfying<I>(
+  toHaveJsonPropertySatisfying<I>(
     keyPath: string | string[],
     matcher: (value: I) => void,
   ): this;
@@ -708,13 +708,13 @@ export function expectHttpResponse(
         negate,
         cfg("text length"),
       ),
-      // Data
-      mixin.createValueMixin(() => response.data(), negate, cfg("data")),
-      mixin.createNullishValueMixin(() => response.data(), negate, cfg("data")),
+      // JSON
+      mixin.createValueMixin(() => response.json(), negate, cfg("json")),
+      mixin.createNullishValueMixin(() => response.json(), negate, cfg("json")),
       mixin.createObjectValueMixin(
-        () => ensureNonNullish(response.data(), "response data"),
+        () => ensureNonNullish(response.json(), "response json"),
         negate,
-        cfg("data"),
+        cfg("json"),
       ),
       // Duration
       mixin.createValueMixin(() => response.duration, negate, cfg("duration")),
