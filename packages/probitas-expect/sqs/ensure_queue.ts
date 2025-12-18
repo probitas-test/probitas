@@ -1,4 +1,5 @@
 import type { SqsEnsureQueueResult } from "@probitas/client-sqs";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -140,7 +141,7 @@ export function expectSqsEnsureQueueResult(
       // Queue url
       mixin.createValueMixin(() => result.queueUrl, negate, cfg("queue url")),
       mixin.createStringValueMixin(
-        () => result.queueUrl,
+        () => ensureNonNullish(result.queueUrl, "queueUrl"),
         negate,
         cfg("queue url"),
       ),

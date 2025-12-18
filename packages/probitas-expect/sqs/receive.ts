@@ -1,4 +1,5 @@
 import type { SqsReceiveResult } from "@probitas/client-sqs";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -213,18 +214,18 @@ export function expectSqsReceiveResult(
       // Messages
       mixin.createValueMixin(() => result.messages, negate, cfg("messages")),
       mixin.createArrayValueMixin(
-        () => result.messages,
+        () => ensureNonNullish(result.messages, "messages"),
         negate,
         cfg("messages"),
       ),
       // Message count
       mixin.createValueMixin(
-        () => result.messages.length,
+        () => ensureNonNullish(result.messages, "messages").length,
         negate,
         cfg("messages count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.messages.length,
+        () => ensureNonNullish(result.messages, "messages").length,
         negate,
         cfg("messages count"),
       ),

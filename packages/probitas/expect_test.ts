@@ -237,6 +237,7 @@ describe("expect", () => {
         error: null,
         messageId: "123",
         md5OfBody: "md5hash",
+        sequenceNumber: null,
         duration: 100,
       };
 
@@ -250,7 +251,7 @@ describe("expect", () => {
         processed: true,
         ok: true,
         error: null,
-        messages: [] as unknown as SqsReceiveResult["messages"],
+        messages: [],
         duration: 100,
       };
 

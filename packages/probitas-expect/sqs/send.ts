@@ -144,6 +144,26 @@ export interface SqsSendResultExpectation {
   toHaveSequenceNumberMatching(expected: RegExp): this;
 
   /**
+   * Asserts that the sequence number is present (not null or undefined).
+   */
+  toHaveSequenceNumberPresent(): this;
+
+  /**
+   * Asserts that the sequence number is null.
+   */
+  toHaveSequenceNumberNull(): this;
+
+  /**
+   * Asserts that the sequence number is undefined.
+   */
+  toHaveSequenceNumberUndefined(): this;
+
+  /**
+   * Asserts that the sequence number is nullish (null or undefined).
+   */
+  toHaveSequenceNumberNullish(): this;
+
+  /**
    * Asserts that the duration equals the expected value.
    * @param expected - The expected duration value
    */
@@ -215,7 +235,7 @@ export function expectSqsSendResult(
       // Message id
       mixin.createValueMixin(() => result.messageId, negate, cfg("message id")),
       mixin.createStringValueMixin(
-        () => result.messageId,
+        () => ensureNonNullish(result.messageId, "messageId"),
         negate,
         cfg("message id"),
       ),
@@ -226,12 +246,17 @@ export function expectSqsSendResult(
         cfg("md5 of body"),
       ),
       mixin.createStringValueMixin(
-        () => result.md5OfBody,
+        () => ensureNonNullish(result.md5OfBody, "md5OfBody"),
         negate,
         cfg("md5 of body"),
       ),
       // Sequence number
       mixin.createValueMixin(
+        () => result.sequenceNumber,
+        negate,
+        cfg("sequence number"),
+      ),
+      mixin.createNullishValueMixin(
         () => result.sequenceNumber,
         negate,
         cfg("sequence number"),

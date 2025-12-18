@@ -1,4 +1,5 @@
 import type { SqsDeleteBatchResult } from "@probitas/client-sqs";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 export interface SqsDeleteBatchResultExpectation {
@@ -80,30 +81,34 @@ export function expectSqsDeleteBatchResult(
         cfg("successful"),
       ),
       mixin.createArrayValueMixin(
-        () => result.successful,
+        () => ensureNonNullish(result.successful, "successful"),
         negate,
         cfg("successful"),
       ),
       mixin.createValueMixin(
-        () => result.successful.length,
+        () => ensureNonNullish(result.successful, "successful").length,
         negate,
         cfg("successful count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.successful.length,
+        () => ensureNonNullish(result.successful, "successful").length,
         negate,
         cfg("successful count"),
       ),
       // Failed
       mixin.createValueMixin(() => result.failed, negate, cfg("failed")),
-      mixin.createArrayValueMixin(() => result.failed, negate, cfg("failed")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.failed, "failed"),
+        negate,
+        cfg("failed"),
+      ),
       mixin.createValueMixin(
-        () => result.failed.length,
+        () => ensureNonNullish(result.failed, "failed").length,
         negate,
         cfg("failed count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.failed.length,
+        () => ensureNonNullish(result.failed, "failed").length,
         negate,
         cfg("failed count"),
       ),
