@@ -85,6 +85,7 @@ describe("expect", () => {
         duration: 100,
         status: 200,
         headers: new Headers(),
+        url: "http://localhost:4000/graphql",
         raw: () => new Response(),
         data: <T = unknown>() => ({} as T | null),
       };

@@ -23,13 +23,14 @@ function createMockResponse(
     // deno-lint-ignore no-explicit-any
     data: <T = any>(): T | null => ({ user: { id: "1", name: "Test" } }) as T,
     duration: 123,
+    url: "http://localhost:4000/graphql",
     raw: () =>
       new Response('{"data":{"user":{"id":"1","name":"Test"}}}', {
         status: 200,
         headers: { "content-type": "application/json" },
       }),
   };
-  return { ...defaultResponse, ...overrides };
+  return { ...defaultResponse, ...overrides } as GraphqlResponse;
 }
 
 // Define expected methods with their test arguments

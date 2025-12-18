@@ -488,7 +488,7 @@ export function expectGraphqlResponse(
       // Status
       mixin.createValueMixin(() => response.status, negate, cfg("status")),
       mixin.createNumberValueMixin(
-        () => response.status,
+        () => ensureNonNullish(response.status, "status"),
         negate,
         cfg("status"),
       ),
@@ -496,7 +496,10 @@ export function expectGraphqlResponse(
       // Headers
       mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
       mixin.createObjectValueMixin(
-        () => Object.fromEntries(response.headers.entries()),
+        () =>
+          Object.fromEntries(
+            ensureNonNullish(response.headers, "headers").entries(),
+          ),
         negate,
         cfg("headers"),
       ),
