@@ -1,54 +1,31 @@
 import type {
   DenoKvAtomicResult,
   DenoKvDeleteResult,
-  DenoKvEntries,
   DenoKvEntry,
   DenoKvGetResult,
   DenoKvListResult,
   DenoKvSetResult,
 } from "@probitas/client-deno-kv";
 
-// Helper to create DenoKvEntries (array with helper methods)
-export function createMockDenoKvEntries<T>(
-  entries: DenoKvEntry<T>[],
-): DenoKvEntries<T> {
-  const arr = [...entries] as DenoKvEntry<T>[] & {
-    first(): DenoKvEntry<T> | undefined;
-    firstOrThrow(): DenoKvEntry<T>;
-    last(): DenoKvEntry<T> | undefined;
-    lastOrThrow(): DenoKvEntry<T>;
-  };
-  arr.first = function () {
-    return this[0];
-  };
-  arr.firstOrThrow = function () {
-    if (this.length === 0) throw new Error("No entries available");
-    return this[0];
-  };
-  arr.last = function () {
-    return this[this.length - 1];
-  };
-  arr.lastOrThrow = function () {
-    if (this.length === 0) throw new Error("No entries available");
-    return this[this.length - 1];
-  };
-  return arr as unknown as DenoKvEntries<T>;
-}
-
-// Mock helpers
+// Mock helpers - create success results by default
+// Note: These use type assertions because the result types are discriminated
+// unions with literal types (ok: true, processed: true). The spread operator
+// would widen these to boolean, breaking the type narrowing.
 export const mockDenoKvGetResult = <T>(
   overrides: Partial<DenoKvGetResult<T>> = {},
-): DenoKvGetResult<T> => ({
-  kind: "deno-kv:get" as const,
-  processed: true,
-  ok: true,
-  error: null,
-  key: ["users", "1"],
-  value: { name: "Alice" } as T,
-  versionstamp: "v1",
-  duration: 100,
-  ...overrides,
-});
+): DenoKvGetResult<T> => {
+  const base = {
+    kind: "deno-kv:get",
+    processed: true,
+    ok: true,
+    error: null,
+    key: ["users", "1"] as Deno.KvKey,
+    value: { name: "Alice" } as T,
+    versionstamp: "v1",
+    duration: 100,
+  } as const;
+  return { ...base, ...overrides } as DenoKvGetResult<T>;
+};
 
 export const mockDenoKvListResult = <T>(
   overrides: Partial<Omit<DenoKvListResult<T>, "entries">> & {
@@ -56,51 +33,57 @@ export const mockDenoKvListResult = <T>(
   } = {},
 ): DenoKvListResult<T> => {
   const { entries: rawEntries, ...rest } = overrides;
-  const defaultEntries: DenoKvEntry<T>[] = [
+  const defaultEntries: readonly DenoKvEntry<T>[] = [
     { key: ["users", "1"], value: { name: "Alice" } as T, versionstamp: "v1" },
   ];
-  return {
-    kind: "deno-kv:list" as const,
+  const base = {
+    kind: "deno-kv:list",
     processed: true,
     ok: true,
     error: null,
-    entries: createMockDenoKvEntries(rawEntries ?? defaultEntries),
+    entries: rawEntries ?? defaultEntries,
     duration: 100,
-    ...rest,
-  };
+  } as const;
+  return { ...base, ...rest } as DenoKvListResult<T>;
 };
 
 export const mockDenoKvSetResult = (
   overrides: Partial<DenoKvSetResult> = {},
-): DenoKvSetResult => ({
-  kind: "deno-kv:set" as const,
-  processed: true,
-  ok: true,
-  error: null,
-  versionstamp: "v1",
-  duration: 100,
-  ...overrides,
-});
+): DenoKvSetResult => {
+  const base = {
+    kind: "deno-kv:set",
+    processed: true,
+    ok: true,
+    error: null,
+    versionstamp: "v1",
+    duration: 100,
+  } as const;
+  return { ...base, ...overrides } as DenoKvSetResult;
+};
 
 export const mockDenoKvDeleteResult = (
   overrides: Partial<DenoKvDeleteResult> = {},
-): DenoKvDeleteResult => ({
-  kind: "deno-kv:delete" as const,
-  processed: true,
-  ok: true,
-  error: null,
-  duration: 100,
-  ...overrides,
-});
+): DenoKvDeleteResult => {
+  const base = {
+    kind: "deno-kv:delete",
+    processed: true,
+    ok: true,
+    error: null,
+    duration: 100,
+  } as const;
+  return { ...base, ...overrides } as DenoKvDeleteResult;
+};
 
 export const mockDenoKvAtomicResult = (
   overrides: Partial<DenoKvAtomicResult> = {},
-): DenoKvAtomicResult => ({
-  kind: "deno-kv:atomic" as const,
-  processed: true,
-  ok: true,
-  error: null,
-  versionstamp: "v1",
-  duration: 100,
-  ...overrides,
-});
+): DenoKvAtomicResult => {
+  const base = {
+    kind: "deno-kv:atomic",
+    processed: true,
+    ok: true,
+    error: null,
+    versionstamp: "v1",
+    duration: 100,
+  } as const;
+  return { ...base, ...overrides } as DenoKvAtomicResult;
+};

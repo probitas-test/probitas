@@ -134,14 +134,15 @@ Deno.test("expectDenoKvAtomicResult - versionstamp pattern matching - success", 
 
 Deno.test("expectDenoKvAtomicResult - failed atomic operation - success", () => {
   // Simulate a failed atomic operation (e.g., check failed)
+  // Note: When ok is false, versionstamp is always null per the type definition
   const result = mockDenoKvAtomicResult({
     ok: false,
-    versionstamp: "failed_v1",
+    versionstamp: null,
     duration: 50,
   });
   const expectation = expectDenoKvAtomicResult(result);
 
   expectation.not.toBeOk();
-  expectation.toHaveVersionstamp("failed_v1");
+  expectation.toHaveVersionstamp(null);
   expectation.toHaveDuration(50).toHaveDurationLessThan(100);
 });
