@@ -161,7 +161,7 @@ export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
     await ctx.resources.redis.set("test:counter", "0");
     // Return cleanup function
     return async () => {
-      await ctx.resources.redis.del("test:counter");
+      await ctx.resources.redis.del(["test:counter"]);
     };
   })
   .step("Increment counter", async (ctx) => {

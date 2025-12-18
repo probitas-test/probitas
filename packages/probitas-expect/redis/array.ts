@@ -1,4 +1,5 @@
 import type { RedisArrayResult } from "@probitas/client-redis";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -213,15 +214,19 @@ export function expectRedisArrayResult<T>(
       mixin.createOkMixin(() => result.ok, negate, cfg("array result")),
       // Value
       mixin.createValueMixin(() => result.value, negate, cfg("value")),
-      mixin.createArrayValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.value, "value"),
+        negate,
+        cfg("value"),
+      ),
       // Value count
       mixin.createValueMixin(
-        () => result.value.length,
+        () => ensureNonNullish(result.value, "value").length,
         negate,
         cfg("value count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.value.length,
+        () => ensureNonNullish(result.value, "value").length,
         negate,
         cfg("value count"),
       ),

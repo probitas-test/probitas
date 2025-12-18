@@ -162,24 +162,22 @@ Deno.test("expectRedisResult - chaining works across dispatch", () => {
 });
 
 Deno.test("expectRedisResult - not property works across dispatch", () => {
-  const countResult = mockRedisCountResult({ ok: false, value: 0 });
+  // Note: When ok: false, value must be null per discriminated union
+  const countResult = mockRedisCountResult({ ok: false, value: null });
   const arrayResult = mockRedisArrayResult<string>({
     ok: false,
-    value: [],
+    value: null,
   });
   const getResult = mockRedisGetResult({ ok: false, value: null });
 
   // Test not for count result
   expectRedisResult(countResult).not.toBeOk();
-  expectRedisResult(countResult).not.toHaveValue(5);
 
   // Test not for array result
   expectRedisResult(arrayResult).not.toBeOk();
-  expectRedisResult(arrayResult).not.toHaveValueCount(3);
 
   // Test not for get result
   expectRedisResult(getResult).not.toBeOk();
-  expectRedisResult(getResult).not.toHaveValue("test-value");
 });
 
 Deno.test("expectRedisResult - type inference preserves correct expectation type", () => {

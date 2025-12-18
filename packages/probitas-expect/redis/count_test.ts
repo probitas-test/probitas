@@ -94,12 +94,12 @@ for (
 }
 
 Deno.test("expectRedisCountResult - not property - success", () => {
-  const result = mockRedisCountResult({ ok: false, value: 0 });
+  // Note: When ok: false, value must be null per discriminated union
+  const result = mockRedisCountResult({ ok: false, value: null });
   const expectation = expectRedisCountResult(result);
 
   // Verify .not is accessible and returns expectation
   expectation.not.toBeOk();
-  expectation.not.toHaveValue(5);
 });
 
 Deno.test("expectRedisCountResult - NaN value methods - success", () => {
