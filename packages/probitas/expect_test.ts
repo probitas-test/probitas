@@ -63,7 +63,7 @@ describe("expect", () => {
         ok: true,
         error: null,
         statusCode: 0,
-        statusMessage: "",
+        statusMessage: null,
         headers: new Headers(),
         trailers: new Headers(),
         duration: 100,

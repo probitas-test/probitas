@@ -12,7 +12,7 @@ function createMockResponse(
     ok: true,
     error: null,
     statusCode: 0,
-    statusMessage: "OK",
+    statusMessage: null,
     headers: new Headers({
       "grpc-accept-encoding": "identity,deflate,gzip",
       "content-type": "application/grpc",
@@ -26,7 +26,7 @@ function createMockResponse(
     duration: 45,
     raw: () => ({}),
   };
-  return { ...defaultResponse, ...overrides };
+  return { ...defaultResponse, ...overrides } as GrpcResponse;
 }
 
 // Define expected methods with their test arguments
@@ -48,13 +48,13 @@ const EXPECTED_METHODS: Record<keyof GrpcResponseExpectation, unknown[]> = {
   toHaveStatusCodeLessThanOrEqual: [0],
   toHaveStatusCodeCloseTo: [0, 0],
   toHaveStatusCodeOneOf: [[0, 1, 2]],
-  // Message
-  toHaveStatusMessage: ["OK"],
-  toHaveStatusMessageEqual: ["OK"],
-  toHaveStatusMessageStrictEqual: ["OK"],
-  toHaveStatusMessageSatisfying: [(v: string | null) => assertExists(v)],
-  toHaveStatusMessageContaining: ["OK"],
-  toHaveStatusMessageMatching: [/OK/],
+  // Message (statusMessage is null for success responses)
+  toHaveStatusMessage: [null],
+  toHaveStatusMessageEqual: [null],
+  toHaveStatusMessageStrictEqual: [null],
+  toHaveStatusMessageSatisfying: [(v: string | null) => assertEquals(v, null)],
+  toHaveStatusMessageContaining: [],
+  toHaveStatusMessageMatching: [],
   toHaveStatusMessagePresent: [],
   toHaveStatusMessageNull: [],
   toHaveStatusMessageUndefined: [],
