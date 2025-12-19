@@ -83,6 +83,7 @@ Deno.test("expect type dispatch dispatches GraphqlResponse to expectGraphqlRespo
     status: 200,
     headers: new Headers(),
     url: "http://localhost:4000/graphql",
+    extensions: null,
     raw: () => new Response(),
     data: <T = unknown>() => ({} as T | null),
   };

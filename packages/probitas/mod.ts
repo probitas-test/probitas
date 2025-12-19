@@ -53,7 +53,9 @@
  *   .resource("http", () =>
  *     client.http.createHttpClient({ url: "https://api.example.com" }))
  *   .step("Create user", async (ctx) => {
- *     const response = await ctx.resources.http.post("/users", { name: "Alice" });
+ *     const response = await ctx.resources.http.post("/users", {
+ *       body: { name: "Alice" },
+ *     });
  *     expect(response).toBeOk().toHaveStatus(201);
  *     return response.json<{ id: string }>()!;
  *   })

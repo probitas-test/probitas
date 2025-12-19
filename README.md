@@ -68,8 +68,7 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .resource("http", () => client.http.createHttpClient({ url: apiUrl! }))
   .step("Create user", async (ctx) => {
     const response = await ctx.resources.http.post("/users", {
-      name: "Alice",
-      email: "alice@example.com",
+      body: { name: "Alice", email: "alice@example.com" },
     });
     expect(response).toBeOk().toHaveStatus(201);
     return response.json<{ id: string }>();
@@ -190,8 +189,7 @@ export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
   )
   .step("Login with valid credentials", async (ctx) => {
     const response = await ctx.resources.http.post("/auth/login", {
-      email: "test@example.com",
-      password: "secret",
+      body: { email: "test@example.com", password: "secret" },
     });
     expect(response).toBeOk().toHaveStatus(200);
     return response.json<{ token: string }>();
@@ -255,7 +253,7 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
     }))
   .step("Create order via API", async (ctx) => {
     const response = await ctx.resources.http.post("/orders", {
-      items: [{ productId: "prod-1", quantity: 2 }],
+      body: { items: [{ productId: "prod-1", quantity: 2 }] },
     });
     // HTTP-specific assertions
     expect(response)

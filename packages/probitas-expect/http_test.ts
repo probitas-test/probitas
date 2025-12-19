@@ -4,7 +4,7 @@ import type {
   HttpResponseFailure,
   HttpResponseSuccess,
 } from "@probitas/client-http";
-import { HttpNetworkError } from "@probitas/client-http";
+import { HttpError, HttpNetworkError } from "@probitas/client-http";
 import { expectHttpResponse, type HttpResponseExpectation } from "./http.ts";
 
 // Mock HttpResponseSuccess for testing
@@ -46,16 +46,15 @@ function createMockErrorResponse(
   overrides: Partial<HttpResponseError> = {},
 ): HttpResponseError {
   const bodyBytes = new TextEncoder().encode('{"error":"not found"}');
+  const headers = new Headers({ "content-type": "application/json" });
   const defaultResponse: HttpResponseError = {
     kind: "http",
     processed: true,
     ok: false,
-    error: new Error("HTTP 404: Not Found"),
+    error: new HttpError(404, "Not Found", { body: bodyBytes, headers }),
     status: 404,
     statusText: "Not Found",
-    headers: new Headers({
-      "content-type": "application/json",
-    }),
+    headers,
     url: "https://example.com/api/test",
     body: bodyBytes,
     arrayBuffer: () => bodyBytes.buffer,
