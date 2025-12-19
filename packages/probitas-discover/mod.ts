@@ -21,9 +21,10 @@
  *
  * - {@linkcode discoverScenarioFiles} - Discover scenario files from paths
  *
- * ## Configuration Type
+ * ## Configuration Types
  *
  * - {@linkcode DiscoverOptions} - Options for customizing discovery behavior
+ * - {@linkcode DiscoverProgress} - Progress information during discovery
  *
  * ## Default Behavior
  *

@@ -7,7 +7,7 @@
 import { assertEquals } from "@std/assert";
 import { relative } from "@std/path";
 import { sandbox } from "@lambdalisue/sandbox";
-import { discoverScenarioFiles } from "./discover.ts";
+import { type DiscoverProgress, discoverScenarioFiles } from "./discover.ts";
 
 Deno.test("discover discoverScenarioFiles discovers files from directory with default pattern", async () => {
   await using sbox = await sandbox();
@@ -113,4 +113,53 @@ Deno.test("discover discoverScenarioFiles returns sorted file paths", async () =
     "m.probitas.ts",
     "z.probitas.ts",
   ]);
+});
+
+Deno.test("discover discoverScenarioFiles calls onProgress callback for directories", async () => {
+  await using sbox = await sandbox();
+
+  await Deno.mkdir(sbox.resolve("dir1"), { recursive: true });
+  await Deno.mkdir(sbox.resolve("dir2"), { recursive: true });
+
+  await Deno.writeTextFile(sbox.resolve("dir1/test1.probitas.ts"), "");
+  await Deno.writeTextFile(sbox.resolve("dir2/test2.probitas.ts"), "");
+
+  const progressEvents: DiscoverProgress[] = [];
+
+  const files = await discoverScenarioFiles(
+    [sbox.resolve("dir1"), sbox.resolve("dir2")],
+    {
+      onProgress: (progress) => {
+        progressEvents.push({ ...progress });
+      },
+    },
+  );
+
+  // Progress is reported at start of each directory scan
+  assertEquals(progressEvents.length >= 2, true);
+  // Both files should be discovered
+  assertEquals(files.length, 2);
+});
+
+Deno.test("discover discoverScenarioFiles calls onProgress callback for files", async () => {
+  await using sbox = await sandbox();
+
+  const file1 = sbox.resolve("test1.probitas.ts");
+  const file2 = sbox.resolve("test2.probitas.ts");
+  await Deno.writeTextFile(file1, "");
+  await Deno.writeTextFile(file2, "");
+
+  const progressEvents: DiscoverProgress[] = [];
+
+  await discoverScenarioFiles([file1, file2], {
+    onProgress: (progress) => {
+      progressEvents.push({ ...progress });
+    },
+  });
+
+  assertEquals(progressEvents.length, 2);
+  assertEquals(progressEvents[0].currentPath, file1);
+  assertEquals(progressEvents[0].filesFound, 1);
+  assertEquals(progressEvents[1].currentPath, file2);
+  assertEquals(progressEvents[1].filesFound, 2);
 });

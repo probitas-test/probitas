@@ -4,13 +4,32 @@
  * @module
  */
 
-import { expandGlob } from "@std/fs/expand-glob";
+import { walk } from "@std/fs/walk";
+import { globToRegExp } from "@std/path/glob-to-regexp";
 import { getLogger } from "@probitas/logger";
 
 const logger = getLogger("probitas", "discover");
 
 const DEFAULT_INCLUDE_PATTERNS = ["**/*.probitas.ts"];
 const DEFAULT_EXCLUDE_PATTERNS: string[] = [];
+
+/**
+ * Progress information during file discovery.
+ *
+ * Provides real-time feedback about the discovery process, useful for
+ * displaying progress in CLI applications.
+ */
+export interface DiscoverProgress {
+  /**
+   * The directory or file path currently being processed.
+   */
+  currentPath: string;
+
+  /**
+   * Total number of matching files found so far.
+   */
+  filesFound: number;
+}
 
 /**
  * Options for discovering scenario files.
@@ -33,6 +52,24 @@ export interface DiscoverOptions {
    * @default []
    */
   excludes?: readonly string[];
+
+  /**
+   * Callback invoked during discovery to report progress.
+   *
+   * Called when processing each path (file or directory) and after
+   * completing pattern matching within a directory. This allows CLI
+   * applications to display real-time progress feedback.
+   *
+   * @example
+   * ```ts
+   * await discoverScenarioFiles(["./scenarios"], {
+   *   onProgress: ({ currentPath, filesFound }) => {
+   *     console.log(`Discovering: ${currentPath} (${filesFound} files found)`);
+   *   },
+   * });
+   * ```
+   */
+  onProgress?: (progress: DiscoverProgress) => void;
 }
 
 /**
@@ -83,6 +120,7 @@ export async function discoverScenarioFiles(
   const {
     includes = DEFAULT_INCLUDE_PATTERNS,
     excludes = DEFAULT_EXCLUDE_PATTERNS,
+    onProgress,
   } = options;
 
   logger.debug("Starting file discovery", {
@@ -103,44 +141,65 @@ export async function discoverScenarioFiles(
         // Direct file specification
         logger.debug("Path is a file, adding directly", { path });
         filePaths.add(path);
+        onProgress?.({ currentPath: path, filesFound: filePaths.size });
         continue;
       }
 
       if (stat.isDirectory) {
-        // Directory - discover files within it using include patterns
+        // Directory - discover files within it using walk
         logger.debug("Path is a directory, scanning with patterns", {
           path,
           includePatterns: includes,
           excludePatterns: excludes,
         });
 
-        for (const pattern of includes) {
-          const patternStartCount = filePaths.size;
-          logger.debug("Applying include pattern", { path, pattern });
+        // Convert glob patterns to RegExp for matching
+        const includeRegexps = includes.map((p) =>
+          globToRegExp(p, { extended: true, globstar: true })
+        );
+        const excludeRegexps = excludes.map((p) =>
+          globToRegExp(p, { extended: true, globstar: true })
+        );
 
-          for await (
-            const entry of expandGlob(pattern, {
-              root: path,
-              exclude: [...excludes],
-              extended: true,
-              globstar: true,
-            })
-          ) {
-            if (entry.isFile) {
-              logger.debug("Found file matching pattern", {
-                file: entry.path,
-                pattern,
-              });
-              filePaths.add(entry.path);
-            }
+        // Report progress at start of directory scan
+        onProgress?.({ currentPath: path, filesFound: filePaths.size });
+
+        let lastReportedDir = "";
+        for await (const entry of walk(path, { includeDirs: false })) {
+          // Get relative path for pattern matching
+          const relativePath = entry.path.slice(path.length + 1);
+
+          // Report progress when entering new directory
+          const currentDir = entry.path.substring(
+            0,
+            entry.path.lastIndexOf("/"),
+          );
+          if (currentDir !== lastReportedDir) {
+            lastReportedDir = currentDir;
+            onProgress?.({
+              currentPath: currentDir,
+              filesFound: filePaths.size,
+            });
           }
 
-          const filesFound = filePaths.size - patternStartCount;
-          logger.debug("Pattern matching completed", {
-            pattern,
-            filesFound,
-          });
+          // Check if excluded
+          if (excludeRegexps.some((re) => re.test(relativePath))) {
+            continue;
+          }
+
+          // Check if included
+          if (!includeRegexps.some((re) => re.test(relativePath))) {
+            continue;
+          }
+
+          logger.debug("Found file matching pattern", { file: entry.path });
+          filePaths.add(entry.path);
         }
+
+        logger.debug("Directory scan completed", {
+          path,
+          filesFound: filePaths.size,
+        });
         continue;
       }
     } catch (err) {
