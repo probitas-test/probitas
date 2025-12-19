@@ -1,5 +1,11 @@
 ### 2025.12.19
 
+#### @probitas/expect 0.3.1 (patch)
+
+- refactor(@probitas/expect): replace unknown with any in mixin type parameters
+
+### 2025.12.19
+
 #### @probitas/discover 0.3.2 (patch)
 
 - perf(@probitas/discover): skip excluded directories during walk for faster
