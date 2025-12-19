@@ -1,5 +1,11 @@
 ### 2025.12.19
 
+#### @probitas/discover 0.3.1 (patch)
+
+- feat(@probitas/discover): add progress callback for real-time feedback
+
+### 2025.12.19
+
 #### @probitas/builder 0.4.0 (minor)
 
 - BREAKING(*): adapt to probitas-client breaking changes
