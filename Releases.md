@@ -1,3 +1,70 @@
+### 2025.12.19
+
+#### @probitas/builder 0.4.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/core 0.2.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/discover 0.3.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/expect 0.3.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- feat(@probitas/expect)!: rename HTTP data API to json
+- fix(@probitas/expect): adapt Redis assertions to probitas-client breaking
+  changes
+- fix(@probitas/expect): adapt RabbitMQ assertions to probitas-client breaking
+  changes
+- fix(@probitas/expect): adapt MongoDB assertions to nullable fields
+- fix(@probitas/expect): adapt SQS assertions and test utilities to
+  probitas-client breaking changes
+- fix(@probitas/expect): adapt Deno KV test utilities to discriminated union
+  types
+- fix(@probitas/expect): adapt SQL query assertions to nullable fields
+- fix(@probitas/expect): adapt ConnectRPC/gRPC assertions to nullable fields
+- fix(@probitas/expect): adapt GraphQL response assertions to nullable fields
+- fix(@probitas/expect): add null safety checks to HTTP response assertions
+- fix(@probitas/expect): adapt tests to ClientResult type changes in
+  probitas-client
+- fix(@probitas/expect)!: adapt GraphQL response API to single error object
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/logger 0.3.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/probitas 0.6.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/reporter 0.6.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
+#### @probitas/runner 0.4.0 (minor)
+
+- BREAKING(*): adapt to probitas-client breaking changes
+- test(*): convert all test files from BDD to Deno.test style
+- chore(*): update dependencies to latest versions
+
 ### 2025.12.17
 
 #### @probitas/expect 0.2.6 (patch)
