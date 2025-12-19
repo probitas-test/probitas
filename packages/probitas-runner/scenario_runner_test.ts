@@ -1,6 +1,5 @@
 import { expect } from "@std/expect";
 import { raise } from "@core/errorutil/raise";
-import { describe, it } from "@std/testing/bdd";
 import {
   createTestScenario,
   createTestStep,
@@ -8,147 +7,143 @@ import {
 } from "./_testutils.ts";
 import { ScenarioRunner } from "./scenario_runner.ts";
 
-describe("ScenarioRunner", () => {
-  const reporter = new TestReporter();
+const reporter = new TestReporter();
 
-  describe("run", () => {
-    it("runs scenario with no step", async () => {
-      const scenario = createTestScenario();
-      const runner = new ScenarioRunner(
-        reporter,
-      );
-      const scenarioResult = await runner.run(scenario);
-      expect(scenarioResult).toMatchObject({
+Deno.test("ScenarioRunner run runs scenario with no step", async () => {
+  const scenario = createTestScenario();
+  const runner = new ScenarioRunner(
+    reporter,
+  );
+  const scenarioResult = await runner.run(scenario);
+  expect(scenarioResult).toMatchObject({
+    status: "passed",
+    steps: [],
+    metadata: {
+      name: "Test Scenario",
+    },
+  });
+});
+
+Deno.test("ScenarioRunner run runs scenario with single step", async () => {
+  const scenario = createTestScenario({
+    steps: [
+      createTestStep({
+        fn: () => "ok",
+      }),
+    ],
+  });
+  const runner = new ScenarioRunner(
+    reporter,
+  );
+  const scenarioResult = await runner.run(scenario);
+  expect(scenarioResult).toMatchObject({
+    status: "passed",
+    steps: [{
+      status: "passed",
+      value: "ok",
+    }],
+    metadata: {
+      name: "Test Scenario",
+    },
+  });
+});
+
+Deno.test("ScenarioRunner run runs scenario with single step (fail)", async () => {
+  const scenario = createTestScenario({
+    steps: [
+      createTestStep({
+        fn: () => raise("ng"),
+      }),
+    ],
+  });
+  const runner = new ScenarioRunner(
+    reporter,
+  );
+  const scenarioResult = await runner.run(scenario);
+  expect(scenarioResult).toMatchObject({
+    status: "failed",
+    steps: [{
+      status: "failed",
+      error: new Error("ng"),
+    }],
+    metadata: {
+      name: "Test Scenario",
+    },
+  });
+});
+
+Deno.test("ScenarioRunner run runs scenario with multiple steps", async () => {
+  const scenario = createTestScenario({
+    steps: [
+      createTestStep({
+        fn: () => "1",
+      }),
+      createTestStep({
+        fn: () => "2",
+      }),
+      createTestStep({
+        fn: () => "3",
+      }),
+    ],
+  });
+  const runner = new ScenarioRunner(
+    reporter,
+  );
+  const scenarioResult = await runner.run(scenario);
+  expect(scenarioResult).toMatchObject({
+    status: "passed",
+    steps: [
+      {
         status: "passed",
-        steps: [],
-        metadata: {
-          name: "Test Scenario",
-        },
-      });
-    });
-
-    it("runs scenario with single step", async () => {
-      const scenario = createTestScenario({
-        steps: [
-          createTestStep({
-            fn: () => "ok",
-          }),
-        ],
-      });
-      const runner = new ScenarioRunner(
-        reporter,
-      );
-      const scenarioResult = await runner.run(scenario);
-      expect(scenarioResult).toMatchObject({
+        value: "1",
+      },
+      {
         status: "passed",
-        steps: [{
-          status: "passed",
-          value: "ok",
-        }],
-        metadata: {
-          name: "Test Scenario",
-        },
-      });
-    });
+        value: "2",
+      },
+      {
+        status: "passed",
+        value: "3",
+      },
+    ],
+    metadata: {
+      name: "Test Scenario",
+    },
+  });
+});
 
-    it("runs scenario with single step (fail)", async () => {
-      const scenario = createTestScenario({
-        steps: [
-          createTestStep({
-            fn: () => raise("ng"),
-          }),
-        ],
-      });
-      const runner = new ScenarioRunner(
-        reporter,
-      );
-      const scenarioResult = await runner.run(scenario);
-      expect(scenarioResult).toMatchObject({
+Deno.test("ScenarioRunner run runs scenario with multiple steps (fail)", async () => {
+  const scenario = createTestScenario({
+    steps: [
+      createTestStep({
+        fn: () => "1",
+      }),
+      createTestStep({
+        fn: () => raise("2"),
+      }),
+      createTestStep({
+        fn: () => "3",
+      }),
+    ],
+  });
+  const runner = new ScenarioRunner(
+    reporter,
+  );
+  const scenarioResult = await runner.run(scenario);
+  expect(scenarioResult).toMatchObject({
+    status: "failed",
+    steps: [
+      {
+        status: "passed",
+        value: "1",
+      },
+      {
         status: "failed",
-        steps: [{
-          status: "failed",
-          error: new Error("ng"),
-        }],
-        metadata: {
-          name: "Test Scenario",
-        },
-      });
-    });
-
-    it("runs scenario with multiple steps", async () => {
-      const scenario = createTestScenario({
-        steps: [
-          createTestStep({
-            fn: () => "1",
-          }),
-          createTestStep({
-            fn: () => "2",
-          }),
-          createTestStep({
-            fn: () => "3",
-          }),
-        ],
-      });
-      const runner = new ScenarioRunner(
-        reporter,
-      );
-      const scenarioResult = await runner.run(scenario);
-      expect(scenarioResult).toMatchObject({
-        status: "passed",
-        steps: [
-          {
-            status: "passed",
-            value: "1",
-          },
-          {
-            status: "passed",
-            value: "2",
-          },
-          {
-            status: "passed",
-            value: "3",
-          },
-        ],
-        metadata: {
-          name: "Test Scenario",
-        },
-      });
-    });
-
-    it("runs scenario with multiple steps (fail)", async () => {
-      const scenario = createTestScenario({
-        steps: [
-          createTestStep({
-            fn: () => "1",
-          }),
-          createTestStep({
-            fn: () => raise("2"),
-          }),
-          createTestStep({
-            fn: () => "3",
-          }),
-        ],
-      });
-      const runner = new ScenarioRunner(
-        reporter,
-      );
-      const scenarioResult = await runner.run(scenario);
-      expect(scenarioResult).toMatchObject({
-        status: "failed",
-        steps: [
-          {
-            status: "passed",
-            value: "1",
-          },
-          {
-            status: "failed",
-            error: new Error("2"),
-          },
-        ],
-        metadata: {
-          name: "Test Scenario",
-        },
-      });
-    });
+        error: new Error("2"),
+      },
+    ],
+    metadata: {
+      name: "Test Scenario",
+    },
   });
 });

@@ -181,7 +181,7 @@ snapshot[`after onRunEnd 2`] = `
 [90m ┆[39m
 [90m ┆[39m   [1mStack trace[0m
 [90m ┆[39m
-[90m ┆[39m     [90mat <file>:131:12[39m
+[90m ┆[39m     [90mat <file>:130:12[39m
 
 3 scenarios total [36m[35.000ms][39m
 "
@@ -378,7 +378,7 @@ T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.0
  ┆
  ┆   Stack trace
  ┆
- ┆     at <file>:131:12
+ ┆     at <file>:130:12
 
 3 scenarios total [35.000ms]
 "
@@ -394,25 +394,25 @@ Summary
 "
 `;
 
-snapshot[`ListReporter - multiline error messages > with colors > shows only first line of multiline error in onStepEnd 1`] = `
+snapshot[`ListReporter - multiline error messages with colors shows only first line of multiline error in onStepEnd 1`] = `
 "[90mT┆[39m [31m✗[39m Simple passing scenario [90m>[39m Step with multiline error [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
 [90m ┆[39m └ [31mError: First line of error[39m
 "
 `;
 
-snapshot[`ListReporter - multiline error messages > with colors > shows only first line of multiline skip reason in onStepEnd 1`] = `
+snapshot[`ListReporter - multiline error messages with colors shows only first line of multiline skip reason in onStepEnd 1`] = `
 "[90mT┆[39m [33m⊘[39m Simple passing scenario [90m>[39m Step skipped with multiline reason [90m(test.scenario.ts:25)[39m [36m[0.000ms][39m
 [90m ┆[39m[33m └ Skipped due to:[39m
 "
 `;
 
-snapshot[`ListReporter - multiline error messages > without colors > shows only first line of multiline error in onStepEnd 1`] = `
+snapshot[`ListReporter - multiline error messages without colors shows only first line of multiline error in onStepEnd 1`] = `
 "T┆ ✗ Simple passing scenario > Step with multiline error (test.scenario.ts:20) [5.000ms]
  ┆ └ Error: First line of error
 "
 `;
 
-snapshot[`ListReporter - multiline error messages > without colors > shows only first line of multiline skip reason in onStepEnd 1`] = `
+snapshot[`ListReporter - multiline error messages without colors shows only first line of multiline skip reason in onStepEnd 1`] = `
 "T┆ ⊘ Simple passing scenario > Step skipped with multiline reason (test.scenario.ts:25) [0.000ms]
  ┆ └ Skipped due to:
 "
