@@ -6,7 +6,7 @@ import {
   mockDenoKvGetResult,
   mockDenoKvListResult,
   mockDenoKvSetResult,
-} from "./deno_kv/_test_utils.ts";
+} from "./deno_kv/_testutils.ts";
 
 Deno.test("expectDenoKvResult - dispatches to get result expectation", () => {
   const result = mockDenoKvGetResult();

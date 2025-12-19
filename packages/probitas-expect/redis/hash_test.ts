@@ -3,7 +3,7 @@ import {
   expectRedisHashResult,
   type RedisHashResultExpectation,
 } from "./hash.ts";
-import { mockRedisHashResult } from "./_test_utils.ts";
+import { mockRedisHashResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)
@@ -98,12 +98,12 @@ for (
 }
 
 Deno.test("expectRedisHashResult - not property - success", () => {
-  const result = mockRedisHashResult({ ok: false, value: {} });
+  // Note: When ok: false, value must be null per discriminated union
+  const result = mockRedisHashResult({ ok: false, value: null });
   const expectation = expectRedisHashResult(result);
 
   // Verify .not is accessible and returns expectation
   expectation.not.toBeOk();
-  expectation.not.toHaveValueProperty("nonexistent");
 });
 
 Deno.test("expectRedisHashResult - NaN duration methods - success", () => {

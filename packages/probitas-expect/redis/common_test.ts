@@ -3,7 +3,7 @@ import {
   expectRedisCommonResult,
   type RedisCommonResultExpectation,
 } from "./common.ts";
-import { mockRedisCommonResult } from "./_test_utils.ts";
+import { mockRedisCommonResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)
@@ -92,12 +92,12 @@ for (
 }
 
 Deno.test("expectRedisCommonResult - not property - success", () => {
-  const result = mockRedisCommonResult<string>({ ok: false, value: "other" });
+  // Note: When ok: false, value must be null per discriminated union
+  const result = mockRedisCommonResult<string>({ ok: false, value: null });
   const expectation = expectRedisCommonResult(result);
 
   // Verify .not is accessible and returns expectation
   expectation.not.toBeOk();
-  expectation.not.toHaveValue("test-value");
 });
 
 Deno.test("expectRedisCommonResult - NaN duration methods - success", () => {

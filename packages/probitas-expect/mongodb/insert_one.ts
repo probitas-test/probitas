@@ -1,4 +1,5 @@
 import type { MongoInsertOneResult } from "@probitas/client-mongodb";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -141,7 +142,7 @@ export function expectMongoInsertOneResult(
         cfg("inserted id"),
       ),
       mixin.createStringValueMixin(
-        () => result.insertedId,
+        () => ensureNonNullish(result.insertedId, "insertedId"),
         negate,
         cfg("inserted id"),
       ),

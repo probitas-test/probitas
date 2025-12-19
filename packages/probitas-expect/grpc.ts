@@ -495,7 +495,7 @@ export function expectGrpcResponse(
         cfg("status code"),
       ),
       mixin.createNumberValueMixin(
-        () => response.statusCode,
+        () => ensureNonNullish(response.statusCode, "statusCode"),
         negate,
         cfg("status code"),
       ),
@@ -523,14 +523,20 @@ export function expectGrpcResponse(
       // Headers
       mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
       mixin.createObjectValueMixin(
-        () => Object.fromEntries(response.headers.entries()),
+        () =>
+          Object.fromEntries(
+            ensureNonNullish(response.headers, "headers").entries(),
+          ),
         negate,
         cfg("headers"),
       ),
       // Trailers
       mixin.createValueMixin(() => response.trailers, negate, cfg("trailers")),
       mixin.createObjectValueMixin(
-        () => Object.fromEntries(response.trailers.entries()),
+        () =>
+          Object.fromEntries(
+            ensureNonNullish(response.trailers, "trailers").entries(),
+          ),
         negate,
         cfg("trailers"),
       ),

@@ -1,4 +1,5 @@
 import type { RedisHashResult } from "@probitas/client-redis";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -172,7 +173,11 @@ export function expectRedisHashResult(
       mixin.createOkMixin(() => result.ok, negate, cfg("hash result")),
       // Value
       mixin.createValueMixin(() => result.value, negate, cfg("value")),
-      mixin.createObjectValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createObjectValueMixin(
+        () => ensureNonNullish(result.value, "value"),
+        negate,
+        cfg("value"),
+      ),
       // Duration
       mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
       mixin.createNumberValueMixin(

@@ -8,7 +8,7 @@ import {
   mockMongoInsertManyResult,
   mockMongoInsertOneResult,
   mockMongoUpdateResult,
-} from "./mongodb/_test_utils.ts";
+} from "./mongodb/_testutils.ts";
 
 // Test that expectMongoResult correctly dispatches to the right expectation type
 

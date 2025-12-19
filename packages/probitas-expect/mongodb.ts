@@ -128,39 +128,38 @@ export type MongoExpectation<R extends MongoResult> = R extends
  * expectMongoResult(countResult).toBeOk().toHaveCount(10);
  * ```
  */
-// deno-lint-ignore no-explicit-any
-export function expectMongoResult<R extends MongoResult<any>>(
+export function expectMongoResult<R extends MongoResult>(
   result: R,
 ): MongoExpectation<R> {
   switch (result.kind) {
     case "mongo:find":
       return expectMongoFindResult(
         result as MongoFindResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:insert-one":
       return expectMongoInsertOneResult(
         result as MongoInsertOneResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:insert-many":
       return expectMongoInsertManyResult(
         result as MongoInsertManyResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:update":
       return expectMongoUpdateResult(
         result as MongoUpdateResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:delete":
       return expectMongoDeleteResult(
         result as MongoDeleteResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:find-one":
       return expectMongoFindOneResult(
         result as MongoFindOneResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     case "mongo:count":
       return expectMongoCountResult(
         result as MongoCountResult,
-      ) as unknown as MongoExpectation<R>;
+      ) as MongoExpectation<R>;
     default:
       throw new Error(
         `Unknown MongoDB result kind: ${(result as { kind: string }).kind}`,

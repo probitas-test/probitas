@@ -11,9 +11,11 @@ function createMockResponse(
 ): ConnectRpcResponse {
   const defaultResponse: ConnectRpcResponse = {
     kind: "connectrpc",
+    processed: true,
     ok: true,
+    error: null,
     statusCode: 0,
-    statusMessage: "OK",
+    statusMessage: null,
     headers: new Headers({
       "content-type": "application/grpc",
       "x-custom": "value",
@@ -27,7 +29,7 @@ function createMockResponse(
     duration: 123,
     raw: () => ({}),
   };
-  return { ...defaultResponse, ...overrides };
+  return { ...defaultResponse, ...overrides } as ConnectRpcResponse;
 }
 
 // Define expected methods with their test arguments
@@ -50,13 +52,15 @@ const EXPECTED_METHODS: Record<keyof ConnectRpcResponseExpectation, unknown[]> =
     toHaveStatusCodeLessThanOrEqual: [0],
     toHaveStatusCodeCloseTo: [0, 0],
     toHaveStatusCodeOneOf: [[0, 1, 2]],
-    // Message
-    toHaveStatusMessage: ["OK"],
-    toHaveStatusMessageEqual: ["OK"],
-    toHaveStatusMessageStrictEqual: ["OK"],
-    toHaveStatusMessageSatisfying: [(v: string | null) => assertExists(v)],
-    toHaveStatusMessageContaining: ["OK"],
-    toHaveStatusMessageMatching: [/OK/],
+    // Message (statusMessage is null for success responses)
+    toHaveStatusMessage: [null],
+    toHaveStatusMessageEqual: [null],
+    toHaveStatusMessageStrictEqual: [null],
+    toHaveStatusMessageSatisfying: [
+      (v: string | null) => assertEquals(v, null),
+    ],
+    toHaveStatusMessageContaining: [],
+    toHaveStatusMessageMatching: [],
     toHaveStatusMessagePresent: [],
     toHaveStatusMessageNull: [],
     toHaveStatusMessageUndefined: [],

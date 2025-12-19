@@ -146,31 +146,31 @@ export function expectSqsResult<R extends SqsResult>(
     case "sqs:send":
       return expectSqsSendResult(
         result as SqsSendResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:send-batch":
       return expectSqsSendBatchResult(
         result as SqsSendBatchResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:receive":
       return expectSqsReceiveResult(
         result as SqsReceiveResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:delete":
       return expectSqsDeleteResult(
         result as SqsDeleteResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:delete-batch":
       return expectSqsDeleteBatchResult(
         result as SqsDeleteBatchResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:ensure-queue":
       return expectSqsEnsureQueueResult(
         result as SqsEnsureQueueResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     case "sqs:delete-queue":
       return expectSqsDeleteQueueResult(
         result as SqsDeleteQueueResult,
-      ) as unknown as SqsExpectation<R>;
+      ) as SqsExpectation<R>;
     default:
       throw new Error(
         `Unknown SQS result kind: ${(result as { kind: string }).kind}`,

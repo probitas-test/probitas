@@ -1,4 +1,5 @@
 import type { MongoInsertManyResult } from "@probitas/client-mongodb";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -215,7 +216,7 @@ export function expectMongoInsertManyResult(
         cfg("inserted ids"),
       ),
       mixin.createArrayValueMixin(
-        () => result.insertedIds,
+        () => ensureNonNullish(result.insertedIds, "insertedIds"),
         negate,
         cfg("inserted ids"),
       ),
@@ -226,7 +227,7 @@ export function expectMongoInsertManyResult(
         cfg("inserted count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.insertedCount,
+        () => ensureNonNullish(result.insertedCount, "insertedCount"),
         negate,
         cfg("inserted count"),
       ),

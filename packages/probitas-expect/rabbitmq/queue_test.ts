@@ -3,7 +3,7 @@ import {
   expectRabbitMqQueueResult,
   type RabbitMqQueueResultExpectation,
 } from "./queue.ts";
-import { mockRabbitMqQueueResult } from "./_test_utils.ts";
+import { mockRabbitMqQueueResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)

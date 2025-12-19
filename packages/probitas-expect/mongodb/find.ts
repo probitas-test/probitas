@@ -1,4 +1,5 @@
 import type { MongoFindResult } from "@probitas/client-mongodb";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -209,15 +210,19 @@ export function expectMongoFindResult<T>(
       mixin.createOkMixin(() => result.ok, negate, cfg("find result")),
       // Docs
       mixin.createValueMixin(() => result.docs, negate, cfg("docs")),
-      mixin.createArrayValueMixin(() => result.docs, negate, cfg("docs")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.docs, "docs"),
+        negate,
+        cfg("docs"),
+      ),
       // Docs count
       mixin.createValueMixin(
-        () => result.docs.length,
+        () => ensureNonNullish(result.docs, "docs").length,
         negate,
         cfg("docs count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.docs.length,
+        () => ensureNonNullish(result.docs, "docs").length,
         negate,
         cfg("docs count"),
       ),

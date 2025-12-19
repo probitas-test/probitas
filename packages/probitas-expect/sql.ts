@@ -346,11 +346,15 @@ export function expectSqlQueryResult<T = Record<string, any>>(
       mixin.createOkMixin(() => result.ok, negate, cfg("result")),
       // Rows
       mixin.createValueMixin(() => result.rows, negate, cfg("rows")),
-      mixin.createArrayValueMixin(() => result.rows, negate, cfg("rows")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.rows, "rows"),
+        negate,
+        cfg("rows"),
+      ),
       // Row count
       mixin.createValueMixin(() => result.rowCount, negate, cfg("row count")),
       mixin.createNumberValueMixin(
-        () => result.rowCount,
+        () => ensureNonNullish(result.rowCount, "rowCount"),
         negate,
         cfg("row count"),
       ),

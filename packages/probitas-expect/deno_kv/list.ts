@@ -1,4 +1,5 @@
 import type { DenoKvListResult } from "@probitas/client-deno-kv";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -216,15 +217,19 @@ export function expectDenoKvListResult<T>(
       mixin.createOkMixin(() => result.ok, negate, cfg("result")),
       // Entries
       mixin.createValueMixin(() => result.entries, negate, cfg("entries")),
-      mixin.createArrayValueMixin(() => result.entries, negate, cfg("entries")),
+      mixin.createArrayValueMixin(
+        () => ensureNonNullish(result.entries, "entries"),
+        negate,
+        cfg("entries"),
+      ),
       // Entry count
       mixin.createValueMixin(
-        () => result.entries?.length ?? 0,
+        () => ensureNonNullish(result.entries, "entries").length,
         negate,
         cfg("entry count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.entries?.length ?? 0,
+        () => ensureNonNullish(result.entries, "entries").length,
         negate,
         cfg("entry count"),
       ),

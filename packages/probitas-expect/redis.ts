@@ -93,36 +93,34 @@ export type RedisExpectation<R extends RedisResult> = R extends RedisCountResult
  * expectRedisResult(arrayResult).toBeOk().toHaveValueCount(3).toHaveValueContaining("item");
  * ```
  */
-// deno-lint-ignore no-explicit-any
-export function expectRedisResult<R extends RedisResult<any>>(
+export function expectRedisResult<R extends RedisResult>(
   result: R,
 ): RedisExpectation<R> {
   switch (result.kind) {
     case "redis:count":
       return expectRedisCountResult(
         result as RedisCountResult,
-      ) as unknown as RedisExpectation<R>;
+      ) as RedisExpectation<R>;
     case "redis:array":
       return expectRedisArrayResult(
-        // deno-lint-ignore no-explicit-any
-        result as RedisArrayResult<any>,
-      ) as unknown as RedisExpectation<R>;
+        result as RedisArrayResult,
+      ) as RedisExpectation<R>;
     case "redis:get":
       return expectRedisGetResult(
         result as RedisGetResult,
-      ) as unknown as RedisExpectation<R>;
+      ) as RedisExpectation<R>;
     case "redis:set":
       return expectRedisSetResult(
         result as RedisSetResult,
-      ) as unknown as RedisExpectation<R>;
+      ) as RedisExpectation<R>;
     case "redis:hash":
       return expectRedisHashResult(
         result as RedisHashResult,
-      ) as unknown as RedisExpectation<R>;
+      ) as RedisExpectation<R>;
     case "redis:common":
       return expectRedisCommonResult(
-        result as RedisCommonResult<unknown>,
-      ) as unknown as RedisExpectation<R>;
+        result as RedisCommonResult,
+      ) as RedisExpectation<R>;
     default:
       throw new Error(
         `Unknown Redis result kind: ${(result as { kind: string }).kind}`,

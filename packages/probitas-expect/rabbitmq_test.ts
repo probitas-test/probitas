@@ -13,7 +13,7 @@ import {
   mockRabbitMqExchangeResult,
   mockRabbitMqPublishResult,
   mockRabbitMqQueueResult,
-} from "./rabbitmq/_test_utils.ts";
+} from "./rabbitmq/_testutils.ts";
 
 Deno.test("expectRabbitMqResult - dispatches to publish expectation", () => {
   const result: RabbitMqPublishResult = mockRabbitMqPublishResult();

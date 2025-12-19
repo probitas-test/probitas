@@ -20,13 +20,13 @@ export interface GraphqlResponseExpectation {
    *   status: 200,
    *   headers: mockHeaders,
    *   data: null,
-   *   errors: [{ message: "Not found" }],
+   *   error: { message: "Not found" },
    *   extensions: undefined,
    *   duration: 0,
    * } as unknown as GraphqlResponse;
    *
    * expectGraphqlResponse(response).not.toBeOk();
-   * expectGraphqlResponse(response).not.toHaveErrorCount(0);
+   * expectGraphqlResponse(response).toHaveErrorPresent();
    * ```
    */
   readonly not: this;
@@ -45,7 +45,7 @@ export interface GraphqlResponseExpectation {
    *   status: 200,
    *   headers: mockHeaders,
    *   data: { user: { name: "Alice" } },
-   *   errors: undefined,
+   *   error: null,
    *   extensions: undefined,
    *   duration: 0,
    * } as unknown as GraphqlResponse;
@@ -193,133 +193,48 @@ export interface GraphqlResponseExpectation {
   ): this;
 
   /**
-   * Asserts that the errors equal the expected value.
-   * @param expected - The expected errors value
+   * Asserts that the error equals the expected value.
+   * @param expected - The expected error value
    */
-  toHaveErrors(expected: unknown): this;
+  toHaveError(expected: unknown): this;
 
   /**
-   * Asserts that the errors equal the expected value using deep equality.
-   * @param expected - The expected errors value
+   * Asserts that the error equals the expected value using deep equality.
+   * @param expected - The expected error value
    */
-  toHaveErrorsEqual(expected: unknown): this;
+  toHaveErrorEqual(expected: unknown): this;
 
   /**
-   * Asserts that the errors strictly equal the expected value.
-   * @param expected - The expected errors value
+   * Asserts that the error strictly equals the expected value.
+   * @param expected - The expected error value
    */
-  toHaveErrorsStrictEqual(expected: unknown): this;
+  toHaveErrorStrictEqual(expected: unknown): this;
 
   /**
-   * Asserts that the errors satisfy the provided matcher function.
-   * @param matcher - A function that receives the errors and performs assertions
+   * Asserts that the error satisfies the provided matcher function.
+   * @param matcher - A function that receives the error and performs assertions
    */
-  toHaveErrorsSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveErrorSatisfying(matcher: (value: unknown) => void): this;
 
   /**
-   * Asserts that the errors array contains the specified item.
-   * @param item - The item to search for
+   * Asserts that the error is present (not null or undefined).
    */
-  toHaveErrorsContaining(item: unknown): this;
+  toHaveErrorPresent(): this;
 
   /**
-   * Asserts that the errors array contains an item equal to the specified value.
-   * @param item - The item to search for using deep equality
+   * Asserts that the error is null.
    */
-  toHaveErrorsContainingEqual(item: unknown): this;
+  toHaveErrorNull(): this;
 
   /**
-   * Asserts that the errors array matches the specified subset.
-   * @param subset - The subset to match against
+   * Asserts that the error is undefined.
    */
-  toHaveErrorsMatching(
-    subset: Record<PropertyKey, unknown> | Record<PropertyKey, unknown>[],
-  ): this;
+  toHaveErrorUndefined(): this;
 
   /**
-   * Asserts that the errors array is empty.
+   * Asserts that the error is nullish (null or undefined).
    */
-  toHaveErrorsEmpty(): this;
-
-  /**
-   * Asserts that the errors are present (not null or undefined).
-   */
-  toHaveErrorsPresent(): this;
-
-  /**
-   * Asserts that the errors are null.
-   */
-  toHaveErrorsNull(): this;
-
-  /**
-   * Asserts that the errors are undefined.
-   */
-  toHaveErrorsUndefined(): this;
-
-  /**
-   * Asserts that the errors are nullish (null or undefined).
-   */
-  toHaveErrorsNullish(): this;
-
-  /**
-   * Asserts that the error count equals the expected value.
-   * @param expected - The expected error count
-   */
-  toHaveErrorCount(expected: unknown): this;
-
-  /**
-   * Asserts that the error count equals the expected value using deep equality.
-   * @param expected - The expected error count
-   */
-  toHaveErrorCountEqual(expected: unknown): this;
-
-  /**
-   * Asserts that the error count strictly equals the expected value.
-   * @param expected - The expected error count
-   */
-  toHaveErrorCountStrictEqual(expected: unknown): this;
-
-  /**
-   * Asserts that the error count satisfies the provided matcher function.
-   * @param matcher - A function that receives the error count and performs assertions
-   */
-  toHaveErrorCountSatisfying(matcher: (value: number) => void): this;
-
-  /**
-   * Asserts that the error count is NaN.
-   */
-  toHaveErrorCountNaN(): this;
-
-  /**
-   * Asserts that the error count is greater than the expected value.
-   * @param expected - The value to compare against
-   */
-  toHaveErrorCountGreaterThan(expected: number): this;
-
-  /**
-   * Asserts that the error count is greater than or equal to the expected value.
-   * @param expected - The value to compare against
-   */
-  toHaveErrorCountGreaterThanOrEqual(expected: number): this;
-
-  /**
-   * Asserts that the error count is less than the expected value.
-   * @param expected - The value to compare against
-   */
-  toHaveErrorCountLessThan(expected: number): this;
-
-  /**
-   * Asserts that the error count is less than or equal to the expected value.
-   * @param expected - The value to compare against
-   */
-  toHaveErrorCountLessThanOrEqual(expected: number): this;
-
-  /**
-   * Asserts that the error count is close to the expected value.
-   * @param expected - The expected value
-   * @param numDigits - The number of decimal digits to check (default: 2)
-   */
-  toHaveErrorCountCloseTo(expected: number, numDigits?: number): this;
+  toHaveErrorNullish(): this;
 
   /**
    * Asserts that the extensions equal the expected value.
@@ -573,7 +488,7 @@ export function expectGraphqlResponse(
       // Status
       mixin.createValueMixin(() => response.status, negate, cfg("status")),
       mixin.createNumberValueMixin(
-        () => response.status,
+        () => ensureNonNullish(response.status, "status"),
         negate,
         cfg("status"),
       ),
@@ -581,32 +496,19 @@ export function expectGraphqlResponse(
       // Headers
       mixin.createValueMixin(() => response.headers, negate, cfg("headers")),
       mixin.createObjectValueMixin(
-        () => Object.fromEntries(response.headers.entries()),
+        () =>
+          Object.fromEntries(
+            ensureNonNullish(response.headers, "headers").entries(),
+          ),
         negate,
         cfg("headers"),
       ),
-      // Errors
-      mixin.createValueMixin(() => response.errors, negate, cfg("errors")),
+      // Error
+      mixin.createValueMixin(() => response.error, negate, cfg("error")),
       mixin.createNullishValueMixin(
-        () => response.errors,
+        () => response.error,
         negate,
-        cfg("errors"),
-      ),
-      mixin.createArrayValueMixin(
-        () => ensureNonNullish(response.errors, "errors"),
-        negate,
-        cfg("errors"),
-      ),
-      // Error count
-      mixin.createValueMixin(
-        () => response.errors?.length ?? 0,
-        negate,
-        cfg("error count"),
-      ),
-      mixin.createNumberValueMixin(
-        () => response.errors?.length ?? 0,
-        negate,
-        cfg("error count"),
+        cfg("error"),
       ),
       // Extensions
       mixin.createValueMixin(

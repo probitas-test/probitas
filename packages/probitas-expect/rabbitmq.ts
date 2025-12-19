@@ -109,24 +109,24 @@ export function expectRabbitMqResult<R extends RabbitMqResult>(
   switch (result.kind) {
     case "rabbitmq:consume":
       return expectRabbitMqConsumeResult(
-        result as unknown as RabbitMqConsumeResult,
-      ) as unknown as RabbitMqExpectation<R>;
+        result as RabbitMqConsumeResult,
+      ) as RabbitMqExpectation<R>;
     case "rabbitmq:queue":
       return expectRabbitMqQueueResult(
-        result as unknown as RabbitMqQueueResult,
-      ) as unknown as RabbitMqExpectation<R>;
+        result as RabbitMqQueueResult,
+      ) as RabbitMqExpectation<R>;
     case "rabbitmq:publish":
       return expectRabbitMqPublishResult(
-        result as unknown as RabbitMqPublishResult,
-      ) as unknown as RabbitMqExpectation<R>;
+        result as RabbitMqPublishResult,
+      ) as RabbitMqExpectation<R>;
     case "rabbitmq:exchange":
       return expectRabbitMqExchangeResult(
-        result as unknown as RabbitMqExchangeResult,
-      ) as unknown as RabbitMqExpectation<R>;
+        result as RabbitMqExchangeResult,
+      ) as RabbitMqExpectation<R>;
     case "rabbitmq:ack":
       return expectRabbitMqAckResult(
-        result as unknown as RabbitMqAckResult,
-      ) as unknown as RabbitMqExpectation<R>;
+        result as RabbitMqAckResult,
+      ) as RabbitMqExpectation<R>;
     default:
       throw new Error(
         `Unknown RabbitMQ result kind: ${(result as { kind: string }).kind}`,

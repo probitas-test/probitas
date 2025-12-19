@@ -1,4 +1,5 @@
 import type { MongoCountResult } from "@probitas/client-mongodb";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -160,7 +161,11 @@ export function expectMongoCountResult(
       mixin.createOkMixin(() => result.ok, negate, cfg("count result")),
       // Count
       mixin.createValueMixin(() => result.count, negate, cfg("count")),
-      mixin.createNumberValueMixin(() => result.count, negate, cfg("count")),
+      mixin.createNumberValueMixin(
+        () => ensureNonNullish(result.count, "count"),
+        negate,
+        cfg("count"),
+      ),
       // Duration
       mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
       mixin.createNumberValueMixin(

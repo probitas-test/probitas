@@ -107,33 +107,30 @@ export type DenoKvExpectation<R extends DenoKvResult> = R extends
  * expectDenoKvResult(atomicResult).toBeOk().toHaveVersionstamp("00000000000000010000");
  * ```
  */
-// deno-lint-ignore no-explicit-any
-export function expectDenoKvResult<R extends DenoKvResult<any>>(
+export function expectDenoKvResult<R extends DenoKvResult>(
   result: R,
 ): DenoKvExpectation<R> {
   switch (result.kind) {
     case "deno-kv:get":
       return expectDenoKvGetResult(
-        // deno-lint-ignore no-explicit-any
-        result as DenoKvGetResult<any>,
-      ) as unknown as DenoKvExpectation<R>;
+        result as DenoKvGetResult,
+      ) as DenoKvExpectation<R>;
     case "deno-kv:list":
       return expectDenoKvListResult(
-        // deno-lint-ignore no-explicit-any
-        result as DenoKvListResult<any>,
-      ) as unknown as DenoKvExpectation<R>;
+        result as DenoKvListResult,
+      ) as DenoKvExpectation<R>;
     case "deno-kv:set":
       return expectDenoKvSetResult(
         result as DenoKvSetResult,
-      ) as unknown as DenoKvExpectation<R>;
+      ) as DenoKvExpectation<R>;
     case "deno-kv:delete":
       return expectDenoKvDeleteResult(
         result as DenoKvDeleteResult,
-      ) as unknown as DenoKvExpectation<R>;
+      ) as DenoKvExpectation<R>;
     case "deno-kv:atomic":
       return expectDenoKvAtomicResult(
         result as DenoKvAtomicResult,
-      ) as unknown as DenoKvExpectation<R>;
+      ) as DenoKvExpectation<R>;
     default:
       throw new Error(
         `Unknown Deno KV result kind: ${(result as { kind: string }).kind}`,

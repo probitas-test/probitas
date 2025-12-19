@@ -7,7 +7,6 @@
  * @module
  */
 
-import { describe, it } from "@std/testing/bdd";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { Buffer } from "@std/streams/buffer";
 import type {
@@ -419,9 +418,9 @@ export function testReporter(
   reporterName?: string,
 ): void {
   const name = reporterName ?? ReporterClass.name;
-  describe(name, () => {
-    describe("with colors", () => {
-      it("complete run with all scenarios passed", async (t) => {
+  Deno.test(name, async (t) => {
+    await t.step("with colors", async (t) => {
+      await t.step("complete run with all scenarios passed", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
@@ -521,7 +520,7 @@ export function testReporter(
         });
       });
 
-      it("complete run with failures", async (t) => {
+      await t.step("complete run with failures", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
@@ -635,7 +634,7 @@ export function testReporter(
         });
       });
 
-      it("empty run with no scenarios", async (t) => {
+      await t.step("empty run with no scenarios", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
@@ -656,8 +655,8 @@ export function testReporter(
       });
     });
 
-    describe("without colors", () => {
-      it("complete run with all scenarios passed", async (t) => {
+    await t.step("without colors", async (t) => {
+      await t.step("complete run with all scenarios passed", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
@@ -757,7 +756,7 @@ export function testReporter(
         });
       });
 
-      it("complete run with failures", async (t) => {
+      await t.step("complete run with failures", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,
@@ -871,7 +870,7 @@ export function testReporter(
         });
       });
 
-      it("empty run with no scenarios", async (t) => {
+      await t.step("empty run with no scenarios", async (t) => {
         const buffer = new Buffer();
         const reporter = new ReporterClass({
           output: buffer.writable,

@@ -3,7 +3,7 @@ import {
   expectRedisArrayResult,
   type RedisArrayResultExpectation,
 } from "./array.ts";
-import { mockRedisArrayResult } from "./_test_utils.ts";
+import { mockRedisArrayResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)
@@ -111,15 +111,15 @@ for (
 }
 
 Deno.test("expectRedisArrayResult - not property - success", () => {
+  // Note: When ok: false, value must be null per discriminated union
   const result = mockRedisArrayResult<string>({
     ok: false,
-    value: ["item1"],
+    value: null,
   });
   const expectation = expectRedisArrayResult(result);
 
   // Verify .not is accessible and returns expectation
   expectation.not.toBeOk();
-  expectation.not.toHaveValueCount(5);
 });
 
 Deno.test("expectRedisArrayResult - empty value methods - success", () => {

@@ -1,15 +1,22 @@
-import { assertEquals, assertExists } from "@std/assert";
-import type { HttpResponse } from "@probitas/client-http";
+import { assertEquals, assertExists, assertThrows } from "@std/assert";
+import type {
+  HttpResponseError,
+  HttpResponseFailure,
+  HttpResponseSuccess,
+} from "@probitas/client-http";
+import { HttpError, HttpNetworkError } from "@probitas/client-http";
 import { expectHttpResponse, type HttpResponseExpectation } from "./http.ts";
 
-// Mock HttpResponse for testing
-function createMockResponse(
-  overrides: Partial<HttpResponse> = {},
-): HttpResponse {
+// Mock HttpResponseSuccess for testing
+function createMockSuccessResponse(
+  overrides: Partial<HttpResponseSuccess> = {},
+): HttpResponseSuccess {
   const bodyBytes = new TextEncoder().encode('{"message":"success"}');
-  const defaultResponse: HttpResponse = {
+  const defaultResponse: HttpResponseSuccess = {
     kind: "http",
+    processed: true,
     ok: true,
+    error: null,
     status: 200,
     statusText: "OK",
     headers: new Headers({
@@ -22,7 +29,7 @@ function createMockResponse(
     blob: () => new Blob([bodyBytes]),
     text: () => '{"message":"success"}',
     // deno-lint-ignore no-explicit-any
-    data: <T = any>(): T | null => ({ message: "success" }) as T,
+    json: <T = any>(): T | null => ({ message: "success" }) as T,
     duration: 123,
     raw: () =>
       new Response('{"message":"success"}', {
@@ -30,6 +37,62 @@ function createMockResponse(
         statusText: "OK",
         headers: { "content-type": "application/json" },
       }),
+  };
+  return { ...defaultResponse, ...overrides };
+}
+
+// Mock HttpResponseError for testing 4xx/5xx responses
+function createMockErrorResponse(
+  overrides: Partial<HttpResponseError> = {},
+): HttpResponseError {
+  const bodyBytes = new TextEncoder().encode('{"error":"not found"}');
+  const headers = new Headers({ "content-type": "application/json" });
+  const defaultResponse: HttpResponseError = {
+    kind: "http",
+    processed: true,
+    ok: false,
+    error: new HttpError(404, "Not Found", { body: bodyBytes, headers }),
+    status: 404,
+    statusText: "Not Found",
+    headers,
+    url: "https://example.com/api/test",
+    body: bodyBytes,
+    arrayBuffer: () => bodyBytes.buffer,
+    blob: () => new Blob([bodyBytes]),
+    text: () => '{"error":"not found"}',
+    // deno-lint-ignore no-explicit-any
+    json: <T = any>(): T | null => ({ error: "not found" }) as T,
+    duration: 100,
+    raw: () =>
+      new Response('{"error":"not found"}', {
+        status: 404,
+        statusText: "Not Found",
+        headers: { "content-type": "application/json" },
+      }),
+  };
+  return { ...defaultResponse, ...overrides };
+}
+
+// Mock HttpResponseFailure for testing network errors
+function createMockFailureResponse(
+  overrides: Partial<HttpResponseFailure> = {},
+): HttpResponseFailure {
+  const defaultResponse: HttpResponseFailure = {
+    kind: "http",
+    processed: false,
+    ok: false,
+    error: new HttpNetworkError("Connection refused"),
+    status: null,
+    statusText: null,
+    headers: null,
+    url: "https://example.com/api/test",
+    body: null,
+    arrayBuffer: () => null,
+    blob: () => null,
+    text: () => null,
+    json: () => null,
+    duration: 50,
+    raw: () => null,
   };
   return { ...defaultResponse, ...overrides };
 }
@@ -127,21 +190,21 @@ const EXPECTED_METHODS: Record<keyof HttpResponseExpectation, unknown[]> = {
   toHaveTextLengthLessThanOrEqual: [21],
   toHaveTextLengthCloseTo: [21, 0],
   // Data
-  toHaveData: [],
-  toHaveDataEqual: [],
-  toHaveDataStrictEqual: [],
-  toHaveDataSatisfying: [
+  toHaveJson: [],
+  toHaveJsonEqual: [],
+  toHaveJsonStrictEqual: [],
+  toHaveJsonSatisfying: [
     (v: Record<string, unknown> | null) => assertExists(v),
   ],
-  toHaveDataPresent: [],
-  toHaveDataNull: [],
-  toHaveDataUndefined: [],
-  toHaveDataNullish: [],
-  toHaveDataMatching: [{ message: "success" }],
-  toHaveDataProperty: ["message"],
-  toHaveDataPropertyContaining: [],
-  toHaveDataPropertyMatching: [],
-  toHaveDataPropertySatisfying: [
+  toHaveJsonPresent: [],
+  toHaveJsonNull: [],
+  toHaveJsonUndefined: [],
+  toHaveJsonNullish: [],
+  toHaveJsonMatching: [{ message: "success" }],
+  toHaveJsonProperty: ["message"],
+  toHaveJsonPropertyContaining: [],
+  toHaveJsonPropertyMatching: [],
+  toHaveJsonPropertySatisfying: [
     "message",
     (v: unknown) => assertEquals(v, "success"),
   ],
@@ -159,7 +222,7 @@ const EXPECTED_METHODS: Record<keyof HttpResponseExpectation, unknown[]> = {
 };
 
 Deno.test("expectHttpResponse - method existence check", () => {
-  const response = createMockResponse();
+  const response = createMockSuccessResponse();
   const expectation = expectHttpResponse(response);
 
   const expectedMethodNames = Object.keys(EXPECTED_METHODS) as Array<
@@ -198,10 +261,10 @@ for (
     methodName === "toHaveBodyNull" ||
     methodName === "toHaveBodyUndefined" ||
     methodName === "toHaveBodyNullish" ||
-    methodName === "toHaveDataPresent" ||
-    methodName === "toHaveDataNull" ||
-    methodName === "toHaveDataUndefined" ||
-    methodName === "toHaveDataNullish" ||
+    methodName === "toHaveJsonPresent" ||
+    methodName === "toHaveJsonNull" ||
+    methodName === "toHaveJsonUndefined" ||
+    methodName === "toHaveJsonNullish" ||
     methodName === "toHaveStatusNaN" ||
     methodName === "toHaveBodyLengthNaN" ||
     methodName === "toHaveTextLengthNaN" ||
@@ -214,7 +277,7 @@ for (
   }
 
   Deno.test(`expectHttpResponse - ${methodName} - success`, () => {
-    const response = createMockResponse();
+    const response = createMockSuccessResponse();
     const expectation = expectHttpResponse(response);
 
     // Call the method with provided arguments
@@ -232,7 +295,7 @@ for (
 }
 
 Deno.test("expectHttpResponse - not property - success", () => {
-  const response = createMockResponse({ ok: false, status: 404 });
+  const response = createMockErrorResponse();
   const expectation = expectHttpResponse(response);
 
   // Verify .not is accessible and returns expectation
@@ -242,22 +305,66 @@ Deno.test("expectHttpResponse - not property - success", () => {
 
 Deno.test("expectHttpResponse - nullish value methods - success", () => {
   // Test null values
-  const nullResponse = createMockResponse({
+  const nullResponse = createMockSuccessResponse({
     body: null,
     headers: new Headers(),
-    data: () => null,
+    json: () => null,
   });
   const nullExpectation = expectHttpResponse(nullResponse);
 
   nullExpectation.toHaveBodyNull();
-  nullExpectation.toHaveDataNull();
+  nullExpectation.toHaveJsonNull();
   nullExpectation.toHaveBodyNullish();
-  nullExpectation.toHaveDataNullish();
+  nullExpectation.toHaveJsonNullish();
 
   // Test present values
-  const presentResponse = createMockResponse();
+  const presentResponse = createMockSuccessResponse();
   const presentExpectation = expectHttpResponse(presentResponse);
 
   presentExpectation.toHaveBodyPresent();
-  presentExpectation.toHaveDataPresent();
+  presentExpectation.toHaveJsonPresent();
+});
+
+// HttpResponseFailure tests
+Deno.test("expectHttpResponse - failure response - ok and url work", () => {
+  const response = createMockFailureResponse();
+  const expectation = expectHttpResponse(response);
+
+  // These should work because they don't access null properties
+  expectation.not.toBeOk();
+  expectation.toHaveUrl("https://example.com/api/test");
+  expectation.toHaveDuration(50);
+});
+
+Deno.test("expectHttpResponse - failure response - status throws", () => {
+  const response = createMockFailureResponse();
+  const expectation = expectHttpResponse(response);
+
+  assertThrows(
+    () => expectation.toHaveStatus(200),
+    Error,
+    "status",
+  );
+});
+
+Deno.test("expectHttpResponse - failure response - statusText throws", () => {
+  const response = createMockFailureResponse();
+  const expectation = expectHttpResponse(response);
+
+  assertThrows(
+    () => expectation.toHaveStatusText("OK"),
+    Error,
+    "status text",
+  );
+});
+
+Deno.test("expectHttpResponse - failure response - headers throws", () => {
+  const response = createMockFailureResponse();
+  const expectation = expectHttpResponse(response);
+
+  assertThrows(
+    () => expectation.toHaveHeadersProperty("content-type"),
+    Error,
+    "headers",
+  );
 });

@@ -3,7 +3,7 @@ import {
   type DenoKvListResultExpectation,
   expectDenoKvListResult,
 } from "./list.ts";
-import { mockDenoKvListResult } from "./_test_utils.ts";
+import { mockDenoKvListResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)

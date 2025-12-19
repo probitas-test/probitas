@@ -1,4 +1,5 @@
 import type { RabbitMqQueueResult } from "@probitas/client-rabbitmq";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -261,7 +262,11 @@ export function expectRabbitMqQueueResult(
       mixin.createOkMixin(() => result.ok, negate, cfg("queue result")),
       // Queue
       mixin.createValueMixin(() => result.queue, negate, cfg("queue")),
-      mixin.createStringValueMixin(() => result.queue, negate, cfg("queue")),
+      mixin.createStringValueMixin(
+        () => ensureNonNullish(result.queue, "queue"),
+        negate,
+        cfg("queue"),
+      ),
       // Message count
       mixin.createValueMixin(
         () => result.messageCount,
@@ -269,7 +274,7 @@ export function expectRabbitMqQueueResult(
         cfg("message count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.messageCount,
+        () => ensureNonNullish(result.messageCount, "messageCount"),
         negate,
         cfg("message count"),
       ),
@@ -280,7 +285,7 @@ export function expectRabbitMqQueueResult(
         cfg("consumer count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.consumerCount,
+        () => ensureNonNullish(result.consumerCount, "consumerCount"),
         negate,
         cfg("consumer count"),
       ),

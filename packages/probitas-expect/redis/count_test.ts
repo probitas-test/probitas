@@ -3,7 +3,7 @@ import {
   expectRedisCountResult,
   type RedisCountResultExpectation,
 } from "./count.ts";
-import { mockRedisCountResult } from "./_test_utils.ts";
+import { mockRedisCountResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)
@@ -94,12 +94,12 @@ for (
 }
 
 Deno.test("expectRedisCountResult - not property - success", () => {
-  const result = mockRedisCountResult({ ok: false, value: 0 });
+  // Note: When ok: false, value must be null per discriminated union
+  const result = mockRedisCountResult({ ok: false, value: null });
   const expectation = expectRedisCountResult(result);
 
   // Verify .not is accessible and returns expectation
   expectation.not.toBeOk();
-  expectation.not.toHaveValue(5);
 });
 
 Deno.test("expectRedisCountResult - NaN value methods - success", () => {

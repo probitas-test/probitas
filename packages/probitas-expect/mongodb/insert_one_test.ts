@@ -3,7 +3,7 @@ import {
   expectMongoInsertOneResult,
   type MongoInsertOneResultExpectation,
 } from "./insert_one.ts";
-import { mockMongoInsertOneResult } from "./_test_utils.ts";
+import { mockMongoInsertOneResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)

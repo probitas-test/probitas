@@ -30,7 +30,7 @@
  *   .step("Fetch users", async () => {
  *     const response = await api.get("/users");
  *     expectHttpResponse(response).toBeOk().toHaveStatus(200);
- *     return response.data();
+ *     return response.json();
  *   })
  *   .build();
  * ```
@@ -51,7 +51,7 @@
  *   })
  *   .step("Query data", async (ctx) => {
  *     const result = await ctx.resources.db.collection("users").find({});
- *     return { count: result.docs.length };
+ *     return { count: result.docs?.length ?? 0 };
  *   })
  *   .build();
  * ```

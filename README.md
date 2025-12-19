@@ -68,18 +68,17 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .resource("http", () => client.http.createHttpClient({ url: apiUrl! }))
   .step("Create user", async (ctx) => {
     const response = await ctx.resources.http.post("/users", {
-      name: "Alice",
-      email: "alice@example.com",
+      body: { name: "Alice", email: "alice@example.com" },
     });
     expect(response).toBeOk().toHaveStatus(201);
-    return response.data<{ id: string }>();
+    return response.json<{ id: string }>();
   })
   .step("Verify user exists", async (ctx) => {
     const { id } = ctx.previous!;
     const response = await ctx.resources.http.get(`/users/${id}`);
     expect(response)
       .toBeOk()
-      .toHaveDataProperty("name", "Alice");
+      .toHaveJsonProperty("name", "Alice");
   })
   .build();
 ```
@@ -126,7 +125,7 @@ export default scenario("Database Query Test", { tags: ["db"] })
       ["TestUser"],
     );
     expect(result).toBeOk().toHaveRowCount(1);
-    return { userId: result.rows[0].id };
+    return { userId: result.rows![0].id };
   })
   .step("Query inserted user", async (ctx) => {
     const { userId } = ctx.previous!;
@@ -161,7 +160,7 @@ export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
     await ctx.resources.redis.set("test:counter", "0");
     // Return cleanup function
     return async () => {
-      await ctx.resources.redis.del("test:counter");
+      await ctx.resources.redis.del(["test:counter"]);
     };
   })
   .step("Increment counter", async (ctx) => {
@@ -190,18 +189,17 @@ export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
   )
   .step("Login with valid credentials", async (ctx) => {
     const response = await ctx.resources.http.post("/auth/login", {
-      email: "test@example.com",
-      password: "secret",
+      body: { email: "test@example.com", password: "secret" },
     });
     expect(response).toBeOk().toHaveStatus(200);
-    return response.data<{ token: string }>();
+    return response.json<{ token: string }>();
   })
   .step("Access protected resource", async (ctx) => {
     const { token } = ctx.previous!;
     const response = await ctx.resources.http.get("/profile", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    expect(response).toBeOk().toHaveDataProperty("email", "test@example.com");
+    expect(response).toBeOk().toHaveJsonProperty("email", "test@example.com");
   })
   .build();
 ```
@@ -255,14 +253,14 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
     }))
   .step("Create order via API", async (ctx) => {
     const response = await ctx.resources.http.post("/orders", {
-      items: [{ productId: "prod-1", quantity: 2 }],
+      body: { items: [{ productId: "prod-1", quantity: 2 }] },
     });
     // HTTP-specific assertions
     expect(response)
       .toBeOk()
       .toHaveStatus(201)
       .toHaveHeadersProperty("content-type", /application\/json/);
-    return response.data<{ orderId: string }>();
+    return response.json<{ orderId: string }>();
   })
   .step("Verify order in database", async (ctx) => {
     const { orderId } = ctx.previous!;
@@ -279,7 +277,7 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
   .step("Validate order total", async (ctx) => {
     const { orderId } = ctx.results[0] as { orderId: string };
     const response = await ctx.resources.http.get(`/orders/${orderId}`);
-    const order = response.data<{ total: number }>()!;
+    const order = response.json<{ total: number }>()!;
     // Generic value assertions (chainable)
     expect(order.total)
       .toBeGreaterThan(0)

@@ -11,24 +11,26 @@ function createMockResponse(
 ): GraphqlResponse {
   const defaultResponse: GraphqlResponse = {
     kind: "graphql",
+    processed: true,
     ok: true,
     status: 200,
     headers: new Headers({
       "content-type": "application/json",
       "x-request-id": "test-123",
     }),
-    errors: null,
+    error: null,
     extensions: { tracing: { version: 1, startTime: "2024-01-01T00:00:00Z" } },
     // deno-lint-ignore no-explicit-any
     data: <T = any>(): T | null => ({ user: { id: "1", name: "Test" } }) as T,
     duration: 123,
+    url: "http://localhost:4000/graphql",
     raw: () =>
       new Response('{"data":{"user":{"id":"1","name":"Test"}}}', {
         status: 200,
         headers: { "content-type": "application/json" },
       }),
   };
-  return { ...defaultResponse, ...overrides };
+  return { ...defaultResponse, ...overrides } as GraphqlResponse;
 }
 
 // Define expected methods with their test arguments
@@ -63,30 +65,15 @@ const EXPECTED_METHODS: Record<keyof GraphqlResponseExpectation, unknown[]> = {
     "content-type",
     (v: unknown) => assertEquals(v, "application/json"),
   ],
-  // Errors (arrays - can't test with strict equality, default mock has null)
-  toHaveErrors: [],
-  toHaveErrorsEqual: [],
-  toHaveErrorsStrictEqual: [],
-  toHaveErrorsSatisfying: [],
-  toHaveErrorsContaining: [],
-  toHaveErrorsContainingEqual: [],
-  toHaveErrorsMatching: [],
-  toHaveErrorsEmpty: [],
-  toHaveErrorsPresent: [],
-  toHaveErrorsNull: [],
-  toHaveErrorsUndefined: [],
-  toHaveErrorsNullish: [],
-  // Error Count
-  toHaveErrorCount: [0],
-  toHaveErrorCountEqual: [0],
-  toHaveErrorCountStrictEqual: [0],
-  toHaveErrorCountSatisfying: [(v: number) => assertEquals(v, 0)],
-  toHaveErrorCountNaN: [],
-  toHaveErrorCountGreaterThan: [-1],
-  toHaveErrorCountGreaterThanOrEqual: [0],
-  toHaveErrorCountLessThan: [1],
-  toHaveErrorCountLessThanOrEqual: [0],
-  toHaveErrorCountCloseTo: [0, 0],
+  // Error (single object - default mock has null)
+  toHaveError: [],
+  toHaveErrorEqual: [],
+  toHaveErrorStrictEqual: [],
+  toHaveErrorSatisfying: [],
+  toHaveErrorPresent: [],
+  toHaveErrorNull: [],
+  toHaveErrorUndefined: [],
+  toHaveErrorNullish: [],
   // Extensions
   toHaveExtensions: [],
   toHaveExtensionsEqual: [],
@@ -167,12 +154,10 @@ for (
   // Skip 'not' as it's a property, not a method
   if (methodName === "not") continue;
 
-  // Skip methods that require special setup (null/undefined/nullish values, NaN, empty arrays)
+  // Skip methods that require special setup (null/undefined/nullish values, NaN)
   if (
     methodName === "toHaveStatusNaN" ||
-    methodName === "toHaveErrorCountNaN" ||
     methodName === "toHaveDurationNaN" ||
-    methodName === "toHaveErrorsEmpty" ||
     // Skip methods with empty args (need special handling)
     (args.length === 0 && methodName !== "toBeOk")
   ) {
@@ -206,26 +191,23 @@ Deno.test("expectGraphqlResponse - not property - success", () => {
   expectation.not.toHaveStatus(200);
 });
 
-Deno.test("expectGraphqlResponse - errors methods - success", () => {
-  // Test with errors present
+Deno.test("expectGraphqlResponse - error methods - success", () => {
+  // Test with error present
   const errorResponse = createMockResponse({
     ok: false,
-    errors: [
-      { message: "Validation error", path: ["user", "email"] },
-      { message: "Not found", path: ["post"] },
-    ],
+    // deno-lint-ignore no-explicit-any
+    error: { message: "Not found" } as any,
   });
   const errorExpectation = expectGraphqlResponse(errorResponse);
 
-  errorExpectation.toHaveErrorCount(2);
+  errorExpectation.toHaveErrorPresent();
 
-  // Test with no errors (empty)
+  // Test with no error
   const successResponse = createMockResponse({
     ok: true,
-    errors: [],
+    error: null,
   });
   const successExpectation = expectGraphqlResponse(successResponse);
 
-  successExpectation.toHaveErrorsEmpty();
-  successExpectation.toHaveErrorCount(0);
+  successExpectation.toHaveErrorNull();
 });

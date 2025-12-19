@@ -1,6 +1,6 @@
 import { assertEquals, assertExists } from "@std/assert";
 import { expectSqsSendResult, type SqsSendResultExpectation } from "./send.ts";
-import { mockSqsSendResult } from "./_test_utils.ts";
+import { mockSqsSendResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)
@@ -32,6 +32,10 @@ const EXPECTED_METHODS: Record<keyof SqsSendResultExpectation, unknown[]> = {
   toHaveSequenceNumberSatisfying: [(v: string) => assertEquals(v, "seq-1")],
   toHaveSequenceNumberContaining: ["seq"],
   toHaveSequenceNumberMatching: [/seq-\d+/],
+  toHaveSequenceNumberPresent: [],
+  toHaveSequenceNumberNull: [],
+  toHaveSequenceNumberUndefined: [],
+  toHaveSequenceNumberNullish: [],
   // Duration
   toHaveDuration: [100],
   toHaveDurationEqual: [100],
@@ -87,7 +91,9 @@ for (
     methodName === "toHaveSequenceNumberStrictEqual" ||
     methodName === "toHaveSequenceNumberSatisfying" ||
     methodName === "toHaveSequenceNumberContaining" ||
-    methodName === "toHaveSequenceNumberMatching"
+    methodName === "toHaveSequenceNumberMatching" ||
+    methodName === "toHaveSequenceNumberPresent" ||
+    methodName === "toHaveSequenceNumberNull"
   ) {
     continue;
   }
@@ -132,6 +138,21 @@ Deno.test("expectSqsSendResult - sequence number methods - success", () => {
   expectation.toHaveSequenceNumberSatisfying((v: string) =>
     assertEquals(v, "seq-1")
   );
+  expectation.toHaveSequenceNumberPresent();
+  expectation.not.toHaveSequenceNumberNull();
+  expectation.not.toHaveSequenceNumberUndefined();
+  expectation.not.toHaveSequenceNumberNullish();
+});
+
+Deno.test("expectSqsSendResult - sequence number nullish methods - success", () => {
+  // Test with sequence number undefined
+  const result = mockSqsSendResult({ sequenceNumber: undefined });
+  const expectation = expectSqsSendResult(result);
+
+  expectation.toHaveSequenceNumberUndefined();
+  expectation.toHaveSequenceNumberNullish();
+  expectation.not.toHaveSequenceNumberPresent();
+  expectation.not.toHaveSequenceNumberNull();
 });
 
 Deno.test("expectSqsSendResult - chaining - success", () => {

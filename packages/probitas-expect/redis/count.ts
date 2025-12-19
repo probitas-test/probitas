@@ -1,4 +1,5 @@
 import type { RedisCountResult } from "@probitas/client-redis";
+import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
 /**
@@ -163,7 +164,11 @@ export function expectRedisCountResult(
       mixin.createOkMixin(() => result.ok, negate, cfg("count result")),
       // Value
       mixin.createValueMixin(() => result.value, negate, cfg("value")),
-      mixin.createNumberValueMixin(() => result.value, negate, cfg("value")),
+      mixin.createNumberValueMixin(
+        () => ensureNonNullish(result.value, "value"),
+        negate,
+        cfg("value"),
+      ),
       // Duration
       mixin.createValueMixin(() => result.duration, negate, cfg("duration")),
       mixin.createNumberValueMixin(

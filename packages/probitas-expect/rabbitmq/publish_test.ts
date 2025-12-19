@@ -3,7 +3,7 @@ import {
   expectRabbitMqPublishResult,
   type RabbitMqPublishResultExpectation,
 } from "./publish.ts";
-import { mockRabbitMqPublishResult } from "./_test_utils.ts";
+import { mockRabbitMqPublishResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)

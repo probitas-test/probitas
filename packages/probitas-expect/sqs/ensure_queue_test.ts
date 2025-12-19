@@ -3,7 +3,7 @@ import {
   expectSqsEnsureQueueResult,
   type SqsEnsureQueueResultExpectation,
 } from "./ensure_queue.ts";
-import { mockSqsEnsureQueueResult } from "./_test_utils.ts";
+import { mockSqsEnsureQueueResult } from "./_testutils.ts";
 
 // Define expected methods with their test arguments
 // Using Record to ensure all interface methods are listed (compile-time check)

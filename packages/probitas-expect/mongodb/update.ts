@@ -286,7 +286,7 @@ export function expectMongoUpdateResult(
         cfg("matched count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.matchedCount,
+        () => ensureNonNullish(result.matchedCount, "matchedCount"),
         negate,
         cfg("matched count"),
       ),
@@ -297,7 +297,7 @@ export function expectMongoUpdateResult(
         cfg("modified count"),
       ),
       mixin.createNumberValueMixin(
-        () => result.modifiedCount,
+        () => ensureNonNullish(result.modifiedCount, "modifiedCount"),
         negate,
         cfg("modified count"),
       ),

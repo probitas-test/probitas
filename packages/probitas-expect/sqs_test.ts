@@ -8,7 +8,7 @@ import {
   mockSqsReceiveResult,
   mockSqsSendBatchResult,
   mockSqsSendResult,
-} from "./sqs/_test_utils.ts";
+} from "./sqs/_testutils.ts";
 
 Deno.test("expectSqsResult - dispatches to send expectation", () => {
   const result = mockSqsSendResult();

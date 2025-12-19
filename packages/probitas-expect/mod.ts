@@ -56,14 +56,14 @@
  *   headers: {},
  *   raw: { data: { user: { name: "Alice" } } },
  *   data: () => ({ user: { name: "Alice" } }),
- *   errors: () => [],
+ *   error: null,
  *   duration: 50,
  * } as unknown as GraphqlResponse;
  *
  * expectGraphqlResponse(response)
  *   .toBeOk()
  *   .toHaveDataPresent()
- *   .toHaveErrorCount(0);
+ *   .toHaveErrorNull();
  * ```
  *
  * @example SQL Query Result expectations
