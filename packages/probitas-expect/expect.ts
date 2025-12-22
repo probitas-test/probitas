@@ -44,6 +44,9 @@ function hasKind(value: unknown): value is { kind: string } {
   );
 }
 
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+type NotAny<T> = IsAny<T> extends true ? never : T;
+
 /**
  * Unified expect function that dispatches to the appropriate expectation function
  * based on the type of the input object.
@@ -59,33 +62,34 @@ function hasKind(value: unknown): value is { kind: string } {
  * ```
  */
 export function expect<T extends HttpResponse>(
-  value: T,
+  value: NotAny<T>,
 ): HttpResponseExpectation;
 export function expect<T extends ConnectRpcResponse>(
-  value: T,
+  value: NotAny<T>,
 ): ConnectRpcResponseExpectation;
 export function expect<T extends GraphqlResponse>(
-  value: T,
+  value: NotAny<T>,
 ): GraphqlResponseExpectation;
 export function expect<T extends SqlQueryResult>(
-  value: T,
+  value: NotAny<T>,
 ): SqlQueryResultExpectation;
 export function expect<T extends DenoKvResult>(
-  value: T,
+  value: NotAny<T>,
 ): DenoKvExpectation<T>;
 export function expect<T extends RedisResult>(
-  value: T,
+  value: NotAny<T>,
 ): RedisExpectation<T>;
 export function expect<T extends MongoResult>(
-  value: T,
+  value: NotAny<T>,
 ): MongoExpectation<T>;
 export function expect<T extends RabbitMqResult>(
-  value: T,
+  value: NotAny<T>,
 ): RabbitMqExpectation<T>;
 export function expect<T extends SqsResult>(
-  value: T,
+  value: NotAny<T>,
 ): SqsExpectation<T>;
-export function expect(value: unknown): AnythingExpectation;
+// deno-lint-ignore no-explicit-any
+export function expect(value: any): AnythingExpectation;
 export function expect(value: unknown): unknown {
   if (hasKind(value)) {
     const { kind } = value;
