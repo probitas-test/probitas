@@ -1,3 +1,40 @@
+### 2025.12.22
+
+#### @probitas/builder 0.4.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/core 0.2.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/discover 0.3.3 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/expect 0.3.2 (patch)
+
+- fix(@probitas/expect): Fix expectation matcher typings
+- fix(@probitas/expect): Fix expect(any) overload to prevent type inference
+  issues
+- docs(*): add any/unknown typing rule
+
+#### @probitas/logger 0.3.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/probitas 0.6.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/reporter 0.6.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
+#### @probitas/runner 0.4.1 (patch)
+
+- docs(*): add any/unknown typing rule
+
 ### 2025.12.19
 
 #### @probitas/expect 0.3.1 (patch)
