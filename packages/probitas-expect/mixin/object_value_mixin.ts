@@ -46,11 +46,11 @@ type Definition<T, MethodBase extends string> = MixinDefinition<[
   ],
   [
     `toHave${MethodBase}PropertySatisfying`,
-    // deno-lint-ignore no-explicit-any
-    <I = any>(
+    (
       this: T,
       keyPath: string | string[],
-      matcher: (value: I) => void,
+      // deno-lint-ignore no-explicit-any
+      matcher: (value: any) => void,
     ) => T,
   ],
 ]>;
@@ -278,11 +278,11 @@ export function createObjectValueMixin<
       return this;
     },
 
-    // deno-lint-ignore no-explicit-any
-    [`toHave${methodBase}PropertySatisfying`]<I = any>(
+    [`toHave${methodBase}PropertySatisfying`](
       this: T,
       keyPath: string | string[],
-      matcher: (value: I) => void,
+      // deno-lint-ignore no-explicit-any
+      matcher: (value: any) => void,
     ): T {
       const isNegated = negate();
       const obj = getter.call(this);
@@ -295,7 +295,7 @@ export function createObjectValueMixin<
         propertyExists = true;
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
         const value = ensureNonNullish(
-          getPropertyValue<I>(obj, keyPath),
+          getPropertyValue(obj, keyPath),
           keyPathStr,
         );
         matcher(value);

@@ -2,6 +2,8 @@ import type { MongoUpdateResult } from "@probitas/client-mongodb";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type MongoUpsertedId = MongoUpdateResult["upsertedId"];
+
 /**
  * Fluent API for MongoDB update result validation.
  */
@@ -175,7 +177,7 @@ export interface MongoUpdateResultExpectation {
    * @param matcher - A function that receives the upserted ID and performs assertions
    */
   toHaveUpsertedIdSatisfying(
-    matcher: (value: string | undefined) => void,
+    matcher: (value: MongoUpsertedId) => void,
   ): this;
 
   /**

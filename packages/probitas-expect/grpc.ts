@@ -11,6 +11,10 @@ import type { GrpcResponse } from "@probitas/client-grpc";
 import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
+type GrpcStatusCode = GrpcResponse["statusCode"];
+type GrpcHeaders = GrpcResponse["headers"];
+type GrpcTrailers = GrpcResponse["trailers"];
+
 /**
  * Fluent expectation interface for gRPC responses.
  */
@@ -86,7 +90,7 @@ export interface GrpcResponseExpectation {
    * Asserts that the code satisfies the provided matcher function.
    * @param matcher - A function that receives the code and performs assertions
    */
-  toHaveStatusCodeSatisfying(matcher: (value: number) => void): this;
+  toHaveStatusCodeSatisfying(matcher: (value: GrpcStatusCode) => void): this;
 
   /**
    * Asserts that the code is NaN.
@@ -209,7 +213,7 @@ export interface GrpcResponseExpectation {
    * @param matcher - A function that receives the headers and performs assertions
    */
   toHaveHeadersSatisfying(
-    matcher: (value: Record<string, unknown>) => void,
+    matcher: (value: GrpcHeaders) => void,
   ): this;
 
   /**
@@ -280,7 +284,7 @@ export interface GrpcResponseExpectation {
    * @param matcher - A function that receives the trailers and performs assertions
    */
   toHaveTrailersSatisfying(
-    matcher: (value: Record<string, unknown>) => void,
+    matcher: (value: GrpcTrailers) => void,
   ): this;
 
   /**

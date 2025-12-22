@@ -31,14 +31,14 @@ snapshot[`createValueMixin - toHaveStatus with source context 1`] = `
 
 Context (packages/probitas-expect/mixin/value_mixin_test.ts:140:5)
 
-  139│ 
-  140│ Deno.test("createValueMixin - toHaveStatus with source context", async (t) => {
-  141│   await t.step("fail (noColor)", async () => {
+  139│ Deno.test("createValueMixin - toHaveStatus with source context", async (t) => {
+  140│   await t.step("fail (noColor)", async () => {
+  141│     const mixin = createValueMixin(() => 200, () => false, {
      ┆
-  148│       t,
-  149│       catchError(() => applied.toHaveStatus(404)).message,
+  147│       t,
+  148│       catchError(() => applied.toHaveStatus(404)).message,
      │                                ^
-  150│     );'
+  149│     );'
 `;
 
 snapshot[`createValueMixin - toHaveStatus with source context 2`] = `
@@ -46,12 +46,12 @@ snapshot[`createValueMixin - toHaveStatus with source context 2`] = `
 
 [1mContext[0m [90m(packages/probitas-expect/mixin/value_mixin_test.ts:152:5)[39m
 
-  [90m151│   });[39m
-  [90m152│ [39m
-  [90m153│   await t.step("fail (withColor)", async () => {[39m
+  [90m151│ [39m
+  [90m152│   await t.step("fail (withColor)", async () => {[39m
+  [90m153│     const mixin = createValueMixin(() => 200, () => false, {[39m
   [90m   ┆[39m
-  [90m161│       t,[39m
-  [90m162│       catchError(() => applied.toHaveStatus(404)).message,[39m
+  [90m160│       t,[39m
+  [90m161│       catchError(() => applied.toHaveStatus(404)).message,[39m
   [90m   │                                [39m[31m^[39m
-  [90m163│     );[39m'
+  [90m162│     );[39m'
 `;

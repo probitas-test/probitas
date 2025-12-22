@@ -2,6 +2,8 @@ import type { MongoFindOneResult } from "@probitas/client-mongodb";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type MongoFindOneDoc<T> = MongoFindOneResult<T>["doc"];
+
 /**
  * Fluent API for MongoDB findOne result validation.
  */
@@ -53,7 +55,7 @@ export interface MongoFindOneResultExpectation<_T = unknown> {
    * @param matcher - A function that receives the doc and performs assertions
    */
   toHaveDocSatisfying(
-    matcher: (value: Record<string, unknown> | undefined) => void,
+    matcher: (value: MongoFindOneDoc<_T>) => void,
   ): this;
 
   /**

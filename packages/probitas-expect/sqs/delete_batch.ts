@@ -2,6 +2,9 @@ import type { SqsDeleteBatchResult } from "@probitas/client-sqs";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type SqsDeleteBatchSuccessful = SqsDeleteBatchResult["successful"];
+type SqsDeleteBatchFailed = SqsDeleteBatchResult["failed"];
+
 export interface SqsDeleteBatchResultExpectation {
   /**
    * Negates the next assertion.
@@ -14,7 +17,7 @@ export interface SqsDeleteBatchResultExpectation {
   toHaveSuccessfulEqual(expected: unknown): this;
   toHaveSuccessfulStrictEqual(expected: unknown): this;
   toHaveSuccessfulSatisfying(
-    matcher: (value: unknown[]) => void,
+    matcher: (value: SqsDeleteBatchSuccessful) => void,
   ): this;
   toHaveSuccessfulContaining(item: unknown): this;
   toHaveSuccessfulContainingEqual(item: unknown): this;
@@ -36,7 +39,7 @@ export interface SqsDeleteBatchResultExpectation {
   toHaveFailed(expected: unknown): this;
   toHaveFailedEqual(expected: unknown): this;
   toHaveFailedStrictEqual(expected: unknown): this;
-  toHaveFailedSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveFailedSatisfying(matcher: (value: SqsDeleteBatchFailed) => void): this;
   toHaveFailedContaining(item: unknown): this;
   toHaveFailedContainingEqual(item: unknown): this;
   toHaveFailedMatching(

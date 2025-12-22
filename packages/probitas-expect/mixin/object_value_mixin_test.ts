@@ -39,7 +39,8 @@ Deno.test("createObjectValueMixin - type check", () => {
     toHaveUserPropertySatisfying: (
       this: Expected,
       keyPath: string | string[],
-      matcher: (value: unknown) => void,
+      // deno-lint-ignore no-explicit-any
+      matcher: (value: any) => void,
     ) => Expected;
   };
   type Actual = typeof applied;

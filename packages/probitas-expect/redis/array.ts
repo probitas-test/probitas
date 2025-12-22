@@ -2,6 +2,8 @@ import type { RedisArrayResult } from "@probitas/client-redis";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type RedisArrayValue = RedisArrayResult<unknown>["value"];
+
 /**
  * Fluent API for Redis array result validation.
  *
@@ -56,7 +58,7 @@ export interface RedisArrayResultExpectation {
    * Asserts that the value satisfies the provided matcher function.
    * @param matcher - A function that receives the value and performs assertions
    */
-  toHaveValueSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveValueSatisfying(matcher: (value: RedisArrayValue) => void): this;
 
   /**
    * Asserts that the value array contains the specified item.

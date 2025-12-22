@@ -2,6 +2,8 @@ import type { HttpResponse } from "@probitas/client-http";
 import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
+type HttpHeaders = NonNullable<HttpResponse["headers"]>;
+
 /**
  * Fluent API for HTTP response validation.
  */
@@ -182,7 +184,7 @@ export interface HttpResponseExpectation {
    * @param matcher - A function that receives the headers and performs assertions
    */
   toHaveHeadersSatisfying(
-    matcher: (value: Record<string, string>) => void,
+    matcher: (value: HttpHeaders) => void,
   ): this;
 
   /**

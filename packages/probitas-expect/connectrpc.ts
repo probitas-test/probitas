@@ -2,6 +2,10 @@ import type { ConnectRpcResponse } from "@probitas/client-connectrpc";
 import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
+type ConnectRpcStatusCode = ConnectRpcResponse["statusCode"];
+type ConnectRpcHeaders = ConnectRpcResponse["headers"];
+type ConnectRpcTrailers = ConnectRpcResponse["trailers"];
+
 /**
  * Fluent assertion interface for ConnectRpcResponse.
  */
@@ -77,7 +81,9 @@ export interface ConnectRpcResponseExpectation {
    * Asserts that the code satisfies the provided matcher function.
    * @param matcher - A function that receives the code and performs assertions
    */
-  toHaveStatusCodeSatisfying(matcher: (value: number) => void): this;
+  toHaveStatusCodeSatisfying(
+    matcher: (value: ConnectRpcStatusCode) => void,
+  ): this;
 
   /**
    * Asserts that the code is NaN.
@@ -200,7 +206,7 @@ export interface ConnectRpcResponseExpectation {
    * @param matcher - A function that receives the headers and performs assertions
    */
   toHaveHeadersSatisfying(
-    matcher: (value: Record<string, unknown>) => void,
+    matcher: (value: ConnectRpcHeaders) => void,
   ): this;
 
   /**
@@ -271,7 +277,7 @@ export interface ConnectRpcResponseExpectation {
    * @param matcher - A function that receives the trailers and performs assertions
    */
   toHaveTrailersSatisfying(
-    matcher: (value: Record<string, unknown>) => void,
+    matcher: (value: ConnectRpcTrailers) => void,
   ): this;
 
   /**

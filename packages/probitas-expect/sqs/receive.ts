@@ -2,6 +2,8 @@ import type { SqsReceiveResult } from "@probitas/client-sqs";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type SqsMessages = SqsReceiveResult["messages"];
+
 /**
  * Fluent API for SQS receive result validation.
  *
@@ -55,7 +57,7 @@ export interface SqsReceiveResultExpectation {
    * Asserts that the messages satisfies the provided matcher function.
    * @param matcher - A function that receives the messages and performs assertions
    */
-  toHaveMessagesSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveMessagesSatisfying(matcher: (value: SqsMessages) => void): this;
 
   /**
    * Asserts that the messages contains the specified item.

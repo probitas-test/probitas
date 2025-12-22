@@ -2,6 +2,8 @@ import type { DenoKvGetResult } from "@probitas/client-deno-kv";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type DenoKvKey<T> = DenoKvGetResult<T>["key"];
+
 /**
  * Fluent API for validating DenoKvGetResult.
  *
@@ -58,7 +60,7 @@ export interface DenoKvGetResultExpectation<_T = unknown> {
    * Asserts that the key satisfies the provided matcher function.
    * @param matcher - A function that receives the key and performs assertions
    */
-  toHaveKeySatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveKeySatisfying(matcher: (value: DenoKvKey<_T>) => void): this;
 
   /**
    * Asserts that the key array contains the specified item.

@@ -2,6 +2,8 @@ import type { RedisSetResult } from "@probitas/client-redis";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type RedisSetValue = RedisSetResult["value"];
+
 /**
  * Fluent API for Redis set result validation.
  *
@@ -54,7 +56,7 @@ export interface RedisSetResultExpectation {
    * Asserts that the value satisfies the provided matcher function.
    * @param matcher - A function that receives the value and performs assertions
    */
-  toHaveValueSatisfying(matcher: (value: string) => void): this;
+  toHaveValueSatisfying(matcher: (value: RedisSetValue) => void): this;
 
   /**
    * Asserts that the value contains the specified substring.

@@ -2,6 +2,9 @@ import type { SqlQueryResult } from "@probitas/client-sql";
 import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
+type SqlRows = SqlQueryResult["rows"];
+type SqlWarnings = SqlQueryResult["warnings"];
+
 /**
  * Expectation interface for SQL query results.
  * All methods return `this` for chaining.
@@ -74,7 +77,7 @@ export interface SqlQueryResultExpectation {
    * Asserts that the rows satisfy the provided matcher function.
    * @param matcher - A function that receives the rows and performs assertions
    */
-  toHaveRowsSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveRowsSatisfying(matcher: (value: SqlRows) => void): this;
 
   /**
    * Asserts that the rows array contains the specified item.
@@ -227,7 +230,7 @@ export interface SqlQueryResultExpectation {
    * Asserts that the warnings satisfy the provided matcher function.
    * @param matcher - A function that receives the warnings and performs assertions
    */
-  toHaveWarningsSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveWarningsSatisfying(matcher: (value: SqlWarnings) => void): this;
 
   /**
    * Asserts that the warnings are present (not null or undefined).

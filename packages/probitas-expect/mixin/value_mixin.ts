@@ -14,14 +14,13 @@ import type {
 /**
  * Type definition for the value mixin, providing basic value comparison methods.
  */
-type Definition<T, MethodBase extends string> = MixinDefinition<[
+type Definition<V, T, MethodBase extends string> = MixinDefinition<[
   [`toHave${MethodBase}`, (this: T, expected: unknown) => T],
   [`toHave${MethodBase}Equal`, (this: T, expected: unknown) => T],
   [`toHave${MethodBase}StrictEqual`, (this: T, expected: unknown) => T],
   [
     `toHave${MethodBase}Satisfying`,
-    // deno-lint-ignore no-explicit-any
-    (this: T, matcher: (value: any) => void) => T,
+    (this: T, matcher: (value: V) => void) => T,
   ],
 ]>;
 
@@ -39,9 +38,9 @@ type Definition<T, MethodBase extends string> = MixinDefinition<[
  *
  * @template C - The mixin configuration type
  */
-export type ValueMixin<C extends MixinConfig> = <T extends object>(
+export type ValueMixin<V, C extends MixinConfig> = <T extends object>(
   base: Readonly<T>,
-) => MixinApplied<T, Definition<T, ExtractMethodBase<C>>>;
+) => MixinApplied<T, Definition<V, T, ExtractMethodBase<C>>>;
 
 /**
  * Creates a value mixin that adds basic value comparison methods.
@@ -86,7 +85,7 @@ export function createValueMixin<
   getter: () => V,
   negate: () => boolean,
   config: C,
-): ValueMixin<C> {
+): ValueMixin<V, C> {
   const valueName = config.valueName;
   const methodBase = config.methodBase ?? toPascalCase(valueName);
 
@@ -198,5 +197,5 @@ export function createValueMixin<
       }
       return this;
     },
-  })) as ValueMixin<C>;
+  })) as ValueMixin<V, C>;
 }

@@ -2,6 +2,9 @@ import type { SqsSendBatchResult } from "@probitas/client-sqs";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type SqsSendBatchSuccessful = SqsSendBatchResult["successful"];
+type SqsSendBatchFailed = SqsSendBatchResult["failed"];
+
 /**
  * Fluent API for SQS send batch result validation.
  *
@@ -37,7 +40,9 @@ export interface SqsSendBatchResultExpectation {
   toHaveSuccessful(expected: unknown): this;
   toHaveSuccessfulEqual(expected: unknown): this;
   toHaveSuccessfulStrictEqual(expected: unknown): this;
-  toHaveSuccessfulSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveSuccessfulSatisfying(
+    matcher: (value: SqsSendBatchSuccessful) => void,
+  ): this;
   toHaveSuccessfulContaining(item: unknown): this;
   toHaveSuccessfulContainingEqual(item: unknown): this;
   toHaveSuccessfulMatching(
@@ -58,7 +63,7 @@ export interface SqsSendBatchResultExpectation {
   toHaveFailed(expected: unknown): this;
   toHaveFailedEqual(expected: unknown): this;
   toHaveFailedStrictEqual(expected: unknown): this;
-  toHaveFailedSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveFailedSatisfying(matcher: (value: SqsSendBatchFailed) => void): this;
   toHaveFailedContaining(item: unknown): this;
   toHaveFailedContainingEqual(item: unknown): this;
   toHaveFailedMatching(

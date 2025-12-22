@@ -55,14 +55,14 @@ Diff (-Actual / +Expected):
 
 Context (packages/probitas-expect/mixin/object_value_mixin_test.ts:236:5)
 
-  235│   await t.step("fail (noColor)", async () => {
-  236│     const mixin = createObjectValueMixin(
-  237│       () => ({ name: "Alice", age: 30 }),
+  235│ Deno.test("createObjectValueMixin - toHaveUserMatching with source context", async (t) => {
+  236│   await t.step("fail (noColor)", async () => {
+  237│     const mixin = createObjectValueMixin(
      ┆
-  246│       t,
-  247│       catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,
+  247│       t,
+  248│       catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,
      │                                ^
-  248│     );'
+  249│     );'
 `;
 
 snapshot[`createObjectValueMixin - toHaveUserMatching with source context 2`] = `
@@ -78,12 +78,12 @@ snapshot[`createObjectValueMixin - toHaveUserMatching with source context 2`] = 
 
 [1mContext[0m [90m(packages/probitas-expect/mixin/object_value_mixin_test.ts:251:5)[39m
 
-  [90m250│ [39m
-  [90m251│   await t.step("fail (withColor)", async () => {[39m
-  [90m252│     const mixin = createObjectValueMixin([39m
+  [90m250│   });[39m
+  [90m251│ [39m
+  [90m252│   await t.step("fail (withColor)", async () => {[39m
   [90m   ┆[39m
-  [90m263│       t,[39m
-  [90m264│       catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,[39m
+  [90m264│       t,[39m
+  [90m265│       catchError(() => applied.toHaveUserMatching({ name: "Bob" })).message,[39m
   [90m   │                                [39m[31m^[39m
-  [90m265│     );[39m'
+  [90m266│     );[39m'
 `;

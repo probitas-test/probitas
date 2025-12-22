@@ -2,6 +2,8 @@ import type { MongoFindResult } from "@probitas/client-mongodb";
 import { ensureNonNullish } from "../utils.ts";
 import * as mixin from "../mixin.ts";
 
+type MongoFindDocs<T> = MongoFindResult<T>["docs"];
+
 /**
  * Fluent API for MongoDB find result validation.
  */
@@ -52,7 +54,7 @@ export interface MongoFindResultExpectation<_T = unknown> {
    * Asserts that the docs satisfy the provided matcher function.
    * @param matcher - A function that receives the docs and performs assertions
    */
-  toHaveDocsSatisfying(matcher: (value: unknown[]) => void): this;
+  toHaveDocsSatisfying(matcher: (value: MongoFindDocs<_T>) => void): this;
 
   /**
    * Asserts that the docs array contains the specified item.

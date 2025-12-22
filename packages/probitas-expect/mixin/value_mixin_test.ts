@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { assertEquals } from "@std/assert";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { assertType, type IsExact } from "@std/testing/types";
@@ -21,7 +20,7 @@ Deno.test("createValueMixin - type check", () => {
     toHaveStatusStrictEqual: (this: Expected, expected: unknown) => Expected;
     toHaveStatusSatisfying: (
       this: Expected,
-      matcher: (value: any) => void,
+      matcher: (value: number) => void,
     ) => Expected;
   };
   type Actual = typeof applied;

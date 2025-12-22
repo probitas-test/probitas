@@ -2,6 +2,8 @@ import type { GraphqlResponse } from "@probitas/client-graphql";
 import { ensureNonNullish } from "./utils.ts";
 import * as mixin from "./mixin.ts";
 
+type GraphqlHeaders = GraphqlResponse["headers"];
+
 /**
  * Fluent API for GraphQL response validation.
  */
@@ -144,7 +146,7 @@ export interface GraphqlResponseExpectation {
    * @param matcher - A function that receives the headers and performs assertions
    */
   toHaveHeadersSatisfying(
-    matcher: (value: Record<string, string>) => void,
+    matcher: (value: GraphqlHeaders) => void,
   ): this;
 
   /**
