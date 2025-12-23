@@ -57,7 +57,7 @@
  *       body: { name: "Alice" },
  *     });
  *     expect(response).toBeOk().toHaveStatus(201);
- *     return response.json<{ id: string }>()!;
+ *     return response.json as { id: string };
  *   })
  *   .step("Verify user exists", async (ctx) => {
  *     const { id } = ctx.previous!;
@@ -97,7 +97,7 @@
  *   .step("Fetch users", async (ctx) => {
  *     const response = await ctx.resources.http.get("/users");
  *     expect(response).toBeOk().toHaveStatus(200);
- *     return { users: response.json<{ id: string; name: string }[]>() };
+ *     return { users: response.json as { id: string; name: string }[] };
  *   })
  *   .build();
  * ```

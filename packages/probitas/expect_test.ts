@@ -39,11 +39,11 @@ Deno.test("expect type dispatch dispatches HttpResponse to expectHttpResponse", 
     url: "http://example.com",
     body: null,
     duration: 100,
-    raw: () => new Response(),
-    arrayBuffer: () => null,
-    blob: () => null,
-    text: () => null,
-    json: () => null,
+    raw: new Response(),
+    arrayBuffer: null,
+    blob: null,
+    text: null,
+    json: null,
   };
 
   const result = expect(httpResponse);
@@ -64,8 +64,8 @@ Deno.test("expect type dispatch dispatches ConnectRpcResponse to expectConnectRp
     headers: new Headers(),
     trailers: new Headers(),
     duration: 100,
-    data: <T = unknown>() => ({} as T | null),
-    raw: () => ({} as Response),
+    data: {} as unknown,
+    raw: {} as Response,
   };
 
   const result = expect(connectRpcResponse);
@@ -84,8 +84,8 @@ Deno.test("expect type dispatch dispatches GraphqlResponse to expectGraphqlRespo
     headers: new Headers(),
     url: "http://localhost:4000/graphql",
     extensions: null,
-    raw: () => new Response(),
-    data: <T = unknown>() => ({} as T | null),
+    raw: new Response(),
+    data: {} as unknown,
   };
 
   const result = expect(graphqlResponse);
@@ -317,11 +317,11 @@ Deno.test("expect type inference infers correct return type for HttpResponse", (
     url: "http://example.com",
     body: null,
     duration: 100,
-    raw: () => new Response(),
-    arrayBuffer: () => null,
-    blob: () => null,
-    text: () => null,
-    json: () => null,
+    raw: new Response(),
+    arrayBuffer: null,
+    blob: null,
+    text: null,
+    json: null,
   };
 
   // This should compile and have HttpResponseExpectation methods

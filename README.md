@@ -71,7 +71,7 @@ export default scenario("User API Test", { tags: ["api", "user"] })
       body: { name: "Alice", email: "alice@example.com" },
     });
     expect(response).toBeOk().toHaveStatus(201);
-    return response.json<{ id: string }>();
+    return response.json as { id: string };
   })
   .step("Verify user exists", async (ctx) => {
     const { id } = ctx.previous!;
@@ -192,7 +192,7 @@ export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
       body: { email: "test@example.com", password: "secret" },
     });
     expect(response).toBeOk().toHaveStatus(200);
-    return response.json<{ token: string }>();
+    return response.json as { token: string };
   })
   .step("Access protected resource", async (ctx) => {
     const { token } = ctx.previous!;
@@ -260,7 +260,7 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
       .toBeOk()
       .toHaveStatus(201)
       .toHaveHeadersProperty("content-type", /application\/json/);
-    return response.json<{ orderId: string }>();
+    return response.json as { orderId: string };
   })
   .step("Verify order in database", async (ctx) => {
     const { orderId } = ctx.previous!;
@@ -277,7 +277,7 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
   .step("Validate order total", async (ctx) => {
     const { orderId } = ctx.results[0] as { orderId: string };
     const response = await ctx.resources.http.get(`/orders/${orderId}`);
-    const order = response.json<{ total: number }>()!;
+    const order = response.json as { total: number };
     // Generic value assertions (chainable)
     expect(order.total)
       .toBeGreaterThan(0)

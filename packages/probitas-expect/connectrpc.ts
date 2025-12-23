@@ -25,7 +25,7 @@ export interface ConnectRpcResponseExpectation {
    *   statusMessage: "Not Found",
    *   headers: mockHeaders,
    *   trailers: mockHeaders,
-   *   data: () => null,
+   *   data: null,
    *   duration: 0,
    * } as unknown as ConnectRpcResponse;
    *
@@ -50,7 +50,7 @@ export interface ConnectRpcResponseExpectation {
    *   statusMessage: undefined,
    *   headers: mockHeaders,
    *   trailers: mockHeaders,
-   *   data: () => ({ result: "success" }),
+   *   data: { result: "success" },
    *   duration: 0,
    * } as unknown as ConnectRpcResponse;
    *
@@ -542,10 +542,10 @@ export function expectConnectRpcResponse(
         cfg("trailers"),
       ),
       // Data
-      mixin.createValueMixin(() => response.data(), negate, cfg("data")),
-      mixin.createNullishValueMixin(() => response.data(), negate, cfg("data")),
+      mixin.createValueMixin(() => response.data, negate, cfg("data")),
+      mixin.createNullishValueMixin(() => response.data, negate, cfg("data")),
       mixin.createObjectValueMixin(
-        () => ensureNonNullish(response.data(), "data"),
+        () => ensureNonNullish(response.data, "data"),
         negate,
         cfg("data"),
       ),

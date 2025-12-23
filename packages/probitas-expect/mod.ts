@@ -34,8 +34,8 @@
  *   url: "http://example.com/api/users",
  *   body: null,
  *   duration: 100,
- *   text: () => null,
- *   data: () => ({ users: [] }),
+ *   text: null,
+ *   json: { users: [] },
  * } as unknown as HttpResponse;
  *
  * expectHttpResponse(response)
@@ -55,7 +55,7 @@
  *   status: 200,
  *   headers: {},
  *   raw: { data: { user: { name: "Alice" } } },
- *   data: () => ({ user: { name: "Alice" } }),
+ *   data: { user: { name: "Alice" } },
  *   error: null,
  *   duration: 50,
  * } as unknown as GraphqlResponse;
@@ -147,8 +147,8 @@
  *   url: "http://example.com",
  *   body: null,
  *   duration: 50,
- *   text: () => null,
- *   data: () => ({}),
+ *   text: null,
+ *   json: {},
  * } as unknown as HttpResponse;
  *
  * expectHttpResponse(response)

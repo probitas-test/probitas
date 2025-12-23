@@ -24,10 +24,9 @@ function createMockResponse(
       "grpc-status": "0",
       "grpc-message": "OK",
     }),
-    // deno-lint-ignore no-explicit-any
-    data: <T = any>(): T | null => ({ result: "success" }) as T,
+    data: { result: "success" },
     duration: 123,
-    raw: () => ({}),
+    raw: {},
   };
   return { ...defaultResponse, ...overrides } as ConnectRpcResponse;
 }
@@ -205,7 +204,7 @@ Deno.test("expectConnectRpcResponse - not property - success", () => {
 Deno.test("expectConnectRpcResponse - nullish value methods - success", () => {
   // Test null values
   const nullResponse = createMockResponse({
-    data: () => null,
+    data: null,
   });
   const nullExpectation = expectConnectRpcResponse(nullResponse);
 

@@ -24,8 +24,8 @@ export interface HttpResponseExpectation {
    *   url: "http://example.com",
    *   body: null,
    *   duration: 0,
-   *   text: () => null,
-   *   json: () => null,
+   *   text: null,
+   *   json: null,
    * } as unknown as HttpResponse;
    *
    * expectHttpResponse(response).not.toBeOk();
@@ -50,8 +50,8 @@ export interface HttpResponseExpectation {
    *   url: "http://example.com",
    *   body: null,
    *   duration: 0,
-   *   text: () => null,
-   *   json: () => null,
+   *   text: null,
+   *   json: null,
    * } as unknown as HttpResponse;
    *
    * expectHttpResponse(response).toBeOk();
@@ -710,29 +710,29 @@ export function expectHttpResponse(
         cfg("body length"),
       ),
       // Text
-      mixin.createValueMixin(() => response.text(), negate, cfg("text")),
-      mixin.createNullishValueMixin(() => response.text(), negate, cfg("text")),
+      mixin.createValueMixin(() => response.text, negate, cfg("text")),
+      mixin.createNullishValueMixin(() => response.text, negate, cfg("text")),
       mixin.createStringValueMixin(
-        () => ensureNonNullish(response.text(), "text"),
+        () => ensureNonNullish(response.text, "text"),
         negate,
         cfg("text"),
       ),
       // Text length
       mixin.createValueMixin(
-        () => ensureNonNullish(response.text(), "text length").length,
+        () => ensureNonNullish(response.text, "text length").length,
         negate,
         cfg("text length"),
       ),
       mixin.createNumberValueMixin(
-        () => ensureNonNullish(response.text(), "text length").length,
+        () => ensureNonNullish(response.text, "text length").length,
         negate,
         cfg("text length"),
       ),
       // JSON
-      mixin.createValueMixin(() => response.json(), negate, cfg("json")),
-      mixin.createNullishValueMixin(() => response.json(), negate, cfg("json")),
+      mixin.createValueMixin(() => response.json, negate, cfg("json")),
+      mixin.createNullishValueMixin(() => response.json, negate, cfg("json")),
       mixin.createObjectValueMixin(
-        () => ensureNonNullish(response.json(), "response json"),
+        () => ensureNonNullish(response.json, "response json"),
         negate,
         cfg("json"),
       ),

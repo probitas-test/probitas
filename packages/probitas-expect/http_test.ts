@@ -25,18 +25,16 @@ function createMockSuccessResponse(
     }),
     url: "https://example.com/api/test",
     body: bodyBytes,
-    arrayBuffer: () => bodyBytes.buffer,
-    blob: () => new Blob([bodyBytes]),
-    text: () => '{"message":"success"}',
-    // deno-lint-ignore no-explicit-any
-    json: <T = any>(): T | null => ({ message: "success" }) as T,
+    arrayBuffer: bodyBytes.buffer,
+    blob: new Blob([bodyBytes]),
+    text: '{"message":"success"}',
+    json: { message: "success" },
     duration: 123,
-    raw: () =>
-      new Response('{"message":"success"}', {
-        status: 200,
-        statusText: "OK",
-        headers: { "content-type": "application/json" },
-      }),
+    raw: new Response('{"message":"success"}', {
+      status: 200,
+      statusText: "OK",
+      headers: { "content-type": "application/json" },
+    }),
   };
   return { ...defaultResponse, ...overrides };
 }
@@ -57,18 +55,16 @@ function createMockErrorResponse(
     headers,
     url: "https://example.com/api/test",
     body: bodyBytes,
-    arrayBuffer: () => bodyBytes.buffer,
-    blob: () => new Blob([bodyBytes]),
-    text: () => '{"error":"not found"}',
-    // deno-lint-ignore no-explicit-any
-    json: <T = any>(): T | null => ({ error: "not found" }) as T,
+    arrayBuffer: bodyBytes.buffer,
+    blob: new Blob([bodyBytes]),
+    text: '{"error":"not found"}',
+    json: { error: "not found" },
     duration: 100,
-    raw: () =>
-      new Response('{"error":"not found"}', {
-        status: 404,
-        statusText: "Not Found",
-        headers: { "content-type": "application/json" },
-      }),
+    raw: new Response('{"error":"not found"}', {
+      status: 404,
+      statusText: "Not Found",
+      headers: { "content-type": "application/json" },
+    }),
   };
   return { ...defaultResponse, ...overrides };
 }
@@ -87,12 +83,12 @@ function createMockFailureResponse(
     headers: null,
     url: "https://example.com/api/test",
     body: null,
-    arrayBuffer: () => null,
-    blob: () => null,
-    text: () => null,
-    json: () => null,
+    arrayBuffer: null,
+    blob: null,
+    text: null,
+    json: null,
     duration: 50,
-    raw: () => null,
+    raw: null,
   };
   return { ...defaultResponse, ...overrides };
 }
@@ -309,7 +305,7 @@ Deno.test("expectHttpResponse - nullish value methods - success", () => {
   const nullResponse = createMockSuccessResponse({
     body: null,
     headers: new Headers(),
-    json: () => null,
+    json: null,
   });
   const nullExpectation = expectHttpResponse(nullResponse);
 
