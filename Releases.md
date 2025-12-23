@@ -1,3 +1,11 @@
+### 2025.12.23
+
+#### @probitas/expect 0.3.3 (patch)
+
+- fix(@probitas/expect): adjust matcher function types to use 'any' instead
+- docs(@probitas/expect): clarify keyPath parameter specification in JSDoc
+- test(@probitas/expect): add nested keyPath tests and fix array mutation bug
+
 ### 2025.12.22
 
 #### @probitas/builder 0.4.1 (patch)
