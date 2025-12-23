@@ -55,7 +55,8 @@ export interface RabbitMqConsumeResultExpectation {
    * Asserts that the message satisfies the provided matcher function.
    * @param matcher - A function that receives the message and performs assertions
    */
-  toHaveMessageSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveMessageSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the message is present (not null or undefined).
@@ -117,9 +118,10 @@ export interface RabbitMqConsumeResultExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveMessagePropertySatisfying<I>(
+  toHaveMessagePropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**
@@ -144,7 +146,8 @@ export interface RabbitMqConsumeResultExpectation {
    * Asserts that the content satisfies the provided matcher function.
    * @param matcher - A function that receives the content and performs assertions
    */
-  toHaveContentSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveContentSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the content is present (not null or undefined).

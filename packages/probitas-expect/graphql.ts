@@ -189,9 +189,10 @@ export interface GraphqlResponseExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveHeadersPropertySatisfying<I>(
+  toHaveHeadersPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**
@@ -216,7 +217,8 @@ export interface GraphqlResponseExpectation {
    * Asserts that the error satisfies the provided matcher function.
    * @param matcher - A function that receives the error and performs assertions
    */
-  toHaveErrorSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveErrorSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the error is present (not null or undefined).
@@ -261,7 +263,8 @@ export interface GraphqlResponseExpectation {
    * @param matcher - A function that receives the extensions and performs assertions
    */
   toHaveExtensionsSatisfying(
-    matcher: (value: Record<string, unknown>) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: Record<string, any>) => void,
   ): this;
 
   /**
@@ -304,9 +307,10 @@ export interface GraphqlResponseExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveExtensionsPropertySatisfying<I>(
+  toHaveExtensionsPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**
@@ -351,7 +355,8 @@ export interface GraphqlResponseExpectation {
    * Asserts that the data satisfies the provided matcher function.
    * @param matcher - A function that receives the data and performs assertions
    */
-  toHaveDataSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveDataSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the data matches the specified subset.
@@ -393,9 +398,10 @@ export interface GraphqlResponseExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveDataPropertySatisfying<I>(
+  toHaveDataPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**

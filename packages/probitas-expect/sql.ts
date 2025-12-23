@@ -186,7 +186,8 @@ export interface SqlQueryResultExpectation {
    * Asserts that the last insert ID satisfies the provided matcher function.
    * @param matcher - A function that receives the last insert ID and performs assertions
    */
-  toHaveLastInsertIdSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveLastInsertIdSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the last insert ID is present (not null or undefined).

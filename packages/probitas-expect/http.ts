@@ -227,9 +227,10 @@ export interface HttpResponseExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveHeadersPropertySatisfying<I>(
+  toHaveHeadersPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**
@@ -511,7 +512,8 @@ export interface HttpResponseExpectation {
    * @param matcher - A function that receives the JSON and performs assertions
    */
   toHaveJsonSatisfying(
-    matcher: (value: Record<string, unknown> | null) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: Record<string, any> | null) => void,
   ): this;
 
   /**
@@ -574,9 +576,10 @@ export interface HttpResponseExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveJsonPropertySatisfying<I>(
+  toHaveJsonPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**
