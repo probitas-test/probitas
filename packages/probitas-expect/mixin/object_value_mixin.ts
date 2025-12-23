@@ -19,6 +19,21 @@ import type {
 
 /**
  * Type definition for the object-value mixin, providing object-specific validation methods.
+ *
+ * ## keyPath Parameter
+ *
+ * Methods that accept `keyPath` support two formats for accessing nested properties:
+ *
+ * - **String format** (`string`): Dot-separated path that splits on `.` to traverse nested objects
+ *   - Example: `"user.address.city"` accesses `obj.user.address.city`
+ *   - Limitation: Cannot access properties that contain dots in their name
+ *
+ * - **Array format** (`string[]`): Array where each element is treated as a single property key
+ *   - Example: `["user", "address", "city"]` accesses `obj.user.address.city`
+ *   - Example: `["config.env"]` accesses `obj["config.env"]` (property name contains dot)
+ *   - Example: `["items", "0"]` accesses `obj.items["0"]` (numeric string key)
+ *
+ * Use array format when property names contain special characters like dots.
  */
 type Definition<T, MethodBase extends string> = MixinDefinition<[
   [
@@ -87,6 +102,15 @@ export type ObjectValueMixin<C extends MixinConfig> = <T extends object>(
  * All methods leverage @std/expect internally for robust comparison
  * and support negation through the `.not` chain.
  *
+ * ## keyPath Parameter
+ *
+ * Methods 2-5 accept a `keyPath` parameter to access nested properties:
+ *
+ * - **String format**: `"user.address.city"` splits on dots to traverse `obj.user.address.city`
+ * - **Array format**: `["user", "address", "city"]` treats each element as a property key
+ *
+ * Use array format for properties containing dots (e.g., `["config.env"]` for `obj["config.env"]`).
+ *
  * @template V - The object type being validated
  * @template C - The mixin configuration type
  * @param getter - Function to retrieve the object value to validate
@@ -108,6 +132,8 @@ export type ObjectValueMixin<C extends MixinConfig> = <T extends object>(
  * );
  * const expectation = objectMixin({});
  * expectation.toHaveUserMatching({ name: "Alice" });
+ * expectation.toHaveUserProperty("name", "Alice"); // string keyPath
+ * expectation.toHaveUserProperty(["email"], "alice@example.com"); // array keyPath
  * ```
  */
 export function createObjectValueMixin<
@@ -224,7 +250,9 @@ export function createObjectValueMixin<
       const passes = xor(
         isNegated,
         tryOk(() => {
-          stdExpect(obj).toHaveProperty(keyPath);
+          // @std/expect mutates array keyPath, so we need to copy it
+          const keyPathCopy = Array.isArray(keyPath) ? [...keyPath] : keyPath;
+          stdExpect(obj).toHaveProperty(keyPathCopy);
           const value = getPropertyValue(obj, keyPath);
           stdExpect(value).toContain(expected);
         }),
@@ -256,7 +284,9 @@ export function createObjectValueMixin<
       const passes = xor(
         isNegated,
         tryOk(() => {
-          stdExpect(obj).toHaveProperty(keyPath);
+          // @std/expect mutates array keyPath, so we need to copy it
+          const keyPathCopy = Array.isArray(keyPath) ? [...keyPath] : keyPath;
+          stdExpect(obj).toHaveProperty(keyPathCopy);
           const value = getPropertyValue(obj, keyPath);
           stdExpect(value).toMatchObject(subset);
         }),
@@ -291,7 +321,9 @@ export function createObjectValueMixin<
       let propertyExists = false;
 
       try {
-        stdExpect(obj).toHaveProperty(keyPath);
+        // @std/expect mutates array keyPath, so we need to copy it
+        const keyPathCopy = Array.isArray(keyPath) ? [...keyPath] : keyPath;
+        stdExpect(obj).toHaveProperty(keyPathCopy);
         propertyExists = true;
         const keyPathStr = Array.isArray(keyPath) ? keyPath.join(".") : keyPath;
         const value = ensureNonNullish(
@@ -336,13 +368,6 @@ export function createObjectValueMixin<
   })) as ObjectValueMixin<C>;
 }
 
-/**
- * Helper function to get property value from an object using a key path.
- *
- * @param obj - The object to extract property from
- * @param keyPath - Dot-separated string or array of keys
- * @returns The property value or undefined if not found
- */
 function getPropertyValue<T>(
   obj: unknown,
   keyPath: string | string[],

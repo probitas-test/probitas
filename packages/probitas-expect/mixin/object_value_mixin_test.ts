@@ -111,6 +111,81 @@ Deno.test("createObjectValueMixin - toHaveUserProperty", async (t) => {
     assertEquals(applied.toHaveUserProperty("name", "Alice"), applied);
   });
 
+  await t.step("success - nested property with dot notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { address: { city: "Tokyo" } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(applied.toHaveDataProperty("user.address.city"), applied);
+  });
+
+  await t.step("success - nested property with array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { address: { city: "Tokyo" } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataProperty(["user", "address", "city"]),
+      applied,
+    );
+  });
+
+  await t.step("success - nested property with value", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { address: { city: "Tokyo" } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataProperty("user.address.city", "Tokyo"),
+      applied,
+    );
+  });
+
+  await t.step("success - property name with dot using array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ "user.name": "Alice", age: 30 }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(applied.toHaveDataProperty(["user.name"]), applied);
+  });
+
+  await t.step(
+    "success - property name with dot and value using array notation",
+    () => {
+      const mixin = createObjectValueMixin(
+        () => ({ "user.name": "Alice", age: 30 }),
+        () => false,
+        { valueName: "data" },
+      );
+      const applied = mixin({ dummy: true });
+      assertEquals(
+        applied.toHaveDataProperty(["user.name"], "Alice"),
+        applied,
+      );
+    },
+  );
+
+  await t.step("success - numeric key using array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ items: { 0: "first", 1: "second" } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataProperty(["items", "0"], "first"),
+      applied,
+    );
+  });
+
   await t.step("fail - property missing", async () => {
     const mixin = createObjectValueMixin(
       () => ({ name: "Alice", age: 30 }),
@@ -121,6 +196,20 @@ Deno.test("createObjectValueMixin - toHaveUserProperty", async (t) => {
     await assertSnapshotWithoutColors(
       t,
       catchError(() => applied.toHaveUserProperty("email")).message,
+    );
+  });
+
+  await t.step("fail - nested property missing", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { address: { city: "Tokyo" } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveDataProperty("user.address.country"))
+        .message,
     );
   });
 
@@ -136,6 +225,36 @@ Deno.test("createObjectValueMixin - toHaveUserProperty", async (t) => {
       catchError(() => applied.toHaveUserProperty("name", "Bob")).message,
     );
   });
+
+  await t.step("fail - nested property value mismatch", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { address: { city: "Tokyo" } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() => applied.toHaveDataProperty("user.address.city", "Osaka"))
+        .message,
+    );
+  });
+
+  await t.step(
+    "fail - property name with dot using string notation",
+    async () => {
+      const mixin = createObjectValueMixin(
+        () => ({ "user.name": "Alice", age: 30 }),
+        () => false,
+        { valueName: "data" },
+      );
+      const applied = mixin({ dummy: true });
+      await assertSnapshotWithoutColors(
+        t,
+        catchError(() => applied.toHaveDataProperty("user.name")).message,
+      );
+    },
+  );
 });
 
 Deno.test("createObjectValueMixin - toHaveUserPropertyContaining", async (t) => {
@@ -152,6 +271,32 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyContaining", async (t) => 
     );
   });
 
+  await t.step("success - nested property", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { tags: ["admin", "developer"] } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertyContaining("user.tags", "admin"),
+      applied,
+    );
+  });
+
+  await t.step("success - property with dot using array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ "config.env": "production" }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertyContaining(["config.env"], "prod"),
+      applied,
+    );
+  });
+
   await t.step("fail", async () => {
     const mixin = createObjectValueMixin(
       () => ({ message: "hello world" }),
@@ -163,6 +308,21 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyContaining", async (t) => 
       t,
       catchError(() =>
         applied.toHaveDataPropertyContaining("message", "goodbye")
+      ).message,
+    );
+  });
+
+  await t.step("fail - nested property", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { tags: ["admin", "developer"] } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() =>
+        applied.toHaveDataPropertyContaining("user.tags", "guest")
       ).message,
     );
   });
@@ -182,6 +342,38 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyMatching", async (t) => {
     );
   });
 
+  await t.step("success - nested property", () => {
+    const mixin = createObjectValueMixin(
+      () => ({
+        server: {
+          database: { host: "localhost", port: 5432, name: "testdb" },
+        },
+      }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertyMatching("server.database", {
+        host: "localhost",
+      }),
+      applied,
+    );
+  });
+
+  await t.step("success - property with dot using array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ "server.config": { timeout: 5000, retries: 3 } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertyMatching(["server.config"], { timeout: 5000 }),
+      applied,
+    );
+  });
+
   await t.step("fail", async () => {
     const mixin = createObjectValueMixin(
       () => ({ config: { port: 8080 } }),
@@ -193,6 +385,27 @@ Deno.test("createObjectValueMixin - toHaveUserPropertyMatching", async (t) => {
       t,
       catchError(() =>
         applied.toHaveDataPropertyMatching("config", { port: 3000 })
+      ).message,
+    );
+  });
+
+  await t.step("fail - nested property", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({
+        server: {
+          database: { host: "localhost", port: 5432 },
+        },
+      }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() =>
+        applied.toHaveDataPropertyMatching("server.database", {
+          port: 3306,
+        })
       ).message,
     );
   });
@@ -214,6 +427,38 @@ Deno.test("createObjectValueMixin - toHaveUserPropertySatisfying", async (t) => 
     );
   });
 
+  await t.step("success - nested property", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { profile: { age: 25 } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertySatisfying("user.profile.age", (v) => {
+        if (typeof v !== "number") throw new Error("Must be number");
+        if (v < 18) throw new Error("Must be 18 or older");
+      }),
+      applied,
+    );
+  });
+
+  await t.step("success - property with dot using array notation", () => {
+    const mixin = createObjectValueMixin(
+      () => ({ "user.id": "12345" }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    assertEquals(
+      applied.toHaveDataPropertySatisfying(["user.id"], (v) => {
+        if (typeof v !== "string") throw new Error("Must be string");
+        if (!/^\d+$/.test(v)) throw new Error("Must be numeric string");
+      }),
+      applied,
+    );
+  });
+
   await t.step("fail", async () => {
     const mixin = createObjectValueMixin(
       () => ({ message: "hello" }),
@@ -226,6 +471,23 @@ Deno.test("createObjectValueMixin - toHaveUserPropertySatisfying", async (t) => 
       catchError(() =>
         applied.toHaveDataPropertySatisfying("message", (v) => {
           if (v !== "goodbye") throw new Error("Must be goodbye");
+        })
+      ).message,
+    );
+  });
+
+  await t.step("fail - nested property", async () => {
+    const mixin = createObjectValueMixin(
+      () => ({ user: { profile: { age: 15 } } }),
+      () => false,
+      { valueName: "data" },
+    );
+    const applied = mixin({ dummy: true });
+    await assertSnapshotWithoutColors(
+      t,
+      catchError(() =>
+        applied.toHaveDataPropertySatisfying("user.profile.age", (v) => {
+          if (v < 18) throw new Error("Must be 18 or older");
         })
       ).message,
     );
