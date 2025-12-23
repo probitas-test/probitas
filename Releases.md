@@ -1,5 +1,39 @@
 ### 2025.12.23
 
+#### @probitas/builder 0.4.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/core 0.2.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/discover 0.3.4 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/expect 0.3.4 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/logger 0.3.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/probitas 0.6.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/reporter 0.6.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+#### @probitas/runner 0.4.2 (patch)
+
+- fix(*): adapt to probitas-client 0.5.0 breaking changes
+
+### 2025.12.23
+
 #### @probitas/expect 0.3.3 (patch)
 
 - fix(@probitas/expect): adjust matcher function types to use 'any' instead
