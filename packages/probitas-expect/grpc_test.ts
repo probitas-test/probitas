@@ -79,7 +79,8 @@ const EXPECTED_METHODS: Record<keyof GrpcResponseExpectation, unknown[]> = {
   toHaveTrailersEqual: [],
   toHaveTrailersStrictEqual: [],
   toHaveTrailersSatisfying: [
-    (v: Record<string, unknown>) => assertExists(v),
+    // deno-lint-ignore no-explicit-any
+    (v: Record<string, any>) => assertExists(v),
   ],
   toHaveTrailersMatching: [{ "grpc-status": "0" }],
   toHaveTrailersProperty: ["grpc-status"],
@@ -94,7 +95,8 @@ const EXPECTED_METHODS: Record<keyof GrpcResponseExpectation, unknown[]> = {
   toHaveDataEqual: [],
   toHaveDataStrictEqual: [],
   toHaveDataSatisfying: [
-    (v: Record<string, unknown> | null) => assertExists(v),
+    // deno-lint-ignore no-explicit-any
+    (v: Record<string, any> | null) => assertExists(v),
   ],
   toHaveDataPresent: [],
   toHaveDataNull: [],

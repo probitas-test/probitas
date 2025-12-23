@@ -53,7 +53,8 @@ export interface RedisCommonResultExpectation {
    * Asserts that the value satisfies the provided matcher function.
    * @param matcher - A function that receives the value and performs assertions
    */
-  toHaveValueSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveValueSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the duration equals the expected value.

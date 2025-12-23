@@ -118,9 +118,10 @@ export interface MongoFindOneResultExpectation<_T = unknown> {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveDocPropertySatisfying<I>(
+  toHaveDocPropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**

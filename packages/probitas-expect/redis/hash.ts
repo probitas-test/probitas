@@ -55,7 +55,8 @@ export interface RedisHashResultExpectation {
    * Asserts that the value satisfies the provided matcher function.
    * @param matcher - A function that receives the value and performs assertions
    */
-  toHaveValueSatisfying(matcher: (value: unknown) => void): this;
+  // deno-lint-ignore no-explicit-any
+  toHaveValueSatisfying(matcher: (value: any) => void): this;
 
   /**
    * Asserts that the value matches the specified subset.
@@ -97,9 +98,10 @@ export interface RedisHashResultExpectation {
    * @param keyPath - The key path to check
    * @param matcher - A function that receives the property value and performs assertions
    */
-  toHaveValuePropertySatisfying<I>(
+  toHaveValuePropertySatisfying(
     keyPath: string | string[],
-    matcher: (value: I) => void,
+    // deno-lint-ignore no-explicit-any
+    matcher: (value: any) => void,
   ): this;
 
   /**

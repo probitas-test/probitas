@@ -194,7 +194,8 @@ const EXPECTED_METHODS: Record<keyof HttpResponseExpectation, unknown[]> = {
   toHaveJsonEqual: [],
   toHaveJsonStrictEqual: [],
   toHaveJsonSatisfying: [
-    (v: Record<string, unknown> | null) => assertExists(v),
+    // deno-lint-ignore no-explicit-any
+    (v: Record<string, any> | null) => assertExists(v),
   ],
   toHaveJsonPresent: [],
   toHaveJsonNull: [],
