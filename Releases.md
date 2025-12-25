@@ -1,3 +1,37 @@
+### 2025.12.25
+
+#### @probitas/builder 0.4.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/core 0.2.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/discover 0.3.6 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/expect 0.3.6 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/logger 0.3.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/probitas 0.6.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/reporter 0.6.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
+#### @probitas/runner 0.4.4 (patch)
+
+- refactor(*): Rename organization from jsr-probitas to probitas-test
+
 ### 2025.12.23
 
 #### @probitas/builder 0.4.2 (patch)
