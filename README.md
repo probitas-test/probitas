@@ -1,13 +1,13 @@
 <p align="center">
-  <img src="https://jsr-probitas.github.io/documents/static/probitas.png" alt="Probitas Logo" width="200">
+  <img src="https://probitas-test.github.io/documents/static/probitas.png" alt="Probitas Logo" width="200">
 </p>
 
 <h1 align="center">Probitas</h1>
 
 [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
-[![Test](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/test.yml)
-[![Publish](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/jsr-probitas/probitas/actions/workflows/publish.yml)
-[![codecov](https://codecov.io/github/jsr-probitas/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/jsr-probitas/probitas)
+[![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
+[![Publish](https://github.com/probitas-test/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/publish.yml)
+[![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
 
 Scenario-based testing & workflow execution framework.
 
@@ -27,27 +27,27 @@ Scenario-based testing & workflow execution framework.
 ### Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | bash
 ```
 
 Options via environment variables:
 
 ```bash
 # Install specific version
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | PROBITAS_VERSION=0.7.1 bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | PROBITAS_VERSION=0.7.1 bash
 
 # Install to custom directory
-curl -fsSL https://raw.githubusercontent.com/jsr-probitas/cli/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
 ```
 
 #### Using Nix
 
 ```bash
 # Run without installing
-nix run github:jsr-probitas/cli
+nix run github:probitas-test/cli
 
 # Install into your profile
-nix profile install github:jsr-probitas/cli
+nix profile install github:probitas-test/cli
 ```
 
 ### Write Your First Scenario
@@ -331,7 +331,7 @@ consistent tooling.
 | [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                   |
 
 The CLI is maintained in a
-[separate repository](https://github.com/jsr-probitas/cli).
+[separate repository](https://github.com/probitas-test/cli).
 
 ## License
 

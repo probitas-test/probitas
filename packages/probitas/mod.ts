@@ -12,7 +12,7 @@
  *
  * ## Links
  *
- * - [GitHub Repository](https://github.com/jsr-probitas/probitas)
+ * - [GitHub Repository](https://github.com/probitas-test/probitas)
  * - [Documentation](./.claude/README.md)
  *
  * ## Related Packages
