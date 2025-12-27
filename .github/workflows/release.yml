@@ -25,13 +25,9 @@ jobs:
 
       - uses: nixbuild/nix-quick-install-action@v34
 
-      - name: Configure gh auth for git
-        run: gh auth setup-git
-        env:
-          GH_TOKEN: ${{ secrets.PULL_REQUEST_TOKEN }}
-
       - name: Run release task
         run: |
+          gh auth setup-git
           nix develop -c deno task release ${{ inputs.version }}
         env:
           GH_TOKEN: ${{ secrets.PULL_REQUEST_TOKEN }}
