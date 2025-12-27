@@ -6,10 +6,16 @@ on:
       - closed
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to publish (branch, tag, or commit SHA)"
+        required: false
+        default: "main"
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -20,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ${{ github.event.inputs.ref || 'main' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: nixbuild/nix-quick-install-action@v34
