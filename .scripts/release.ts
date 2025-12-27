@@ -177,15 +177,80 @@ async function createReleasePR(
     throw new Error("Failed to commit");
   }
 
-  // Push
-  const push = new Deno.Command("git", {
-    args: ["push", "origin", branch],
-    stdout: "inherit",
-    stderr: "inherit",
-  });
-  const { code: pushCode } = await push.output();
-  if (pushCode !== 0) {
-    throw new Error("Failed to push branch");
+  // Configure remote URL with token (in CI environment)
+  if (isCI) {
+    const ghToken = Deno.env.get("GH_TOKEN");
+    if (!ghToken) {
+      throw new Error("GH_TOKEN environment variable is required in CI");
+    }
+
+    // Get the current remote URL to extract repo path
+    const getRemote = new Deno.Command("git", {
+      args: ["remote", "get-url", "origin"],
+      stdout: "piped",
+      stderr: "inherit",
+    });
+    const { code: getRemoteCode, stdout } = await getRemote.output();
+    if (getRemoteCode !== 0) {
+      throw new Error("Failed to get remote URL");
+    }
+
+    const remoteUrl = new TextDecoder().decode(stdout).trim();
+    // Extract owner/repo from URL (handles both HTTPS and git@ formats)
+    // Match exactly two path segments (owner and repo)
+    const repoMatch = remoteUrl.match(
+      /github\.com[:/]([^/]+\/[^/]+?)(?:\.git)?$/,
+    );
+    if (!repoMatch) {
+      throw new Error(`Could not extract repo path from URL: ${remoteUrl}`);
+    }
+
+    const repoPath = repoMatch[1];
+    const authenticatedUrl =
+      `https://x-access-token:${ghToken}@github.com/${repoPath}`;
+
+    // Temporarily set the authenticated remote URL
+    const setUrl = new Deno.Command("git", {
+      args: ["remote", "set-url", "origin", authenticatedUrl],
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    const { code: setUrlCode } = await setUrl.output();
+    if (setUrlCode !== 0) {
+      throw new Error("Failed to set authenticated remote URL");
+    }
+
+    try {
+      // Push with authenticated URL
+      const push = new Deno.Command("git", {
+        args: ["push", "origin", branch],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      const { code: pushCode } = await push.output();
+      if (pushCode !== 0) {
+        throw new Error("Failed to push branch");
+      }
+    } finally {
+      // Restore the original remote URL to avoid leaving the token in git config
+      const resetUrl = new Deno.Command("git", {
+        args: ["remote", "set-url", "origin", remoteUrl],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await resetUrl.output();
+    }
+  } else {
+    // Push without authentication (local environment)
+    const push = new Deno.Command("git", {
+      args: ["push", "origin", branch],
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    const { code: pushCode } = await push.output();
+    if (pushCode !== 0) {
+      throw new Error("Failed to push branch");
+    }
   }
 
   // Create PR
