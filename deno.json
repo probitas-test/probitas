@@ -53,7 +53,7 @@
     "test:coverage": "deno task test --coverage=.coverage",
     "coverage": "deno coverage .coverage --include='/src/'",
     "verify": "deno fmt && deno lint && deno task check && deno task test",
-    "update-lock": "rm deno.lock && deno cache -r mod.ts jsr:@probitas/probitas jsr:@probitas/probitas@^0",
+    "update-lock": "rm deno.lock && deno cache -r src/mod.ts src/cli.ts jsr:@probitas/probitas jsr:@probitas/probitas@^0",
     "update-version": "deno run -A .scripts/update_version.ts"
   },
   "imports": {
