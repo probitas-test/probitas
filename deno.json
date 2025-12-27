@@ -1,22 +1,45 @@
 {
+  "name": "@probitas/probitas",
+  "version": "0.6.4",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./expect": "./src/expect.ts",
+    "./client": "./src/client.ts",
+    "./client/connectrpc": "./src/client/connectrpc.ts",
+    "./client/deno-kv": "./src/client/deno_kv.ts",
+    "./client/graphql": "./src/client/graphql.ts",
+    "./client/grpc": "./src/client/grpc.ts",
+    "./client/http": "./src/client/http.ts",
+    "./client/mongodb": "./src/client/mongodb.ts",
+    "./client/rabbitmq": "./src/client/rabbitmq.ts",
+    "./client/redis": "./src/client/redis.ts",
+    "./client/sql": "./src/client/sql.ts",
+    "./client/sql/duckdb": "./src/client/sql/duckdb.ts",
+    "./client/sql/mysql": "./src/client/sql/mysql.ts",
+    "./client/sql/postgres": "./src/client/sql/postgres.ts",
+    "./client/sql/sqlite": "./src/client/sql/sqlite.ts",
+    "./client/sqs": "./src/client/sqs.ts"
+  },
+  "publish": {
+    "exclude": [
+      "**/*_test.ts",
+      "**/*_bench.ts"
+    ]
+  },
   "lint": {
     "exclude": [
       "probitas/**/*.probitas.ts"
     ]
   },
-  "workspace": [
-    "./packages/probitas"
-  ],
   "exclude": [
     ".coverage/**",
-    ".claude/**",
-    "docs/**"
+    ".claude/**"
   ],
   "tasks": {
     "check": "deno check --doc && deno check --doc-only **/*.md",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
-    "coverage": "deno coverage .coverage --include='/packages/'",
+    "coverage": "deno coverage .coverage --include='/src/'",
     "verify": "deno fmt && deno lint && deno task check && deno task test"
   },
   "imports": {
