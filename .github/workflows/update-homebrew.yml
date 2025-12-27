@@ -13,6 +13,6 @@ jobs:
       - name: Trigger Homebrew formula update
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          token: ${{ secrets.REPOSITORY_DISPATCH_TOKEN }}
           repository: probitas-test/homebrew-tap
           event-type: update-formula
