@@ -6,51 +6,149 @@
 
 [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
-[![Publish](https://github.com/probitas-test/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/publish.yml)
+[![Release](https://github.com/probitas-test/probitas/actions/workflows/release.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/release.yml)
 [![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
+[![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io/documents)
 
 Scenario-based testing & workflow execution framework.
 
-## Features
+## Overview
 
-- **Scenario-Based Testing**: Define test workflows as a sequence of steps with
-  type-safe result passing
-- **Flexible Execution**: Run scenarios in parallel or sequentially with
+Probitas is a comprehensive framework for scenario-based testing and workflow
+execution, providing:
+
+- **Type-safe scenario builder** - Fluent API for defining test workflows with
+  automatic type inference
+- **Powerful CLI** - Command-line interface for running, listing, and managing
+  scenarios
+- **Rich client ecosystem** - Pre-configured clients for HTTP, databases,
+  message queues, and more
+- **Flexible execution** - Run scenarios in parallel or sequentially with
   configurable concurrency
-- **Resource Management**: Automatic cleanup with Disposable/AsyncDisposable
-  pattern
-- **Retry Logic**: Built-in retry with exponential/linear backoff
-- **Tag-Based Filtering**: Organize and run scenarios by tags
+- **Smart assertions** - Client-specific expectation utilities for comprehensive
+  testing
 
-## Quick Start
+## Installation
 
-### Installation
+### Local Installation
+
+#### Using Install Script
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | bash
 ```
 
 Options via environment variables:
 
 ```bash
 # Install specific version
-curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | PROBITAS_VERSION=0.7.1 bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_VERSION=0.7.1 bash
 
 # Install to custom directory
-curl -fsSL https://raw.githubusercontent.com/probitas-test/cli/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
 ```
+
+#### Using Homebrew
+
+```bash
+# Add the tap
+brew tap probitas-test/tap
+
+# Install probitas
+brew install probitas
+
+# Upgrade to latest version
+brew upgrade probitas
+```
+
+See [probitas-test/homebrew-tap](https://github.com/probitas-test/homebrew-tap)
+for more details.
 
 #### Using Nix
 
 ```bash
 # Run without installing
-nix run github:probitas-test/cli
+nix run github:probitas-test/probitas
 
 # Install into your profile
-nix profile install github:probitas-test/cli
+nix profile install github:probitas-test/probitas
 ```
 
-### Write Your First Scenario
+Or add to your project's `flake.nix`:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    probitas.url = "github:probitas-test/probitas";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { nixpkgs, probitas, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ probitas.overlays.default ];
+        };
+      in {
+        devShells.default = pkgs.mkShell {
+          packages = with pkgs; [ probitas ];
+        };
+      });
+}
+```
+
+Then enter the development shell:
+
+```bash
+nix develop
+probitas run
+```
+
+### GitHub Actions
+
+#### Using setup-probitas Action
+
+The recommended way to use Probitas in GitHub Actions:
+
+```yaml
+- uses: probitas-test/setup-probitas@v1
+  with:
+    version: latest # or specific version like '0.7.1'
+
+- name: Run scenarios
+  run: probitas run
+```
+
+See
+[probitas-test/setup-probitas](https://github.com/probitas-test/setup-probitas)
+for full documentation.
+
+#### Using Nix in GitHub Actions
+
+For projects using Nix flakes with
+[nixbuild/nix-quick-install-action](https://github.com/nixbuild/nix-quick-install-action):
+
+```yaml
+- uses: nixbuild/nix-quick-install-action@v34
+
+- name: Run scenarios
+  run: nix run github:probitas-test/probitas -- run
+```
+
+Or within a Nix development shell:
+
+```yaml
+- uses: nixbuild/nix-quick-install-action@v34
+
+- name: Run scenarios
+  run: nix develop -c probitas run
+```
+
+## Quick Start
+
+### 1. Create Your First Scenario
 
 Create `probitas/hello.probitas.ts`:
 
@@ -83,17 +181,36 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .build();
 ```
 
-### Run Scenarios
+> [!NOTE]
+> **Enable Deno LSP in your editor** for the best development experience. With
+> Deno LSP enabled, you'll get:
+>
+> - Auto-completion for Probitas APIs (`scenario`, `expect`, `client`, etc.)
+> - Type checking and inline error detection
+> - Jump to definition for functions and types
+> - Hover documentation for all APIs
+>
+> See
+> [Deno's editor setup guide](https://docs.deno.com/runtime/getting_started/setup_your_environment/)
+> for instructions on enabling Deno in VS Code, Vim, Neovim, and other editors.
+
+### 2. Run Your Scenarios
 
 ```bash
 # Run all scenarios
 probitas run
 
 # Run scenarios with specific tag
-probitas run -s tag:example
+probitas run -s tag:api
 
-# Run with JSON reporter
+# Run with JSON output
 probitas run --reporter json
+
+# List available scenarios
+probitas list
+
+# Initialize configuration file
+probitas init
 ```
 
 ## Key Concepts
@@ -105,11 +222,13 @@ A scenario is a sequence of steps that execute in order. Each step can:
 - Return a value that's passed to the next step via `ctx.previous`
 - Access all previous results via `ctx.results`
 - Share state via `ctx.store`
+- Use resources defined at the scenario level
 - Have custom timeout and retry configuration
 
 ### Resources
 
-Lifecycle-managed objects with automatic cleanup:
+Resources are lifecycle-managed objects with automatic cleanup (Disposable
+pattern):
 
 ```typescript
 import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
@@ -139,13 +258,12 @@ export default scenario("Database Query Test", { tags: ["db"] })
       .toHaveRowsMatching({ name: "TestUser" });
   })
   .build();
-// Resource is auto-disposed (connection closed) after scenario
+// Resource is automatically disposed (connection closed) after scenario
 ```
 
 ### Setup with Cleanup
 
-For side effects that need cleanup (use `.setup()` instead of `.resource()` when
-you need to perform setup actions that don't return a reusable client):
+For side effects that need cleanup without creating a reusable client:
 
 ```typescript
 import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
@@ -176,8 +294,7 @@ export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
 
 ### Tags
 
-Organize scenarios with tags for filtering. Tags help categorize tests by
-feature, priority, or environment:
+Organize scenarios with tags for filtering:
 
 ```typescript
 import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
@@ -204,20 +321,13 @@ export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
   .build();
 ```
 
-Run specific scenarios:
+Run with tag filters:
 
 ```bash
 probitas run -s tag:auth
 probitas run -s "tag:critical,tag:auth"  # AND logic
 probitas run -s "!tag:slow"              # NOT logic
 ```
-
-### Reporters
-
-Choose output format based on your needs:
-
-- `list` - Detailed human-readable output (default)
-- `json` - Machine-readable JSON
 
 ## Configuration
 
@@ -229,15 +339,53 @@ Create a `probitas.json` file in your project root:
   "excludes": ["**/*.skip.probitas.ts"],
   "reporter": "list",
   "maxConcurrency": 4,
+  "maxFailures": 0,
   "timeout": "30s",
   "selectors": ["!tag:wip"]
 }
 ```
 
+Configuration options:
+
+- `includes` - Glob patterns for scenario files to include (default:
+  `["**/*.probitas.ts"]`)
+- `excludes` - Glob patterns for scenario files to exclude (default: `[]`)
+- `reporter` - Output format: `list` or `json` (default: `list`)
+- `maxConcurrency` - Maximum number of scenarios to run in parallel (default:
+  number of CPU cores)
+- `maxFailures` - Stop execution after N failures, 0 for unlimited (default:
+  `0`)
+- `timeout` - Default timeout for scenarios (e.g., `30s`, `5m`, `1h`)
+- `selectors` - Default selectors to filter scenarios (e.g., `["tag:api"]`,
+  `["!tag:slow"]`)
+
+Generate a default configuration:
+
+```bash
+probitas init
+```
+
+## Available Clients
+
+Probitas provides pre-configured clients for common services:
+
+- **HTTP** - REST API testing (`client.http`)
+- **GraphQL** - GraphQL query testing (`client.graphql`)
+- **ConnectRPC** - RPC service testing (`client.connectrpc`)
+- **gRPC** - gRPC service testing (`client.grpc`)
+- **SQL Databases** - PostgreSQL, MySQL, SQLite, DuckDB (`client.sql.*`)
+- **Redis** - Redis operations (`client.redis`)
+- **MongoDB** - MongoDB operations (`client.mongodb`)
+- **Deno KV** - Deno's key-value store (`client.denoKv`)
+- **RabbitMQ** - Message queue operations (`client.rabbitmq`)
+- **AWS SQS** - SQS queue operations (`client.sqs`)
+
+Each client comes with specialized assertion utilities via the `expect()`
+function.
+
 ## Expectation API
 
-Probitas provides specialized expectation functions for various client
-responses. Each client type has tailored assertions:
+Probitas provides client-specific expectation functions:
 
 ```typescript
 import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
@@ -286,52 +434,130 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
   .build();
 ```
 
-Supported client types:
-
-- **HTTP** - `expectHttpResponse` for REST API testing
-- **GraphQL** - `expectGraphqlResponse` for GraphQL queries
-- **ConnectRPC** - `expectConnectRpcResponse` for RPC calls
-- **SQL** - `expectSqlQueryResult` for database queries
-- **Redis** - `expectRedisResult` for Redis operations
-- **MongoDB** - `expectMongoResult` for MongoDB operations
-- **Deno KV** - `expectDenoKvResult` for Deno KV operations
-- **RabbitMQ** - `expectRabbitMqResult` for message queue operations
-- **SQS** - `expectSqsResult` for AWS SQS operations
-
-All expectation methods follow a consistent naming pattern (`toBeXxx`,
-`toHaveXxx`) and support method chaining for fluent assertions.
-
-## Development Environment
-
-A Nix flake is available to provision the Deno toolchain without global
-installs.
+## CLI Commands
 
 ```bash
-# Enter the development shell
-nix develop
+# Run scenarios
+probitas run [options]
 
-# Optional: auto-activate with direnv
-echo "use flake" > .envrc
-direnv allow
+# List scenarios without running
+probitas list [options]
+
+# Initialize configuration file
+probitas init
+
+# Format scenario files
+probitas fmt
+
+# Lint scenario files
+probitas lint
+
+# Type check scenario files
+probitas check
+
+# Show version
+probitas --version
+
+# Show help
+probitas --help
 ```
 
-Run project tasks such as `deno task verify` from within the Nix shell for
-consistent tooling.
+## Reporters
 
-## Packages
+Choose output format based on your needs:
 
-| Package                                                 | JSR                                                                                   | Description                           |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------- |
-| [@probitas/probitas](https://jsr.io/@probitas/probitas) | [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas) | Primary library for writing scenarios |
-| [@probitas/builder](https://jsr.io/@probitas/builder)   | [![JSR](https://jsr.io/badges/@probitas/builder)](https://jsr.io/@probitas/builder)   | Type-safe scenario definition API     |
-| [@probitas/runner](https://jsr.io/@probitas/runner)     | [![JSR](https://jsr.io/badges/@probitas/runner)](https://jsr.io/@probitas/runner)     | Scenario execution engine             |
-| [@probitas/reporter](https://jsr.io/@probitas/reporter) | [![JSR](https://jsr.io/badges/@probitas/reporter)](https://jsr.io/@probitas/reporter) | Output formatters (List, JSON)        |
-| [@probitas/core](https://jsr.io/@probitas/core)         | [![JSR](https://jsr.io/badges/@probitas/core)](https://jsr.io/@probitas/core)         | Scenario loading and filtering        |
-| [@probitas/discover](https://jsr.io/@probitas/discover) | [![JSR](https://jsr.io/badges/@probitas/discover)](https://jsr.io/@probitas/discover) | File discovery with glob patterns     |
-| [@probitas/expect](https://jsr.io/@probitas/expect)     | [![JSR](https://jsr.io/badges/@probitas/expect)](https://jsr.io/@probitas/expect)     | Expectation library                   |
+- `list` - Detailed human-readable output (default)
+- `json` - Machine-readable JSON for CI/CD integration
 
-The CLI is maintained in a
-[separate repository](https://github.com/probitas-test/cli).
+```bash
+probitas run --reporter json
+```
+
+## AI Integration
+
+### Claude Code Plugin
+
+Probitas provides a Claude Code plugin to enhance scenario development with AI
+assistance:
+
+```bash
+# Add the plugin marketplace
+/plugin marketplace add probitas-test/claude-plugins
+
+# Install the Probitas plugin
+/plugin install probitas@probitas-test
+```
+
+Or add to your project's `.claude/settings.json`:
+
+```json
+{
+  "plugins": {
+    "marketplaces": ["probitas-test/claude-plugins"],
+    "installed": ["probitas@probitas-test"]
+  },
+  "enabledPlugins": {
+    "probitas@probitas-test": true
+  }
+}
+```
+
+The plugin provides:
+
+- **Scenario scaffolding** - Generate scenario templates with common patterns
+- **Assertion suggestions** - Context-aware recommendations for expect calls
+- **Client integration** - Auto-complete for client configurations
+- **Error diagnostics** - AI-powered debugging for failing scenarios
+
+See
+[probitas-test/claude-plugins](https://github.com/probitas-test/claude-plugins)
+for more details.
+
+### LLM Documentation
+
+For AI assistants and language models, comprehensive documentation is available
+in machine-readable format:
+
+- **Documentation website**:
+  [probitas-test.github.io/documents](https://probitas-test.github.io/documents)
+- **LLM-optimized**:
+  [llms.txt](https://probitas-test.github.io/documents/llms.txt) - Structured
+  documentation following the [llms.txt standard](https://llmstxt.org/)
+- **Markdown format**: All documentation provides `index.md` files for easy
+  access and parsing
+
+#### API Documentation
+
+For detailed API reference, use `deno doc` to view type signatures and
+documentation directly from the package:
+
+```bash
+# View expect API documentation
+deno doc jsr:@probitas/probitas/expect
+
+# View client API documentation
+deno doc jsr:@probitas/probitas/client
+
+# View main package documentation
+deno doc jsr:@probitas/probitas
+```
+
+This provides the most accurate and up-to-date type information directly from
+the source code.
+
+The combination of narrative documentation (index.md/llms.txt) and API reference
+(`deno doc`) enables AI assistants to provide accurate, comprehensive guidance
+when working with Probitas.
+
+## Contributing
+
+Interested in contributing or maintaining Probitas? See
+[CONTRIBUTING.md](CONTRIBUTING.md) for:
+
+- Development environment setup
+- Release process and workflow
+- Architecture overview
+- Related repositories
 
 ## License
 

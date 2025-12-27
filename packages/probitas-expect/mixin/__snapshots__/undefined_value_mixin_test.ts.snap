@@ -1,5 +1,0 @@
-export const snapshot = {};
-
-snapshot[`createUndefinedValueMixin - toHaveValueUndefined 1`] = `"Expected value to be undefined, but got 200"`;
-
-snapshot[`createUndefinedValueMixin - toHaveValueDefined 1`] = `"Expected value to be defined, but got undefined"`;

@@ -1,0 +1,27 @@
+probitas fmt - Format scenario files
+
+Usage: probitas fmt [options] [paths...]
+
+Arguments:
+  [paths...]  Scenario files or directories
+              Defaults to current directory
+
+Options:
+  -h, --help             Show help message
+  --include <pattern>    Include pattern for file discovery
+  --exclude <pattern>    Exclude pattern for file discovery
+  --config <path>        Path to probitas config file
+  -v, --verbose          Verbose output
+  -q, --quiet            Suppress output
+  -d, --debug            Debug output
+
+Note:
+  Runs `deno fmt --no-config` on discovered scenario files.
+  Uses includes/excludes from probitas config (same as run/list).
+
+Examples:
+  probitas fmt                    # Format all scenario files
+  probitas fmt api/               # Format scenarios in api directory
+  probitas fmt --include "e2e/**/*.probitas.ts"
+
+Documentation: https://probitas-test.github.io/documents/

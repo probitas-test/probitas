@@ -1,0 +1,26 @@
+// Documentation:
+// - For humans: https://probitas-test.github.io/documents/docs/configuration
+// - For AI: https://probitas-test.github.io/documents/docs/configuration/index.md
+{
+  // Glob patterns for scenario file discovery
+  "includes": [
+    "**/*.probitas.ts"
+  ],
+  // Glob patterns to exclude from discovery
+  "excludes": [
+    "**/.git/**",
+    "**/node_modules/**"
+  ],
+  // Output reporter (list, json)
+  "reporter": "list",
+  // Maximum parallel scenario execution (0 = unlimited)
+  "maxConcurrency": 0,
+  // Maximum allowed failures before aborting execution (0 = unlimited)
+  "maxFailures": 0,
+  // Default timeout for each scenario
+  "timeout": "30s",
+  // Default selectors for filtering scenarios
+  "selectors": [
+    "!tag:failure"
+  ]
+}

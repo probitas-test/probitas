@@ -1,0 +1,110 @@
+probitas run - Run scenarios
+
+Usage: probitas run [options] [paths...]
+
+Arguments:
+  [paths...]  Scenario files or directories
+              Defaults to current directory
+
+Options:
+  -h, --help                Show help message
+  --include <pattern>       Include pattern for file discovery (can be specified multiple times)
+  --exclude <pattern>       Exclude pattern for file discovery (can be specified multiple times)
+  -s, --selector <selector> Select scenarios by selector (can be specified multiple times)
+                            Supports ! prefix for negation
+  --reporter <name>         Reporter to use (dot, list, json, tap)
+                            Default: "list"
+  --timeout <duration>      Timeout for scenario execution (e.g., "30s", "10m", "1h")
+                            Default: "30s". Use "0" for no timeout.
+  --no-timeout              Disable timeout (alias for --timeout 0)
+  --max-concurrency <n>     Maximum parallel scenarios (default: unlimited)
+  -S, --sequential          Run scenarios sequentially (alias for --max-concurrency=1)
+  --max-failures <n>        Stop after N failures
+  -f, --fail-fast           Stop on first failure (alias for --max-failures=1)
+  --config <path>           Path to config file (deno.json/deno.jsonc)
+  --env <file>              Load environment variables from file (default: .env)
+  --no-env                  Skip loading .env file
+  -r, --reload              Reload dependencies before running
+  -q, --quiet               Quiet output (errors only)
+  -v, --verbose             Verbose output
+  -d, --debug               Debug output (maximum detail)
+  --no-color                Disable colored output
+
+Selector Format:
+  [!][type:]value
+
+  Types:
+    tag   - Match by tag (e.g., tag:api)
+    name  - Match by scenario name (default, e.g., Login or name:Login)
+
+  Matching is case-insensitive (e.g., "login" matches "Login", "LOGIN", "login")
+  Multiple selectors with -s: OR logic
+  Comma-separated within selector: AND logic
+  ! prefix: Negation (exclude matching scenarios)
+
+Examples:
+  probitas run                              Run all scenarios
+  probitas run examples/                    Run scenarios in examples/
+  probitas run test.probitas.ts             Run specific file
+
+  # Filter by file pattern
+  probitas run --include "e2e/**/*.probitas.ts"     Run scenarios in e2e directory
+  probitas run --exclude "**/*.skip.probitas.ts"    Exclude skip files
+
+  # Select by tag
+  probitas run -s tag:smoke                 Run scenarios with @smoke tag
+  probitas run -s tag:smoke -s tag:api      Run scenarios with @smoke OR @api tags
+
+  # Select by name
+  probitas run -s login                     Run scenarios matching "login"
+  probitas run -s "login" -s "logout"       Run matching "login" OR "logout"
+
+  # Combine (AND within selector)
+  probitas run -s "tag:api,tag:critical"    Run with @api AND @critical tags
+  probitas run -s "tag:api,User"            Run @api tag AND name containing "User"
+
+  # Exclude scenarios using negation
+  probitas run -s "!tag:slow"               Run all except @slow tag
+  probitas run -s "!wip"                    Run all except matching "wip"
+  probitas run -s "tag:api,!tag:slow"       Run @api excluding @slow
+
+  # Combined with positive selectors
+  probitas run -s "tag:smoke" -s "!tag:skip" Run @smoke OR (NOT @skip)
+
+  # Combine file patterns with selectors
+  probitas run --include "api/**/*.ts" -s "tag:smoke"  API files with smoke tag
+  probitas run --exclude "**/*.skip.ts" -s "!tag:slow" Exclude skip files and slow scenarios
+
+  # File + selector
+  probitas run probitas/auth/ -s tag:smoke Run smoke tests in auth/ directory
+
+  # Execution control
+  probitas run --timeout 30s                Set scenario execution timeout to 30 seconds (default)
+  probitas run --timeout 10m                Set scenario execution timeout to 10 minutes
+  probitas run --timeout 0                  Disable timeout (no time limit)
+  probitas run --no-timeout                 Disable timeout (alias for --timeout 0)
+  probitas run --max-concurrency 5          Run up to 5 scenarios in parallel
+  probitas run -S                           Run scenarios sequentially
+  probitas run --sequential                 Run scenarios sequentially
+  probitas run --max-failures 1             Stop on first failure
+  probitas run -f                           Stop on first failure (alias)
+  probitas run --reload                     Reload dependencies before running
+
+  # Output control
+  probitas run -v                           Verbose output
+  probitas run --verbose                    Verbose output (same as -v)
+  probitas run -q                           Quiet output
+  probitas run --quiet                      Quiet output (same as -q)
+  probitas run -d                           Debug output
+  probitas run --debug                      Debug output (same as -d)
+
+  # Environment variables
+  probitas run                              Load .env file automatically
+  probitas run --env .env.test              Load custom env file
+  probitas run --no-env                     Skip loading .env file
+
+Environment Variables:
+  NO_COLOR         Disable colored output
+  .env File:       Automatically loaded before scenario execution (use --no-env to skip)
+
+Documentation: https://probitas-test.github.io/documents/

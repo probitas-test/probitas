@@ -1,145 +1,63 @@
-name: Test
+name: Release
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., v0.1.2)"
+        required: true
+        type: string
 
 jobs:
-  check:
+  prepare:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+
     steps:
       - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c deno task check
-      - run: nix develop -c deno lint
-      - run: |
-          nix develop -c deno fmt
-          git diff --exit-code
-
-  test:
-    runs-on: ubuntu-latest
-    services:
-      echo-http:
-        image: ghcr.io/probitas-test/echo-http:latest
-        ports:
-          - 8080:80
-      echo-grpc:
-        image: ghcr.io/probitas-test/echo-grpc:latest
-        ports:
-          - 50051:50051
-      echo-connectrpc:
-        image: ghcr.io/probitas-test/echo-connectrpc:latest
-        ports:
-          - 8090:8080
-      echo-graphql:
-        image: ghcr.io/probitas-test/echo-graphql:latest
-        ports:
-          - 8100:8080
-      postgres:
-        image: postgres:16
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-        options: >-
-          --health-cmd "pg_isready -U testuser -d testdb"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
-        options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root -prootpassword"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      denokv:
-        image: ghcr.io/denoland/denokv
-        ports:
-          - 4512:4512
-        env:
-          DENO_KV_SQLITE_PATH: ":memory:"
-          DENO_KV_ACCESS_TOKEN: testtoken1234
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        options: >-
-          --health-cmd "rabbitmq-diagnostics check_port_connectivity"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-      localstack:
-        image: localstack/localstack:latest
-        ports:
-          - 4566:4566
-        env:
-          SERVICES: sqs
-          DEBUG: 0
-        options: >-
-          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      DENO_KV_ACCESS_TOKEN: testtoken1234
-    steps:
-      # MongoDB is started via action instead of services because:
-      # - GitHub Actions services don't support custom command options
-      # - Transactions require replica set mode (--replSet flag)
-      # - supercharge/mongodb-github-action handles replica set initialization
-      - uses: supercharge/mongodb-github-action@1.12.0
         with:
-          mongodb-version: "7.0"
-          mongodb-replica-set: rs0
-      - uses: actions/checkout@v6
+          ref: main # Ensure we're on main
+
       - uses: nixbuild/nix-quick-install-action@v34
 
-      # Workaround for native library download race condition in parallel tests.
-      # Multiple subprocesses may simultaneously download the same FFI library,
-      # causing "file too short" errors. Pre-loading prevents this conflict.
-      # See: https://github.com/probitas-test/probitas/issues/32
-      - name: Pre-load native libraries
+      - name: Parse version
+        id: version
         run: |
-          nix develop -c deno eval "import { Database } from 'jsr:@db/sqlite@0.12'; const db = new Database(':memory:'); db.close();"
+          VERSION="${{ inputs.version }}"
+          # Remove 'v' prefix if present
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
-      - run: nix develop -c deno task test:coverage
-        timeout-minutes: 5
+      - name: Update version in deno.json
+        run: |
+          nix develop -c deno task update-version ${{ steps.version.outputs.version }}
 
-      - run: nix develop -c deno task coverage --lcov > coverage.lcov
-        timeout-minutes: 5
+      - name: Update deno.lock
+        run: |
+          nix develop -c deno task update-lock
 
-      - uses: codecov/codecov-action@v5
+      - name: Update flake.lock
+        run: |
+          nix flake update
+
+      - name: Upload updated files
+        uses: actions/upload-artifact@v4
         with:
-          files: ./coverage.lcov
-          slug: probitas-test/probitas-packages
+          name: release-files
+          path: |
+            deno.json
+            deno.lock
+            flake.lock
+          retention-days: 1
 
-  scenario-test:
+  test-deno-lock:
     runs-on: ubuntu-latest
+    needs: prepare
+    timeout-minutes: 10
     services:
       echo-http:
         image: ghcr.io/probitas-test/echo-http:latest
@@ -227,18 +145,183 @@ jobs:
     env:
       DENO_KV_ACCESS_TOKEN: testtoken1234
     steps:
-      # MongoDB is started via action instead of services because:
-      # - GitHub Actions services don't support custom command options
-      # - Transactions require replica set mode (--replSet flag)
-      # - supercharge/mongodb-github-action handles replica set initialization
       - uses: supercharge/mongodb-github-action@1.12.0
         with:
           mongodb-version: "7.0"
           mongodb-replica-set: rs0
 
       - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Download updated files
+        uses: actions/download-artifact@v4
+        with:
+          name: release-files
+
       - uses: nixbuild/nix-quick-install-action@v34
 
-      - run: |
+      - name: Test with Deno (deno.lock)
+        run: |
           nix develop -c deno task probitas run
         timeout-minutes: 5
+
+  test-nix-flake:
+    runs-on: ubuntu-latest
+    needs: prepare
+    timeout-minutes: 10
+    services:
+      echo-http:
+        image: ghcr.io/probitas-test/echo-http:latest
+        ports:
+          - 8080:80
+      echo-grpc:
+        image: ghcr.io/probitas-test/echo-grpc:latest
+        ports:
+          - 50051:50051
+      echo-connectrpc:
+        image: ghcr.io/probitas-test/echo-connectrpc:latest
+        ports:
+          - 8090:8080
+      echo-graphql:
+        image: ghcr.io/probitas-test/echo-graphql:latest
+        ports:
+          - 8100:8080
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+        options: >-
+          --health-cmd "pg_isready -U testuser -d testdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -u root -prootpassword"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      denokv:
+        image: ghcr.io/denoland/denokv
+        ports:
+          - 4512:4512
+        env:
+          DENO_KV_SQLITE_PATH: ":memory:"
+          DENO_KV_ACCESS_TOKEN: testtoken1234
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        options: >-
+          --health-cmd "rabbitmq-diagnostics check_port_connectivity"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 10
+      localstack:
+        image: localstack/localstack:latest
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: sqs
+          DEBUG: 0
+        options: >-
+          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DENO_KV_ACCESS_TOKEN: testtoken1234
+    steps:
+      - uses: supercharge/mongodb-github-action@1.12.0
+        with:
+          mongodb-version: "7.0"
+          mongodb-replica-set: rs0
+
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Download updated files
+        uses: actions/download-artifact@v4
+        with:
+          name: release-files
+
+      - uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Test with Nix package (flake.lock)
+        run: |
+          nix run . -- run
+        timeout-minutes: 5
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [test-deno-lock, test-nix-flake]
+    timeout-minutes: 10
+
+    permissions:
+      contents: write # For creating releases and pushing commits/tags
+      id-token: write # For JSR publishing
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main # Ensure we're on main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download updated files
+        uses: actions/download-artifact@v4
+        with:
+          name: release-files
+
+      - uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Commit version update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deno.json deno.lock flake.lock
+          git commit -m "chore: bump version to ${{ needs.prepare.outputs.version }}"
+
+      - name: Create tag
+        run: |
+          git tag ${{ needs.prepare.outputs.tag }}
+
+      - name: Publish to JSR
+        run: nix develop -c deno publish
+
+      - name: Push to main and tags
+        run: |
+          git push origin main --tags
+
+      - name: Create GitHub Release
+        run: |
+          gh release create ${{ needs.prepare.outputs.tag }} \
+            --title "${{ needs.prepare.outputs.tag }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

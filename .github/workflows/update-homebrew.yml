@@ -1,0 +1,25 @@
+name: Update Homebrew Formula
+
+on:
+  # Trigger after JSR publish completes
+  workflow_run:
+    workflows: ["Publish"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  update-homebrew:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Only run if Publish workflow succeeded (or manual trigger)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Trigger homebrew-tap update
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          repository: probitas-test/homebrew-tap
+          event-type: update-formula
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

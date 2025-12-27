@@ -1,0 +1,20 @@
+Initialize a new Probitas project
+
+Usage: probitas init [options]
+
+Options:
+  -h, --help           Show help message
+  -d, --directory DIR  Directory name to create (default: "probitas")
+  -f, --force          Overwrite existing files
+  -v, --verbose        Enable verbose output
+  -q, --quiet          Suppress non-error output
+      --debug          Enable debug output
+
+Examples:
+  probitas init                  # Create probitas/ with example files
+  probitas init -d scenarios     # Create scenarios/ instead
+  probitas init --force          # Overwrite existing files
+
+Created Files:
+  example.probitas.ts   Example scenario file
+  probitas.jsonc        Configuration file

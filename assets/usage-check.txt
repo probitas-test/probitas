@@ -1,0 +1,27 @@
+probitas check - Type-check scenario files
+
+Usage: probitas check [options] [paths...]
+
+Arguments:
+  [paths...]  Scenario files or directories
+              Defaults to current directory
+
+Options:
+  -h, --help             Show help message
+  --include <pattern>    Include pattern for file discovery
+  --exclude <pattern>    Exclude pattern for file discovery
+  --config <path>        Path to probitas config file
+  -v, --verbose          Verbose output
+  -q, --quiet            Suppress output
+  -d, --debug            Debug output
+
+Note:
+  Runs `deno check --no-config` on discovered scenario files.
+  Uses includes/excludes from probitas config (same as run/list).
+
+Examples:
+  probitas check                  # Check all scenario files
+  probitas check api/             # Check scenarios in api directory
+  probitas check --include "e2e/**/*.probitas.ts"
+
+Documentation: https://probitas-test.github.io/documents/

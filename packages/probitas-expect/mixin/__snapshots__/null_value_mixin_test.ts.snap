@@ -1,3 +1,0 @@
-export const snapshot = {};
-
-snapshot[`createNullValueMixin - toHaveValueNull 1`] = `"Expected value to be null, but got 200"`;

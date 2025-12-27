@@ -1,0 +1,22 @@
+Probitas - Scenario-based test runner
+
+Usage: probitas <command> [options]
+
+Commands:
+  init     Initialize a new probitas project
+  run      Run scenarios
+  list     List available scenarios
+  fmt      Format scenario files (runs deno fmt)
+  lint     Lint scenario files (runs deno lint)
+  check    Type-check scenario files (runs deno check)
+
+Options:
+  -h, --help     Show help message
+  -V, --version  Show version
+
+Environment Variables:
+  NO_COLOR         Disable colored output
+
+Run 'probitas <command> -h' for more information on a command.
+
+Documentation: https://probitas-test.github.io/documents/
