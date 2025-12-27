@@ -1,0 +1,18 @@
+name: Update Homebrew
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  update-homebrew:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger Homebrew formula update
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          repository: probitas-test/homebrew-tap
+          event-type: update-formula
