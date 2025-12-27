@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: nixbuild/nix-quick-install-action@v34
