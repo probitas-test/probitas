@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PULL_REQUEST_TOKEN }}
 
       - uses: nixbuild/nix-quick-install-action@v34
 
@@ -29,4 +29,4 @@ jobs:
         run: |
           nix develop -c deno task release ${{ inputs.version }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PULL_REQUEST_TOKEN }}

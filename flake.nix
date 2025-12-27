@@ -14,7 +14,6 @@
           name = "probitas";
           runtimeInputs = [
             prev.deno
-            prev.coreutils
             # Native library dependencies for database clients
             prev.stdenv.cc.cc.lib
             prev.sqlite
