@@ -39,7 +39,6 @@ export async function listCommand(
         "help",
         "json",
         "no-env",
-        "reload",
         "quiet",
         "verbose",
         "debug",
@@ -48,7 +47,6 @@ export async function listCommand(
       alias: {
         h: "help",
         s: "selector",
-        r: "reload",
         v: "verbose",
         q: "quiet",
         d: "debug",

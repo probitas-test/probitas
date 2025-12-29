@@ -65,7 +65,6 @@ export async function runCommand(
         "no-color",
         "no-timeout",
         "no-env",
-        "reload",
         "quiet",
         "verbose",
         "debug",
@@ -81,7 +80,6 @@ export async function runCommand(
         v: "verbose",
         q: "quiet",
         d: "debug",
-        r: "reload",
       },
       default: {
         include: undefined,
