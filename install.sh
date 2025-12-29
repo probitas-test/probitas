@@ -26,7 +26,7 @@ fi
 PACKAGE_NAME="@probitas/probitas"
 COMMAND_NAME="probitas"
 SUBMODULE_PATH="/cli"
-JSR_BASE_URL=`https://jsr.io/${PACKAGE_NAME}`
+JSR_BASE_URL="https://jsr.io/${PACKAGE_NAME}"
 
 # Read configuration from environment variables
 VERSION="${PROBITAS_VERSION:-}"
