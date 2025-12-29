@@ -29,6 +29,17 @@ Options:
   -d, --debug               Debug output (maximum detail)
   --no-color                Disable colored output
 
+Deno Runtime Options:
+  --deno-config <path>      Use custom Deno config file
+  --deno-no-config          Disable Deno config file
+  --deno-lock <path>        Use custom lock file
+  --deno-no-lock            Disable lock file
+  --deno-reload             Reload dependencies (ignore cache)
+  --deno-import-map <path>  Use custom import map
+
+  Note: Any --deno-XXXXX option passes --XXXXX to the underlying deno run command.
+        For example: --deno-unstable, --deno-check, etc.
+
 Selector Format:
   [!][type:]value
 
@@ -87,6 +98,13 @@ Examples:
   probitas run --sequential                 Run scenarios sequentially
   probitas run --max-failures 1             Stop on first failure
   probitas run -f                           Stop on first failure (alias)
+
+  # Deno runtime control
+  probitas run --deno-reload                Reload all dependencies
+  probitas run --deno-reload=https://deno.land  Reload specific domain
+  probitas run --deno-no-lock               Ignore lock file
+  probitas run --deno-config custom.json    Use custom Deno config
+  probitas run --deno-unstable              Enable unstable Deno features
 
   # Output control
   probitas run -v                           Verbose output

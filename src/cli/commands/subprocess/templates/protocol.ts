@@ -1,5 +1,5 @@
 /**
- * Worker communication protocol for scenario execution
+ * Runner communication protocol for scenario execution
  *
  * @module
  */
@@ -15,16 +15,16 @@ import {
 } from "@core/errorutil/error-object";
 
 /**
- * Message sent from main thread to worker
+ * Message sent from main process to runner
  */
-export type WorkerInput =
-  | WorkerRunInput
-  | WorkerTerminateInput;
+export type RunnerInput =
+  | RunInput
+  | TerminateInput;
 
 /**
  * Run a scenario from a file
  */
-export interface WorkerRunInput {
+export interface RunInput {
   readonly type: "run";
   /** Unique task ID for correlation */
   readonly taskId: string;
@@ -34,40 +34,40 @@ export interface WorkerRunInput {
   readonly scenarioIndex: number;
   /** Timeout in milliseconds (undefined = no timeout) */
   readonly timeout?: number;
-  /** Log level for worker logging */
+  /** Log level for runner logging */
   readonly logLevel?: LogLevel;
 }
 
 /**
- * Terminate the worker
+ * Terminate the runner
  */
-export interface WorkerTerminateInput {
+export interface TerminateInput {
   readonly type: "terminate";
 }
 
 /**
- * Message sent from worker to main thread
+ * Message sent from runner to main process
  */
-export type WorkerOutput =
-  | WorkerResultOutput
-  | WorkerErrorOutput
-  | WorkerReadyOutput
-  | WorkerScenarioStartOutput
-  | WorkerScenarioEndOutput
-  | WorkerStepStartOutput
-  | WorkerStepEndOutput;
+export type RunnerOutput =
+  | ResultOutput
+  | ErrorOutput
+  | ReadyOutput
+  | ScenarioStartOutput
+  | ScenarioEndOutput
+  | StepStartOutput
+  | StepEndOutput;
 
 /**
- * Worker is ready to receive tasks
+ * Runner is ready to receive tasks
  */
-export interface WorkerReadyOutput {
+export interface ReadyOutput {
   readonly type: "ready";
 }
 
 /**
  * Scenario execution completed successfully
  */
-export interface WorkerResultOutput {
+export interface ResultOutput {
   readonly type: "result";
   /** Task ID for correlation */
   readonly taskId: string;
@@ -78,7 +78,7 @@ export interface WorkerResultOutput {
 /**
  * Scenario execution failed with error
  */
-export interface WorkerErrorOutput {
+export interface ErrorOutput {
   readonly type: "error";
   /** Task ID for correlation */
   readonly taskId: string;
@@ -89,7 +89,7 @@ export interface WorkerErrorOutput {
 /**
  * Scenario execution started
  */
-export interface WorkerScenarioStartOutput {
+export interface ScenarioStartOutput {
   readonly type: "scenario_start";
   /** Task ID for correlation */
   readonly taskId: string;
@@ -100,7 +100,7 @@ export interface WorkerScenarioStartOutput {
 /**
  * Scenario execution completed
  */
-export interface WorkerScenarioEndOutput {
+export interface ScenarioEndOutput {
   readonly type: "scenario_end";
   /** Task ID for correlation */
   readonly taskId: string;
@@ -113,7 +113,7 @@ export interface WorkerScenarioEndOutput {
 /**
  * Step execution started
  */
-export interface WorkerStepStartOutput {
+export interface StepStartOutput {
   readonly type: "step_start";
   /** Task ID for correlation */
   readonly taskId: string;
@@ -126,7 +126,7 @@ export interface WorkerStepStartOutput {
 /**
  * Step execution completed
  */
-export interface WorkerStepEndOutput {
+export interface StepEndOutput {
   readonly type: "step_end";
   /** Task ID for correlation */
   readonly taskId: string;

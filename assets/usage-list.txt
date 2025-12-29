@@ -17,6 +17,17 @@ Options:
   --env <file>               Load environment variables from file (default: .env)
   --no-env                   Skip loading .env file
 
+Deno Runtime Options:
+  --deno-config <path>       Use custom Deno config file
+  --deno-no-config           Disable Deno config file
+  --deno-lock <path>         Use custom lock file
+  --deno-no-lock             Disable lock file
+  --deno-reload              Reload dependencies (ignore cache)
+  --deno-import-map <path>   Use custom import map
+
+  Note: Any --deno-XXXXX option passes --XXXXX to the underlying deno run command.
+        For example: --deno-unstable, --deno-check, etc.
+
 Selector Format:
   [!][type:]value
 
@@ -65,6 +76,11 @@ Examples:
 
   # JSON output
   probitas list --json                          Output as JSON
+
+  # Deno runtime control
+  probitas list --deno-reload               Reload all dependencies
+  probitas list --deno-no-lock              Ignore lock file
+  probitas list --deno-config custom.json   Use custom Deno config
 
   # Environment variables
   probitas list                                 Load .env file automatically

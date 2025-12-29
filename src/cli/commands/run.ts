@@ -22,6 +22,7 @@ import {
 } from "@probitas/runner";
 import {
   configureLogging,
+  extractDenoArgs,
   loadEnvironment,
   parsePositiveInteger,
   parseTimeout,
@@ -29,7 +30,10 @@ import {
   resolveReporter,
 } from "../utils.ts";
 import { createDiscoveryProgress, writeStatus } from "../progress.ts";
-import { WorkerPool, type WorkerPoolEventCallbacks } from "./run/pool.ts";
+import {
+  RunnerPool,
+  type RunnerPoolEventCallbacks,
+} from "./subprocess/runner_pool.ts";
 
 const logger = getLogger(["probitas", "cli", "run"]);
 
@@ -47,6 +51,9 @@ export async function runCommand(
   cwd: string,
 ): Promise<number> {
   try {
+    // Extract --deno-XXXXX options before parsing
+    const denoArgs = extractDenoArgs(args);
+
     // Parse command-line arguments
     const parsed = parseArgs(args, {
       string: [
@@ -230,14 +237,15 @@ export async function runCommand(
       cwd,
     });
 
-    // Run scenarios with Worker pool
+    // Run scenarios with Subprocess pool
     const startTime = performance.now();
-    const result = await runWithWorkers(scenarios, {
+    const result = await runWithSubprocesses(scenarios, {
       reporter,
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
       timeout: timeoutMs,
       logLevel,
+      denoArgs,
     });
     const duration = performance.now() - startTime;
 
@@ -284,9 +292,9 @@ interface ScenarioTask {
 }
 
 /**
- * Run scenarios using Worker pool
+ * Run scenarios using Subprocess pool
  */
-async function runWithWorkers(
+async function runWithSubprocesses(
   scenarios: readonly ScenarioDefinition[],
   options: {
     reporter: Reporter;
@@ -294,9 +302,11 @@ async function runWithWorkers(
     maxFailures: number;
     timeout?: number;
     logLevel?: LogLevel;
+    denoArgs: string[];
   },
 ): Promise<{ results: ScenarioResult[] }> {
-  const { reporter, maxConcurrency, maxFailures, timeout, logLevel } = options;
+  const { reporter, maxConcurrency, maxFailures, timeout, logLevel, denoArgs } =
+    options;
 
   // Build task list with file paths and indices
   const tasks = buildTaskList(scenarios);
@@ -305,12 +315,12 @@ async function runWithWorkers(
   const scenariosMetadata = scenarios.map(toScenarioMetadata);
   await reporter.onRunStart?.(scenariosMetadata);
 
-  // Create worker pool
+  // Create runner pool
   const concurrency = maxConcurrency > 0
     ? maxConcurrency
     : navigator.hardwareConcurrency || 4;
 
-  await using pool = new WorkerPool(concurrency);
+  await using pool = new RunnerPool(concurrency, denoArgs);
 
   const results: ScenarioResult[] = [];
   let failureCount = 0;
@@ -333,9 +343,9 @@ async function runWithWorkers(
     const batchPromises = batch.map(async (task) => {
       const taskId = String(taskIdCounter++);
 
-      // Create callbacks to bridge worker events to reporter
+      // Create callbacks to bridge runner events to reporter
       // Reporter now uses Metadata types directly, so we can pass through
-      const callbacks: WorkerPoolEventCallbacks = {
+      const callbacks: RunnerPoolEventCallbacks = {
         onScenarioStart: (scenario) => {
           reporter.onScenarioStart?.(scenario);
         },
@@ -366,7 +376,7 @@ async function runWithWorkers(
 
         return result;
       } catch (error) {
-        // Worker error - create failed result
+        // Subprocess error - create failed result
         // Create ScenarioMetadata from ScenarioDefinition
         const metadata = {
           name: task.scenario.name,

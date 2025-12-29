@@ -21,6 +21,34 @@ import { resolve } from "@std/path";
 
 const logger = getLogger(["probitas", "cli", "utils"]);
 
+/**
+ * Extract --deno-XXXXX options from arguments
+ *
+ * Converts --deno-foo to --foo for passing to deno run subprocess.
+ *
+ * @param args - Command-line arguments
+ * @returns Array of deno options
+ *
+ * @example
+ * ```ts
+ * extractDenoArgs(["--deno-no-lock", "--verbose"])
+ * // => ["--no-lock"]
+ * ```
+ */
+export function extractDenoArgs(args: string[]): string[] {
+  const denoArgs: string[] = [];
+
+  for (const arg of args) {
+    if (arg.startsWith("--deno-")) {
+      // "--deno-no-lock" → "--no-lock"
+      const denoArg = arg.replace(/^--deno-/, "--");
+      denoArgs.push(denoArg);
+    }
+  }
+
+  return denoArgs;
+}
+
 type DenoJson = {
   version?: string;
 };

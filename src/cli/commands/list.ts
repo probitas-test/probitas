@@ -9,14 +9,82 @@ import { resolve } from "@std/path";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { discoverScenarioFiles } from "@probitas/discover";
 import type { ScenarioDefinition } from "@probitas/core";
-import { loadScenarios } from "@probitas/core/loader";
 import { applySelectors } from "@probitas/core/selector";
 import { EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { createDiscoveryProgress, writeStatus } from "../progress.ts";
-import { configureLogging, loadEnvironment, readAsset } from "../utils.ts";
+import {
+  configureLogging,
+  extractDenoArgs,
+  loadEnvironment,
+  readAsset,
+} from "../utils.ts";
+import { TemplateProcessor } from "./subprocess/template_processor.ts";
 
 const logger = getLogger(["probitas", "cli", "list"]);
+
+/**
+ * Load scenarios via subprocess
+ *
+ * This allows scenarios to be loaded with correct deno.json/deno.lock
+ */
+async function loadScenariosViaSubprocess(
+  files: string[],
+  options: {
+    denoArgs: string[];
+    onImportError?: (file: string, error: unknown) => void;
+  },
+): Promise<ScenarioDefinition[]> {
+  // Get processed loader path
+  await using templateProcessor = new TemplateProcessor();
+  const loaderPath = await templateProcessor.getEntryPointPath("loader.ts");
+
+  const args = [
+    "run",
+    "--allow-all",
+    "--unstable-kv", // Enable Deno KV by default
+    ...options.denoArgs,
+    loaderPath,
+  ];
+
+  logger.debug("Spawning loader subprocess", {
+    command: "deno",
+    args,
+  });
+
+  const command = new Deno.Command("deno", {
+    args,
+    stdin: "piped",
+    stdout: "piped",
+    stderr: "inherit",
+  });
+
+  const process = command.spawn();
+
+  // Send file list to stdin
+  const writer = process.stdin.getWriter();
+  const input = { files };
+  const json = JSON.stringify(input) + "\n";
+  await writer.write(new TextEncoder().encode(json));
+  await writer.close();
+
+  // Read output from stdout
+  const output = await process.output();
+  const result = JSON.parse(new TextDecoder().decode(output.stdout));
+
+  if (result.type === "error") {
+    if (options.onImportError && result.file) {
+      options.onImportError(result.file, result.error);
+    }
+    throw new Error(result.error);
+  }
+
+  if (result.type !== "success") {
+    throw new Error("Invalid loader output format");
+  }
+
+  return result.scenarios;
+}
 
 /**
  * Execute the list command
@@ -32,6 +100,9 @@ export async function listCommand(
   cwd: string,
 ): Promise<number> {
   try {
+    // Extract --deno-XXXXX options before parsing
+    const denoArgs = extractDenoArgs(args);
+
     // Parse command-line arguments
     const parsed = parseArgs(args, {
       string: ["config", "include", "exclude", "selector", "env"],
@@ -144,14 +215,15 @@ export async function listCommand(
       return EXIT_CODE.SUCCESS;
     }
 
-    // Load scenarios
+    // Load scenarios via subprocess (to ensure correct deno.json/deno.lock)
     // Show status during loading (only in TTY, suppressed in quiet mode)
     logger.info("Loading scenarios", { fileCount: scenarioFiles.length });
     const clearLoadingStatus = parsed.quiet
       ? null
       : writeStatus(`Loading scenarios (${scenarioFiles.length} files)...`);
 
-    const scenarios = await loadScenarios(scenarioFiles, {
+    const scenarios = await loadScenariosViaSubprocess(scenarioFiles, {
+      denoArgs,
       onImportError: (file, err) => {
         const m = err instanceof Error ? err.message : String(err);
         throw new Error(`Failed to load scenario from ${file}: ${m}`);
