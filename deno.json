@@ -44,11 +44,12 @@
   },
   "exclude": [
     ".coverage/**",
-    ".claude/**"
+    ".claude/**",
+    ".worktrees/**"
   ],
   "tasks": {
     "probitas": "deno run -A --unstable-kv --lock --frozen ./src/cli.ts",
-    "check": "deno check --doc && deno check --doc-only **/*.md",
+    "check": "deno check --doc && deno check --doc-only *.md .claude/**/*.md",
     "test": "deno test -A --parallel --shuffle",
     "test:coverage": "deno task test --coverage=.coverage",
     "coverage": "deno coverage .coverage --include='/src/'",
