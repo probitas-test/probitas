@@ -6,20 +6,12 @@
 
 import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
-import { chunk } from "@std/collections/chunk";
+import { unreachable } from "@core/errorutil/unreachable";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { DEFAULT_TIMEOUT, EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
-import type { ScenarioDefinition } from "@probitas/core";
-import { loadScenarios } from "@probitas/core/loader";
-import { applySelectors } from "@probitas/core/selector";
-import {
-  type Reporter,
-  type RunResult,
-  type ScenarioResult,
-  toScenarioMetadata,
-} from "@probitas/runner";
+import type { Reporter, RunResult } from "@probitas/runner";
 import {
   configureLogging,
   loadEnvironment,
@@ -28,8 +20,15 @@ import {
   readAsset,
   resolveReporter,
 } from "../utils.ts";
-import { createDiscoveryProgress, writeStatus } from "../progress.ts";
-import { WorkerPool, type WorkerPoolEventCallbacks } from "./run/pool.ts";
+import { createDiscoveryProgress } from "../progress.ts";
+import {
+  deserializeError,
+  deserializeRunResult,
+  deserializeScenarioResult,
+  deserializeStepResult,
+  type WorkerInput,
+  type WorkerOutput,
+} from "./run/protocol.ts";
 
 const logger = getLogger(["probitas", "cli", "run"]);
 
@@ -38,6 +37,7 @@ const logger = getLogger(["probitas", "cli", "run"]);
  *
  * @param args - Command-line arguments
  * @param cwd - Current working directory
+ * @param signal - Optional AbortSignal for graceful shutdown
  * @returns Exit code (0 = success, 1 = failure, 2 = usage error)
  *
  * @requires --allow-read Permission to read config and scenario files
@@ -45,6 +45,7 @@ const logger = getLogger(["probitas", "cli", "run"]);
 export async function runCommand(
   args: string[],
   cwd: string,
+  signal?: AbortSignal,
 ): Promise<number> {
   try {
     // Parse command-line arguments
@@ -116,12 +117,8 @@ export async function runCommand(
       : "warning";
 
     // Configure logging with determined log level
-    try {
-      await configureLogging(logLevel);
-      logger.debug("Run command started", { args, cwd, logLevel });
-    } catch {
-      // Silently ignore logging configuration errors (e.g., in test environments)
-    }
+    await configureLogging(logLevel);
+    logger.debug("Run command started", { args, cwd, logLevel });
 
     // Load environment variables before loading configuration
     // This allows config files to reference environment variables
@@ -167,37 +164,8 @@ export async function runCommand(
       files: scenarioFiles,
     });
 
-    // Load scenarios to get metadata and apply selectors
-    // Show status during loading (only in TTY, suppressed in quiet mode)
-    const clearLoadingStatus = parsed.quiet
-      ? null
-      : writeStatus(`Loading scenarios (${scenarioFiles.length} files)...`);
-    let scenarios = await loadScenarios(scenarioFiles, {
-      onImportError: (file, err) => {
-        const m = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to load scenario from ${file}: ${m}`);
-      },
-    });
-    clearLoadingStatus?.();
-
-    logger.debug("Scenarios loaded", { scenarioCount: scenarios.length });
-
-    if (scenarios.length === 0) {
-      console.warn("No scenarios found in files");
-      return EXIT_CODE.NOT_FOUND;
-    }
-
-    // Apply selectors to filter scenarios
+    // Get selectors (will be applied in worker)
     const selectors = parsed.selector ?? config?.selectors ?? [];
-    if (selectors.length > 0) {
-      logger.debug("Applying selectors", { selectors });
-      scenarios = applySelectors(scenarios, selectors);
-    }
-
-    if (scenarios.length === 0) {
-      console.warn("No scenarios matched the filter");
-      return EXIT_CODE.NOT_FOUND;
-    }
 
     // Parse options
     const maxConcurrency = parsed.sequential
@@ -218,45 +186,23 @@ export async function runCommand(
       ? "0"
       : (parsed.timeout ?? config?.timeout ?? DEFAULT_TIMEOUT);
     const timeoutSeconds = parseTimeout(timeoutString);
-    const timeoutMs = timeoutSeconds ? timeoutSeconds * 1000 : undefined;
-
-    logger.info("Running scenarios", {
-      scenarioCount: scenarios.length,
-      maxConcurrency,
-      maxFailures,
-      timeoutMs,
-    });
+    const timeout = timeoutSeconds ? timeoutSeconds * 1000 : 0;
 
     // Setup reporter with cwd for relative path display
     const reporter = resolveReporter(parsed.reporter ?? config?.reporter, {
       cwd,
     });
 
-    // Run scenarios with Worker pool
-    const startTime = performance.now();
-    const result = await runWithWorkers(scenarios, {
+    // Run scenarios with Worker
+    const runResult = await runWithWorker(scenarioFiles, {
       reporter,
+      selectors,
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
-      timeout: timeoutMs,
+      timeout,
       logLevel,
+      signal,
     });
-    const duration = performance.now() - startTime;
-
-    // Create run result
-    const runResult: RunResult = {
-      total: scenarios.length,
-      passed: result.results.filter((r) => r.status === "passed").length,
-      failed: result.results.filter((r) => r.status === "failed").length,
-      skipped: scenarios.length - result.results.length,
-      duration,
-      scenarios: result.results,
-    };
-
-    await reporter.onRunEnd?.(
-      scenarios.map(toScenarioMetadata),
-      runResult,
-    );
 
     logger.info("Scenarios completed", {
       total: runResult.total,
@@ -277,170 +223,196 @@ export async function runCommand(
 }
 
 /**
- * Task definition for worker execution
+ * Run scenarios using a single Worker
  */
-interface ScenarioTask {
-  readonly scenario: ScenarioDefinition;
-  readonly filePath: string;
-  readonly scenarioIndex: number;
-}
-
-/**
- * Run scenarios using Worker pool
- */
-async function runWithWorkers(
-  scenarios: readonly ScenarioDefinition[],
+async function runWithWorker(
+  filePaths: readonly string[],
   options: {
     reporter: Reporter;
+    selectors: readonly string[];
     maxConcurrency: number;
     maxFailures: number;
-    timeout?: number;
-    logLevel?: LogLevel;
+    timeout: number;
+    logLevel: LogLevel;
+    signal?: AbortSignal;
   },
-): Promise<{ results: ScenarioResult[] }> {
-  const { reporter, maxConcurrency, maxFailures, timeout, logLevel } = options;
+): Promise<RunResult> {
+  const {
+    reporter,
+    selectors,
+    maxConcurrency,
+    maxFailures,
+    timeout,
+    logLevel,
+    signal,
+  } = options;
 
-  // Build task list with file paths and indices
-  const tasks = buildTaskList(scenarios);
+  // Create a single worker
+  const workerUrl = new URL("./run/worker.ts", import.meta.url);
+  const worker = new Worker(workerUrl, { type: "module" });
 
-  // Convert to metadata for reporter
-  const scenariosMetadata = scenarios.map(toScenarioMetadata);
-  await reporter.onRunStart?.(scenariosMetadata);
-
-  // Create worker pool
-  const concurrency = maxConcurrency > 0
-    ? maxConcurrency
-    : navigator.hardwareConcurrency || 4;
-
-  await using pool = new WorkerPool(concurrency);
-
-  const results: ScenarioResult[] = [];
-  let failureCount = 0;
-  let taskIdCounter = 0;
-
-  // Execute in batches to support maxFailures
-  const batches = maxConcurrency > 0 ? chunk(tasks, maxConcurrency) : [tasks];
-
-  for (const batch of batches) {
-    // Check if we should stop due to max failures
-    if (maxFailures > 0 && failureCount >= maxFailures) {
-      logger.debug("Stopping due to max failures", {
-        failureCount,
-        maxFailures,
-      });
-      break;
-    }
-
-    // Execute batch in parallel
-    const batchPromises = batch.map(async (task) => {
-      const taskId = String(taskIdCounter++);
-
-      // Create callbacks to bridge worker events to reporter
-      // Reporter now uses Metadata types directly, so we can pass through
-      const callbacks: WorkerPoolEventCallbacks = {
-        onScenarioStart: (scenario) => {
-          reporter.onScenarioStart?.(scenario);
-        },
-        onStepStart: (scenario, step) => {
-          reporter.onStepStart?.(scenario, step);
-        },
-        onStepEnd: (scenario, step, result) => {
-          reporter.onStepEnd?.(scenario, step, result);
-        },
-        // Note: onScenarioEnd is handled below after pool.execute completes
-      };
-
-      try {
-        const result = await pool.execute(
-          {
-            type: "run",
-            taskId,
-            filePath: task.filePath,
-            scenarioIndex: task.scenarioIndex,
-            timeout,
-            logLevel,
-          },
-          callbacks,
-        );
-
-        // Emit scenario end event (result.metadata is ScenarioMetadata)
-        await reporter.onScenarioEnd?.(result.metadata, result);
-
-        return result;
-      } catch (error) {
-        // Worker error - create failed result
-        // Create ScenarioMetadata from ScenarioDefinition
-        const metadata = {
-          name: task.scenario.name,
-          tags: task.scenario.tags,
-          origin: task.scenario.origin,
-          steps: task.scenario.steps.map((s) => ({
-            kind: s.kind,
-            name: s.name,
-            timeout: s.timeout,
-            retry: s.retry,
-            origin: s.origin,
-          })),
-        };
-        const errorResult: ScenarioResult = {
-          status: "failed",
-          metadata,
-          duration: 0,
-          steps: [],
-          error,
-        };
-
-        await reporter.onScenarioEnd?.(metadata, errorResult);
-
-        return errorResult;
-      }
-    });
-
-    const batchResults = await Promise.all(batchPromises);
-
-    for (const result of batchResults) {
-      results.push(result);
-      if (result.status === "failed") {
-        failureCount++;
-      }
-    }
+  // Check if already aborted before setting up worker
+  if (signal?.aborted) {
+    worker.terminate();
+    throw new Error("Aborted before execution started");
   }
 
-  return { results };
+  const {
+    resolve: resolveResult,
+    reject: rejectResult,
+    promise: promiseResult,
+  } = Promise.withResolvers<RunResult>();
+
+  // Set up abort handler to send abort message to worker
+  const abortHandler = () => {
+    worker.postMessage({ type: "abort" } satisfies WorkerInput);
+  };
+  signal?.addEventListener("abort", abortHandler, { once: true });
+
+  // Set up error handler to catch worker errors
+  const errorHandler = (event: ErrorEvent) => {
+    logger.debug("Worker error", {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
+    rejectResult(event.error);
+  };
+  worker.addEventListener("error", errorHandler);
+
+  // Setup message handler for all messages (including ready signal)
+  // This avoids race condition between ready signal and subsequent messages
+  const pendingReporterOps = new Set<Promise<void>>();
+  let isReady = false;
+  const {
+    resolve: resolveReady,
+    reject: rejectReady,
+    promise: readyPromise,
+  } = Promise.withResolvers<void>();
+
+  const messageHandler = (event: MessageEvent<WorkerOutput>) => {
+    const output = event.data;
+
+    // Handle ready signal specially
+    if (output.type === "ready") {
+      isReady = true;
+      resolveReady();
+      return;
+    }
+
+    // Reject if we receive messages before ready
+    if (!isReady) {
+      rejectReady(new Error("Unexpected message from worker before ready"));
+      return;
+    }
+
+    const handleMessage = async () => {
+      try {
+        const result = await handleWorkerOutput(reporter, output);
+        if (result) {
+          // Wait for all pending reporter operations to complete
+          // Take a snapshot to avoid issues with concurrent modifications
+          await Promise.all([...pendingReporterOps]);
+          resolveResult(result);
+        }
+      } catch (err) {
+        rejectResult(err);
+      }
+    };
+
+    // Track this operation if it's not the final result
+    if (output.type !== "result" && output.type !== "error") {
+      const promise = handleMessage();
+      pendingReporterOps.add(promise);
+      // Remove from set when done to prevent memory buildup
+      promise.finally(() => pendingReporterOps.delete(promise));
+    } else {
+      // For result/error, handle immediately
+      handleMessage();
+    }
+  };
+  worker.addEventListener("message", messageHandler);
+
+  // Wait for worker ready signal
+  await readyPromise;
+
+  try {
+    // Send file paths to worker
+    const message: WorkerInput = {
+      type: "run",
+      filePaths,
+      selectors,
+      maxConcurrency,
+      maxFailures,
+      timeout,
+      logLevel,
+    };
+    worker.postMessage(message);
+
+    // Wait for completion
+    return await promiseResult;
+  } finally {
+    // Clean up event listeners
+    worker.removeEventListener("message", messageHandler);
+    worker.removeEventListener("error", errorHandler);
+    signal?.removeEventListener("abort", abortHandler);
+
+    // Terminate worker (postMessage not needed as terminate() is immediate)
+    worker.terminate();
+  }
 }
 
-/**
- * Build task list from scenarios
- *
- * Groups scenarios by file and assigns indices.
- * Origin paths are expected to be absolute (from captureStack).
- */
-function buildTaskList(
-  scenarios: readonly ScenarioDefinition[],
-): ScenarioTask[] {
-  // Group scenarios by file to assign correct indices
-  const byFile = new Map<string, ScenarioDefinition[]>();
+async function handleWorkerOutput(
+  reporter: Reporter,
+  output: WorkerOutput,
+): Promise<RunResult | void> {
+  switch (output.type) {
+    case "ready":
+      // Already handled output type
+      throw new Error("Unexpected 'ready' message from worker");
 
-  for (const scenario of scenarios) {
-    const file = scenario.origin?.path || "unknown";
-    if (!byFile.has(file)) {
-      byFile.set(file, []);
-    }
-    byFile.get(file)!.push(scenario);
+    case "result":
+      return deserializeRunResult(output.result);
+
+    case "error":
+      throw deserializeError(output.error);
+
+    case "run_start":
+      await reporter.onRunStart?.(output.scenarios);
+      break;
+
+    case "run_end":
+      await reporter.onRunEnd?.(
+        output.scenarios,
+        deserializeRunResult(output.result),
+      );
+      break;
+
+    case "scenario_start":
+      await reporter.onScenarioStart?.(output.scenario);
+      break;
+
+    case "scenario_end":
+      await reporter.onScenarioEnd?.(
+        output.scenario,
+        deserializeScenarioResult(output.result),
+      );
+      break;
+
+    case "step_start":
+      await reporter.onStepStart?.(output.scenario, output.step);
+      break;
+
+    case "step_end":
+      await reporter.onStepEnd?.(
+        output.scenario,
+        output.step,
+        deserializeStepResult(output.result),
+      );
+      break;
+
+    default:
+      unreachable(output);
   }
-
-  // Build task list with correct indices
-  const tasks: ScenarioTask[] = [];
-
-  for (const [filePath, fileScenarios] of byFile) {
-    for (let i = 0; i < fileScenarios.length; i++) {
-      tasks.push({
-        scenario: fileScenarios[i],
-        filePath,
-        scenarioIndex: i,
-      });
-    }
-  }
-
-  return tasks;
 }

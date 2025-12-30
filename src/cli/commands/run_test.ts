@@ -203,4 +203,75 @@ describe("run command", () => {
 
   // Note: --reload option was for subprocess execution which is no longer used.
   // The option is still parsed but has no effect in the Worker-based execution model.
+
+  describe("signal handling", () => {
+    it("gracefully aborts execution when signal is aborted", async () => {
+      await using sbox = await sandbox();
+
+      // Create a scenario that runs for a long time
+      const scenarioPath = sbox.resolve("long-running.probitas.ts");
+      await Deno.writeTextFile(
+        scenarioPath,
+        outdent`
+          export default {
+            name: "Long Running Test",
+            tags: [],
+            steps: [
+              {
+                kind: "step",
+                name: "Sleep step",
+                fn: async (ctx) => {
+                  // Sleep in small increments to allow signal checking
+                  for (let i = 0; i < 100; i++) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    // Check if aborted (signal is passed through context)
+                    if (ctx.signal?.aborted) {
+                      throw new Error("Aborted");
+                    }
+                  }
+                  return { result: "success" };
+                },
+                timeout: 15000,
+                retry: { maxAttempts: 1, backoff: "linear" }
+              }
+            ],
+            origin: { path: "${scenarioPath}" }
+          };
+        `,
+      );
+
+      // Create abort controller
+      const controller = new AbortController();
+
+      // Record start time to verify early termination
+      const startTime = performance.now();
+
+      // Start execution with signal
+      const resultPromise = runCommand(
+        [scenarioPath, "--sequential"],
+        sbox.path,
+        controller.signal,
+      );
+
+      // Abort after a short delay (500ms to account for CI startup time)
+      setTimeout(() => controller.abort(), 500);
+
+      // Wait for result
+      const exitCode = await resultPromise;
+
+      // Calculate elapsed time
+      const elapsed = performance.now() - startTime;
+
+      // Should return failure exit code because scenario was aborted
+      assertEquals(exitCode, EXIT_CODE.FAILURE);
+
+      // Verify early termination: full scenario takes 10s, abort should complete
+      // well before that (within 2s including CI overhead)
+      assertEquals(
+        elapsed < 2000,
+        true,
+        `Expected early termination (<2s) but took ${elapsed}ms`,
+      );
+    });
+  });
 });

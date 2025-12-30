@@ -178,8 +178,9 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .build();
 ```
 
-> [!NOTE] > **Enable Deno LSP in your editor** for the best development
-> experience. With Deno LSP enabled, you'll get:
+> [!NOTE]
+> **Enable Deno LSP in your editor** for the best development experience. With
+> Deno LSP enabled, you'll get:
 >
 > - Auto-completion for Probitas APIs (`scenario`, `expect`, `client`, etc.)
 > - Type checking and inline error detection

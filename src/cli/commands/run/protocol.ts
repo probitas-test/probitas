@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ScenarioResult, StepResult } from "@probitas/runner";
+import type { RunResult, ScenarioResult, StepResult } from "@probitas/runner";
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { LogLevel } from "@logtape/logtape";
 import {
@@ -19,30 +19,32 @@ import {
  */
 export type WorkerInput =
   | WorkerRunInput
-  | WorkerTerminateInput;
+  | WorkerAbortInput;
 
 /**
- * Run a scenario from a file
+ * Run scenarios in worker
  */
 export interface WorkerRunInput {
   readonly type: "run";
-  /** Unique task ID for correlation */
-  readonly taskId: string;
-  /** Absolute path to scenario file */
-  readonly filePath: string;
-  /** Index of scenario within file (for files with multiple scenarios) */
-  readonly scenarioIndex: number;
-  /** Timeout in milliseconds (undefined = no timeout) */
-  readonly timeout?: number;
+  /** File paths to load scenarios from */
+  readonly filePaths: readonly string[];
+  /** Selectors to filter scenarios (empty array = no filtering) */
+  readonly selectors: readonly string[];
+  /** Maximum number of scenarios to run concurrently (0 = no limit) */
+  readonly maxConcurrency: number;
+  /** Maximum number of failures before stopping (0 = no limit) */
+  readonly maxFailures: number;
+  /** Timeout in milliseconds (0 = no timeout) */
+  readonly timeout: number;
   /** Log level for worker logging */
-  readonly logLevel?: LogLevel;
+  readonly logLevel: LogLevel;
 }
 
 /**
- * Terminate the worker
+ * Abort running scenarios
  */
-export interface WorkerTerminateInput {
-  readonly type: "terminate";
+export interface WorkerAbortInput {
+  readonly type: "abort";
 }
 
 /**
@@ -52,6 +54,8 @@ export type WorkerOutput =
   | WorkerResultOutput
   | WorkerErrorOutput
   | WorkerReadyOutput
+  | WorkerRunStartOutput
+  | WorkerRunEndOutput
   | WorkerScenarioStartOutput
   | WorkerScenarioEndOutput
   | WorkerStepStartOutput
@@ -65,14 +69,32 @@ export interface WorkerReadyOutput {
 }
 
 /**
- * Scenario execution completed successfully
+ * Run started
+ */
+export interface WorkerRunStartOutput {
+  readonly type: "run_start";
+  /** Scenario metadata list (serializable) */
+  readonly scenarios: readonly ScenarioMetadata[];
+}
+
+/**
+ * Run completed
+ */
+export interface WorkerRunEndOutput {
+  readonly type: "run_end";
+  /** Scenario metadata list (serializable) */
+  readonly scenarios: readonly ScenarioMetadata[];
+  /** Run result */
+  readonly result: RunResult;
+}
+
+/**
+ * All scenarios execution completed successfully
  */
 export interface WorkerResultOutput {
   readonly type: "result";
-  /** Task ID for correlation */
-  readonly taskId: string;
-  /** Scenario execution result */
-  readonly result: ScenarioResult;
+  /** Run result with all scenario results */
+  readonly result: RunResult;
 }
 
 /**
@@ -80,8 +102,6 @@ export interface WorkerResultOutput {
  */
 export interface WorkerErrorOutput {
   readonly type: "error";
-  /** Task ID for correlation */
-  readonly taskId: string;
   /** Serialized error information */
   readonly error: ErrorObject;
 }
@@ -91,8 +111,6 @@ export interface WorkerErrorOutput {
  */
 export interface WorkerScenarioStartOutput {
   readonly type: "scenario_start";
-  /** Task ID for correlation */
-  readonly taskId: string;
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
 }
@@ -102,8 +120,6 @@ export interface WorkerScenarioStartOutput {
  */
 export interface WorkerScenarioEndOutput {
   readonly type: "scenario_end";
-  /** Task ID for correlation */
-  readonly taskId: string;
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
   /** Scenario execution result */
@@ -115,8 +131,6 @@ export interface WorkerScenarioEndOutput {
  */
 export interface WorkerStepStartOutput {
   readonly type: "step_start";
-  /** Task ID for correlation */
-  readonly taskId: string;
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
   /** Step metadata (serializable) */
@@ -128,8 +142,6 @@ export interface WorkerStepStartOutput {
  */
 export interface WorkerStepEndOutput {
   readonly type: "step_end";
-  /** Task ID for correlation */
-  readonly taskId: string;
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
   /** Step metadata (serializable) */
@@ -142,15 +154,8 @@ export interface WorkerStepEndOutput {
  * Serialize an error for transmission
  */
 export function serializeError(error: unknown): ErrorObject {
-  if (error instanceof Error) {
-    return toErrorObject(error);
-  }
-  return {
-    proto: "Error",
-    name: "Error",
-    message: String(error),
-    attributes: {},
-  };
+  const err = error instanceof Error ? error : new Error(String(error));
+  return toErrorObject(err);
 }
 
 /**
@@ -224,4 +229,24 @@ export function deserializeScenarioResult(
     };
   }
   return { ...result, steps };
+}
+
+/**
+ * Serialize RunResult errors for transmission
+ */
+export function serializeRunResult(result: RunResult): RunResult {
+  return {
+    ...result,
+    scenarios: result.scenarios.map(serializeScenarioResult),
+  };
+}
+
+/**
+ * Deserialize RunResult errors from transmission
+ */
+export function deserializeRunResult(result: RunResult): RunResult {
+  return {
+    ...result,
+    scenarios: result.scenarios.map(deserializeScenarioResult),
+  };
 }
