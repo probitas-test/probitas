@@ -113,7 +113,6 @@ export function spawnDenoSubprocess(
   const command = new Deno.Command("deno", {
     args: [
       "run",
-      "--quiet", // Suppress download progress to keep stdout clean for JSON
       "--unstable-kv", // Allow DenoKV
       "--allow-all", // Scenarios may need various permissions
       ...denoArgs,

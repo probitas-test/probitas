@@ -22,17 +22,21 @@ export interface ExtractDenoOptionsResult {
  * Options starting with --deno- are extracted and converted to
  * the corresponding deno option (e.g., --deno-config becomes --config).
  *
+ * Value-taking options must use `=` syntax (e.g., `--deno-config=path`).
+ * Boolean flags work without values (e.g., `--deno-no-lock`).
+ *
  * @param args - Command-line arguments
  * @returns Extracted deno args and remaining args
  *
  * @example
  * ```ts
  * const { denoArgs, remainingArgs } = extractDenoOptions([
- *   "--deno-config", "custom/deno.json",
+ *   "--deno-config=custom/deno.json",
  *   "--selector", "foo",
- *   "--deno-lock", "custom/deno.lock",
+ *   "--deno-lock=custom/deno.lock",
+ *   "--deno-no-prompt",
  * ]);
- * // denoArgs: ["--config", "custom/deno.json", "--lock", "custom/deno.lock"]
+ * // denoArgs: ["--config=custom/deno.json", "--lock=custom/deno.lock", "--no-prompt"]
  * // remainingArgs: ["--selector", "foo"]
  * ```
  */
@@ -40,36 +44,19 @@ export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
   const denoArgs: string[] = [];
   const remainingArgs: string[] = [];
 
-  let i = 0;
-  while (i < args.length) {
-    const arg = args[i];
-
+  for (const arg of args) {
     if (arg.startsWith("--deno-")) {
-      // Convert --deno-xxx to --xxx
+      // Convert --deno-xxx to --xxx (preserving =value if present)
       const denoArg = "--" + arg.slice(7);
       denoArgs.push(denoArg);
-
-      // Check if next arg is a value (not starting with -)
-      if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
-        denoArgs.push(args[i + 1]);
-        i += 2;
-        continue;
-      }
     } else {
       remainingArgs.push(arg);
     }
-    i++;
   }
 
   return { denoArgs, remainingArgs };
 }
-import {
-  configure,
-  getConsoleSink,
-  getLogger,
-  type LogLevel,
-} from "@logtape/logtape";
-import { getPrettyFormatter } from "@logtape/pretty";
+import { getLogger } from "@logtape/logtape";
 import { JSONReporter, ListReporter } from "@probitas/reporter";
 import type { Reporter } from "@probitas/runner";
 import type { ReporterOptions } from "@probitas/reporter";
@@ -389,44 +376,5 @@ export async function loadEnvironment(
   }
 }
 
-/**
- * Configure LogTape logging for the CLI
- *
- * NOTE: This is intentionally duplicated in src/cli/_templates/utils.ts because
- * subprocess templates must be self-contained. Keep implementations in sync.
- *
- * @param level - Log level to use
- */
-export async function configureLogging(level: LogLevel): Promise<void> {
-  try {
-    await configure({
-      sinks: {
-        console: getConsoleSink({
-          formatter: getPrettyFormatter({
-            timestamp: "disabled",
-            colors: true,
-            properties: true,
-          }),
-        }),
-      },
-      filters: {
-        levelFilter: level,
-        metaFilter: "warning",
-      },
-      loggers: [
-        {
-          category: ["probitas"],
-          filters: ["levelFilter"],
-          sinks: ["console"],
-        },
-        {
-          category: ["logtape", "meta"],
-          filters: ["metaFilter"],
-          sinks: ["console"],
-        },
-      ],
-    });
-  } catch {
-    // Ignore configuration errors (e.g., already configured in tests)
-  }
-}
+// Re-export configureLogging from shared template module
+export { configureLogging } from "./_templates/logging.ts";

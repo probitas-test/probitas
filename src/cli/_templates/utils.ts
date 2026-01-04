@@ -5,57 +5,14 @@
  * for stdin/stdout communication with the parent process.
  *
  * IMPORTANT: This module must be self-contained with no relative imports
- * outside of _subprocess/. External dependencies are resolved at template
+ * outside of _templates/. External dependencies are resolved at template
  * build time via JSR specifiers.
  *
  * @module
  * @internal
  */
 
-import { configure, getConsoleSink, type LogLevel } from "@logtape/logtape";
-import { getPrettyFormatter } from "@logtape/pretty";
-
-/**
- * Configure LogTape logging for subprocess
- *
- * NOTE: This is intentionally duplicated from src/cli/utils.ts because
- * subprocess templates must be self-contained. Keep implementations in sync.
- *
- * @param level - Log level to use
- */
-export async function configureLogging(level: LogLevel): Promise<void> {
-  try {
-    await configure({
-      sinks: {
-        console: getConsoleSink({
-          formatter: getPrettyFormatter({
-            timestamp: "disabled",
-            colors: true,
-            properties: true,
-          }),
-        }),
-      },
-      filters: {
-        levelFilter: level,
-        metaFilter: "warning",
-      },
-      loggers: [
-        {
-          category: ["probitas"],
-          filters: ["levelFilter"],
-          sinks: ["console"],
-        },
-        {
-          category: ["logtape", "meta"],
-          filters: ["metaFilter"],
-          sinks: ["console"],
-        },
-      ],
-    });
-  } catch {
-    // Ignore configuration errors (e.g., already configured)
-  }
-}
+export { configureLogging } from "./logging.ts";
 
 /**
  * Read all input from stdin
