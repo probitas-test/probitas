@@ -189,8 +189,9 @@ function resolveModuleDependencies(
   for (const dep of mod.dependencies ?? []) {
     const specifier = dep.specifier;
 
-    // Skip already-resolved URL specifiers (jsr:, https:, npm:, etc.)
-    // but process relative paths (which don't have a protocol)
+    // Skip external URL specifiers (jsr:, https:, npm:, etc.) that are
+    // already resolved. Process file: URLs (local files) and bare specifiers
+    // (no protocol, need resolution via import map).
     if (specifier.includes(":") && !specifier.startsWith("file:")) continue;
 
     // Get the resolved dependency info (code or type)

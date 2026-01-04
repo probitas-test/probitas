@@ -293,8 +293,8 @@ function handleSubprocessOutput(
       // Both allScenarios and filteredScenarios refer to this filtered set.
       // TODO: Consider returning unfiltered list from subprocess if needed.
       return {
-        allScenarios: output.scenarios as ScenarioMeta[],
-        filteredScenarios: output.scenarios as ScenarioMeta[],
+        allScenarios: [...output.scenarios],
+        filteredScenarios: [...output.scenarios],
       };
 
     case "error": {
