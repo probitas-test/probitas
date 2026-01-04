@@ -81,4 +81,8 @@ async function main(): Promise<void> {
   }
 }
 
-main();
+// Run main and exit explicitly to avoid async operations keeping process alive
+main().finally(() => {
+  // Ensure process exits after output is flushed
+  setTimeout(() => Deno.exit(0), 0);
+});

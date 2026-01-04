@@ -253,51 +253,56 @@ export function deserializeRunResult(result: RunResult): RunResult {
  *
  * This factory eliminates duplication between Worker and Subprocess reporters
  * by extracting the common serialization logic.
+ *
+ * The output function can be async - all reporter methods will await it.
  */
 export function createReporter(
-  output: (message: RunOutput) => void,
+  output: (message: RunOutput) => void | Promise<void>,
 ): Reporter {
   return {
-    onRunStart(scenarios: readonly ScenarioMetadata[]): void {
-      output({ type: "run_start", scenarios });
+    async onRunStart(scenarios: readonly ScenarioMetadata[]): Promise<void> {
+      await output({ type: "run_start", scenarios });
     },
 
-    onRunEnd(
+    async onRunEnd(
       scenarios: readonly ScenarioMetadata[],
       result: RunResult,
-    ): void {
-      output({
+    ): Promise<void> {
+      await output({
         type: "run_end",
         scenarios,
         result: serializeRunResult(result),
       });
     },
 
-    onScenarioStart(scenario: ScenarioMetadata): void {
-      output({ type: "scenario_start", scenario });
+    async onScenarioStart(scenario: ScenarioMetadata): Promise<void> {
+      await output({ type: "scenario_start", scenario });
     },
 
-    onScenarioEnd(
+    async onScenarioEnd(
       scenario: ScenarioMetadata,
       result: ScenarioResult,
-    ): void {
-      output({
+    ): Promise<void> {
+      await output({
         type: "scenario_end",
         scenario,
         result: serializeScenarioResult(result),
       });
     },
 
-    onStepStart(scenario: ScenarioMetadata, step: StepMetadata): void {
-      output({ type: "step_start", scenario, step });
+    async onStepStart(
+      scenario: ScenarioMetadata,
+      step: StepMetadata,
+    ): Promise<void> {
+      await output({ type: "step_start", scenario, step });
     },
 
-    onStepEnd(
+    async onStepEnd(
       scenario: ScenarioMetadata,
       step: StepMetadata,
       result: StepResult,
-    ): void {
-      output({
+    ): Promise<void> {
+      await output({
         type: "step_end",
         scenario,
         step,

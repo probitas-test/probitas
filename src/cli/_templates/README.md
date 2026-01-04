@@ -10,7 +10,7 @@ Subprocess entry point templates executed in isolated Deno subprocesses.
 | `list.ts`          | Entry point for `probitas list`       |
 | `run_protocol.ts`  | Protocol types for run communication  |
 | `list_protocol.ts` | Protocol types for list communication |
-| `utils.ts`         | Shared utilities (stdin/stdout)       |
+| `utils.ts`         | Shared utilities (TCP-based IPC)      |
 
 ## Rules
 

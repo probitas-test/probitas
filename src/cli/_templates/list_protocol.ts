@@ -7,7 +7,7 @@
 import type { ErrorObject } from "@core/errorutil/error-object";
 
 /**
- * Input sent to subprocess via stdin
+ * Input sent to subprocess via IPC
  */
 export interface ListInput {
   /** File paths to load scenarios from */
