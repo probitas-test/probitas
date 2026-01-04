@@ -6,7 +6,6 @@
 
 [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
-[![Publish](https://github.com/probitas-test/probitas/actions/workflows/publish.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/publish.yml)
 [![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
 [![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io/documents)
 
@@ -174,9 +173,7 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .step("Verify user exists", async (ctx) => {
     const { id } = ctx.previous!;
     const response = await ctx.resources.http.get(`/users/${id}`);
-    expect(response)
-      .toBeOk()
-      .toHaveJsonProperty("name", "Alice");
+    expect(response).toBeOk().toHaveJsonProperty("name", "Alice");
   })
   .build();
 ```
@@ -427,9 +424,7 @@ export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
     const response = await ctx.resources.http.get(`/orders/${orderId}`);
     const order = response.json as { total: number };
     // Generic value assertions (chainable)
-    expect(order.total)
-      .toBeGreaterThan(0)
-      .toBeLessThan(10000);
+    expect(order.total).toBeGreaterThan(0).toBeLessThan(10000);
   })
   .build();
 ```

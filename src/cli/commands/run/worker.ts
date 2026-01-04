@@ -1,8 +1,8 @@
 /**
  * Worker entry point for scenario execution
  *
- * Each worker executes a single scenario in isolation, preventing
- * global state pollution between scenarios.
+ * Executes all scenarios in a single worker, using Runner.run() for
+ * concurrent execution and failure control.
  *
  * @module
  */
@@ -10,12 +10,19 @@
 /// <reference lib="deno.worker" />
 
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import { applySelectors } from "@probitas/core/selector";
 import { loadScenarios } from "@probitas/core/loader";
 import { getLogger } from "@logtape/logtape";
-import type { Reporter, ScenarioResult, StepResult } from "@probitas/runner";
+import type {
+  Reporter,
+  RunResult,
+  ScenarioResult,
+  StepResult,
+} from "@probitas/runner";
 import { Runner } from "@probitas/runner";
 import {
   serializeError,
+  serializeRunResult,
   serializeScenarioResult,
   serializeStepResult,
   type WorkerInput,
@@ -24,51 +31,71 @@ import {
 } from "./protocol.ts";
 import { configureLogging } from "../../utils.ts";
 
+const logger = getLogger(["probitas", "cli", "run", "worker"]);
+
+// Global AbortController for graceful shutdown
+let globalAbortController: AbortController | null = null;
+
 /**
- * Create a reporter that sends events to main thread via postMessage
+ * Reporter that sends events to main thread via postMessage
  */
-function createWorkerReporter(taskId: string): Reporter {
-  return {
-    onScenarioStart(scenario: ScenarioMetadata): void {
-      postOutput({
-        type: "scenario_start",
-        taskId,
-        scenario,
-      });
-    },
-    onScenarioEnd(
-      scenario: ScenarioMetadata,
-      result: ScenarioResult,
-    ): void {
-      postOutput({
-        type: "scenario_end",
-        taskId,
-        scenario,
-        result: serializeScenarioResult(result),
-      });
-    },
-    onStepStart(scenario: ScenarioMetadata, step: StepMetadata): void {
-      postOutput({
-        type: "step_start",
-        taskId,
-        scenario,
-        step,
-      });
-    },
-    onStepEnd(
-      scenario: ScenarioMetadata,
-      step: StepMetadata,
-      result: StepResult,
-    ): void {
-      postOutput({
-        type: "step_end",
-        taskId,
-        scenario,
-        step,
-        result: serializeStepResult(result),
-      });
-    },
-  };
+class WorkerReporter implements Reporter {
+  onRunStart(scenarios: readonly ScenarioMetadata[]): void {
+    postOutput({
+      type: "run_start",
+      scenarios,
+    });
+  }
+
+  onRunEnd(
+    scenarios: readonly ScenarioMetadata[],
+    result: RunResult,
+  ): void {
+    postOutput({
+      type: "run_end",
+      scenarios,
+      result: serializeRunResult(result),
+    });
+  }
+
+  onScenarioStart(scenario: ScenarioMetadata): void {
+    postOutput({
+      type: "scenario_start",
+      scenario,
+    });
+  }
+
+  onScenarioEnd(
+    scenario: ScenarioMetadata,
+    result: ScenarioResult,
+  ): void {
+    postOutput({
+      type: "scenario_end",
+      scenario,
+      result: serializeScenarioResult(result),
+    });
+  }
+
+  onStepStart(scenario: ScenarioMetadata, step: StepMetadata): void {
+    postOutput({
+      type: "step_start",
+      scenario,
+      step,
+    });
+  }
+
+  onStepEnd(
+    scenario: ScenarioMetadata,
+    step: StepMetadata,
+    result: StepResult,
+  ): void {
+    postOutput({
+      type: "step_end",
+      scenario,
+      step,
+      result: serializeStepResult(result),
+    });
+  }
 }
 
 /**
@@ -79,61 +106,83 @@ function postOutput(output: WorkerOutput): void {
 }
 
 /**
- * Execute a scenario from file
+ * Execute all scenarios using Runner
  */
-async function runScenario(input: WorkerRunInput): Promise<void> {
-  const { taskId, filePath, scenarioIndex, timeout, logLevel } = input;
+async function runScenarios(input: WorkerRunInput): Promise<void> {
+  const {
+    filePaths,
+    selectors,
+    maxConcurrency,
+    maxFailures,
+    timeout,
+    logLevel,
+  } = input;
 
-  // Configure logging in worker if log level is provided
-  if (logLevel) {
-    await configureLogging(logLevel);
+  // Reset any existing controller and create a new one for this run.
+  // Created before loading so abort requests can be honored once processed.
+  if (globalAbortController) {
+    globalAbortController.abort();
   }
+  globalAbortController = new AbortController();
+
+  // Configure logging in worker
+  await configureLogging(logLevel);
 
   try {
-    // Load scenarios from file
-    const scenarios = await loadScenarios([filePath], {
-      onImportError: (file, err) => {
-        const m = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to import scenario file ${file}: ${m}`);
-      },
-    });
+    // Load scenarios from files (only once!)
+    const scenarios = applySelectors(
+      await loadScenarios(filePaths, {
+        onImportError: (file, err) => {
+          const m = err instanceof Error ? err.message : String(err);
+          throw new Error(`Failed to import scenario file ${file}: ${m}`);
+        },
+      }),
+      selectors,
+    );
 
+    // Check if aborted during loading phase
+    if (globalAbortController.signal.aborted) {
+      throw new Error("Aborted during scenario loading");
+    }
+
+    // Log warning if no scenarios found after filtering
     if (scenarios.length === 0) {
-      throw new Error(`No scenarios found in file: ${filePath}`);
+      logger.info("No scenarios found after applying selectors", {
+        filePaths,
+        selectors,
+      });
     }
 
-    if (scenarioIndex >= scenarios.length) {
-      throw new Error(
-        `Scenario index ${scenarioIndex} out of range (file has ${scenarios.length} scenarios)`,
-      );
-    }
-
-    const scenario = scenarios[scenarioIndex];
-
-    // Create abort signal for timeout
-    const signal = timeout ? AbortSignal.timeout(timeout) : undefined;
+    // Create abort signal that combines timeout and manual abort
+    const signal = timeout > 0
+      ? AbortSignal.any([
+        AbortSignal.timeout(timeout),
+        globalAbortController.signal,
+      ])
+      : globalAbortController.signal;
 
     // Create reporter that sends events to main thread
-    const reporter = createWorkerReporter(taskId);
+    const reporter = new WorkerReporter();
 
-    // Run scenario using Runner (executes single scenario)
+    // Run all scenarios using Runner (handles concurrency and failures)
     const runner = new Runner(reporter);
-    const runResult = await runner.run([scenario], { signal });
-
-    // Extract the single scenario result
-    const result = runResult.scenarios[0];
+    const runResult = await runner.run(scenarios, {
+      maxConcurrency,
+      maxFailures,
+      signal,
+    });
 
     postOutput({
       type: "result",
-      taskId,
-      result: serializeScenarioResult(result),
+      result: serializeRunResult(runResult),
     });
   } catch (error) {
     postOutput({
       type: "error",
-      taskId,
       error: serializeError(error),
     });
+  } finally {
+    globalAbortController = null;
   }
 }
 
@@ -145,16 +194,17 @@ self.onmessage = async (event: MessageEvent<WorkerInput>) => {
 
   switch (input.type) {
     case "run":
-      await runScenario(input);
+      await runScenarios(input);
       break;
 
-    case "terminate":
-      self.close();
+    case "abort":
+      // Gracefully abort running scenarios
+      if (globalAbortController) {
+        globalAbortController.abort();
+      }
       break;
   }
 };
-
-const logger = getLogger(["probitas", "cli", "run", "worker"]);
 
 // Handle unhandled promise rejections from Deno's node:http2 compatibility layer.
 // The "Bad resource ID" error occurs during HTTP/2 stream cleanup and doesn't
