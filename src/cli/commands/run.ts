@@ -27,7 +27,8 @@ import {
   prepareSubprocessScript,
   sendJsonInput,
   spawnDenoSubprocess,
-  waitForReady,
+  startIpcServer,
+  waitForIpcConnection,
 } from "../subprocess.ts";
 import {
   deserializeError,
@@ -269,23 +270,32 @@ async function runWithSubprocess(
     throw new Error("Aborted before execution started");
   }
 
+  // Start IPC server and get port
+  const { listener, port } = startIpcServer();
+
   // Prepare and spawn subprocess
   const templateUrl = new URL("../_templates/run.ts", import.meta.url);
   const { scriptPath, tempDir } = await prepareSubprocessScript(
     templateUrl,
     "run",
   );
-  const proc = spawnDenoSubprocess({ denoArgs, scriptPath, cwd, signal });
+  const proc = spawnDenoSubprocess({
+    denoArgs,
+    scriptPath,
+    cwd,
+    ipcPort: port,
+    signal,
+  });
 
-  // Create NDJSON stream from stdout
-  const outputStream = createNdjsonStream(proc.stdout, isRunOutput);
+  // Wait for subprocess to connect (connection = ready)
+  const ipc = await waitForIpcConnection(listener);
 
-  // Wait for subprocess ready signal
-  await waitForReady(outputStream);
+  // Create NDJSON stream from IPC connection
+  const outputStream = createNdjsonStream(ipc.readable, isRunOutput);
 
-  // Send run input to subprocess
+  // Send run input to subprocess via IPC
   await sendJsonInput(
-    proc.stdin,
+    ipc.writable,
     {
       type: "run",
       filePaths,
@@ -320,6 +330,8 @@ async function runWithSubprocess(
 
     throw new Error("Subprocess ended without sending result");
   } finally {
+    ipc.close();
+    listener.close();
     await proc.status;
     // Clean up temporary directory
     await Deno.remove(tempDir, { recursive: true }).catch(() => {});
@@ -331,10 +343,6 @@ async function handleSubprocessOutput(
   output: RunOutput,
 ): Promise<RunResult | void> {
   switch (output.type) {
-    case "ready":
-      // Already handled
-      throw new Error("Unexpected 'ready' message from subprocess");
-
     case "result":
       return deserializeRunResult(output.result);
 

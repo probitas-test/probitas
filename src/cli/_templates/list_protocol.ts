@@ -17,19 +17,11 @@ export interface ListInput {
 }
 
 /**
- * Output from subprocess via stdout
+ * Output from subprocess via IPC
  */
 export type ListOutput =
-  | ListReadyOutput
   | ListResultOutput
   | ListErrorOutput;
-
-/**
- * Subprocess is ready to receive input
- */
-export interface ListReadyOutput {
-  readonly type: "ready";
-}
 
 /**
  * Successful list result
@@ -62,7 +54,7 @@ export interface ScenarioMeta {
 /**
  * Valid ListOutput type values
  */
-const LIST_OUTPUT_TYPES = new Set(["ready", "result", "error"]);
+const LIST_OUTPUT_TYPES = new Set(["result", "error"]);
 
 /**
  * Type guard to check if a value is a valid ListOutput

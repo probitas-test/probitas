@@ -58,20 +58,12 @@ export interface RunAbortInput {
 export type RunOutput =
   | RunResultOutput
   | RunErrorOutput
-  | RunReadyOutput
   | RunStartOutput
   | RunEndOutput
   | RunScenarioStartOutput
   | RunScenarioEndOutput
   | RunStepStartOutput
   | RunStepEndOutput;
-
-/**
- * Subprocess is ready to receive commands
- */
-export interface RunReadyOutput {
-  readonly type: "ready";
-}
 
 /**
  * Run started
@@ -319,7 +311,6 @@ export function createReporter(
  * Valid RunOutput type values
  */
 const RUN_OUTPUT_TYPES = new Set([
-  "ready",
   "result",
   "error",
   "run_start",

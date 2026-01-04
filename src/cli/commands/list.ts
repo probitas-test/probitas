@@ -24,7 +24,8 @@ import {
   prepareSubprocessScript,
   sendJsonInput,
   spawnDenoSubprocess,
-  waitForReady,
+  startIpcServer,
+  waitForIpcConnection,
 } from "../subprocess.ts";
 import {
   isListOutput,
@@ -226,6 +227,9 @@ async function runListSubprocess(
   allScenarios: ScenarioMeta[];
   filteredScenarios: ScenarioMeta[];
 }> {
+  // Start IPC server and get port
+  const { listener, port } = startIpcServer();
+
   // Prepare subprocess script (resolve bare specifiers)
   const templateUrl = new URL("../_templates/list.ts", import.meta.url);
   const { scriptPath, tempDir } = await prepareSubprocessScript(
@@ -238,17 +242,18 @@ async function runListSubprocess(
     denoArgs,
     scriptPath,
     cwd,
+    ipcPort: port,
   });
 
-  // Create NDJSON stream from stdout
-  const outputStream = createNdjsonStream(proc.stdout, isListOutput);
+  // Wait for subprocess to connect (connection = ready)
+  const ipc = await waitForIpcConnection(listener);
 
-  // Wait for subprocess ready signal
-  await waitForReady(outputStream);
+  // Create NDJSON stream from IPC connection
+  const outputStream = createNdjsonStream(ipc.readable, isListOutput);
 
-  // Send list input to subprocess
+  // Send list input to subprocess via IPC
   await sendJsonInput(
-    proc.stdin,
+    ipc.writable,
     {
       filePaths,
       selectors,
@@ -266,6 +271,8 @@ async function runListSubprocess(
 
     throw new Error("Subprocess ended without sending result");
   } finally {
+    ipc.close();
+    listener.close();
     await proc.status;
     // Clean up temporary directory
     await Deno.remove(tempDir, { recursive: true }).catch(() => {});
@@ -279,10 +286,6 @@ function handleSubprocessOutput(
   output: ListOutput,
 ): { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] } | void {
   switch (output.type) {
-    case "ready":
-      // Already handled
-      throw new Error("Unexpected 'ready' message from subprocess");
-
     case "result":
       // For now, allScenarios and filteredScenarios are the same
       // since filtering is done in subprocess

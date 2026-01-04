@@ -1,12 +1,12 @@
 /**
  * Subprocess utilities for scenario execution
  *
- * Spawns deno subprocess with resolved template scripts.
+ * Spawns deno subprocess with TCP-based IPC communication.
+ * This avoids stdin/stdout pollution from user code (e.g., console.log).
  *
  * @module
  */
 
-import * as streamutil from "@core/streamutil";
 import { JsonParseStream } from "@std/json/parse-stream";
 import { dirname, join } from "@std/path";
 import { TextLineStream } from "@std/streams";
@@ -32,7 +32,7 @@ try {
 }
 
 /**
- * Options for spawning deno subprocess
+ * Options for spawning deno subprocess with IPC
  */
 export interface SpawnDenoOptions {
   /** Additional deno arguments (e.g., --config, --lock) */
@@ -41,6 +41,8 @@ export interface SpawnDenoOptions {
   scriptPath: string;
   /** Current working directory */
   cwd: string;
+  /** TCP port for IPC communication */
+  ipcPort: number;
   /** Optional AbortSignal for cancellation */
   signal?: AbortSignal;
 }
@@ -102,13 +104,16 @@ export async function prepareSubprocessScript(
 /**
  * Spawn deno subprocess with the given options
  *
+ * The subprocess communicates via TCP IPC, not stdin/stdout.
+ * This allows subprocess to use console.log freely without corrupting IPC.
+ *
  * @param options - Subprocess options
  * @returns Spawned child process
  */
 export function spawnDenoSubprocess(
   options: SpawnDenoOptions,
 ): Deno.ChildProcess {
-  const { denoArgs, scriptPath, cwd, signal } = options;
+  const { denoArgs, scriptPath, cwd, ipcPort, signal } = options;
 
   const command = new Deno.Command("deno", {
     args: [
@@ -117,15 +122,65 @@ export function spawnDenoSubprocess(
       "--allow-all", // Scenarios may need various permissions
       ...denoArgs,
       scriptPath,
+      "--ipc-port",
+      String(ipcPort),
     ],
     cwd,
-    stdin: "piped",
-    stdout: "piped",
-    stderr: "inherit",
+    stdin: "null", // No stdin needed - IPC uses TCP
+    stdout: "inherit", // Allow subprocess console.log
+    stderr: "inherit", // Allow subprocess console.error
     signal,
   });
 
   return command.spawn();
+}
+
+/**
+ * IPC connection from subprocess
+ *
+ * Provides read/write streams for NDJSON communication.
+ */
+export interface IpcConnection {
+  /** Readable stream for receiving NDJSON from subprocess */
+  readable: ReadableStream<Uint8Array>;
+  /** Writable stream for sending JSON to subprocess */
+  writable: WritableStream<Uint8Array>;
+  /** Close the connection */
+  close(): void;
+}
+
+/**
+ * Start TCP server for IPC and wait for subprocess connection
+ *
+ * @returns Listener and allocated port
+ */
+export function startIpcServer(): { listener: Deno.Listener; port: number } {
+  const listener = Deno.listen({ port: 0, hostname: "127.0.0.1" });
+  const addr = listener.addr as Deno.NetAddr;
+  return { listener, port: addr.port };
+}
+
+/**
+ * Wait for subprocess to connect to IPC server
+ *
+ * @param listener - TCP listener from startIpcServer
+ * @returns IPC connection streams
+ */
+export async function waitForIpcConnection(
+  listener: Deno.Listener,
+): Promise<IpcConnection> {
+  const conn = await listener.accept();
+  return {
+    readable: conn.readable,
+    writable: conn.writable,
+    close: () => {
+      try {
+        conn.close();
+      } catch {
+        // Already closed
+      }
+    },
+  };
 }
 
 /**
@@ -138,20 +193,20 @@ export interface SubprocessOutput {
 }
 
 /**
- * Create NDJSON stream from subprocess stdout
+ * Create NDJSON stream from IPC connection
  *
  * Transforms raw byte stream into parsed and validated JSON objects.
  *
  * @typeParam T - Output type (must have `type` discriminator)
- * @param stdout - Raw stdout stream from subprocess
+ * @param readable - Raw readable stream from IPC connection
  * @param validator - Type guard function to validate each output
  * @returns Typed readable stream of validated outputs
  */
 export function createNdjsonStream<T extends SubprocessOutput>(
-  stdout: ReadableStream<Uint8Array>,
+  readable: ReadableStream<Uint8Array>,
   validator: (chunk: unknown) => chunk is T,
 ): ReadableStream<T> {
-  return stdout
+  return readable
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(new TextLineStream())
     .pipeThrough(new JsonParseStream())
@@ -170,38 +225,24 @@ export function createNdjsonStream<T extends SubprocessOutput>(
 }
 
 /**
- * Wait for ready signal from subprocess
+ * Send JSON input to subprocess via IPC
  *
- * Consumes the first message from the stream and verifies it's a "ready" signal.
+ * Serializes input as JSON line and writes to IPC connection.
+ * Does NOT close the stream (allows for further communication).
  *
- * @typeParam T - Output type (must have `type` discriminator)
- * @param stream - NDJSON stream from subprocess
- * @throws If subprocess doesn't send ready signal as first message
- */
-export async function waitForReady<T extends SubprocessOutput>(
-  stream: ReadableStream<T>,
-): Promise<void> {
-  const ready = await streamutil.pop(stream);
-  if (ready?.type !== "ready") {
-    throw new Error(`Expected ready signal, got: ${ready?.type}`);
-  }
-}
-
-/**
- * Send JSON input to subprocess stdin
- *
- * Serializes input as JSON and writes to subprocess stdin, then closes the stream.
- *
- * @param stdin - Subprocess stdin writable stream
+ * @param writable - IPC writable stream
  * @param input - Input data to serialize and send
  */
 export async function sendJsonInput(
-  stdin: WritableStream<Uint8Array>,
+  writable: WritableStream<Uint8Array>,
   input: unknown,
 ): Promise<void> {
   const encoder = new TextEncoder();
-  await streamutil.provide(
-    stdin,
-    [encoder.encode(JSON.stringify(input))],
-  );
+  const writer = writable.getWriter();
+  try {
+    // Send as NDJSON (newline-delimited JSON)
+    await writer.write(encoder.encode(JSON.stringify(input) + "\n"));
+  } finally {
+    writer.releaseLock();
+  }
 }

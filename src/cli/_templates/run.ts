@@ -1,8 +1,8 @@
 /**
  * Subprocess entry point for run command
  *
- * Executes scenarios and streams progress via stdout.
- * Communication is via JSON over stdin/stdout.
+ * Executes scenarios and streams progress via TCP IPC.
+ * Communication is via NDJSON over TCP (not stdin/stdout).
  *
  * @module
  * @internal
@@ -19,7 +19,15 @@ import {
   serializeError,
   serializeRunResult,
 } from "./run_protocol.ts";
-import { configureLogging, readStdin, writeOutput } from "./utils.ts";
+import {
+  closeIpc,
+  configureLogging,
+  connectIpc,
+  type IpcConnection,
+  parseIpcPort,
+  readInput,
+  writeOutput,
+} from "./utils.ts";
 
 const logger = getLogger(["probitas", "cli", "run", "subprocess"]);
 
@@ -29,7 +37,10 @@ let globalAbortController: AbortController | null = null;
 /**
  * Execute all scenarios
  */
-async function runScenarios(input: RunCommandInput): Promise<void> {
+async function runScenarios(
+  ipc: IpcConnection,
+  input: RunCommandInput,
+): Promise<void> {
   const {
     filePaths,
     selectors,
@@ -78,8 +89,8 @@ async function runScenarios(input: RunCommandInput): Promise<void> {
       ])
       : globalAbortController.signal;
 
-    // Create reporter that streams events to stdout
-    const reporter = createReporter(writeOutput);
+    // Create reporter that streams events to IPC
+    const reporter = createReporter((output) => writeOutput(ipc, output));
 
     // Run all scenarios using Runner
     const runner = new Runner(reporter);
@@ -89,14 +100,16 @@ async function runScenarios(input: RunCommandInput): Promise<void> {
       signal,
     });
 
-    writeOutput(
+    await writeOutput(
+      ipc,
       {
         type: "result",
         result: serializeRunResult(runResult),
       } satisfies RunOutput,
     );
   } catch (error) {
-    writeOutput(
+    await writeOutput(
+      ipc,
       {
         type: "error",
         error: serializeError(error),
@@ -111,22 +124,32 @@ async function runScenarios(input: RunCommandInput): Promise<void> {
  * Main entry point
  */
 async function main(): Promise<void> {
-  // Signal that subprocess is ready
-  writeOutput({ type: "ready" } satisfies RunOutput);
+  // Parse IPC port from command line arguments
+  const port = parseIpcPort(Deno.args);
+
+  // Connect to parent process IPC server
+  const ipc = await connectIpc(port);
 
   try {
-    // Read input from stdin
-    const inputJson = await readStdin();
-    const input: RunCommandInput = JSON.parse(inputJson);
+    // Read input from IPC (TCP connection establishes readiness)
+    const input = await readInput(ipc) as RunCommandInput;
 
-    await runScenarios(input);
+    await runScenarios(ipc, input);
   } catch (error) {
-    writeOutput(
-      {
-        type: "error",
-        error: serializeError(error),
-      } satisfies RunOutput,
-    );
+    try {
+      await writeOutput(
+        ipc,
+        {
+          type: "error",
+          error: serializeError(error),
+        } satisfies RunOutput,
+      );
+    } catch {
+      // Failed to write error to IPC, log to console as fallback
+      console.error("Subprocess error:", error);
+    }
+  } finally {
+    closeIpc(ipc);
   }
 }
 
