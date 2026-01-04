@@ -46,16 +46,26 @@ export interface SpawnDenoOptions {
 }
 
 /**
+ * Result of preparing subprocess script
+ */
+export interface PreparedScript {
+  /** Path to the prepared script entry point */
+  scriptPath: string;
+  /** Path to the temporary directory (for cleanup) */
+  tempDir: string;
+}
+
+/**
  * Prepare subprocess script by resolving imports and writing to temp directory
  *
  * @param templateUrl - URL to the subprocess template file
  * @param templateName - Name of the template (for embedded templates lookup)
- * @returns Path to the prepared script in temp directory
+ * @returns Prepared script info including path and temp directory for cleanup
  */
 export async function prepareSubprocessScript(
   templateUrl: URL,
   templateName: string,
-): Promise<string> {
+): Promise<PreparedScript> {
   // Get resolved files - either from embedded templates or resolve at runtime
   let files: ResolvedTemplateFiles;
   const embedded = embeddedTemplates?.[templateName];
@@ -82,8 +92,11 @@ export async function prepareSubprocessScript(
     await Deno.writeTextFile(filePath, source);
   }
 
-  // Return path to the entry point
-  return join(tempDir, "subprocess.ts");
+  // Return script path and temp directory for cleanup
+  return {
+    scriptPath: join(tempDir, "subprocess.ts"),
+    tempDir,
+  };
 }
 
 /**

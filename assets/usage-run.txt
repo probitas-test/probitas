@@ -29,6 +29,9 @@ Options:
   -v, --verbose             Verbose output
   -d, --debug               Debug output (maximum detail)
   --no-color                Disable colored output
+  --deno-<option>[=<value>] Pass options to deno subprocess
+                            Value options: --deno-config=custom.json, --deno-lock=custom.lock
+                            Boolean flags: --deno-no-lock, --deno-no-prompt
 
 Selector Format:
   [!][type:]value

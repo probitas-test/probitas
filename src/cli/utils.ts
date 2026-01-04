@@ -5,6 +5,64 @@
  */
 
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
+
+/**
+ * Result of extracting deno options from arguments
+ */
+export interface ExtractDenoOptionsResult {
+  /** Deno arguments with --deno- prefix removed (e.g., --config, --lock) */
+  denoArgs: string[];
+  /** Remaining arguments after extracting deno options */
+  remainingArgs: string[];
+}
+
+/**
+ * Extract --deno-* options and convert to deno command args
+ *
+ * Options starting with --deno- are extracted and converted to
+ * the corresponding deno option (e.g., --deno-config becomes --config).
+ *
+ * @param args - Command-line arguments
+ * @returns Extracted deno args and remaining args
+ *
+ * @example
+ * ```ts
+ * const { denoArgs, remainingArgs } = extractDenoOptions([
+ *   "--deno-config", "custom/deno.json",
+ *   "--selector", "foo",
+ *   "--deno-lock", "custom/deno.lock",
+ * ]);
+ * // denoArgs: ["--config", "custom/deno.json", "--lock", "custom/deno.lock"]
+ * // remainingArgs: ["--selector", "foo"]
+ * ```
+ */
+export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
+  const denoArgs: string[] = [];
+  const remainingArgs: string[] = [];
+
+  let i = 0;
+  while (i < args.length) {
+    const arg = args[i];
+
+    if (arg.startsWith("--deno-")) {
+      // Convert --deno-xxx to --xxx
+      const denoArg = "--" + arg.slice(7);
+      denoArgs.push(denoArg);
+
+      // Check if next arg is a value (not starting with -)
+      if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+        denoArgs.push(args[i + 1]);
+        i += 2;
+        continue;
+      }
+    } else {
+      remainingArgs.push(arg);
+    }
+    i++;
+  }
+
+  return { denoArgs, remainingArgs };
+}
 import {
   configure,
   getConsoleSink,
@@ -333,6 +391,9 @@ export async function loadEnvironment(
 
 /**
  * Configure LogTape logging for the CLI
+ *
+ * NOTE: This is intentionally duplicated in src/cli/_templates/utils.ts because
+ * subprocess templates must be self-contained. Keep implementations in sync.
  *
  * @param level - Log level to use
  */

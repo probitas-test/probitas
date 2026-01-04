@@ -139,7 +139,39 @@ function calculateRelativePath(from: string, to: string): string {
 }
 
 /**
- * Resolve dependencies in a single module
+ * Replacement entry with position information
+ */
+interface Replacement {
+  /** Start offset in the source */
+  start: number;
+  /** End offset in the source */
+  end: number;
+  /** New text to replace with */
+  newText: string;
+}
+
+/**
+ * Convert line/character position to byte offset
+ */
+function positionToOffset(
+  source: string,
+  line: number,
+  character: number,
+): number {
+  const lines = source.split("\n");
+  let offset = 0;
+  for (let i = 0; i < line && i < lines.length; i++) {
+    offset += lines[i].length + 1; // +1 for newline
+  }
+  return offset + character;
+}
+
+/**
+ * Resolve dependencies in a single module using position-based replacement
+ *
+ * Uses span information from @deno/graph to precisely replace import specifiers
+ * at their exact positions in the source code, avoiding issues with string
+ * replacement affecting comments or string literals.
  */
 function resolveModuleDependencies(
   source: string,
@@ -147,7 +179,7 @@ function resolveModuleDependencies(
   specifierToPath: Map<string, string>,
   currentPath: string,
 ): string {
-  let resolved = source;
+  const replacements: Replacement[] = [];
 
   for (const dep of mod.dependencies ?? []) {
     const specifier = dep.specifier;
@@ -156,10 +188,12 @@ function resolveModuleDependencies(
     // but process relative paths (which don't have a protocol)
     if (specifier.includes(":") && !specifier.startsWith("file:")) continue;
 
+    // Get the resolved dependency info (code or type)
+    const resolvedDep = dep.code ?? dep.type;
+    if (!resolvedDep?.span) continue;
+
     // Find the resolved URL for this dependency
-    // For bare specifiers, the graph may not have the resolved specifier,
-    // so we use import.meta.resolve() as fallback
-    let resolvedSpec = dep.code?.specifier ?? dep.type?.specifier;
+    let resolvedSpec = resolvedDep.specifier;
 
     if (!resolvedSpec) {
       // Bare specifier - resolve using Probitas's deno.json
@@ -182,15 +216,38 @@ function resolveModuleDependencies(
       newImport = resolvedSpec;
     }
 
-    // Replace the import specifier
-    resolved = resolved.replaceAll(
-      `"${specifier}"`,
-      `"${newImport}"`,
+    // Calculate byte offsets from line/character positions
+    // The span covers the entire import specifier including quotes
+    const start = positionToOffset(
+      source,
+      resolvedDep.span.start.line,
+      resolvedDep.span.start.character,
     );
-    resolved = resolved.replaceAll(
-      `'${specifier}'`,
-      `'${newImport}'`,
+    const end = positionToOffset(
+      source,
+      resolvedDep.span.end.line,
+      resolvedDep.span.end.character,
     );
+
+    // Extract the original text to determine quote style
+    const originalText = source.slice(start, end);
+    const quote = originalText.startsWith('"') ? '"' : "'";
+
+    replacements.push({
+      start,
+      end,
+      newText: `${quote}${newImport}${quote}`,
+    });
+  }
+
+  // Sort replacements in reverse order (from end to start)
+  // This ensures earlier replacements don't shift positions of later ones
+  replacements.sort((a, b) => b.start - a.start);
+
+  // Apply replacements
+  let resolved = source;
+  for (const { start, end, newText } of replacements) {
+    resolved = resolved.slice(0, start) + newText + resolved.slice(end);
   }
 
   return resolved;
