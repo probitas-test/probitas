@@ -288,7 +288,8 @@ async function runWithSubprocess(
   });
 
   // Wait for subprocess to connect (connection = ready)
-  const ipc = await waitForIpcConnection(listener);
+  // Race against subprocess exit to detect early failures
+  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
 
   // Create NDJSON stream from IPC connection
   const outputStream = createNdjsonStream(ipc.readable, isRunOutput);
@@ -316,7 +317,10 @@ async function runWithSubprocess(
       }
     }
 
-    // If aborted, return a failure result instead of throwing
+    // If aborted, return a failure result to signal interrupted execution.
+    // Note: The counts are approximations since we don't know actual scenario
+    // count (filePaths are files, not scenarios) or partial completion state.
+    // The important invariant is failed > 0 so caller treats abort as failure.
     if (signal?.aborted) {
       return {
         total: filePaths.length,

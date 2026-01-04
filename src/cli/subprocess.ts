@@ -160,27 +160,84 @@ export function startIpcServer(): { listener: Deno.Listener; port: number } {
   return { listener, port: addr.port };
 }
 
+/** Default timeout for IPC connection (30 seconds) */
+const DEFAULT_IPC_TIMEOUT_MS = 30_000;
+
 /**
- * Wait for subprocess to connect to IPC server
+ * Wait for subprocess to connect to IPC server with timeout
  *
  * @param listener - TCP listener from startIpcServer
+ * @param options - Optional configuration
  * @returns IPC connection streams
+ * @throws Error if connection times out or subprocess exits before connecting
  */
 export async function waitForIpcConnection(
   listener: Deno.Listener,
+  options?: {
+    /** Subprocess to race against (detects early exit) */
+    subprocess?: Deno.ChildProcess;
+    /** Connection timeout in milliseconds (default: 30000) */
+    timeoutMs?: number;
+  },
 ): Promise<IpcConnection> {
-  const conn = await listener.accept();
-  return {
-    readable: conn.readable,
-    writable: conn.writable,
-    close: () => {
-      try {
-        conn.close();
-      } catch {
-        // Already closed
+  const { subprocess, timeoutMs = DEFAULT_IPC_TIMEOUT_MS } = options ?? {};
+
+  // Flag to track if connection was established
+  let connected = false;
+
+  // Create timeout promise with cleanup
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      if (!connected) {
+        reject(new Error(`IPC connection timeout after ${timeoutMs}ms`));
       }
-    },
-  };
+    }, timeoutMs);
+  });
+
+  // Create subprocess exit promise (if subprocess provided)
+  // Only reject if subprocess exits BEFORE connection is established
+  const subprocessPromise = subprocess
+    ? subprocess.status.then((status) => {
+      if (!connected) {
+        throw new Error(
+          `Subprocess exited before IPC connection (code: ${status.code})`,
+        );
+      }
+      // If already connected, return a never-resolving promise to keep race going
+      return new Promise<never>(() => {});
+    })
+    : null;
+
+  // Race connection against timeout and subprocess exit
+  const racers: Promise<Deno.Conn>[] = [
+    listener.accept(),
+    timeoutPromise,
+  ];
+  if (subprocessPromise) {
+    racers.push(subprocessPromise as Promise<never>);
+  }
+
+  try {
+    const conn = await Promise.race(racers);
+    connected = true;
+    return {
+      readable: conn.readable,
+      writable: conn.writable,
+      close: () => {
+        try {
+          conn.close();
+        } catch {
+          // Already closed
+        }
+      },
+    };
+  } finally {
+    // Clean up timeout
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+  }
 }
 
 /**

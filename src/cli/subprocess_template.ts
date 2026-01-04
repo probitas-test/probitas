@@ -66,6 +66,11 @@ export async function resolveSubprocessTemplate(
 
     // Fetch the source
     const response = await fetch(mod.specifier);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch module "${mod.specifier}": ${response.status} ${response.statusText}`,
+      );
+    }
     let source = await response.text();
 
     // Resolve all dependencies in this module

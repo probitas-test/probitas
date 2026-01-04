@@ -46,8 +46,21 @@ export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
 
   for (const arg of args) {
     if (arg.startsWith("--deno-")) {
+      const optionBody = arg.slice(7); // e.g., "config=path" or "no-prompt"
+      const hasValue = optionBody.includes("=");
+      const name = hasValue ? optionBody.split("=")[0] : optionBody;
+
+      // Value-taking options must use `=` syntax (e.g., --deno-config=path).
+      // Boolean flags follow the Deno `no-*` convention (e.g., --deno-no-lock).
+      if (!hasValue && !name.startsWith("no-")) {
+        throw new Error(
+          `Deno option "--deno-${name}" requires a value. ` +
+            `Use "--deno-${name}=<value>" syntax.`,
+        );
+      }
+
       // Convert --deno-xxx to --xxx (preserving =value if present)
-      const denoArg = "--" + arg.slice(7);
+      const denoArg = "--" + optionBody;
       denoArgs.push(denoArg);
     } else {
       remainingArgs.push(arg);

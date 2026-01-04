@@ -246,7 +246,8 @@ async function runListSubprocess(
   });
 
   // Wait for subprocess to connect (connection = ready)
-  const ipc = await waitForIpcConnection(listener);
+  // Race against subprocess exit to detect early failures
+  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
 
   // Create NDJSON stream from IPC connection
   const outputStream = createNdjsonStream(ipc.readable, isListOutput);
@@ -287,8 +288,10 @@ function handleSubprocessOutput(
 ): { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] } | void {
   switch (output.type) {
     case "result":
-      // For now, allScenarios and filteredScenarios are the same
-      // since filtering is done in subprocess
+      // The subprocess has already applied any selector filtering, so
+      // `output.scenarios` contains only scenarios that passed filtering.
+      // Both allScenarios and filteredScenarios refer to this filtered set.
+      // TODO: Consider returning unfiltered list from subprocess if needed.
       return {
         allScenarios: output.scenarios as ScenarioMeta[],
         filteredScenarios: output.scenarios as ScenarioMeta[],
