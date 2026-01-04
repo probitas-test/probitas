@@ -3,10 +3,12 @@
   "specifiers": {
     "jsr:@core/errorutil@1": "1.2.1",
     "jsr:@core/errorutil@^1.2.1": "1.2.1",
+    "jsr:@core/streamutil@1": "1.0.0",
     "jsr:@core/unknownutil@4": "4.3.0",
     "jsr:@core/unknownutil@^4.3.0": "4.3.0",
     "jsr:@cspotcode/outdent@0.8": "0.8.0",
     "jsr:@db/sqlite@0.12": "0.12.0",
+    "jsr:@deno/graph@~0.86.5": "0.86.9",
     "jsr:@denosaurs/plug@1": "1.1.0",
     "jsr:@lambdalisue/sandbox@^3.0.1": "3.0.1",
     "jsr:@logtape/logtape@0": "0.12.3",
@@ -55,6 +57,8 @@
     "jsr:@std/assert@^1.0.16": "1.0.16",
     "jsr:@std/async@1": "1.0.16",
     "jsr:@std/async@^1.0.15": "1.0.16",
+    "jsr:@std/bytes@1": "1.0.6",
+    "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/cli@^1.0.25": "1.0.25",
     "jsr:@std/collections@1": "1.1.3",
     "jsr:@std/collections@^1.1.3": "1.1.3",
@@ -72,6 +76,8 @@
     "jsr:@std/path@0.217": "0.217.0",
     "jsr:@std/path@1": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
+    "jsr:@std/streams@^1.0.16": "1.0.16",
+    "jsr:@std/streams@^1.0.9": "1.0.16",
     "jsr:@std/testing@^1.0.16": "1.0.16",
     "npm:@aws-sdk/client-sqs@^3.700.0": "3.958.0",
     "npm:@bufbuild/protobuf@^2.7.0": "2.10.2",
@@ -95,6 +101,12 @@
         "jsr:@core/unknownutil@4"
       ]
     },
+    "@core/streamutil@1.0.0": {
+      "integrity": "c26ab1647480b6d721800302969cca2b1812c25795a90f16b74b1b6074c9b15b",
+      "dependencies": [
+        "jsr:@std/bytes@1"
+      ]
+    },
     "@core/unknownutil@4.3.0": {
       "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
     },
@@ -107,6 +119,9 @@
         "jsr:@denosaurs/plug",
         "jsr:@std/path@0.217"
       ]
+    },
+    "@deno/graph@0.86.9": {
+      "integrity": "c4f353a695bcc5246c099602977dabc6534eacea9999a35a8cb24e807192e6a1"
     },
     "@denosaurs/plug@1.1.0": {
       "integrity": "eb2f0b7546c7bca2000d8b0282c54d50d91cf6d75cb26a80df25a6de8c4bc044",
@@ -352,6 +367,9 @@
     "@std/async@1.0.16": {
       "integrity": "6c9e43035313b67b5de43e2b3ee3eadb39a488a0a0a3143097f112e025d3ee9a"
     },
+    "@std/bytes@1.0.6": {
+      "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
     "@std/cli@1.0.25": {
       "integrity": "1f85051b370c97a7a9dfc6ba626e7ed57a91bea8c081597276d1e78d929d8c91",
       "dependencies": [
@@ -391,7 +409,10 @@
       "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
     "@std/json@1.0.2": {
-      "integrity": "d9e5497801c15fb679f55a2c01c7794ad7a5dfda4dd1bebab5e409cb5e0d34d4"
+      "integrity": "d9e5497801c15fb679f55a2c01c7794ad7a5dfda4dd1bebab5e409cb5e0d34d4",
+      "dependencies": [
+        "jsr:@std/streams@^1.0.9"
+      ]
     },
     "@std/jsonc@1.0.2": {
       "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7",
@@ -409,6 +430,12 @@
       "integrity": "1d2d43f39efb1b42f0b1882a25486647cb851481862dc7313390b2bb044314b5",
       "dependencies": [
         "jsr:@std/internal@^1.0.12"
+      ]
+    },
+    "@std/streams@1.0.16": {
+      "integrity": "85030627befb1767c60d4f65cb30fa2f94af1d6ee6e5b2515b76157a542e89c4",
+      "dependencies": [
+        "jsr:@std/bytes@^1.0.6"
       ]
     },
     "@std/testing@1.0.16": {
@@ -1498,8 +1525,10 @@
   "workspace": {
     "dependencies": [
       "jsr:@core/errorutil@^1.2.1",
+      "jsr:@core/streamutil@1",
       "jsr:@core/unknownutil@^4.3.0",
       "jsr:@cspotcode/outdent@0.8",
+      "jsr:@deno/graph@~0.86.5",
       "jsr:@lambdalisue/sandbox@^3.0.1",
       "jsr:@logtape/logtape@^1.3.5",
       "jsr:@logtape/pretty@^1.3.5",
@@ -1528,8 +1557,10 @@
       "jsr:@std/collections@^1.1.3",
       "jsr:@std/dotenv@~0.225.6",
       "jsr:@std/fs@^1.0.21",
+      "jsr:@std/json@^1.0.2",
       "jsr:@std/jsonc@^1.0.2",
       "jsr:@std/path@^1.1.4",
+      "jsr:@std/streams@^1.0.16",
       "jsr:@std/testing@^1.0.16",
       "npm:@faker-js/faker@^10.1.0"
     ]

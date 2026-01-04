@@ -14,6 +14,7 @@ import { discoverScenarioFiles } from "@probitas/discover";
 import type { Reporter, RunResult } from "@probitas/runner";
 import {
   configureLogging,
+  extractDenoOptions,
   loadEnvironment,
   parsePositiveInteger,
   parseTimeout,
@@ -22,13 +23,22 @@ import {
 } from "../utils.ts";
 import { createDiscoveryProgress } from "../progress.ts";
 import {
+  createNdjsonStream,
+  prepareSubprocessScript,
+  sendJsonInput,
+  spawnDenoSubprocess,
+  startIpcServer,
+  waitForIpcConnection,
+} from "../subprocess.ts";
+import {
   deserializeError,
   deserializeRunResult,
   deserializeScenarioResult,
   deserializeStepResult,
-  type WorkerInput,
-  type WorkerOutput,
-} from "./run/protocol.ts";
+  isRunOutput,
+  type RunCommandInput,
+  type RunOutput,
+} from "../_templates/run_protocol.ts";
 
 const logger = getLogger(["probitas", "cli", "run"]);
 
@@ -48,8 +58,11 @@ export async function runCommand(
   signal?: AbortSignal,
 ): Promise<number> {
   try {
+    // Extract deno options first (before parseArgs)
+    const { denoArgs, remainingArgs } = extractDenoOptions(args);
+
     // Parse command-line arguments
-    const parsed = parseArgs(args, {
+    const parsed = parseArgs(remainingArgs, {
       string: [
         "reporter",
         "config",
@@ -118,7 +131,7 @@ export async function runCommand(
 
     // Configure logging with determined log level
     await configureLogging(logLevel);
-    logger.debug("Run command started", { args, cwd, logLevel });
+    logger.debug("Run command started", { args, cwd, logLevel, denoArgs });
 
     // Load environment variables before loading configuration
     // This allows config files to reference environment variables
@@ -164,7 +177,7 @@ export async function runCommand(
       files: scenarioFiles,
     });
 
-    // Get selectors (will be applied in worker)
+    // Get selectors (will be applied in subprocess)
     const selectors = parsed.selector ?? config?.selectors ?? [];
 
     // Parse options
@@ -193,14 +206,16 @@ export async function runCommand(
       cwd,
     });
 
-    // Run scenarios with Worker
-    const runResult = await runWithWorker(scenarioFiles, {
+    // Run scenarios with subprocess
+    const runResult = await runWithSubprocess(scenarioFiles, {
       reporter,
       selectors,
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
       timeout,
       logLevel,
+      denoArgs,
+      cwd,
       signal,
     });
 
@@ -223,9 +238,9 @@ export async function runCommand(
 }
 
 /**
- * Run scenarios using a single Worker
+ * Run scenarios using a subprocess
  */
-async function runWithWorker(
+async function runWithSubprocess(
   filePaths: readonly string[],
   options: {
     reporter: Reporter;
@@ -234,6 +249,8 @@ async function runWithWorker(
     maxFailures: number;
     timeout: number;
     logLevel: LogLevel;
+    denoArgs: string[];
+    cwd: string;
     signal?: AbortSignal;
   },
 ): Promise<RunResult> {
@@ -244,102 +261,43 @@ async function runWithWorker(
     maxFailures,
     timeout,
     logLevel,
+    denoArgs,
+    cwd,
     signal,
   } = options;
 
-  // Create a single worker
-  const workerUrl = new URL("./run/worker.ts", import.meta.url);
-  const worker = new Worker(workerUrl, { type: "module" });
-
-  // Check if already aborted before setting up worker
   if (signal?.aborted) {
-    worker.terminate();
     throw new Error("Aborted before execution started");
   }
 
-  const {
-    resolve: resolveResult,
-    reject: rejectResult,
-    promise: promiseResult,
-  } = Promise.withResolvers<RunResult>();
+  // Start IPC server and get port
+  const { listener, port } = startIpcServer();
 
-  // Set up abort handler to send abort message to worker
-  const abortHandler = () => {
-    worker.postMessage({ type: "abort" } satisfies WorkerInput);
-  };
-  signal?.addEventListener("abort", abortHandler, { once: true });
+  // Prepare and spawn subprocess
+  const templateUrl = new URL("../_templates/run.ts", import.meta.url);
+  const { scriptPath, tempDir } = await prepareSubprocessScript(
+    templateUrl,
+    "run",
+  );
+  const proc = spawnDenoSubprocess({
+    denoArgs,
+    scriptPath,
+    cwd,
+    ipcPort: port,
+    signal,
+  });
 
-  // Set up error handler to catch worker errors
-  const errorHandler = (event: ErrorEvent) => {
-    logger.debug("Worker error", {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    });
-    rejectResult(event.error);
-  };
-  worker.addEventListener("error", errorHandler);
+  // Wait for subprocess to connect (connection = ready)
+  // Race against subprocess exit to detect early failures
+  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
 
-  // Setup message handler for all messages (including ready signal)
-  // This avoids race condition between ready signal and subsequent messages
-  const pendingReporterOps = new Set<Promise<void>>();
-  let isReady = false;
-  const {
-    resolve: resolveReady,
-    reject: rejectReady,
-    promise: readyPromise,
-  } = Promise.withResolvers<void>();
+  // Create NDJSON stream from IPC connection
+  const outputStream = createNdjsonStream(ipc.readable, isRunOutput);
 
-  const messageHandler = (event: MessageEvent<WorkerOutput>) => {
-    const output = event.data;
-
-    // Handle ready signal specially
-    if (output.type === "ready") {
-      isReady = true;
-      resolveReady();
-      return;
-    }
-
-    // Reject if we receive messages before ready
-    if (!isReady) {
-      rejectReady(new Error("Unexpected message from worker before ready"));
-      return;
-    }
-
-    const handleMessage = async () => {
-      try {
-        const result = await handleWorkerOutput(reporter, output);
-        if (result) {
-          // Wait for all pending reporter operations to complete
-          // Take a snapshot to avoid issues with concurrent modifications
-          await Promise.all([...pendingReporterOps]);
-          resolveResult(result);
-        }
-      } catch (err) {
-        rejectResult(err);
-      }
-    };
-
-    // Track this operation if it's not the final result
-    if (output.type !== "result" && output.type !== "error") {
-      const promise = handleMessage();
-      pendingReporterOps.add(promise);
-      // Remove from set when done to prevent memory buildup
-      promise.finally(() => pendingReporterOps.delete(promise));
-    } else {
-      // For result/error, handle immediately
-      handleMessage();
-    }
-  };
-  worker.addEventListener("message", messageHandler);
-
-  // Wait for worker ready signal
-  await readyPromise;
-
-  try {
-    // Send file paths to worker
-    const message: WorkerInput = {
+  // Send run input to subprocess via IPC
+  await sendJsonInput(
+    ipc.writable,
+    {
       type: "run",
       filePaths,
       selectors,
@@ -347,31 +305,48 @@ async function runWithWorker(
       maxFailures,
       timeout,
       logLevel,
-    };
-    worker.postMessage(message);
+    } satisfies RunCommandInput,
+  );
 
-    // Wait for completion
-    return await promiseResult;
+  try {
+    for await (const output of outputStream) {
+      // Process output message
+      const result = await handleSubprocessOutput(reporter, output);
+      if (result) {
+        return result;
+      }
+    }
+
+    // If aborted, return a failure result to signal interrupted execution.
+    // Note: The counts are approximations since we don't know actual scenario
+    // count (filePaths are files, not scenarios) or partial completion state.
+    // The important invariant is failed > 0 so caller treats abort as failure.
+    if (signal?.aborted) {
+      return {
+        total: filePaths.length,
+        passed: 0,
+        failed: filePaths.length,
+        skipped: 0,
+        scenarios: [],
+        duration: 0,
+      };
+    }
+
+    throw new Error("Subprocess ended without sending result");
   } finally {
-    // Clean up event listeners
-    worker.removeEventListener("message", messageHandler);
-    worker.removeEventListener("error", errorHandler);
-    signal?.removeEventListener("abort", abortHandler);
-
-    // Terminate worker (postMessage not needed as terminate() is immediate)
-    worker.terminate();
+    ipc.close();
+    listener.close();
+    await proc.status;
+    // Clean up temporary directory
+    await Deno.remove(tempDir, { recursive: true }).catch(() => {});
   }
 }
 
-async function handleWorkerOutput(
+async function handleSubprocessOutput(
   reporter: Reporter,
-  output: WorkerOutput,
+  output: RunOutput,
 ): Promise<RunResult | void> {
   switch (output.type) {
-    case "ready":
-      // Already handled output type
-      throw new Error("Unexpected 'ready' message from worker");
-
     case "result":
       return deserializeRunResult(output.result);
 

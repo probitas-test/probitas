@@ -1,10 +1,15 @@
 /**
- * Worker communication protocol for scenario execution
+ * Subprocess communication protocol for scenario execution
  *
  * @module
  */
 
-import type { RunResult, ScenarioResult, StepResult } from "@probitas/runner";
+import type {
+  Reporter,
+  RunResult,
+  ScenarioResult,
+  StepResult,
+} from "@probitas/runner";
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { LogLevel } from "@logtape/logtape";
 import {
@@ -15,16 +20,16 @@ import {
 } from "@core/errorutil/error-object";
 
 /**
- * Message sent from main thread to worker
+ * Message sent from CLI to subprocess
  */
-export type WorkerInput =
-  | WorkerRunInput
-  | WorkerAbortInput;
+export type RunInput =
+  | RunCommandInput
+  | RunAbortInput;
 
 /**
- * Run scenarios in worker
+ * Run scenarios command
  */
-export interface WorkerRunInput {
+export interface RunCommandInput {
   readonly type: "run";
   /** File paths to load scenarios from */
   readonly filePaths: readonly string[];
@@ -36,42 +41,34 @@ export interface WorkerRunInput {
   readonly maxFailures: number;
   /** Timeout in milliseconds (0 = no timeout) */
   readonly timeout: number;
-  /** Log level for worker logging */
+  /** Log level for subprocess logging */
   readonly logLevel: LogLevel;
 }
 
 /**
  * Abort running scenarios
  */
-export interface WorkerAbortInput {
+export interface RunAbortInput {
   readonly type: "abort";
 }
 
 /**
- * Message sent from worker to main thread
+ * Message sent from subprocess to CLI
  */
-export type WorkerOutput =
-  | WorkerResultOutput
-  | WorkerErrorOutput
-  | WorkerReadyOutput
-  | WorkerRunStartOutput
-  | WorkerRunEndOutput
-  | WorkerScenarioStartOutput
-  | WorkerScenarioEndOutput
-  | WorkerStepStartOutput
-  | WorkerStepEndOutput;
-
-/**
- * Worker is ready to receive tasks
- */
-export interface WorkerReadyOutput {
-  readonly type: "ready";
-}
+export type RunOutput =
+  | RunResultOutput
+  | RunErrorOutput
+  | RunStartOutput
+  | RunEndOutput
+  | RunScenarioStartOutput
+  | RunScenarioEndOutput
+  | RunStepStartOutput
+  | RunStepEndOutput;
 
 /**
  * Run started
  */
-export interface WorkerRunStartOutput {
+export interface RunStartOutput {
   readonly type: "run_start";
   /** Scenario metadata list (serializable) */
   readonly scenarios: readonly ScenarioMetadata[];
@@ -80,7 +77,7 @@ export interface WorkerRunStartOutput {
 /**
  * Run completed
  */
-export interface WorkerRunEndOutput {
+export interface RunEndOutput {
   readonly type: "run_end";
   /** Scenario metadata list (serializable) */
   readonly scenarios: readonly ScenarioMetadata[];
@@ -91,7 +88,7 @@ export interface WorkerRunEndOutput {
 /**
  * All scenarios execution completed successfully
  */
-export interface WorkerResultOutput {
+export interface RunResultOutput {
   readonly type: "result";
   /** Run result with all scenario results */
   readonly result: RunResult;
@@ -100,7 +97,7 @@ export interface WorkerResultOutput {
 /**
  * Scenario execution failed with error
  */
-export interface WorkerErrorOutput {
+export interface RunErrorOutput {
   readonly type: "error";
   /** Serialized error information */
   readonly error: ErrorObject;
@@ -109,7 +106,7 @@ export interface WorkerErrorOutput {
 /**
  * Scenario execution started
  */
-export interface WorkerScenarioStartOutput {
+export interface RunScenarioStartOutput {
   readonly type: "scenario_start";
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
@@ -118,7 +115,7 @@ export interface WorkerScenarioStartOutput {
 /**
  * Scenario execution completed
  */
-export interface WorkerScenarioEndOutput {
+export interface RunScenarioEndOutput {
   readonly type: "scenario_end";
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
@@ -129,7 +126,7 @@ export interface WorkerScenarioEndOutput {
 /**
  * Step execution started
  */
-export interface WorkerStepStartOutput {
+export interface RunStepStartOutput {
   readonly type: "step_start";
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
@@ -140,7 +137,7 @@ export interface WorkerStepStartOutput {
 /**
  * Step execution completed
  */
-export interface WorkerStepEndOutput {
+export interface RunStepEndOutput {
   readonly type: "step_end";
   /** Scenario metadata (serializable) */
   readonly scenario: ScenarioMetadata;
@@ -249,4 +246,95 @@ export function deserializeRunResult(result: RunResult): RunResult {
     ...result,
     scenarios: result.scenarios.map(deserializeScenarioResult),
   };
+}
+
+/**
+ * Create a Reporter that sends events via the provided output function
+ *
+ * This factory eliminates duplication between Worker and Subprocess reporters
+ * by extracting the common serialization logic.
+ *
+ * The output function can be async - all reporter methods will await it.
+ */
+export function createReporter(
+  output: (message: RunOutput) => void | Promise<void>,
+): Reporter {
+  return {
+    async onRunStart(scenarios: readonly ScenarioMetadata[]): Promise<void> {
+      await output({ type: "run_start", scenarios });
+    },
+
+    async onRunEnd(
+      scenarios: readonly ScenarioMetadata[],
+      result: RunResult,
+    ): Promise<void> {
+      await output({
+        type: "run_end",
+        scenarios,
+        result: serializeRunResult(result),
+      });
+    },
+
+    async onScenarioStart(scenario: ScenarioMetadata): Promise<void> {
+      await output({ type: "scenario_start", scenario });
+    },
+
+    async onScenarioEnd(
+      scenario: ScenarioMetadata,
+      result: ScenarioResult,
+    ): Promise<void> {
+      await output({
+        type: "scenario_end",
+        scenario,
+        result: serializeScenarioResult(result),
+      });
+    },
+
+    async onStepStart(
+      scenario: ScenarioMetadata,
+      step: StepMetadata,
+    ): Promise<void> {
+      await output({ type: "step_start", scenario, step });
+    },
+
+    async onStepEnd(
+      scenario: ScenarioMetadata,
+      step: StepMetadata,
+      result: StepResult,
+    ): Promise<void> {
+      await output({
+        type: "step_end",
+        scenario,
+        step,
+        result: serializeStepResult(result),
+      });
+    },
+  };
+}
+
+/**
+ * Valid RunOutput type values
+ */
+const RUN_OUTPUT_TYPES = new Set([
+  "result",
+  "error",
+  "run_start",
+  "run_end",
+  "scenario_start",
+  "scenario_end",
+  "step_start",
+  "step_end",
+]);
+
+/**
+ * Type guard to check if a value is a valid RunOutput
+ */
+export function isRunOutput(value: unknown): value is RunOutput {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "type" in value &&
+    typeof value.type === "string" &&
+    RUN_OUTPUT_TYPES.has(value.type)
+  );
 }

@@ -6,7 +6,7 @@
 
 import { assertEquals, assertInstanceOf } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { deserializeError, serializeError } from "./protocol.ts";
+import { deserializeError, serializeError } from "./run_protocol.ts";
 
 describe("protocol", () => {
   describe("error serialization", () => {

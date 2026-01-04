@@ -8,13 +8,31 @@ import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { discoverScenarioFiles } from "@probitas/discover";
-import type { ScenarioDefinition } from "@probitas/core";
-import { loadScenarios } from "@probitas/core/loader";
-import { applySelectors } from "@probitas/core/selector";
+import { fromErrorObject, isErrorObject } from "@core/errorutil/error-object";
+import { unreachable } from "@core/errorutil/unreachable";
 import { EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { createDiscoveryProgress, writeStatus } from "../progress.ts";
-import { configureLogging, loadEnvironment, readAsset } from "../utils.ts";
+import {
+  configureLogging,
+  extractDenoOptions,
+  loadEnvironment,
+  readAsset,
+} from "../utils.ts";
+import {
+  createNdjsonStream,
+  prepareSubprocessScript,
+  sendJsonInput,
+  spawnDenoSubprocess,
+  startIpcServer,
+  waitForIpcConnection,
+} from "../subprocess.ts";
+import {
+  isListOutput,
+  type ListInput,
+  type ListOutput,
+  type ScenarioMeta,
+} from "../_templates/list_protocol.ts";
 
 const logger = getLogger(["probitas", "cli", "list"]);
 
@@ -32,8 +50,11 @@ export async function listCommand(
   cwd: string,
 ): Promise<number> {
   try {
+    // Extract deno options first (before parseArgs)
+    const { denoArgs, remainingArgs } = extractDenoOptions(args);
+
     // Parse command-line arguments
-    const parsed = parseArgs(args, {
+    const parsed = parseArgs(remainingArgs, {
       string: ["config", "include", "exclude", "selector", "env"],
       boolean: [
         "help",
@@ -88,7 +109,7 @@ export async function listCommand(
     // Configure logging with determined log level
     try {
       await configureLogging(logLevel);
-      logger.debug("List command started", { args, cwd, logLevel });
+      logger.debug("List command started", { args, cwd, logLevel, denoArgs });
     } catch {
       // Silently ignore logging configuration errors (e.g., in test environments)
     }
@@ -146,27 +167,25 @@ export async function listCommand(
       return EXIT_CODE.SUCCESS;
     }
 
-    // Load scenarios
+    // Load scenarios via subprocess
     // Show status during loading (only in TTY, suppressed in quiet mode)
-    logger.info("Loading scenarios", { fileCount: scenarioFiles.length });
+    logger.info("Loading scenarios via subprocess", {
+      fileCount: scenarioFiles.length,
+    });
     const clearLoadingStatus = parsed.quiet
       ? null
       : writeStatus(`Loading scenarios (${scenarioFiles.length} files)...`);
 
-    const scenarios = await loadScenarios(scenarioFiles, {
-      onImportError: (file, err) => {
-        const m = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to load scenario from ${file}: ${m}`);
-      },
-    });
+    const { allScenarios, filteredScenarios } = await runListSubprocess(
+      scenarioFiles,
+      selectors,
+      denoArgs,
+      cwd,
+    );
+
     clearLoadingStatus?.();
 
-    logger.debug("Scenarios loaded", { scenarioCount: scenarios.length });
-
-    // Apply selectors to filter scenarios
-    const filteredScenarios = selectors && selectors.length > 0
-      ? applySelectors(scenarios, selectors)
-      : scenarios;
+    logger.debug("Scenarios loaded", { scenarioCount: allScenarios.length });
 
     if (selectors && selectors.length > 0) {
       logger.debug("Applied selectors", {
@@ -179,11 +198,11 @@ export async function listCommand(
     if (parsed.json) {
       outputJson(filteredScenarios);
     } else {
-      outputText(scenarios, filteredScenarios);
+      outputText(allScenarios, filteredScenarios);
     }
 
     logger.info("List completed", {
-      totalScenarios: scenarios.length,
+      totalScenarios: allScenarios.length,
       filteredScenarios: filteredScenarios.length,
     });
 
@@ -197,17 +216,111 @@ export async function listCommand(
 }
 
 /**
+ * Run list subprocess to load scenarios
+ */
+async function runListSubprocess(
+  filePaths: readonly string[],
+  selectors: readonly string[],
+  denoArgs: string[],
+  cwd: string,
+): Promise<{
+  allScenarios: ScenarioMeta[];
+  filteredScenarios: ScenarioMeta[];
+}> {
+  // Start IPC server and get port
+  const { listener, port } = startIpcServer();
+
+  // Prepare subprocess script (resolve bare specifiers)
+  const templateUrl = new URL("../_templates/list.ts", import.meta.url);
+  const { scriptPath, tempDir } = await prepareSubprocessScript(
+    templateUrl,
+    "list",
+  );
+
+  // Spawn subprocess
+  const proc = spawnDenoSubprocess({
+    denoArgs,
+    scriptPath,
+    cwd,
+    ipcPort: port,
+  });
+
+  // Wait for subprocess to connect (connection = ready)
+  // Race against subprocess exit to detect early failures
+  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
+
+  // Create NDJSON stream from IPC connection
+  const outputStream = createNdjsonStream(ipc.readable, isListOutput);
+
+  // Send list input to subprocess via IPC
+  await sendJsonInput(
+    ipc.writable,
+    {
+      filePaths,
+      selectors,
+    } satisfies ListInput,
+  );
+
+  try {
+    // Process output messages
+    for await (const output of outputStream) {
+      const result = handleSubprocessOutput(output);
+      if (result) {
+        return result;
+      }
+    }
+
+    throw new Error("Subprocess ended without sending result");
+  } finally {
+    ipc.close();
+    listener.close();
+    await proc.status;
+    // Clean up temporary directory
+    await Deno.remove(tempDir, { recursive: true }).catch(() => {});
+  }
+}
+
+/**
+ * Handle subprocess output message
+ */
+function handleSubprocessOutput(
+  output: ListOutput,
+): { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] } | void {
+  switch (output.type) {
+    case "result":
+      // The subprocess has already applied any selector filtering, so
+      // `output.scenarios` contains only scenarios that passed filtering.
+      // Both allScenarios and filteredScenarios refer to this filtered set.
+      // TODO: Consider returning unfiltered list from subprocess if needed.
+      return {
+        allScenarios: [...output.scenarios],
+        filteredScenarios: [...output.scenarios],
+      };
+
+    case "error": {
+      const error = isErrorObject(output.error)
+        ? fromErrorObject(output.error)
+        : new Error(String(output.error));
+      throw error;
+    }
+
+    default:
+      unreachable(output);
+  }
+}
+
+/**
  * Output scenarios in text format
  */
 function outputText(
-  allScenarios: ScenarioDefinition[],
-  filteredScenarios: ScenarioDefinition[],
+  allScenarios: ScenarioMeta[],
+  filteredScenarios: ScenarioMeta[],
 ): void {
   // Group scenarios by file
-  const byFile = new Map<string, ScenarioDefinition[]>();
+  const byFile = new Map<string, ScenarioMeta[]>();
 
   for (const scenario of allScenarios) {
-    const file = scenario.origin?.path || "unknown";
+    const file = scenario.file;
     if (!byFile.has(file)) {
       byFile.set(file, []);
     }
@@ -219,7 +332,11 @@ function outputText(
   for (const [file, scenariosInFile] of byFile) {
     console.log(file);
     for (const scenario of scenariosInFile) {
-      if (filteredScenarios.includes(scenario)) {
+      if (
+        filteredScenarios.some((s) =>
+          s.name === scenario.name && s.file === scenario.file
+        )
+      ) {
         console.log(`  ${scenario.name}`);
         outputCount++;
       }
@@ -236,12 +353,12 @@ function outputText(
 /**
  * Output scenarios in JSON format
  */
-function outputJson(scenarios: ScenarioDefinition[]): void {
+function outputJson(scenarios: ScenarioMeta[]): void {
   const output = scenarios.map((scenario) => ({
     name: scenario.name,
     tags: scenario.tags,
-    steps: scenario.steps.filter((e) => e.kind === "step").length,
-    file: scenario.origin?.path || "unknown",
+    steps: scenario.steps,
+    file: scenario.file,
   }));
 
   console.log(JSON.stringify(output, null, 2));

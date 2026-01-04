@@ -17,6 +17,9 @@ Options:
   --env <file>               Load environment variables from file (default: .env)
   --no-env                   Skip loading .env file
   -r, --reload               Reload dependencies before running
+  --deno-<option>[=<value>] Pass options to deno subprocess
+                            Value options: --deno-config=custom.json, --deno-lock=custom.lock
+                            Boolean flags: --deno-no-lock, --deno-no-prompt
 
 Selector Format:
   [!][type:]value

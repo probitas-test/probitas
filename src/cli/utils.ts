@@ -5,13 +5,71 @@
  */
 
 import { as, ensure, is, type Predicate } from "@core/unknownutil";
-import {
-  configure,
-  getConsoleSink,
-  getLogger,
-  type LogLevel,
-} from "@logtape/logtape";
-import { getPrettyFormatter } from "@logtape/pretty";
+
+/**
+ * Result of extracting deno options from arguments
+ */
+export interface ExtractDenoOptionsResult {
+  /** Deno arguments with --deno- prefix removed (e.g., --config, --lock) */
+  denoArgs: string[];
+  /** Remaining arguments after extracting deno options */
+  remainingArgs: string[];
+}
+
+/**
+ * Extract --deno-* options and convert to deno command args
+ *
+ * Options starting with --deno- are extracted and converted to
+ * the corresponding deno option (e.g., --deno-config becomes --config).
+ *
+ * Value-taking options must use `=` syntax (e.g., `--deno-config=path`).
+ * Boolean flags work without values (e.g., `--deno-no-lock`).
+ *
+ * @param args - Command-line arguments
+ * @returns Extracted deno args and remaining args
+ *
+ * @example
+ * ```ts
+ * const { denoArgs, remainingArgs } = extractDenoOptions([
+ *   "--deno-config=custom/deno.json",
+ *   "--selector", "foo",
+ *   "--deno-lock=custom/deno.lock",
+ *   "--deno-no-prompt",
+ * ]);
+ * // denoArgs: ["--config=custom/deno.json", "--lock=custom/deno.lock", "--no-prompt"]
+ * // remainingArgs: ["--selector", "foo"]
+ * ```
+ */
+export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
+  const denoArgs: string[] = [];
+  const remainingArgs: string[] = [];
+
+  for (const arg of args) {
+    if (arg.startsWith("--deno-")) {
+      const optionBody = arg.slice(7); // e.g., "config=path" or "no-prompt"
+      const hasValue = optionBody.includes("=");
+      const name = hasValue ? optionBody.split("=")[0] : optionBody;
+
+      // Value-taking options must use `=` syntax (e.g., --deno-config=path).
+      // Boolean flags follow the Deno `no-*` convention (e.g., --deno-no-lock).
+      if (!hasValue && !name.startsWith("no-")) {
+        throw new Error(
+          `Deno option "--deno-${name}" requires a value. ` +
+            `Use "--deno-${name}=<value>" syntax.`,
+        );
+      }
+
+      // Convert --deno-xxx to --xxx (preserving =value if present)
+      const denoArg = "--" + optionBody;
+      denoArgs.push(denoArg);
+    } else {
+      remainingArgs.push(arg);
+    }
+  }
+
+  return { denoArgs, remainingArgs };
+}
+import { getLogger } from "@logtape/logtape";
 import { JSONReporter, ListReporter } from "@probitas/reporter";
 import type { Reporter } from "@probitas/runner";
 import type { ReporterOptions } from "@probitas/reporter";
@@ -331,41 +389,5 @@ export async function loadEnvironment(
   }
 }
 
-/**
- * Configure LogTape logging for the CLI
- *
- * @param level - Log level to use
- */
-export async function configureLogging(level: LogLevel): Promise<void> {
-  try {
-    await configure({
-      sinks: {
-        console: getConsoleSink({
-          formatter: getPrettyFormatter({
-            timestamp: "disabled",
-            colors: true,
-            properties: true,
-          }),
-        }),
-      },
-      filters: {
-        levelFilter: level,
-        metaFilter: "warning",
-      },
-      loggers: [
-        {
-          category: ["probitas"],
-          filters: ["levelFilter"],
-          sinks: ["console"],
-        },
-        {
-          category: ["logtape", "meta"],
-          filters: ["metaFilter"],
-          sinks: ["console"],
-        },
-      ],
-    });
-  } catch {
-    // Ignore configuration errors (e.g., already configured in tests)
-  }
-}
+// Re-export configureLogging from shared template module
+export { configureLogging } from "./_templates/logging.ts";

@@ -45,7 +45,8 @@
   "exclude": [
     ".coverage/**",
     ".claude/**",
-    ".worktrees/**"
+    ".worktrees/**",
+    "dist/**"
   ],
   "tasks": {
     "probitas": "deno run -A --unstable-kv --lock --frozen ./src/cli.ts",
@@ -54,9 +55,12 @@
     "test:coverage": "deno task test --coverage=.coverage",
     "coverage": "deno coverage .coverage --include='/src/'",
     "verify": "deno fmt && deno lint && deno task check && deno task test",
-    "release": "deno run -A .scripts/release.ts"
+    "release": "deno run -A .scripts/release.ts",
+    "compile": "deno run -A scripts/build_subprocess_templates.ts && deno compile -A --unstable-kv -o dist/probitas ./src/cli.ts"
   },
   "imports": {
+    "@core/streamutil": "jsr:@core/streamutil@^1.0.0",
+    "@deno/graph": "jsr:@deno/graph@^0.86.5",
     "@core/errorutil": "jsr:@core/errorutil@^1.2.1",
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@cspotcode/outdent": "jsr:@cspotcode/outdent@^0.8.0",
@@ -89,8 +93,10 @@
     "@std/collections": "jsr:@std/collections@^1.1.3",
     "@std/dotenv": "jsr:@std/dotenv@^0.225.6",
     "@std/fs": "jsr:@std/fs@^1.0.21",
+    "@std/json": "jsr:@std/json@^1.0.2",
     "@std/jsonc": "jsr:@std/jsonc@^1.0.2",
     "@std/path": "jsr:@std/path@^1.1.4",
+    "@std/streams": "jsr:@std/streams@^1.0.16",
     "@std/testing/bdd": "jsr:@std/testing@^1.0.16/bdd",
     "@std/testing/mock": "jsr:@std/testing@^1.0.16/mock",
     "@std/testing/time": "jsr:@std/testing@^1.0.16/time",
