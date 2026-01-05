@@ -5,8 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Undefined Serialization")
   .step("Return undefined values", () => {
-    // undefined values in object properties are omitted by JSON.stringify
-    // undefined in arrays becomes null
+    // CBOR natively supports undefined
     return {
       explicit: undefined,
       nested: {

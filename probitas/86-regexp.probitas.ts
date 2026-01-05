@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("RegExp Serialization")
   .step("Return RegExp values", () => {
-    // RegExp is serialized as empty object {} by JSON.stringify
+    // RegExp is serialized via CBOR tagged value
     return {
       pattern: /hello\s+world/gi,
       email: new RegExp("^[a-z]+@[a-z]+\\.[a-z]+$", "i"),

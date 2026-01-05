@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Symbol Serialization")
   .step("Return Symbol value", () => {
-    // Symbols are omitted when serialized by JSON.stringify
+    // Symbols are serialized via CBOR tagged value
     return {
       id: Symbol("unique-id"),
       tag: Symbol.for("global-tag"),

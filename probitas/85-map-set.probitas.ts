@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Map/Set Serialization")
   .step("Return Map and Set values", () => {
-    // Map and Set are serialized as empty objects {} by JSON.stringify
+    // Map and Set are serialized via CBOR tagged value
     const map = new Map<string, number>([
       ["a", 1],
       ["b", 2],

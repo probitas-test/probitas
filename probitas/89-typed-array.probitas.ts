@@ -5,8 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("TypedArray Serialization")
   .step("Return TypedArray values", () => {
-    // TypedArray is serialized as object with numeric keys by JSON.stringify
-    // ArrayBuffer cannot be directly serialized
+    // TypedArrays are serialized via CBOR tagged value
     return {
       uint8: new Uint8Array([1, 2, 3, 4]),
       int32: new Int32Array([100, 200, -300]),

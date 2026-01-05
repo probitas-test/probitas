@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Circular Reference Serialization")
   .step("Return circular reference", () => {
-    // Circular references cause TypeError in JSON.stringify
+    // Circular references are handled via CBOR tagged value
     const obj: Record<string, unknown> = { name: "parent" };
     obj.self = obj;
     return obj;

@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Function Serialization")
   .step("Return Function value", () => {
-    // Functions are omitted when serialized by JSON.stringify
+    // Functions are serialized as placeholder via CBOR tagged value
     return {
       callback: () => "hello",
       method: function namedFn() {

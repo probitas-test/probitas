@@ -5,8 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Error Serialization")
   .step("Return Error values", () => {
-    // Error objects lose most properties when serialized by JSON.stringify
-    // Only enumerable own properties are kept (message, name, stack are not enumerable)
+    // Error is serialized via CBOR tagged value (preserves name, message, stack, custom properties)
     const error = new Error("Something went wrong");
     const typeError = new TypeError("Invalid type");
     const customError = Object.assign(new Error("Custom"), {

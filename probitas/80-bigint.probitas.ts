@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("BigInt Serialization")
   .step("Return BigInt value", () => {
-    // BigInt cannot be serialized by JSON.stringify
+    // CBOR natively supports BigInt
     return {
       value: BigInt(9007199254740991),
       timestamp: BigInt(Date.now()),

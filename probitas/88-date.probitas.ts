@@ -5,7 +5,7 @@ import { scenario } from "jsr:@probitas/probitas@^0";
 
 export default scenario("Date Serialization")
   .step("Return Date values", () => {
-    // Date is serialized as ISO string by JSON.stringify (loses type info)
+    // CBOR natively supports Date
     return {
       now: new Date(),
       epoch: new Date(0),
