@@ -2,7 +2,7 @@
  * Subprocess entry point for list command
  *
  * Loads scenarios and outputs metadata via TCP IPC.
- * Communication is via NDJSON over TCP (not stdin/stdout).
+ * Communication is via CBOR over TCP (not stdin/stdout).
  *
  * @module
  * @internal
@@ -10,80 +10,37 @@
 
 import { loadScenarios } from "@probitas/core/loader";
 import { applySelectors } from "@probitas/core/selector";
-import { toErrorObject } from "@core/errorutil/error-object";
 import type { ListInput, ListOutput, ScenarioMeta } from "./list_protocol.ts";
-import {
-  closeIpc,
-  connectIpc,
-  parseIpcPort,
-  readInput,
-  writeOutput,
-} from "./utils.ts";
+import { runSubprocess, writeOutput } from "./utils.ts";
 
-/**
- * Main entry point
- */
-async function main(): Promise<void> {
-  // Parse IPC port from command line arguments
-  const port = parseIpcPort(Deno.args);
+// Run subprocess with bootstrap handling
+runSubprocess<ListInput>(async (ipc, input) => {
+  // Load scenarios from files
+  const scenarios = await loadScenarios(input.filePaths, {
+    onImportError: (file, err) => {
+      const m = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to load scenario from ${file}: ${m}`);
+    },
+  });
 
-  // Connect to parent process IPC server
-  const ipc = await connectIpc(port);
+  // Apply selectors to filter scenarios
+  const filtered = input.selectors.length > 0
+    ? applySelectors(scenarios, input.selectors)
+    : scenarios;
 
-  try {
-    // Read input from IPC (TCP connection establishes readiness)
-    const input = await readInput(ipc) as ListInput;
+  // Build output metadata
+  const scenarioMetas: ScenarioMeta[] = filtered.map((s) => ({
+    name: s.name,
+    tags: s.tags,
+    steps: s.steps.filter((e) => e.kind === "step").length,
+    file: s.origin?.path || "unknown",
+  }));
 
-    // Load scenarios from files
-    const scenarios = await loadScenarios(input.filePaths, {
-      onImportError: (file, err) => {
-        const m = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to load scenario from ${file}: ${m}`);
-      },
-    });
-
-    // Apply selectors to filter scenarios
-    const filtered = input.selectors.length > 0
-      ? applySelectors(scenarios, input.selectors)
-      : scenarios;
-
-    // Build output metadata
-    const scenarioMetas: ScenarioMeta[] = filtered.map((s) => ({
-      name: s.name,
-      tags: s.tags,
-      steps: s.steps.filter((e) => e.kind === "step").length,
-      file: s.origin?.path || "unknown",
-    }));
-
-    await writeOutput(
-      ipc,
-      {
-        type: "result",
-        scenarios: scenarioMetas,
-      } satisfies ListOutput,
-    );
-  } catch (error) {
-    const err = error instanceof Error ? error : new Error(String(error));
-    try {
-      await writeOutput(
-        ipc,
-        {
-          type: "error",
-          error: toErrorObject(err),
-        } satisfies ListOutput,
-      );
-    } catch {
-      // Failed to write error to IPC, log to console as fallback
-      console.error("Subprocess error:", error);
-    }
-  } finally {
-    // Await close to ensure all pending writes are flushed
-    await closeIpc(ipc);
-  }
-}
-
-// Run main and exit explicitly to avoid async operations keeping process alive
-main().finally(() => {
-  // Ensure process exits after output is flushed
-  setTimeout(() => Deno.exit(0), 0);
+  await writeOutput(
+    ipc,
+    {
+      type: "result",
+      scenarios: scenarioMetas,
+    } satisfies ListOutput,
+  );
 });

@@ -12,12 +12,16 @@ import type {
 } from "@probitas/runner";
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { LogLevel } from "@logtape/logtape";
+import { isErrorObject } from "@core/errorutil/error-object";
 import {
+  createOutputValidator,
+  deserializeError,
   type ErrorObject,
-  fromErrorObject,
-  isErrorObject,
-  toErrorObject,
-} from "@core/errorutil/error-object";
+  serializeError,
+} from "./utils.ts";
+
+// Re-export for backward compatibility with consumers
+export { deserializeError, type ErrorObject, serializeError } from "./utils.ts";
 
 /**
  * Message sent from CLI to subprocess
@@ -148,25 +152,15 @@ export interface RunStepEndOutput {
 }
 
 /**
- * Serialize an error for transmission
- */
-export function serializeError(error: unknown): ErrorObject {
-  const err = error instanceof Error ? error : new Error(String(error));
-  return toErrorObject(err);
-}
-
-/**
- * Deserialize an error from transmission
- */
-export function deserializeError(serialized: ErrorObject): Error {
-  return fromErrorObject(serialized);
-}
-
-/**
- * Serialize StepResult error for transmission
+ * Serialize StepResult for transmission
+ *
+ * Handles error serialization (for failed/skipped) to ensure proper
+ * cross-process Error transmission. Passed step values are transmitted
+ * as-is since CBOR streaming handles all complex types.
  */
 export function serializeStepResult(result: StepResult): StepResult {
   if (result.status === "passed") {
+    // Value is transmitted directly - CBOR streaming handles all types
     return result;
   }
   return {
@@ -193,10 +187,15 @@ export function serializeScenarioResult(
 }
 
 /**
- * Deserialize StepResult error from transmission
+ * Deserialize StepResult from transmission
+ *
+ * Handles error deserialization (for failed/skipped) to restore
+ * Error instances from serialized ErrorObject. Passed step values
+ * are already deserialized by CBOR streaming.
  */
 export function deserializeStepResult(result: StepResult): StepResult {
   if (result.status === "passed") {
+    // Value is already deserialized by CBOR streaming
     return result;
   }
   if (isErrorObject(result.error)) {
@@ -313,9 +312,9 @@ export function createReporter(
 }
 
 /**
- * Valid RunOutput type values
+ * Type guard to check if a value is a valid RunOutput
  */
-const RUN_OUTPUT_TYPES = new Set([
+export const isRunOutput = createOutputValidator<RunOutput>([
   "result",
   "error",
   "run_start",
@@ -325,16 +324,3 @@ const RUN_OUTPUT_TYPES = new Set([
   "step_start",
   "step_end",
 ]);
-
-/**
- * Type guard to check if a value is a valid RunOutput
- */
-export function isRunOutput(value: unknown): value is RunOutput {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    typeof value.type === "string" &&
-    RUN_OUTPUT_TYPES.has(value.type)
-  );
-}

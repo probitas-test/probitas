@@ -22,14 +22,7 @@ import {
   resolveReporter,
 } from "../utils.ts";
 import { createDiscoveryProgress } from "../progress.ts";
-import {
-  createNdjsonStream,
-  prepareSubprocessScript,
-  sendJsonInput,
-  spawnDenoSubprocess,
-  startIpcServer,
-  waitForIpcConnection,
-} from "../subprocess.ts";
+import { cleanupSubprocess, startSubprocess } from "../subprocess.ts";
 import {
   deserializeError,
   deserializeRunResult,
@@ -270,42 +263,27 @@ async function runWithSubprocess(
     throw new Error("Aborted before execution started");
   }
 
-  // Start IPC server and get port
-  const { listener, port } = startIpcServer();
-
-  // Prepare and spawn subprocess
-  const templateUrl = new URL("../_templates/run.ts", import.meta.url);
-  const { scriptPath, tempDir } = await prepareSubprocessScript(
-    templateUrl,
-    "run",
-  );
-  const proc = spawnDenoSubprocess({
-    denoArgs,
-    scriptPath,
-    cwd,
-    ipcPort: port,
-    signal,
-  });
-
-  // Wait for subprocess to connect (connection = ready)
-  // Race against subprocess exit to detect early failures
-  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
-
-  // Create NDJSON stream from IPC connection
-  const outputStream = createNdjsonStream(ipc.readable, isRunOutput);
-
-  // Send run input to subprocess via IPC
-  await sendJsonInput(
-    ipc.writable,
+  const { outputStream, resources } = await startSubprocess<
+    RunCommandInput,
+    RunOutput
+  >(
     {
-      type: "run",
-      filePaths,
-      selectors,
-      maxConcurrency,
-      maxFailures,
-      timeout,
-      logLevel,
-    } satisfies RunCommandInput,
+      templateUrl: new URL("../_templates/run.ts", import.meta.url),
+      templateName: "run",
+      input: {
+        type: "run",
+        filePaths,
+        selectors,
+        maxConcurrency,
+        maxFailures,
+        timeout,
+        logLevel,
+      },
+      denoArgs,
+      cwd,
+      signal,
+    },
+    isRunOutput,
   );
 
   try {
@@ -334,14 +312,7 @@ async function runWithSubprocess(
 
     throw new Error("Subprocess ended without sending result");
   } finally {
-    // Wait for subprocess to exit first to allow proper cleanup.
-    // This prevents closing IPC while the subprocess is still writing,
-    // which could cause "BadResource: Bad resource ID" errors.
-    await proc.status;
-    await ipc.close();
-    listener.close();
-    // Clean up temporary directory
-    await Deno.remove(tempDir, { recursive: true }).catch(() => {});
+    await cleanupSubprocess(resources);
   }
 }
 

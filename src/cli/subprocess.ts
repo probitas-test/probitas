@@ -1,15 +1,45 @@
 /**
- * Subprocess utilities for scenario execution
+ * Subprocess utilities for scenario execution (Parent Process Side)
  *
  * Spawns deno subprocess with TCP-based IPC communication.
  * This avoids stdin/stdout pollution from user code (e.g., console.log).
  *
+ * ## Architecture: Parent vs Subprocess IPC
+ *
+ * This module handles the **parent process** side of IPC, while
+ * `_templates/utils.ts` handles the **subprocess** side.
+ *
+ * The two sides have intentionally different stream patterns:
+ *
+ * ### Parent Process (this module)
+ * - Uses raw `Uint8Array` streams from TCP connection
+ * - Manual CBOR encoding via `encodeToCbor()` for one-shot input sending
+ * - Manual CBOR decoding via `createCborStream()` for validated output streaming
+ * - Manages lifecycle: spawn → connect → send → receive → cleanup
+ *
+ * ### Subprocess (`_templates/utils.ts`)
+ * - Uses pre-acquired `reader`/`writer` with piped CBOR streams
+ * - Automatic encoding: write CborStreamInput → encoder → TCP
+ * - Automatic decoding: TCP → decoder → read CborStreamOutput
+ * - Simpler API since subprocess lifecycle is managed by parent
+ *
+ * This asymmetry exists because:
+ * 1. Parent needs fine-grained control for validation and multiple outputs
+ * 2. Subprocess can use simpler fire-and-forget streaming
+ * 3. Parent manages resources; subprocess just uses them
+ *
  * @module
  */
 
-import { JsonParseStream } from "@std/json/parse-stream";
+import {
+  CborSequenceDecoderStream,
+  CborSequenceEncoderStream,
+} from "@std/cbor";
+import {
+  fromCborStreamOutput,
+  toCborStreamInput,
+} from "./_templates/serializer.ts";
 import { dirname, join } from "@std/path";
-import { TextLineStream } from "@std/streams";
 import {
   type ResolvedTemplateFiles,
   resolveSubprocessTemplate,
@@ -138,12 +168,12 @@ export function spawnDenoSubprocess(
 /**
  * IPC connection from subprocess
  *
- * Provides read/write streams for NDJSON communication.
+ * Provides read/write streams for CBOR communication.
  */
 export interface IpcConnection {
-  /** Readable stream for receiving NDJSON from subprocess */
+  /** Readable stream for receiving data from subprocess */
   readable: ReadableStream<Uint8Array>;
-  /** Writable stream for sending JSON to subprocess */
+  /** Writable stream for sending data to subprocess */
   writable: WritableStream<Uint8Array>;
   /** Close the connection */
   close(): Promise<void>;
@@ -251,56 +281,309 @@ export interface SubprocessOutput {
 }
 
 /**
- * Create NDJSON stream from IPC connection
- *
- * Transforms raw byte stream into parsed and validated JSON objects.
+ * Create CBOR stream from IPC connection
  *
  * @typeParam T - Output type (must have `type` discriminator)
  * @param readable - Raw readable stream from IPC connection
  * @param validator - Type guard function to validate each output
  * @returns Typed readable stream of validated outputs
  */
-export function createNdjsonStream<T extends SubprocessOutput>(
+export function createCborStream<T extends SubprocessOutput>(
   readable: ReadableStream<Uint8Array>,
   validator: (chunk: unknown) => chunk is T,
 ): ReadableStream<T> {
-  return readable
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream())
-    .pipeThrough(new JsonParseStream())
-    .pipeThrough(
-      new TransformStream<unknown, T>({
-        transform(chunk, controller) {
-          if (!validator(chunk)) {
-            throw new Error(
-              `Invalid subprocess output: ${JSON.stringify(chunk)}`,
-            );
+  const cborStream = readable.pipeThrough(new CborSequenceDecoderStream());
+  const reader = cborStream.getReader();
+
+  return new ReadableStream<T>({
+    async pull(controller) {
+      try {
+        const result = await reader.read();
+        if (result.done) {
+          controller.close();
+          return;
+        }
+
+        // Convert CborStreamOutput to regular value with custom type restoration
+        const decoded = await fromCborStreamOutput(result.value);
+
+        // Validate
+        if (!validator(decoded)) {
+          let decodedStr: string;
+          try {
+            decodedStr = JSON.stringify(decoded);
+          } catch {
+            decodedStr = String(decoded);
           }
-          controller.enqueue(chunk);
-        },
-      }),
-    );
+          throw new Error(`Invalid subprocess output: ${decodedStr}`);
+        }
+
+        controller.enqueue(decoded);
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+
+    cancel() {
+      reader.releaseLock();
+    },
+  });
 }
 
 /**
- * Send JSON input to subprocess via IPC
+ * Encode a value to CBOR bytes
  *
- * Serializes input as JSON line and writes to IPC connection.
- * Does NOT close the stream (allows for further communication).
+ * Uses CborSequenceEncoderStream to encode the value, then collects
+ * the output bytes. This provides standalone encoding without requiring
+ * a persistent stream connection.
+ *
+ * IMPORTANT: Reading and writing must happen concurrently to avoid
+ * backpressure deadlock. The encoder may block writes until the
+ * readable side is being consumed.
+ *
+ * @param input - Value to encode
+ * @returns CBOR-encoded bytes
+ */
+async function encodeToCbor(input: unknown): Promise<Uint8Array> {
+  // Convert to CborStreamInput (handles custom types via tagged values)
+  const cborInput = toCborStreamInput(input);
+
+  // Create encoder and get reader/writer
+  const encoder = new CborSequenceEncoderStream();
+  const writer = encoder.writable.getWriter();
+  const reader = encoder.readable.getReader();
+
+  // Start collecting output BEFORE writing to avoid backpressure deadlock
+  const collectPromise = (async () => {
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    return chunks;
+  })();
+
+  // Write input and close to flush
+  await writer.write(cborInput);
+  await writer.close();
+
+  // Wait for collection to complete
+  const chunks = await collectPromise;
+
+  // Concatenate chunks into single Uint8Array
+  const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
+}
+
+/**
+ * Send CBOR input to subprocess via IPC
  *
  * @param writable - IPC writable stream
  * @param input - Input data to serialize and send
  */
-export async function sendJsonInput(
+export async function sendCborInput(
   writable: WritableStream<Uint8Array>,
   input: unknown,
 ): Promise<void> {
-  const encoder = new TextEncoder();
   const writer = writable.getWriter();
   try {
-    // Send as NDJSON (newline-delimited JSON)
-    await writer.write(encoder.encode(JSON.stringify(input) + "\n"));
+    // Encode to CBOR bytes
+    const cborData = await encodeToCbor(input);
+
+    // Single atomic write
+    await writer.write(cborData);
   } finally {
     writer.releaseLock();
+  }
+}
+
+/**
+ * Resources to clean up after subprocess execution
+ */
+export interface SubprocessResources {
+  /** Spawned subprocess */
+  proc: Deno.ChildProcess;
+  /** IPC connection to subprocess */
+  ipc: IpcConnection;
+  /** TCP listener for IPC */
+  listener: Deno.Listener;
+  /** Temporary directory containing subprocess script */
+  tempDir: string;
+}
+
+/**
+ * Clean up subprocess resources in the correct order
+ *
+ * Order matters:
+ * 1. Wait for subprocess to exit (allows proper cleanup)
+ * 2. Close IPC connection (flushes pending writes)
+ * 3. Close TCP listener
+ * 4. Remove temporary directory
+ *
+ * @param resources - Resources to clean up
+ */
+export async function cleanupSubprocess(
+  resources: SubprocessResources,
+): Promise<void> {
+  const { proc, ipc, listener, tempDir } = resources;
+
+  // Wait for subprocess to exit first to allow proper cleanup.
+  // This prevents closing IPC while the subprocess is still writing,
+  // which could cause "BadResource: Bad resource ID" errors.
+  await proc.status;
+  await ipc.close();
+  listener.close();
+  // Clean up temporary directory (ignore errors if already removed)
+  await Deno.remove(tempDir, { recursive: true }).catch(() => {});
+}
+
+/**
+ * Options for running a subprocess
+ */
+export interface RunSubprocessOptions<I> {
+  /** URL to the subprocess template file */
+  templateUrl: URL;
+  /** Name of the template (for embedded templates lookup) */
+  templateName: string;
+  /** Input to send to subprocess */
+  input: I;
+  /** Additional deno arguments */
+  denoArgs: string[];
+  /** Current working directory */
+  cwd: string;
+  /** Optional AbortSignal for cancellation */
+  signal?: AbortSignal;
+}
+
+/**
+ * Result of running a subprocess
+ */
+export interface SubprocessResult<O extends SubprocessOutput> {
+  /** Output stream from subprocess */
+  outputStream: ReadableStream<O>;
+  /** Resources for cleanup (use cleanupSubprocess when done) */
+  resources: SubprocessResources;
+}
+
+/**
+ * Start a subprocess and return the output stream
+ *
+ * This is a low-level function that sets up the subprocess infrastructure.
+ * Caller is responsible for:
+ * 1. Iterating over outputStream to process messages
+ * 2. Calling cleanupSubprocess(resources) in a finally block
+ *
+ * For most use cases, prefer runSubprocessToCompletion() which handles
+ * the full lifecycle including cleanup.
+ *
+ * @typeParam I - Input type
+ * @typeParam O - Output type (must have `type` discriminator)
+ * @param options - Subprocess options
+ * @param validator - Type guard to validate output messages
+ * @returns Output stream and resources for cleanup
+ */
+export async function startSubprocess<I, O extends SubprocessOutput>(
+  options: RunSubprocessOptions<I>,
+  validator: (value: unknown) => value is O,
+): Promise<SubprocessResult<O>> {
+  const { templateUrl, templateName, input, denoArgs, cwd, signal } = options;
+
+  // Start IPC server and get port
+  const { listener, port } = startIpcServer();
+
+  // Prepare subprocess script (resolve bare specifiers)
+  const { scriptPath, tempDir } = await prepareSubprocessScript(
+    templateUrl,
+    templateName,
+  );
+
+  // Spawn subprocess
+  const proc = spawnDenoSubprocess({
+    denoArgs,
+    scriptPath,
+    cwd,
+    ipcPort: port,
+    signal,
+  });
+
+  // Wait for subprocess to connect (connection = ready)
+  // Race against subprocess exit to detect early failures
+  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
+
+  // Create CBOR stream from IPC connection
+  const outputStream = createCborStream(ipc.readable, validator);
+
+  // Send input to subprocess via IPC
+  await sendCborInput(ipc.writable, input);
+
+  return {
+    outputStream,
+    resources: { proc, ipc, listener, tempDir },
+  };
+}
+
+/**
+ * Handler for subprocess output messages
+ *
+ * Process each output message and optionally return a final result.
+ * When a result is returned, the subprocess execution completes.
+ *
+ * @typeParam O - Output type
+ * @typeParam R - Result type
+ */
+export type SubprocessOutputHandler<O, R> = (output: O) => Promise<R | void>;
+
+/**
+ * Run a subprocess to completion
+ *
+ * This high-level function handles the full subprocess lifecycle:
+ * 1. Start subprocess and establish IPC connection
+ * 2. Send input to subprocess
+ * 3. Process output messages via handler
+ * 4. Clean up resources automatically
+ *
+ * @typeParam I - Input type
+ * @typeParam O - Output type (must have `type` discriminator)
+ * @typeParam R - Result type returned by handler
+ * @param options - Subprocess options
+ * @param validator - Type guard to validate output messages
+ * @param handler - Function to process each output message
+ * @returns Result from handler
+ * @throws Error if subprocess ends without returning a result
+ */
+export async function runSubprocessToCompletion<
+  I,
+  O extends SubprocessOutput,
+  R,
+>(
+  options: RunSubprocessOptions<I>,
+  validator: (value: unknown) => value is O,
+  handler: SubprocessOutputHandler<O, R>,
+): Promise<R> {
+  const { outputStream, resources } = await startSubprocess(options, validator);
+
+  try {
+    for await (const output of outputStream) {
+      const result = await handler(output);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+
+    // Handle abort case
+    if (options.signal?.aborted) {
+      throw new Error("Subprocess aborted");
+    }
+
+    throw new Error("Subprocess ended without sending result");
+  } finally {
+    await cleanupSubprocess(resources);
   }
 }
