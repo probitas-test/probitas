@@ -309,9 +309,13 @@ export function createCborStream<T extends SubprocessOutput>(
 
         // Validate
         if (!validator(decoded)) {
-          throw new Error(
-            `Invalid subprocess output: ${JSON.stringify(decoded)}`,
-          );
+          let decodedStr: string;
+          try {
+            decodedStr = JSON.stringify(decoded);
+          } catch {
+            decodedStr = String(decoded);
+          }
+          throw new Error(`Invalid subprocess output: ${decodedStr}`);
         }
 
         controller.enqueue(decoded);

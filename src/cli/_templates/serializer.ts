@@ -219,11 +219,11 @@ export function toCborStreamInput(value: unknown): CborStreamInput {
         name: val.name,
         message: val.message,
         stack: val.stack,
-        // Preserve custom properties
+        // Preserve custom properties, recursively converted
         ...Object.fromEntries(
-          Object.entries(val).filter(([k]) =>
-            !["name", "message", "stack"].includes(k)
-          ),
+          Object.entries(val)
+            .filter(([k]) => !["name", "message", "stack"].includes(k))
+            .map(([k, v]) => [k, convert(v, `${path}.${k}`)]),
         ),
       });
     }
@@ -299,10 +299,16 @@ function fromCborType(cborType: CborType): unknown {
         case Tag.SymbolFor:
           return Symbol.for(content as string);
         case Tag.Function: {
-          const name = content as string;
-          const fn = new Function(
-            `return function ${name || "anonymous"}() {}`,
-          )();
+          const rawName = typeof content === "string" ? content : "";
+          // Validate function name to prevent code injection
+          const safeName = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(rawName)
+            ? rawName
+            : "anonymous";
+          const fn = function () {};
+          Object.defineProperty(fn, "name", {
+            value: safeName,
+            configurable: true,
+          });
           return fn;
         }
         case Tag.RegExp: {
@@ -336,11 +342,13 @@ function fromCborType(cborType: CborType): unknown {
           const error = new Error(obj.message as string);
           error.name = obj.name as string;
           if (obj.stack) error.stack = obj.stack as string;
-          // Restore custom properties using Object.assign
+          // Register error for potential circular references
+          refs.set(path, error);
+          // Restore custom properties, recursively converting their values
           const customProps: Record<string, unknown> = {};
           for (const [k, v] of Object.entries(obj)) {
             if (!["name", "message", "stack"].includes(k)) {
-              customProps[k] = v;
+              customProps[k] = convert(v as CborType, `${path}.${k}`);
             }
           }
           Object.assign(error, customProps);
