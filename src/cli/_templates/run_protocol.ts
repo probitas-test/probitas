@@ -18,6 +18,7 @@ import {
   isErrorObject,
   toErrorObject,
 } from "@core/errorutil/error-object";
+import { deserialize, serialize } from "./serializer.ts";
 
 /**
  * Message sent from CLI to subprocess
@@ -163,11 +164,17 @@ export function deserializeError(serialized: ErrorObject): Error {
 }
 
 /**
- * Serialize StepResult error for transmission
+ * Serialize StepResult for transmission
+ *
+ * Handles both error serialization (for failed/skipped) and value serialization
+ * (for passed steps) to ensure all non-JSON-serializable values are converted.
  */
 export function serializeStepResult(result: StepResult): StepResult {
   if (result.status === "passed") {
-    return result;
+    return {
+      ...result,
+      value: serialize(result.value),
+    };
   }
   return {
     ...result,
@@ -193,11 +200,17 @@ export function serializeScenarioResult(
 }
 
 /**
- * Deserialize StepResult error from transmission
+ * Deserialize StepResult from transmission
+ *
+ * Handles both error deserialization (for failed/skipped) and value deserialization
+ * (for passed steps) to restore non-JSON-serializable values.
  */
 export function deserializeStepResult(result: StepResult): StepResult {
   if (result.status === "passed") {
-    return result;
+    return {
+      ...result,
+      value: deserialize(result.value),
+    };
   }
   if (isErrorObject(result.error)) {
     return {
