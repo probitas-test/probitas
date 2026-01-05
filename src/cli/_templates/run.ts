@@ -2,7 +2,7 @@
  * Subprocess entry point for run command
  *
  * Executes scenarios and streams progress via TCP IPC.
- * Communication is via NDJSON over TCP (not stdin/stdout).
+ * Communication is via CBOR over TCP (not stdin/stdout).
  *
  * @module
  * @internal
@@ -19,15 +19,7 @@ import {
   serializeError,
   serializeRunResult,
 } from "./run_protocol.ts";
-import {
-  closeIpc,
-  configureLogging,
-  connectIpc,
-  type IpcConnection,
-  parseIpcPort,
-  readInput,
-  writeOutput,
-} from "./utils.ts";
+import { configureLogging, runSubprocess, writeOutput } from "./utils.ts";
 
 const logger = getLogger(["probitas", "cli", "run", "subprocess"]);
 
@@ -60,11 +52,12 @@ globalThis.addEventListener(
 
 /**
  * Execute all scenarios
+ *
+ * This handler manages its own error handling because it needs to:
+ * 1. Clean up the abort controller on error
+ * 2. Write structured error output for scenario execution failures
  */
-async function runScenarios(
-  ipc: IpcConnection,
-  input: RunCommandInput,
-): Promise<void> {
+runSubprocess<RunCommandInput>(async (ipc, input) => {
   const {
     filePaths,
     selectors,
@@ -142,44 +135,4 @@ async function runScenarios(
   } finally {
     globalAbortController = null;
   }
-}
-
-/**
- * Main entry point
- */
-async function main(): Promise<void> {
-  // Parse IPC port from command line arguments
-  const port = parseIpcPort(Deno.args);
-
-  // Connect to parent process IPC server
-  const ipc = await connectIpc(port);
-
-  try {
-    // Read input from IPC (TCP connection establishes readiness)
-    const input = await readInput(ipc) as RunCommandInput;
-
-    await runScenarios(ipc, input);
-  } catch (error) {
-    try {
-      await writeOutput(
-        ipc,
-        {
-          type: "error",
-          error: serializeError(error),
-        } satisfies RunOutput,
-      );
-    } catch {
-      // Failed to write error to IPC, log to console as fallback
-      console.error("Subprocess error:", error);
-    }
-  } finally {
-    // Await close to ensure all pending writes are flushed
-    await closeIpc(ipc);
-  }
-}
-
-// Run main and exit explicitly to avoid LogTape keeping process alive
-main().finally(() => {
-  // Ensure process exits after output is flushed
-  setTimeout(() => Deno.exit(0), 0);
 });

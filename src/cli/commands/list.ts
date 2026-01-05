@@ -19,14 +19,7 @@ import {
   loadEnvironment,
   readAsset,
 } from "../utils.ts";
-import {
-  createNdjsonStream,
-  prepareSubprocessScript,
-  sendJsonInput,
-  spawnDenoSubprocess,
-  startIpcServer,
-  waitForIpcConnection,
-} from "../subprocess.ts";
+import { runSubprocessToCompletion } from "../subprocess.ts";
 import {
   isListOutput,
   type ListInput,
@@ -227,59 +220,21 @@ async function runListSubprocess(
   allScenarios: ScenarioMeta[];
   filteredScenarios: ScenarioMeta[];
 }> {
-  // Start IPC server and get port
-  const { listener, port } = startIpcServer();
-
-  // Prepare subprocess script (resolve bare specifiers)
-  const templateUrl = new URL("../_templates/list.ts", import.meta.url);
-  const { scriptPath, tempDir } = await prepareSubprocessScript(
-    templateUrl,
-    "list",
-  );
-
-  // Spawn subprocess
-  const proc = spawnDenoSubprocess({
-    denoArgs,
-    scriptPath,
-    cwd,
-    ipcPort: port,
-  });
-
-  // Wait for subprocess to connect (connection = ready)
-  // Race against subprocess exit to detect early failures
-  const ipc = await waitForIpcConnection(listener, { subprocess: proc });
-
-  // Create NDJSON stream from IPC connection
-  const outputStream = createNdjsonStream(ipc.readable, isListOutput);
-
-  // Send list input to subprocess via IPC
-  await sendJsonInput(
-    ipc.writable,
+  return await runSubprocessToCompletion<
+    ListInput,
+    ListOutput,
+    { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] }
+  >(
     {
-      filePaths,
-      selectors,
-    } satisfies ListInput,
+      templateUrl: new URL("../_templates/list.ts", import.meta.url),
+      templateName: "list",
+      input: { filePaths, selectors },
+      denoArgs,
+      cwd,
+    },
+    isListOutput,
+    (output) => Promise.resolve(handleSubprocessOutput(output)),
   );
-
-  try {
-    // Process output messages
-    for await (const output of outputStream) {
-      const result = handleSubprocessOutput(output);
-      if (result) {
-        return result;
-      }
-    }
-
-    throw new Error("Subprocess ended without sending result");
-  } finally {
-    // Wait for subprocess to exit first to allow proper cleanup.
-    // This prevents closing IPC while the subprocess is still writing.
-    await proc.status;
-    await ipc.close();
-    listener.close();
-    // Clean up temporary directory
-    await Deno.remove(tempDir, { recursive: true }).catch(() => {});
-  }
 }
 
 /**

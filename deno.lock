@@ -59,6 +59,8 @@
     "jsr:@std/async@^1.0.15": "1.0.16",
     "jsr:@std/bytes@1": "1.0.6",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
+    "jsr:@std/cbor@*": "0.1.9",
+    "jsr:@std/cbor@~0.1.9": "0.1.9",
     "jsr:@std/cli@^1.0.25": "1.0.25",
     "jsr:@std/collections@1": "1.1.3",
     "jsr:@std/collections@^1.1.3": "1.1.3",
@@ -76,6 +78,7 @@
     "jsr:@std/path@0.217": "0.217.0",
     "jsr:@std/path@1": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
+    "jsr:@std/streams@^1.0.14": "1.0.16",
     "jsr:@std/streams@^1.0.16": "1.0.16",
     "jsr:@std/streams@^1.0.9": "1.0.16",
     "jsr:@std/testing@^1.0.16": "1.0.16",
@@ -369,6 +372,13 @@
     },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
+    "@std/cbor@0.1.9": {
+      "integrity": "fe1f61f445a34c8f97973b58fecbfb24e48fcc88df7b1253d9b6fe5d2ea16936",
+      "dependencies": [
+        "jsr:@std/bytes@^1.0.6",
+        "jsr:@std/streams@^1.0.14"
+      ]
     },
     "@std/cli@1.0.25": {
       "integrity": "1f85051b370c97a7a9dfc6ba626e7ed57a91bea8c081597276d1e78d929d8c91",
@@ -1553,6 +1563,7 @@
       "jsr:@probitas/reporter@0.7",
       "jsr:@probitas/runner@0.5",
       "jsr:@std/assert@^1.0.16",
+      "jsr:@std/cbor@~0.1.9",
       "jsr:@std/cli@^1.0.25",
       "jsr:@std/collections@^1.1.3",
       "jsr:@std/dotenv@~0.225.6",
