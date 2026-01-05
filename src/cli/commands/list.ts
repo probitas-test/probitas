@@ -272,9 +272,11 @@ async function runListSubprocess(
 
     throw new Error("Subprocess ended without sending result");
   } finally {
-    ipc.close();
-    listener.close();
+    // Wait for subprocess to exit first to allow proper cleanup.
+    // This prevents closing IPC while the subprocess is still writing.
     await proc.status;
+    await ipc.close();
+    listener.close();
     // Clean up temporary directory
     await Deno.remove(tempDir, { recursive: true }).catch(() => {});
   }

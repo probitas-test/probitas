@@ -146,7 +146,7 @@ export interface IpcConnection {
   /** Writable stream for sending JSON to subprocess */
   writable: WritableStream<Uint8Array>;
   /** Close the connection */
-  close(): void;
+  close(): Promise<void>;
 }
 
 /**
@@ -230,6 +230,7 @@ export async function waitForIpcConnection(
         } catch {
           // Already closed
         }
+        return Promise.resolve();
       },
     };
   } finally {

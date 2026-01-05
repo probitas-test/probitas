@@ -34,6 +34,30 @@ const logger = getLogger(["probitas", "cli", "run", "subprocess"]);
 // Global AbortController for graceful shutdown
 let globalAbortController: AbortController | null = null;
 
+// Handle unhandled promise rejections from Deno's node:http2 compatibility layer.
+// The "Bad resource ID" error occurs during HTTP/2 stream cleanup and doesn't
+// affect test correctness, but causes the subprocess to crash without this handler.
+globalThis.addEventListener(
+  "unhandledrejection",
+  (event: PromiseRejectionEvent) => {
+    event.preventDefault();
+
+    const error = event.reason;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Silently ignore "Bad resource ID" errors from node:http2
+    if (
+      errorMessage.includes("Bad resource ID") ||
+      (error instanceof Error && error.stack?.includes("node:http2"))
+    ) {
+      return;
+    }
+
+    // Log other unhandled rejections
+    logger.error`Unhandled promise rejection in subprocess: ${error}`;
+  },
+);
+
 /**
  * Execute all scenarios
  */
@@ -149,7 +173,8 @@ async function main(): Promise<void> {
       console.error("Subprocess error:", error);
     }
   } finally {
-    closeIpc(ipc);
+    // Await close to ensure all pending writes are flushed
+    await closeIpc(ipc);
   }
 }
 

@@ -30,8 +30,8 @@ export interface IpcConnection {
   writer: WritableStreamDefaultWriter<Uint8Array>;
   /** Text encoder for converting strings to bytes */
   encoder: TextEncoder;
-  /** Close the underlying TCP connection */
-  close: () => void;
+  /** Close the underlying TCP connection (async to properly flush writes) */
+  close: () => Promise<void>;
 }
 
 /**
@@ -77,11 +77,12 @@ export async function connectIpc(port: number): Promise<IpcConnection> {
     readable,
     writer,
     encoder: new TextEncoder(),
-    close: () => {
+    close: async () => {
       try {
-        writer.close();
+        // Await writer.close() to ensure all pending writes are flushed
+        await writer.close();
       } catch {
-        // Already closed
+        // Already closed or errored
       }
       try {
         conn.close();
@@ -136,6 +137,6 @@ export async function writeOutput(
  *
  * @param ipc - IPC connection to close
  */
-export function closeIpc(ipc: IpcConnection): void {
-  ipc.close();
+export async function closeIpc(ipc: IpcConnection): Promise<void> {
+  await ipc.close();
 }
