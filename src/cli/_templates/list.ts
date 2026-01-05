@@ -77,7 +77,8 @@ async function main(): Promise<void> {
       console.error("Subprocess error:", error);
     }
   } finally {
-    closeIpc(ipc);
+    // Await close to ensure all pending writes are flushed
+    await closeIpc(ipc);
   }
 }
 

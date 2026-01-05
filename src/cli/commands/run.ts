@@ -334,9 +334,12 @@ async function runWithSubprocess(
 
     throw new Error("Subprocess ended without sending result");
   } finally {
-    ipc.close();
-    listener.close();
+    // Wait for subprocess to exit first to allow proper cleanup.
+    // This prevents closing IPC while the subprocess is still writing,
+    // which could cause "BadResource: Bad resource ID" errors.
     await proc.status;
+    await ipc.close();
+    listener.close();
     // Clean up temporary directory
     await Deno.remove(tempDir, { recursive: true }).catch(() => {});
   }
