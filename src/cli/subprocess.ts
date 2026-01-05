@@ -132,10 +132,98 @@ export async function prepareSubprocessScript(
 }
 
 /**
+ * Check if --config or --no-config is already specified in deno args
+ */
+function hasConfigOption(denoArgs: readonly string[]): boolean {
+  return denoArgs.some((arg) =>
+    arg === "--config" ||
+    arg.startsWith("--config=") ||
+    arg === "--no-config"
+  );
+}
+
+/**
+ * Find deno.json or deno.jsonc by searching upward from the specified directory
+ *
+ * Mimics Deno's behavior (since v1.18): recursively searches the current
+ * directory and all parent directories until a config file is found or
+ * the filesystem root is reached.
+ *
+ * @param cwd - Directory to start searching from
+ * @returns Path to config file if found, undefined otherwise
+ */
+function findDenoConfig(cwd: string): string | undefined {
+  const configCandidates = ["deno.json", "deno.jsonc"];
+  let currentDir = cwd;
+
+  // Search upward through parent directories
+  while (true) {
+    for (const candidate of configCandidates) {
+      const configPath = join(currentDir, candidate);
+      try {
+        const stat = Deno.statSync(configPath);
+        if (stat.isFile) {
+          return configPath;
+        }
+      } catch {
+        // File doesn't exist, try next candidate
+      }
+    }
+
+    // Move to parent directory
+    const parentDir = dirname(currentDir);
+
+    // Stop if we've reached the filesystem root
+    if (parentDir === currentDir) {
+      break;
+    }
+
+    currentDir = parentDir;
+  }
+
+  return undefined;
+}
+
+/**
+ * Ensure --config option is present if not explicitly disabled
+ *
+ * If neither --config nor --no-config is specified, automatically
+ * searches for deno.json/deno.jsonc starting from cwd and recursively
+ * checking parent directories (matching Deno's auto-detection behavior).
+ *
+ * @param denoArgs - Original deno arguments
+ * @param cwd - Current working directory to start searching from
+ * @returns Updated deno arguments with --config if applicable
+ */
+function ensureConfigOption(
+  denoArgs: readonly string[],
+  cwd: string,
+): string[] {
+  // If --config or --no-config is already specified, don't modify
+  if (hasConfigOption(denoArgs)) {
+    return [...denoArgs];
+  }
+
+  // Try to find deno.json or deno.jsonc
+  const configPath = findDenoConfig(cwd);
+  if (configPath) {
+    return [...denoArgs, `--config=${configPath}`];
+  }
+
+  // No config file found, return original args
+  return [...denoArgs];
+}
+
+/**
  * Spawn deno subprocess with the given options
  *
  * The subprocess communicates via TCP IPC, not stdin/stdout.
  * This allows subprocess to use console.log freely without corrupting IPC.
+ *
+ * If neither --deno-config nor --deno-no-config is specified, this function
+ * automatically detects and adds --config pointing to deno.json/deno.jsonc
+ * by recursively searching from cwd upward through parent directories
+ * (matching Deno's native auto-detection behavior since v1.18).
  *
  * @param options - Subprocess options
  * @returns Spawned child process
@@ -145,12 +233,15 @@ export function spawnDenoSubprocess(
 ): Deno.ChildProcess {
   const { denoArgs, scriptPath, cwd, ipcPort, signal } = options;
 
+  // Auto-detect and add --config if not specified
+  const finalDenoArgs = ensureConfigOption(denoArgs, cwd);
+
   const command = new Deno.Command("deno", {
     args: [
       "run",
       "--unstable-kv", // Allow DenoKV
       "--allow-all", // Scenarios may need various permissions
-      ...denoArgs,
+      ...finalDenoArgs,
       scriptPath,
       "--ipc-port",
       String(ipcPort),
