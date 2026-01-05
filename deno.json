@@ -10,6 +10,7 @@
     "./client/graphql": "./src/client/graphql.ts",
     "./client/grpc": "./src/client/grpc.ts",
     "./client/http": "./src/client/http.ts",
+    "./client/http/oidc": "./src/client/http/oidc.ts",
     "./client/mongodb": "./src/client/mongodb.ts",
     "./client/rabbitmq": "./src/client/rabbitmq.ts",
     "./client/redis": "./src/client/redis.ts",
