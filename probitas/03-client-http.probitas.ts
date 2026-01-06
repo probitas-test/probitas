@@ -16,7 +16,7 @@
  */
 import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
 
 export default scenario("HTTP Client Example", {
   tags: ["integration", "http"],

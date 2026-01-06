@@ -14,7 +14,7 @@
  */
 import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
 const TEST_USER = "testuser";
 const TEST_PASS = "testpass";
 const ISSUER = `${BASE_URL}/oidc/${TEST_USER}/${TEST_PASS}`;
