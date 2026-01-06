@@ -367,6 +367,8 @@ probitas init
 Probitas provides pre-configured clients for common services:
 
 - **HTTP** - REST API testing (`client.http`)
+  - **OIDC Authentication** - OpenID Connect authentication for HTTP clients
+    (`client.http.oidc`)
 - **GraphQL** - GraphQL query testing (`client.graphql`)
 - **ConnectRPC** - RPC service testing (`client.connectrpc`)
 - **gRPC** - gRPC service testing (`client.grpc`)
@@ -379,6 +381,50 @@ Probitas provides pre-configured clients for common services:
 
 Each client comes with specialized assertion utilities via the `expect()`
 function.
+
+### OIDC Authentication
+
+The HTTP client supports OpenID Connect (OIDC) authentication for testing APIs
+that require OAuth 2.0/OIDC authentication:
+
+```typescript
+import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+
+export default scenario("OIDC Authentication Test", { tags: ["auth", "oidc"] })
+  .resource(
+    "http",
+    async () =>
+      await client.http.oidc.createOidcHttpClient({
+        url: Deno.env.get("API_URL")!,
+        oidc: {
+          issuer: Deno.env.get("OIDC_ISSUER")!,
+          clientId: "my-client-id",
+        },
+      }),
+  )
+  .step("Login with OIDC", async (ctx) => {
+    const result = await ctx.resources.http.login({
+      type: "authorization_code",
+      username: "user@example.com",
+      password: "password",
+    });
+    expect(result.ok).toBe(true);
+  })
+  .step("Access protected resource", async (ctx) => {
+    // Authorization header is automatically added
+    const response = await ctx.resources.http.get("/protected");
+    expect(response).toBeOk().toHaveStatus(200);
+  })
+  .build();
+```
+
+The OIDC client supports:
+
+- **Automatic token discovery** - Discovers OIDC endpoints from issuer URL
+- **Manual configuration** - Or configure `authUrl` and `tokenUrl` directly
+- **Authorization Code Grant** - For user authentication flows
+- **Automatic token management** - Handles token storage and Authorization
+  header injection
 
 ## Expectation API
 

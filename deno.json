@@ -74,7 +74,7 @@
     "@probitas/client-deno-kv": "jsr:@probitas/client-deno-kv@^0.5.0",
     "@probitas/client-graphql": "jsr:@probitas/client-graphql@^0.6.0",
     "@probitas/client-grpc": "jsr:@probitas/client-grpc@^0.6.0",
-    "@probitas/client-http": "jsr:@probitas/client-http@^0.7.0",
+    "@probitas/client-http": "jsr:@probitas/client-http@^0.7.1",
     "@probitas/client-mongodb": "jsr:@probitas/client-mongodb@^0.6.0",
     "@probitas/client-rabbitmq": "jsr:@probitas/client-rabbitmq@^0.5.0",
     "@probitas/client-redis": "jsr:@probitas/client-redis@^0.5.0",
