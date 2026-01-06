@@ -16,7 +16,7 @@
  */
 import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
 
 export default scenario("HTTP Client Example", {
   tags: ["integration", "http"],
@@ -128,7 +128,7 @@ export default scenario("HTTP Client Example", {
   .step("GET /basic-auth - valid credentials", async (ctx) => {
     const { http } = ctx.resources;
     const credentials = btoa("testuser:testpass");
-    const res = await http.get("/basic-auth/testuser/testpass", {
+    const res = await http.get("/basic-auth", {
       headers: { Authorization: `Basic ${credentials}` },
     });
 
@@ -139,26 +139,28 @@ export default scenario("HTTP Client Example", {
   .step("GET /basic-auth - invalid credentials", async (ctx) => {
     const { http } = ctx.resources;
     const credentials = btoa("wronguser:wrongpass");
-    const res = await http.get("/basic-auth/testuser/testpass", {
+    const res = await http.get("/basic-auth", {
       headers: { Authorization: `Basic ${credentials}` },
       throwOnError: false,
     });
 
     expect(res).not.toBeOk().toHaveStatus(401);
   })
-  .step("GET /bearer - valid token", async (ctx) => {
+  .step("GET /bearer-auth - valid token", async (ctx) => {
     const { http } = ctx.resources;
-    const res = await http.get("/bearer", {
-      headers: { Authorization: "Bearer my-secret-token" },
+    // Token is SHA1(testuser:testpass)
+    const token = "1eac13f1578ef493b9ed5617a5f4a31b271eb667";
+    const res = await http.get("/bearer-auth", {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     expect(res)
       .toBeOk()
-      .toHaveJsonMatching({ authenticated: true, token: "my-secret-token" });
+      .toHaveJsonMatching({ authenticated: true, token });
   })
-  .step("GET /bearer - missing token", async (ctx) => {
+  .step("GET /bearer-auth - missing token", async (ctx) => {
     const { http } = ctx.resources;
-    const res = await http.get("/bearer", { throwOnError: false });
+    const res = await http.get("/bearer-auth", { throwOnError: false });
 
     expect(res).not.toBeOk().toHaveStatus(401);
   })

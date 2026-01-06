@@ -14,10 +14,10 @@
  */
 import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
 const TEST_USER = "testuser";
 const TEST_PASS = "testpass";
-const ISSUER = `${BASE_URL}/oidc/${TEST_USER}/${TEST_PASS}`;
+const ISSUER = BASE_URL;
 
 export default scenario("HTTP Client OIDC Example", {
   tags: ["integration", "http", "oidc"],
@@ -38,7 +38,7 @@ export default scenario("HTTP Client OIDC Example", {
     async (ctx) => {
       const { "http-client": http } = ctx.resources;
       const res = await http.get(
-        `/oidc/${TEST_USER}/${TEST_PASS}/.well-known/openid-configuration`,
+        `/.well-known/openid-configuration`,
       );
 
       expect(res)
@@ -46,8 +46,8 @@ export default scenario("HTTP Client OIDC Example", {
         .toHaveStatus(200)
         .toHaveJsonMatching({
           issuer: ISSUER,
-          authorization_endpoint: `${ISSUER}/authorize`,
-          token_endpoint: `${ISSUER}/token`,
+          authorization_endpoint: `${ISSUER}/oauth2/authorize`,
+          token_endpoint: `${ISSUER}/oauth2/token`,
         });
     },
   )
@@ -83,16 +83,16 @@ export default scenario("HTTP Client OIDC Example", {
     },
   )
   .step(
-    "GET /bearer - authenticated request with auto header",
+    "GET /oauth2/userinfo - authenticated request with auto header",
     async (ctx) => {
       const { "oidc-http-with-discovery": http } = ctx.resources;
-      const res = await http.get("/bearer");
+      const res = await http.get("/oauth2/userinfo");
 
       expect(res)
         .toBeOk()
         .toHaveStatus(200)
         .toHaveJsonMatching({
-          authenticated: true,
+          sub: TEST_USER,
         });
     },
   )
@@ -102,8 +102,8 @@ export default scenario("HTTP Client OIDC Example", {
       await client.http.oidc.createOidcHttpClient({
         url: BASE_URL,
         oidc: {
-          authUrl: `/oidc/${TEST_USER}/${TEST_PASS}/authorize`,
-          tokenUrl: `/oidc/${TEST_USER}/${TEST_PASS}/token`,
+          authUrl: `/oauth2/authorize`,
+          tokenUrl: `/oauth2/token`,
           clientId: "test-client-manual",
         },
       }),
@@ -124,21 +124,24 @@ export default scenario("HTTP Client OIDC Example", {
 
     return result;
   })
-  .step("GET /bearer - authenticated with manual config", async (ctx) => {
-    const { "oidc-http-manual": http } = ctx.resources;
-    const res = await http.get("/bearer");
+  .step(
+    "GET /oauth2/userinfo - authenticated with manual config",
+    async (ctx) => {
+      const { "oidc-http-manual": http } = ctx.resources;
+      const res = await http.get("/oauth2/userinfo");
 
-    expect(res)
-      .toBeOk()
-      .toHaveJsonMatching({
-        authenticated: true,
-      });
-  })
+      expect(res)
+        .toBeOk()
+        .toHaveJsonMatching({
+          sub: TEST_USER,
+        });
+    },
+  )
   .step("Login failure - invalid credentials", async () => {
     const http = await client.http.oidc.createOidcHttpClient({
       url: BASE_URL,
       oidc: {
-        issuer: `${BASE_URL}/oidc/${TEST_USER}/${TEST_PASS}`,
+        issuer: BASE_URL,
         clientId: "test-client",
       },
     });
@@ -160,16 +163,16 @@ export default scenario("HTTP Client OIDC Example", {
     const { "oidc-http-with-discovery": http } = ctx.resources;
 
     // First request
-    const res1 = await http.get("/bearer");
-    expect(res1).toBeOk().toHaveJsonMatching({ authenticated: true });
+    const res1 = await http.get("/oauth2/userinfo");
+    expect(res1).toBeOk().toHaveJsonMatching({ sub: TEST_USER });
 
     // Second request - token should still be valid
-    const res2 = await http.get("/bearer");
-    expect(res2).toBeOk().toHaveJsonMatching({ authenticated: true });
+    const res2 = await http.get("/oauth2/userinfo");
+    expect(res2).toBeOk().toHaveJsonMatching({ sub: TEST_USER });
 
     // Third request with query parameters
-    const res3 = await http.get("/bearer?foo=bar");
-    expect(res3).toBeOk().toHaveJsonMatching({ authenticated: true });
+    const res3 = await http.get("/oauth2/userinfo?foo=bar");
+    expect(res3).toBeOk().toHaveJsonMatching({ sub: TEST_USER });
   })
   .step("POST request with authentication", async (ctx) => {
     const { "oidc-http-with-discovery": http } = ctx.resources;
