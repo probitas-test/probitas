@@ -317,5 +317,138 @@ describe("config loader", () => {
         Error,
       );
     });
+
+    it("loads stepOptions configuration", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            timeout: 60000,
+            retry: {
+              maxAttempts: 3,
+              backoff: "exponential",
+            },
+          },
+        }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.stepOptions, {
+        timeout: 60000,
+        retry: {
+          maxAttempts: 3,
+          backoff: "exponential",
+        },
+      });
+    });
+
+    it("loads partial stepOptions with only timeout", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            timeout: 45000,
+          },
+        }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.stepOptions, {
+        timeout: 45000,
+      });
+    });
+
+    it("loads partial stepOptions with only retry", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            retry: {
+              maxAttempts: 5,
+            },
+          },
+        }),
+      );
+
+      const config = await loadConfig(configPath);
+
+      assertEquals(config.stepOptions, {
+        retry: {
+          maxAttempts: 5,
+        },
+      });
+    });
+
+    it("validates stepOptions.timeout must be number", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            timeout: "30s",
+          },
+        }),
+      );
+
+      await assertRejects(
+        async () => await loadConfig(configPath),
+        Error,
+      );
+    });
+
+    it("validates stepOptions.retry.backoff values", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            retry: {
+              backoff: "invalid",
+            },
+          },
+        }),
+      );
+
+      await assertRejects(
+        async () => await loadConfig(configPath),
+        Error,
+      );
+    });
+
+    it("validates stepOptions.retry.maxAttempts must be number", async () => {
+      await using sbox = await sandbox();
+
+      const configPath = sbox.resolve("probitas.json");
+      await Deno.writeTextFile(
+        configPath,
+        JSON.stringify({
+          stepOptions: {
+            retry: {
+              maxAttempts: "3",
+            },
+          },
+        }),
+      );
+
+      await assertRejects(
+        async () => await loadConfig(configPath),
+        Error,
+      );
+    });
   });
 });

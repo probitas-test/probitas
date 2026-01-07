@@ -11,6 +11,7 @@ import { getLogger, type LogLevel } from "@logtape/logtape";
 import { DEFAULT_TIMEOUT, EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
+import type { StepOptions } from "@probitas/core";
 import type { Reporter, RunResult } from "@probitas/runner";
 import {
   configureLogging,
@@ -138,6 +139,9 @@ export async function runCommand(
       await findProbitasConfigFile(cwd, { parentLookup: true });
     const config = configPath ? await loadConfig(configPath) : {};
 
+    // Extract stepOptions from config
+    const stepOptions = config?.stepOptions;
+
     // Determine includes/excludes: CLI > config
     const includes = parsed.include ?? config?.includes;
     const excludes = parsed.exclude ?? config?.excludes;
@@ -206,6 +210,7 @@ export async function runCommand(
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
       timeout,
+      stepOptions,
       logLevel,
       denoArgs,
       cwd,
@@ -241,6 +246,7 @@ async function runWithSubprocess(
     maxConcurrency: number;
     maxFailures: number;
     timeout: number;
+    stepOptions?: StepOptions;
     logLevel: LogLevel;
     denoArgs: string[];
     cwd: string;
@@ -253,6 +259,7 @@ async function runWithSubprocess(
     maxConcurrency,
     maxFailures,
     timeout,
+    stepOptions,
     logLevel,
     denoArgs,
     cwd,
@@ -277,6 +284,7 @@ async function runWithSubprocess(
         maxConcurrency,
         maxFailures,
         timeout,
+        stepOptions,
         logLevel,
       },
       denoArgs,

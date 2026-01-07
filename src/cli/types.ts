@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { StepOptions } from "@probitas/core";
+
 /**
  * ProbitasConfig - Configuration loaded from deno.json/deno.jsonc
  *
@@ -30,4 +32,7 @@ export interface ProbitasConfig {
 
   /** Default timeout for scenario execution (string format like "30s", "10m") */
   readonly timeout?: string;
+
+  /** Default step options (timeout, retry) applied to all steps */
+  readonly stepOptions?: StepOptions;
 }

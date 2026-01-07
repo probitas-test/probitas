@@ -10,7 +10,11 @@ import type {
   ScenarioResult,
   StepResult,
 } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import type {
+  ScenarioMetadata,
+  StepMetadata,
+  StepOptions,
+} from "@probitas/core";
 import type { LogLevel } from "@logtape/logtape";
 import { isErrorObject } from "@core/errorutil/error-object";
 import {
@@ -45,6 +49,8 @@ export interface RunCommandInput {
   readonly maxFailures: number;
   /** Timeout in milliseconds (0 = no timeout) */
   readonly timeout: number;
+  /** Default step options (timeout, retry) applied to all steps */
+  readonly stepOptions?: StepOptions;
   /** Log level for subprocess logging */
   readonly logLevel: LogLevel;
 }

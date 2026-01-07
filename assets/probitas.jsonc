@@ -19,6 +19,18 @@
   "maxFailures": 0,
   // Default timeout for each scenario
   "timeout": "30s",
+  // Default step execution options (applied to all steps unless overridden)
+  "stepOptions": {
+    // Step timeout in milliseconds (default: 30000)
+    "timeout": 30000,
+    // Retry configuration for transient failures
+    "retry": {
+      // Maximum retry attempts (1 = no retry, 2 = one retry, etc.)
+      "maxAttempts": 1,
+      // Backoff strategy: "linear" (fixed delay) or "exponential" (increasing delay)
+      "backoff": "linear"
+    }
+  },
   // Default selectors for filtering scenarios
   "selectors": [
     "!tag:failure"
