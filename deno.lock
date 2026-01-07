@@ -12,10 +12,11 @@
     "jsr:@denosaurs/plug@1": "1.1.0",
     "jsr:@lambdalisue/sandbox@^3.0.1": "3.0.1",
     "jsr:@logtape/logtape@0": "0.12.3",
-    "jsr:@logtape/logtape@1": "1.3.5",
-    "jsr:@logtape/logtape@^1.3.5": "1.3.5",
-    "jsr:@logtape/pretty@^1.3.5": "1.3.5",
-    "jsr:@probitas/builder@0.5": "0.5.0",
+    "jsr:@logtape/logtape@1": "1.3.6",
+    "jsr:@logtape/logtape@^1.3.5": "1.3.6",
+    "jsr:@logtape/logtape@^1.3.6": "1.3.6",
+    "jsr:@logtape/pretty@^1.3.5": "1.3.6",
+    "jsr:@probitas/builder@~0.5.1": "0.5.1",
     "jsr:@probitas/client-connectrpc@0": "0.7.0",
     "jsr:@probitas/client-connectrpc@0.7": "0.7.0",
     "jsr:@probitas/client-deno-kv@0": "0.5.0",
@@ -24,9 +25,8 @@
     "jsr:@probitas/client-graphql@0.6": "0.6.0",
     "jsr:@probitas/client-grpc@0": "0.6.0",
     "jsr:@probitas/client-grpc@0.6": "0.6.0",
-    "jsr:@probitas/client-http@0": "0.7.1",
-    "jsr:@probitas/client-http@0.7": "0.7.1",
-    "jsr:@probitas/client-http@~0.7.1": "0.7.1",
+    "jsr:@probitas/client-http@0": "0.7.2",
+    "jsr:@probitas/client-http@~0.7.2": "0.7.2",
     "jsr:@probitas/client-mongodb@0": "0.6.0",
     "jsr:@probitas/client-mongodb@0.6": "0.6.0",
     "jsr:@probitas/client-rabbitmq@0": "0.5.0",
@@ -42,22 +42,21 @@
     "jsr:@probitas/client-sqs@0": "0.5.0",
     "jsr:@probitas/client-sqs@0.5": "0.5.0",
     "jsr:@probitas/client@0": "0.5.0",
-    "jsr:@probitas/core@0": "0.3.0",
-    "jsr:@probitas/core@0.3": "0.3.0",
+    "jsr:@probitas/core@0": "0.3.1",
+    "jsr:@probitas/core@~0.3.1": "0.3.1",
     "jsr:@probitas/discover@0.4": "0.4.0",
     "jsr:@probitas/expect@0": "0.4.0",
     "jsr:@probitas/expect@0.4": "0.4.0",
-    "jsr:@probitas/probitas@*": "0.18.0",
-    "jsr:@probitas/probitas@0": "0.18.0",
     "jsr:@probitas/reporter@~0.7.1": "0.7.1",
-    "jsr:@probitas/runner@0": "0.5.0",
-    "jsr:@probitas/runner@0.5": "0.5.0",
+    "jsr:@probitas/runner@0": "0.5.1",
+    "jsr:@probitas/runner@~0.5.1": "0.5.1",
     "jsr:@std/assert@0.217": "0.217.0",
     "jsr:@std/assert@^1.0.14": "1.0.16",
     "jsr:@std/assert@^1.0.15": "1.0.16",
     "jsr:@std/assert@^1.0.16": "1.0.16",
     "jsr:@std/async@1": "1.0.16",
     "jsr:@std/async@^1.0.15": "1.0.16",
+    "jsr:@std/async@^1.0.16": "1.0.16",
     "jsr:@std/bytes@1": "1.0.6",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/cbor@*": "0.1.9",
@@ -145,18 +144,18 @@
     "@logtape/logtape@0.12.3": {
       "integrity": "8d2c9b48a72d8bcadc64294a582f08df3fe048850952e26b04b822bb2affb6e9"
     },
-    "@logtape/logtape@1.3.5": {
-      "integrity": "a5cdb130daf1a9d384006b0f850cc4443bfc2e163dadc6fa667875e79770beb3"
+    "@logtape/logtape@1.3.6": {
+      "integrity": "d9a038ed8f85981d7c1cd43d931402ef52bc036cfd14bc9be5bdfc7ec8136b6f"
     },
-    "@logtape/pretty@1.3.5": {
-      "integrity": "5654c095ef5126cb6fdd7ab24f84de5d037b6093bd7495b64e037e5b3f3b1f13",
+    "@logtape/pretty@1.3.6": {
+      "integrity": "a93da3726ff008ad82c60d5bf529a5915a4f2047f4418050f4b4fc762b59408f",
       "dependencies": [
-        "jsr:@logtape/logtape@^1.3.5",
+        "jsr:@logtape/logtape@^1.3.6",
         "npm:@types/node"
       ]
     },
-    "@probitas/builder@0.5.0": {
-      "integrity": "ed120b66301a9d0b2659ea8672d3ce132384bbb3b07c6f4c053231372a1f8fcb",
+    "@probitas/builder@0.5.1": {
+      "integrity": "9283cabecd16bc22dc9f33ca77e813a622ca062dd41113a15c5e5455cebb9204",
       "dependencies": [
         "jsr:@probitas/core@0"
       ]
@@ -196,8 +195,8 @@
         "jsr:@probitas/client-connectrpc@0"
       ]
     },
-    "@probitas/client-http@0.7.1": {
-      "integrity": "1e659e6c43e0e2cf0435f787669ed6c367a1a87660bbcd31af50c0e619a735de",
+    "@probitas/client-http@0.7.2": {
+      "integrity": "5fe29c8fa796c4c44921b0e8cad2fac0d113bf2c254d0ff71bfd435ebe37b1e4",
       "dependencies": [
         "jsr:@logtape/logtape@1",
         "jsr:@probitas/client"
@@ -281,8 +280,8 @@
         "npm:@aws-sdk/client-sqs"
       ]
     },
-    "@probitas/core@0.3.0": {
-      "integrity": "48106ec7e6c0d503e7099d805c4712034a398dc83e8b824f30bbfb8f4188dae2",
+    "@probitas/core@0.3.1": {
+      "integrity": "0e456e4513b3bf6c3f71e3e2967f7a58ecfe2068138da6c1126a4b8b4b90e29f",
       "dependencies": [
         "jsr:@logtape/logtape@0",
         "jsr:@std/fmt",
@@ -316,32 +315,6 @@
         "npm:diff"
       ]
     },
-    "@probitas/probitas@0.18.0": {
-      "integrity": "890335e5336d4d9081aff41cee01702bac4d2d308f8fcc7c0a3d2dee67e02287",
-      "dependencies": [
-        "jsr:@core/errorutil@^1.2.1",
-        "jsr:@cspotcode/outdent",
-        "jsr:@probitas/builder",
-        "jsr:@probitas/client-connectrpc@0.7",
-        "jsr:@probitas/client-deno-kv@0.5",
-        "jsr:@probitas/client-graphql@0.6",
-        "jsr:@probitas/client-grpc@0.6",
-        "jsr:@probitas/client-http@0.7",
-        "jsr:@probitas/client-mongodb@0.6",
-        "jsr:@probitas/client-rabbitmq@0.5",
-        "jsr:@probitas/client-redis@0.5",
-        "jsr:@probitas/client-sql-duckdb",
-        "jsr:@probitas/client-sql-mysql",
-        "jsr:@probitas/client-sql-postgres",
-        "jsr:@probitas/client-sql-sqlite",
-        "jsr:@probitas/client-sql@0.5",
-        "jsr:@probitas/client-sqs@0.5",
-        "jsr:@probitas/expect@0.4",
-        "jsr:@probitas/runner@0.5",
-        "jsr:@std/testing",
-        "npm:@faker-js/faker"
-      ]
-    },
     "@probitas/reporter@0.7.1": {
       "integrity": "cfaa39e9f7ecece48b78acfc1de11f43c68636b74e67398ff93e03ea31af461f",
       "dependencies": [
@@ -351,8 +324,8 @@
         "jsr:@probitas/runner@0"
       ]
     },
-    "@probitas/runner@0.5.0": {
-      "integrity": "d20b4bbf1e017a6a8178070877a34b299138f40f1b8a8e4a0220e1e19d50b257",
+    "@probitas/runner@0.5.1": {
+      "integrity": "45c7ac5ac3c9498d2bd0d2ed064966e58eabb21a0aa57afa9a15083e2b4abc95",
       "dependencies": [
         "jsr:@probitas/core@0",
         "jsr:@std/async@1",
@@ -1543,12 +1516,12 @@
       "jsr:@lambdalisue/sandbox@^3.0.1",
       "jsr:@logtape/logtape@^1.3.5",
       "jsr:@logtape/pretty@^1.3.5",
-      "jsr:@probitas/builder@0.5",
+      "jsr:@probitas/builder@~0.5.1",
       "jsr:@probitas/client-connectrpc@0.7",
       "jsr:@probitas/client-deno-kv@0.5",
       "jsr:@probitas/client-graphql@0.6",
       "jsr:@probitas/client-grpc@0.6",
-      "jsr:@probitas/client-http@~0.7.1",
+      "jsr:@probitas/client-http@~0.7.2",
       "jsr:@probitas/client-mongodb@0.6",
       "jsr:@probitas/client-rabbitmq@0.5",
       "jsr:@probitas/client-redis@0.5",
@@ -1558,12 +1531,13 @@
       "jsr:@probitas/client-sql-sqlite@0.5",
       "jsr:@probitas/client-sql@0.5",
       "jsr:@probitas/client-sqs@0.5",
-      "jsr:@probitas/core@0.3",
+      "jsr:@probitas/core@~0.3.1",
       "jsr:@probitas/discover@0.4",
       "jsr:@probitas/expect@0.4",
       "jsr:@probitas/reporter@~0.7.1",
-      "jsr:@probitas/runner@0.5",
+      "jsr:@probitas/runner@~0.5.1",
       "jsr:@std/assert@^1.0.16",
+      "jsr:@std/async@^1.0.16",
       "jsr:@std/cbor@~0.1.9",
       "jsr:@std/cli@^1.0.25",
       "jsr:@std/collections@^1.1.3",

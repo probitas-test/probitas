@@ -16,6 +16,16 @@ const logger = getLogger(["probitas", "cli", "config"]);
 const isStringArray = is.ArrayOf(is.String);
 const isReporter = is.LiteralOneOf(["dot", "list", "json", "tap"] as const);
 
+const isRetryOptions = is.PartialOf(is.ObjectOf({
+  maxAttempts: is.Number,
+  backoff: is.LiteralOneOf(["linear", "exponential"] as const),
+}));
+
+const isStepOptions = is.PartialOf(is.ObjectOf({
+  timeout: is.Number,
+  retry: isRetryOptions,
+}));
+
 const isProbitasConfig = is.PartialOf(is.ObjectOf({
   reporter: isReporter,
   includes: isStringArray,
@@ -24,6 +34,7 @@ const isProbitasConfig = is.PartialOf(is.ObjectOf({
   maxConcurrency: is.Number,
   maxFailures: is.Number,
   timeout: is.String,
+  stepOptions: isStepOptions,
 }));
 
 /**

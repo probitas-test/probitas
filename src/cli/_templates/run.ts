@@ -64,6 +64,7 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
     maxConcurrency,
     maxFailures,
     timeout,
+    stepOptions,
     logLevel,
   } = input;
 
@@ -115,6 +116,7 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
       maxConcurrency,
       maxFailures,
       signal,
+      stepOptions,
     });
 
     await writeOutput(
