@@ -2,4 +2,4 @@
 .coverage
 result
 dist/
-./src/cli/_embedded_templates.ts
+src/cli/_embedded_templates.ts
