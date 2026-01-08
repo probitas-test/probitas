@@ -23,7 +23,7 @@ import { configureLogging, runSubprocess, writeOutput } from "./utils.ts";
 
 const logger = getLogger(["probitas", "cli", "run", "subprocess"]);
 
-// Global AbortController for graceful shutdown
+// Global AbortController for manual cancellation (Ctrl-C, --fail-fast, etc.)
 let globalAbortController: AbortController | null = null;
 
 // Handle unhandled promise rejections from Deno's node:http2 compatibility layer.
@@ -99,14 +99,6 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
       });
     }
 
-    // Create abort signal that combines timeout and manual abort
-    const signal = timeout > 0
-      ? AbortSignal.any([
-        AbortSignal.timeout(timeout),
-        globalAbortController.signal,
-      ])
-      : globalAbortController.signal;
-
     // Create reporter that streams events to IPC
     const reporter = createReporter((output) => writeOutput(ipc, output));
 
@@ -115,7 +107,8 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
     const runResult = await runner.run(scenarios, {
       maxConcurrency,
       maxFailures,
-      signal,
+      timeout: timeout > 0 ? timeout : undefined,
+      signal: globalAbortController.signal,
       stepOptions,
     });
 
