@@ -6,6 +6,7 @@ Commands:
   init     Initialize a new probitas project
   run      Run scenarios
   list     List available scenarios
+  cache    Cache scenario dependencies (runs deno cache)
   fmt      Format scenario files (runs deno fmt)
   lint     Lint scenario files (runs deno lint)
   check    Type-check scenario files (runs deno check)

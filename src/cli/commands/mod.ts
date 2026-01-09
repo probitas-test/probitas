@@ -4,6 +4,7 @@
  * @module
  */
 
+export { cacheCommand } from "./cache.ts";
 export { checkCommand } from "./check.ts";
 export { fmtCommand } from "./fmt.ts";
 export { initCommand } from "./init.ts";
