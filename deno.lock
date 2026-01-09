@@ -45,8 +45,8 @@
     "jsr:@probitas/core@0": "0.3.2",
     "jsr:@probitas/core@~0.3.2": "0.3.2",
     "jsr:@probitas/discover@0.4": "0.4.0",
-    "jsr:@probitas/expect@0": "0.4.0",
-    "jsr:@probitas/expect@0.4": "0.4.0",
+    "jsr:@probitas/expect@0": "0.4.1",
+    "jsr:@probitas/expect@~0.4.1": "0.4.1",
     "jsr:@probitas/reporter@~0.7.1": "0.7.1",
     "jsr:@probitas/runner@0": "0.5.6",
     "jsr:@probitas/runner@~0.5.6": "0.5.6",
@@ -59,7 +59,6 @@
     "jsr:@std/async@^1.0.16": "1.0.16",
     "jsr:@std/bytes@1": "1.0.6",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
-    "jsr:@std/cbor@*": "0.1.9",
     "jsr:@std/cbor@~0.1.9": "0.1.9",
     "jsr:@std/cli@^1.0.25": "1.0.25",
     "jsr:@std/collections@1": "1.1.3",
@@ -296,8 +295,8 @@
         "jsr:@std/path@1"
       ]
     },
-    "@probitas/expect@0.4.0": {
-      "integrity": "f36d38315ce7182e6d56757df8dd51b3f928029c2dda85c9604d0443908c1189",
+    "@probitas/expect@0.4.1": {
+      "integrity": "94bfd137405cf381397aa38eeff2d8c76aea3edb9f948eff2c93d551988ee9f1",
       "dependencies": [
         "jsr:@core/errorutil@1",
         "jsr:@probitas/client-connectrpc@0.7",
@@ -1533,7 +1532,7 @@
       "jsr:@probitas/client-sqs@0.5",
       "jsr:@probitas/core@~0.3.2",
       "jsr:@probitas/discover@0.4",
-      "jsr:@probitas/expect@0.4",
+      "jsr:@probitas/expect@~0.4.1",
       "jsr:@probitas/reporter@~0.7.1",
       "jsr:@probitas/runner@~0.5.6",
       "jsr:@std/assert@^1.0.16",
