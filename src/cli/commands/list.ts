@@ -102,10 +102,19 @@ export async function listCommand(
     // Configure logging with determined log level
     try {
       await configureLogging(logLevel);
-      logger.debug("List command started", { args, cwd, logLevel, denoArgs });
     } catch {
       // Silently ignore logging configuration errors (e.g., in test environments)
     }
+
+    // Add --reload to denoArgs if -r/--reload is specified
+    const finalDenoArgs = parsed.reload ? [...denoArgs, "--reload"] : denoArgs;
+
+    logger.debug("List command started", {
+      args,
+      cwd,
+      logLevel,
+      denoArgs: finalDenoArgs,
+    });
 
     // Load environment variables before loading configuration
     // This allows config files to reference environment variables
@@ -172,7 +181,7 @@ export async function listCommand(
     const { allScenarios, filteredScenarios } = await runListSubprocess(
       scenarioFiles,
       selectors,
-      denoArgs,
+      finalDenoArgs,
       cwd,
     );
 

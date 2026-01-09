@@ -12,6 +12,7 @@ import {
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import {
+  extractDenoOptions,
   getVersion,
   parsePositiveInteger,
   parseTimeout,
@@ -21,6 +22,84 @@ import {
 import { JSONReporter, ListReporter } from "@probitas/reporter";
 
 describe("utils", () => {
+  describe("extractDenoOptions", () => {
+    it("extracts --deno-* options with values", () => {
+      const result = extractDenoOptions([
+        "--deno-config=custom/deno.json",
+        "--selector",
+        "foo",
+        "--deno-lock=custom/deno.lock",
+      ]);
+      assertEquals(result.denoArgs, [
+        "--config=custom/deno.json",
+        "--lock=custom/deno.lock",
+      ]);
+      assertEquals(result.remainingArgs, ["--selector", "foo"]);
+    });
+
+    it("extracts --deno-no-* boolean flags", () => {
+      const result = extractDenoOptions([
+        "--deno-no-prompt",
+        "--deno-no-lock",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--no-prompt", "--no-lock"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("extracts --deno-reload without value as boolean flag", () => {
+      const result = extractDenoOptions([
+        "--deno-reload",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--reload"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("extracts --deno-reload with value", () => {
+      const result = extractDenoOptions([
+        "--deno-reload=jsr:@std/http",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--reload=jsr:@std/http"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("extracts --deno-check without value as boolean flag", () => {
+      const result = extractDenoOptions([
+        "--deno-check",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--check"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("extracts --deno-check with value", () => {
+      const result = extractDenoOptions([
+        "--deno-check=all",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--check=all"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("extracts any --deno-* option without value as boolean flag", () => {
+      const result = extractDenoOptions([
+        "--deno-config",
+        "--deno-lock",
+        "scenarios/",
+      ]);
+      assertEquals(result.denoArgs, ["--config", "--lock"]);
+      assertEquals(result.remainingArgs, ["scenarios/"]);
+    });
+
+    it("returns empty arrays when no deno options", () => {
+      const result = extractDenoOptions(["--selector", "foo"]);
+      assertEquals(result.denoArgs, []);
+      assertEquals(result.remainingArgs, ["--selector", "foo"]);
+    });
+  });
+
   describe("resolveReporter", () => {
     const reporters = [
       { name: "list", class: ListReporter },

@@ -22,8 +22,8 @@ export interface ExtractDenoOptionsResult {
  * Options starting with --deno- are extracted and converted to
  * the corresponding deno option (e.g., --deno-config becomes --config).
  *
- * Value-taking options must use `=` syntax (e.g., `--deno-config=path`).
- * Boolean flags work without values (e.g., `--deno-no-lock`).
+ * Options with `=` are passed as value options (e.g., `--deno-config=path` → `--config=path`).
+ * Options without `=` are passed as boolean flags (e.g., `--deno-reload` → `--reload`).
  *
  * @param args - Command-line arguments
  * @returns Extracted deno args and remaining args
@@ -35,8 +35,9 @@ export interface ExtractDenoOptionsResult {
  *   "--selector", "foo",
  *   "--deno-lock=custom/deno.lock",
  *   "--deno-no-prompt",
+ *   "--deno-reload",
  * ]);
- * // denoArgs: ["--config=custom/deno.json", "--lock=custom/deno.lock", "--no-prompt"]
+ * // denoArgs: ["--config=custom/deno.json", "--lock=custom/deno.lock", "--no-prompt", "--reload"]
  * // remainingArgs: ["--selector", "foo"]
  * ```
  */
@@ -46,20 +47,8 @@ export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
 
   for (const arg of args) {
     if (arg.startsWith("--deno-")) {
-      const optionBody = arg.slice(7); // e.g., "config=path" or "no-prompt"
-      const hasValue = optionBody.includes("=");
-      const name = hasValue ? optionBody.split("=")[0] : optionBody;
-
-      // Value-taking options must use `=` syntax (e.g., --deno-config=path).
-      // Boolean flags follow the Deno `no-*` convention (e.g., --deno-no-lock).
-      if (!hasValue && !name.startsWith("no-")) {
-        throw new Error(
-          `Deno option "--deno-${name}" requires a value. ` +
-            `Use "--deno-${name}=<value>" syntax.`,
-        );
-      }
-
       // Convert --deno-xxx to --xxx (preserving =value if present)
+      const optionBody = arg.slice(7); // e.g., "config=path" or "reload"
       const denoArg = "--" + optionBody;
       denoArgs.push(denoArg);
     } else {
