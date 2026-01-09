@@ -1,0 +1,30 @@
+probitas cache - Cache scenario dependencies
+
+Usage: probitas cache [options] [paths...]
+
+Arguments:
+  [paths...]  Scenario files or directories
+              Defaults to current directory
+
+Options:
+  -h, --help             Show help message
+  -r, --reload           Force re-download of cached dependencies
+  --include <pattern>    Include pattern for file discovery
+  --exclude <pattern>    Exclude pattern for file discovery
+  --config <path>        Path to probitas config file
+  -v, --verbose          Verbose output
+  -q, --quiet            Suppress output
+  -d, --debug            Debug output
+
+Note:
+  Runs `deno cache` on discovered scenario files to pre-download dependencies.
+  Uses includes/excludes from probitas config (same as run/list).
+
+Examples:
+  probitas cache                    # Cache dependencies for all scenarios
+  probitas cache api/               # Cache dependencies in api directory
+  probitas cache -r                 # Force re-download all dependencies
+  probitas cache -r api/            # Force re-download for api directory
+  probitas cache --include "e2e/**/*.probitas.ts"
+
+Documentation: https://probitas-test.github.io/documents/

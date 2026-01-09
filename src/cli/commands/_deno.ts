@@ -26,6 +26,10 @@ export interface DenoSubcommandOptions {
   usageAsset: string;
   /** Extra arguments to pass to the deno command */
   extraArgs?: readonly string[];
+  /** Enable -r/--reload option support */
+  supportReload?: boolean;
+  /** Use deno.json/deno.lock config (default: false, adds --no-config) */
+  useConfig?: boolean;
 }
 
 /**
@@ -46,13 +50,14 @@ export async function runDenoSubcommand(
   try {
     const parsed = parseArgs(args, {
       string: ["config", "include", "exclude"],
-      boolean: ["help", "quiet", "verbose", "debug"],
+      boolean: ["help", "quiet", "verbose", "debug", "reload"],
       collect: ["include", "exclude"],
       alias: {
         h: "help",
         v: "verbose",
         q: "quiet",
         d: "debug",
+        r: "reload",
       },
       default: {
         include: undefined,
@@ -108,10 +113,11 @@ export async function runDenoSubcommand(
       fileCount: scenarioFiles.length,
     });
 
-    // Run deno command with --no-config
+    // Run deno command (with --no-config unless useConfig is true)
     const denoArgs = [
       subcommand,
-      "--no-config",
+      ...(options.useConfig ? [] : ["--no-config"]),
+      ...(options.supportReload && parsed.reload ? ["--reload"] : []),
       ...(options.extraArgs ?? []),
       ...scenarioFiles,
     ];

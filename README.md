@@ -487,6 +487,9 @@ probitas list [options]
 # Initialize configuration file
 probitas init
 
+# Cache scenario dependencies
+probitas cache [options]
+
 # Format scenario files
 probitas fmt
 

@@ -125,7 +125,16 @@ export async function runCommand(
 
     // Configure logging with determined log level
     await configureLogging(logLevel);
-    logger.debug("Run command started", { args, cwd, logLevel, denoArgs });
+
+    // Add --reload to denoArgs if -r/--reload is specified
+    const finalDenoArgs = parsed.reload ? [...denoArgs, "--reload"] : denoArgs;
+
+    logger.debug("Run command started", {
+      args,
+      cwd,
+      logLevel,
+      denoArgs: finalDenoArgs,
+    });
 
     // Load environment variables before loading configuration
     // This allows config files to reference environment variables
@@ -212,7 +221,7 @@ export async function runCommand(
       timeout,
       stepOptions,
       logLevel,
-      denoArgs,
+      denoArgs: finalDenoArgs,
       cwd,
       signal,
     });

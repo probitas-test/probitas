@@ -7,6 +7,7 @@
 import { parseArgs } from "@std/cli";
 import { getLogger } from "@logtape/logtape";
 import { EXIT_CODE } from "./cli/constants.ts";
+import { cacheCommand } from "./cli/commands/cache.ts";
 import { checkCommand } from "./cli/commands/check.ts";
 import { fmtCommand } from "./cli/commands/fmt.ts";
 import { initCommand } from "./cli/commands/init.ts";
@@ -80,6 +81,9 @@ export async function main(args: string[]): Promise<number> {
 
     case "list":
       return await listCommand(commandArgs, cwd);
+
+    case "cache":
+      return await cacheCommand(commandArgs, cwd);
 
     case "fmt":
       return await fmtCommand(commandArgs, cwd);
