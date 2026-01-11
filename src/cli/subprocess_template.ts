@@ -35,9 +35,13 @@ export async function resolveSubprocessTemplate(
   // Build dependency graph to find all imports
   const graph = await createGraph(templateUrl.href);
 
-  // Collect all local (file://) modules from the graph
+  // Determine which modules are "local" (should be bundled)
+  // For file:// URLs, all file:// modules are local
+  // For https:// URLs (JSR), modules under the same package are local
+  const localModulePrefix = getLocalModulePrefix(templateUrl);
+
   const localModules = graph.modules.filter(
-    (m) => m.specifier.startsWith("file://") && !m.error,
+    (m) => m.specifier.startsWith(localModulePrefix) && !m.error,
   );
 
   if (localModules.length === 0) {
@@ -85,6 +89,31 @@ export async function resolveSubprocessTemplate(
   }
 
   return files;
+}
+
+/**
+ * Get the prefix for identifying "local" modules that should be bundled
+ *
+ * - For file:// URLs: all file:// modules are considered local
+ * - For JSR URLs (https://jsr.io/@scope/package/version/...): modules under the same package
+ * - For other remote URLs: modules in the same directory tree as the template
+ */
+function getLocalModulePrefix(templateUrl: URL): string {
+  if (templateUrl.protocol === "file:") {
+    return "file://";
+  }
+
+  // For JSR URLs: https://jsr.io/@scope/package/version/...
+  // Extract the package base URL to include all modules from the same package
+  const jsrMatch = templateUrl.href.match(
+    /^(https?:\/\/jsr\.io\/@[^/]+\/[^/]+\/[^/]+\/)/,
+  );
+  if (jsrMatch) {
+    return jsrMatch[1];
+  }
+
+  // For other remote URLs, use the directory of the template
+  return templateUrl.href.substring(0, templateUrl.href.lastIndexOf("/") + 1);
 }
 
 /**
@@ -258,3 +287,10 @@ function resolveModuleDependencies(
 
   return resolved;
 }
+
+/**
+ * @internal
+ */
+export const _internal = {
+  getLocalModulePrefix,
+};
