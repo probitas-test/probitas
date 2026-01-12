@@ -1,6 +1,6 @@
 // Documentation:
-// - For humans: https://probitas-test.github.io/documents/docs/configuration
-// - For AI: https://probitas-test.github.io/documents/docs/configuration/index.md
+// - For humans: https://probitas-test.github.io/docs/configuration
+// - For AI: https://probitas-test.github.io/docs/configuration/index.md
 {
   // Glob patterns for scenario file discovery
   "includes": [

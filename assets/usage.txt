@@ -20,4 +20,4 @@ Environment Variables:
 
 Run 'probitas <command> -h' for more information on a command.
 
-Documentation: https://probitas-test.github.io/documents/
+Documentation: https://probitas-test.github.io/

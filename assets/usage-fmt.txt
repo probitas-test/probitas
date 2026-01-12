@@ -24,4 +24,4 @@ Examples:
   probitas fmt api/               # Format scenarios in api directory
   probitas fmt --include "e2e/**/*.probitas.ts"
 
-Documentation: https://probitas-test.github.io/documents/
+Documentation: https://probitas-test.github.io/

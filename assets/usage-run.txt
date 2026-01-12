@@ -110,4 +110,4 @@ Environment Variables:
   NO_COLOR         Disable colored output
   .env File:       Automatically loaded before scenario execution (use --no-env to skip)
 
-Documentation: https://probitas-test.github.io/documents/
+Documentation: https://probitas-test.github.io/

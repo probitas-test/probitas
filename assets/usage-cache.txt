@@ -27,4 +27,4 @@ Examples:
   probitas cache -r api/            # Force re-download for api directory
   probitas cache --include "e2e/**/*.probitas.ts"
 
-Documentation: https://probitas-test.github.io/documents/
+Documentation: https://probitas-test.github.io/
