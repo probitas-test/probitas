@@ -79,4 +79,4 @@ Examples:
 Note: Uses patterns from config file or defaults to "**/*.probitas.ts"
       .env file is automatically loaded before scenario listing (use --no-env to skip)
 
-Documentation: https://probitas-test.github.io/documents/
+Documentation: https://probitas-test.github.io/

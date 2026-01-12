@@ -8,8 +8,8 @@
  * - Simple validation with thrown errors
  *
  * Documentation:
- * - For humans: https://probitas-test.github.io/documents/
- * - For AI: https://probitas-test.github.io/documents/index.md
+ * - For humans: https://probitas-test.github.io/
+ * - For AI: https://probitas-test.github.io/index.md
  */
 import { scenario } from "jsr:@probitas/probitas@^0";
 

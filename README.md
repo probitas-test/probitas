@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://probitas-test.github.io/documents/static/probitas.png" alt="Probitas Logo" width="200">
+  <img src="https://probitas-test.github.io/static/probitas.png" alt="Probitas Logo" width="200">
 </p>
 
 <h1 align="center">Probitas</h1>
@@ -7,7 +7,7 @@
 [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
 [![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
-[![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io/documents)
+[![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io)
 
 Scenario-based testing & workflow execution framework.
 
@@ -563,10 +563,10 @@ For AI assistants and language models, comprehensive documentation is available
 in machine-readable format:
 
 - **Documentation website**:
-  [probitas-test.github.io/documents](https://probitas-test.github.io/documents)
-- **LLM-optimized**:
-  [llms.txt](https://probitas-test.github.io/documents/llms.txt) - Structured
-  documentation following the [llms.txt standard](https://llmstxt.org/)
+  [probitas-test.github.io](https://probitas-test.github.io)
+- **LLM-optimized**: [llms.txt](https://probitas-test.github.io/llms.txt) -
+  Structured documentation following the
+  [llms.txt standard](https://llmstxt.org/)
 - **Markdown format**: All documentation provides `index.md` files for easy
   access and parsing
 
