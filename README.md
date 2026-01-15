@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://probitas-test.github.io/static/probitas.png" alt="Probitas Logo" width="200">
+  <img src="https://probitas-test.github.io/probitas.png" alt="Probitas Logo" width="200">
 </p>
 
 <h1 align="center">Probitas</h1>
