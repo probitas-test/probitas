@@ -603,6 +603,20 @@ Interested in contributing or maintaining Probitas? See
 - Architecture overview
 - Related repositories
 
+## Acknowledgments
+
+Probitas is greatly inspired by [runn](https://github.com/k1LoW/runn), an
+excellent scenario-based testing tool. Many core concepts in Probitas, such as:
+
+- Accessing previous step results via `ctx.previous`
+- Integration of database clients and other service helpers beyond traditional
+  e2e testing scope
+- Scenario-based workflow execution model
+
+are influenced by runn's thoughtful design. We express our deep gratitude and
+respect to the runn project and its maintainers for pioneering this approach to
+scenario-based testing.
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
