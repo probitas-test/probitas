@@ -35,6 +35,16 @@ export type RunInput =
   | RunAbortInput;
 
 /**
+ * Failed scenario identifier for filtering
+ */
+export interface FailedScenarioFilter {
+  /** Scenario name */
+  readonly name: string;
+  /** File path (relative or absolute) */
+  readonly file: string;
+}
+
+/**
  * Run scenarios command
  */
 export interface RunCommandInput {
@@ -53,6 +63,8 @@ export interface RunCommandInput {
   readonly stepOptions?: StepOptions;
   /** Log level for subprocess logging */
   readonly logLevel: LogLevel;
+  /** Filter to only run these failed scenarios (name + file pairs) */
+  readonly failedFilter?: readonly FailedScenarioFilter[];
 }
 
 /**

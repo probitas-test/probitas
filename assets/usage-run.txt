@@ -21,6 +21,8 @@ Options:
   -S, --sequential          Run scenarios sequentially (alias for --max-concurrency=1)
   --max-failures <n>        Stop after N failures
   -f, --fail-fast           Stop on first failure (alias for --max-failures=1)
+  -F, --failed              Run only scenarios that failed in the previous run
+                            Reads from .probitas/last-run.json
   --config <path>           Path to config file (deno.json/deno.jsonc)
   --env <file>              Load environment variables from file (default: .env)
   --no-env                  Skip loading .env file
@@ -92,6 +94,11 @@ Examples:
   probitas run --max-failures 1             Stop on first failure
   probitas run -f                           Stop on first failure (alias)
   probitas run --reload                     Reload dependencies before running
+
+  # Re-run failed scenarios
+  probitas run --failed                     Run only scenarios that failed previously
+  probitas run -F                           Run only scenarios that failed previously (short)
+  probitas run -F -s tag:api                Run failed scenarios AND with @api tag
 
   # Output control
   probitas run -v                           Verbose output

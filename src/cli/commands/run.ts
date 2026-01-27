@@ -34,10 +34,12 @@ import {
   deserializeRunResult,
   deserializeScenarioResult,
   deserializeStepResult,
+  type FailedScenarioFilter,
   isRunOutput,
   type RunCommandInput,
   type RunOutput,
 } from "../_templates/run_protocol.ts";
+import { loadLastRunState, saveLastRunState } from "../state.ts";
 
 const logger = getLogger(["probitas", "cli", "run"]);
 
@@ -67,6 +69,7 @@ const PARSE_ARGS_CONFIG = {
     "debug",
     "sequential",
     "fail-fast",
+    "failed",
   ],
   collect: ["include", "exclude", "selector"],
   alias: {
@@ -74,6 +77,7 @@ const PARSE_ARGS_CONFIG = {
     s: "selector",
     S: "sequential",
     f: "fail-fast",
+    F: "failed",
     v: "verbose",
     q: "quiet",
     d: "debug",
@@ -220,6 +224,29 @@ export async function runCommand(
     // Get selectors (will be applied in subprocess)
     const selectors = parsed.selector ?? config?.selectors ?? [];
 
+    // Handle --failed flag: load previous run state and build filter
+    let failedFilter: FailedScenarioFilter[] | undefined;
+    if (parsed.failed) {
+      const lastRunState = await loadLastRunState(cwd);
+      if (!lastRunState) {
+        console.warn(
+          "No previous run state found. Running all matching scenarios.",
+        );
+      } else if (lastRunState.failed.length === 0) {
+        console.log("No failed scenarios from previous run.");
+        return EXIT_CODE.SUCCESS;
+      } else {
+        failedFilter = lastRunState.failed.map((f) => ({
+          name: f.name,
+          file: f.file,
+        }));
+        logger.debug("Loaded failed filter from previous run", {
+          count: failedFilter.length,
+          scenarios: failedFilter,
+        });
+      }
+    }
+
     // Parse options
     const maxConcurrency = parsed.sequential
       ? 1
@@ -250,6 +277,7 @@ export async function runCommand(
     const runResult = await runWithSubprocess(scenarioFiles, {
       reporter,
       selectors,
+      failedFilter,
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
       timeout,
@@ -266,6 +294,9 @@ export async function runCommand(
       failed: runResult.failed,
       skipped: runResult.skipped,
     });
+
+    // Save run state for --failed flag support
+    await saveLastRunState(cwd, runResult);
 
     return runResult.failed > 0 ? EXIT_CODE.FAILURE : EXIT_CODE.SUCCESS;
   } catch (err: unknown) {
@@ -286,6 +317,7 @@ async function runWithSubprocess(
   options: {
     reporter: Reporter;
     selectors: readonly string[];
+    failedFilter?: readonly FailedScenarioFilter[];
     maxConcurrency: number;
     maxFailures: number;
     timeout: number;
@@ -299,6 +331,7 @@ async function runWithSubprocess(
   const {
     reporter,
     selectors,
+    failedFilter,
     maxConcurrency,
     maxFailures,
     timeout,
@@ -324,6 +357,7 @@ async function runWithSubprocess(
         type: "run",
         filePaths,
         selectors,
+        failedFilter,
         maxConcurrency,
         maxFailures,
         timeout,

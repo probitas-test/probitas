@@ -200,6 +200,9 @@ probitas run
 # Run scenarios with specific tag
 probitas run -s tag:api
 
+# Re-run only failed scenarios from previous run
+probitas run --failed
+
 # Run with JSON output
 probitas run --reporter json
 
