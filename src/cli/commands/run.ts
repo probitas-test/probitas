@@ -10,6 +10,11 @@ import { unreachable } from "@core/errorutil/unreachable";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { DEFAULT_TIMEOUT, EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
+import {
+  createUnknownArgHandler,
+  extractKnownOptions,
+  formatUnknownArgError,
+} from "../unknown_args.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
 import type { StepOptions } from "@probitas/core";
 import type { Reporter, RunResult } from "@probitas/runner";
@@ -37,6 +42,51 @@ import {
 const logger = getLogger(["probitas", "cli", "run"]);
 
 /**
+ * parseArgs configuration for the run command
+ */
+const PARSE_ARGS_CONFIG = {
+  string: [
+    "reporter",
+    "config",
+    "max-concurrency",
+    "max-failures",
+    "include",
+    "exclude",
+    "selector",
+    "timeout",
+    "env",
+  ],
+  boolean: [
+    "help",
+    "no-color",
+    "no-timeout",
+    "no-env",
+    "reload",
+    "quiet",
+    "verbose",
+    "debug",
+    "sequential",
+    "fail-fast",
+  ],
+  collect: ["include", "exclude", "selector"],
+  alias: {
+    h: "help",
+    s: "selector",
+    S: "sequential",
+    f: "fail-fast",
+    v: "verbose",
+    q: "quiet",
+    d: "debug",
+    r: "reload",
+  },
+  default: {
+    include: undefined,
+    exclude: undefined,
+    selector: undefined,
+  },
+} as const;
+
+/**
  * Execute the run command
  *
  * @param args - Command-line arguments
@@ -55,48 +105,32 @@ export async function runCommand(
     // Extract deno options first (before parseArgs)
     const { denoArgs, remainingArgs } = extractDenoOptions(args);
 
+    // Setup unknown argument handler
+    const knownOptions = extractKnownOptions(PARSE_ARGS_CONFIG);
+    const { handler: unknownHandler, result: unknownResult } =
+      createUnknownArgHandler({
+        knownOptions,
+        commandName: "run",
+      });
+
     // Parse command-line arguments
     const parsed = parseArgs(remainingArgs, {
-      string: [
-        "reporter",
-        "config",
-        "max-concurrency",
-        "max-failures",
-        "include",
-        "exclude",
-        "selector",
-        "timeout",
-        "env",
-      ],
-      boolean: [
-        "help",
-        "no-color",
-        "no-timeout",
-        "no-env",
-        "reload",
-        "quiet",
-        "verbose",
-        "debug",
-        "sequential",
-        "fail-fast",
-      ],
-      collect: ["include", "exclude", "selector"],
-      alias: {
-        h: "help",
-        s: "selector",
-        S: "sequential",
-        f: "fail-fast",
-        v: "verbose",
-        q: "quiet",
-        d: "debug",
-        r: "reload",
-      },
-      default: {
-        include: undefined,
-        exclude: undefined,
-        selector: undefined,
-      },
+      ...PARSE_ARGS_CONFIG,
+      unknown: unknownHandler,
     });
+
+    // Check for unknown arguments before showing help
+    if (unknownResult.hasErrors) {
+      for (const unknown of unknownResult.unknownArgs) {
+        console.error(
+          formatUnknownArgError(unknown, {
+            knownOptions,
+            commandName: "run",
+          }),
+        );
+      }
+      return EXIT_CODE.USAGE_ERROR;
+    }
 
     // Show help if requested
     if (parsed.help) {
