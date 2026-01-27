@@ -12,6 +12,11 @@ import { fromErrorObject, isErrorObject } from "@core/errorutil/error-object";
 import { unreachable } from "@core/errorutil/unreachable";
 import { EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
+import {
+  createUnknownArgHandler,
+  extractKnownOptions,
+  formatUnknownArgError,
+} from "../unknown_args.ts";
 import { createDiscoveryProgress, writeStatus } from "../progress.ts";
 import {
   configureLogging,
@@ -30,6 +35,36 @@ import {
 const logger = getLogger(["probitas", "cli", "list"]);
 
 /**
+ * parseArgs configuration for the list command
+ */
+const PARSE_ARGS_CONFIG = {
+  string: ["config", "include", "exclude", "selector", "env"],
+  boolean: [
+    "help",
+    "json",
+    "no-env",
+    "reload",
+    "quiet",
+    "verbose",
+    "debug",
+  ],
+  collect: ["include", "exclude", "selector"],
+  alias: {
+    h: "help",
+    s: "selector",
+    r: "reload",
+    v: "verbose",
+    q: "quiet",
+    d: "debug",
+  },
+  default: {
+    include: undefined,
+    exclude: undefined,
+    selector: undefined,
+  },
+} as const;
+
+/**
  * Execute the list command
  *
  * @param args - Command-line arguments
@@ -46,33 +81,32 @@ export async function listCommand(
     // Extract deno options first (before parseArgs)
     const { denoArgs, remainingArgs } = extractDenoOptions(args);
 
+    // Setup unknown argument handler
+    const knownOptions = extractKnownOptions(PARSE_ARGS_CONFIG);
+    const { handler: unknownHandler, result: unknownResult } =
+      createUnknownArgHandler({
+        knownOptions,
+        commandName: "list",
+      });
+
     // Parse command-line arguments
     const parsed = parseArgs(remainingArgs, {
-      string: ["config", "include", "exclude", "selector", "env"],
-      boolean: [
-        "help",
-        "json",
-        "no-env",
-        "reload",
-        "quiet",
-        "verbose",
-        "debug",
-      ],
-      collect: ["include", "exclude", "selector"],
-      alias: {
-        h: "help",
-        s: "selector",
-        r: "reload",
-        v: "verbose",
-        q: "quiet",
-        d: "debug",
-      },
-      default: {
-        include: undefined,
-        exclude: undefined,
-        selector: undefined,
-      },
+      ...PARSE_ARGS_CONFIG,
+      unknown: unknownHandler,
     });
+
+    // Check for unknown arguments before showing help
+    if (unknownResult.hasErrors) {
+      for (const unknown of unknownResult.unknownArgs) {
+        console.error(
+          formatUnknownArgError(unknown, {
+            knownOptions,
+            commandName: "list",
+          }),
+        );
+      }
+      return EXIT_CODE.USAGE_ERROR;
+    }
 
     // Show help if requested
     if (parsed.help) {

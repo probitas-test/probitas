@@ -66,6 +66,7 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
     timeout,
     stepOptions,
     logLevel,
+    failedFilter,
   } = input;
 
   // Create abort controller for this run
@@ -75,8 +76,8 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
   await configureLogging(logLevel);
 
   try {
-    // Load scenarios from files
-    const scenarios = applySelectors(
+    // Load scenarios from files and apply selectors
+    let scenarios = applySelectors(
       await loadScenarios(filePaths, {
         onImportError: (file, err) => {
           const m = err instanceof Error ? err.message : String(err);
@@ -85,6 +86,26 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
       }),
       selectors,
     );
+
+    // Apply failed filter if provided (for --failed flag)
+    if (failedFilter && failedFilter.length > 0) {
+      const failedSet = new Set(
+        failedFilter.map((f) => `${f.name}|${f.file}`),
+      );
+      scenarios = scenarios.filter((s) => {
+        const scenarioFile = s.origin?.path ?? "unknown";
+        // Check both absolute path and relative path matching
+        return failedSet.has(`${s.name}|${scenarioFile}`) ||
+          failedFilter.some((f) =>
+            f.name === s.name && scenarioFile.endsWith(f.file)
+          );
+      });
+
+      logger.debug("Applied failed filter", {
+        filterCount: failedFilter.length,
+        matchedCount: scenarios.length,
+      });
+    }
 
     // Check if aborted during loading phase
     if (globalAbortController.signal.aborted) {
@@ -96,6 +117,7 @@ runSubprocess<RunCommandInput>(async (ipc, input) => {
       logger.info("No scenarios found after applying selectors", {
         filePaths,
         selectors,
+        failedFilter: failedFilter?.length ?? 0,
       });
     }
 

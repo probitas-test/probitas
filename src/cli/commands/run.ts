@@ -10,6 +10,11 @@ import { unreachable } from "@core/errorutil/unreachable";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { DEFAULT_TIMEOUT, EXIT_CODE } from "../constants.ts";
 import { findProbitasConfigFile, loadConfig } from "../config.ts";
+import {
+  createUnknownArgHandler,
+  extractKnownOptions,
+  formatUnknownArgError,
+} from "../unknown_args.ts";
 import { discoverScenarioFiles } from "@probitas/discover";
 import type { StepOptions } from "@probitas/core";
 import type { Reporter, RunResult } from "@probitas/runner";
@@ -29,12 +34,61 @@ import {
   deserializeRunResult,
   deserializeScenarioResult,
   deserializeStepResult,
+  type FailedScenarioFilter,
   isRunOutput,
   type RunCommandInput,
   type RunOutput,
 } from "../_templates/run_protocol.ts";
+import { loadLastRunState, saveLastRunState } from "../state.ts";
 
 const logger = getLogger(["probitas", "cli", "run"]);
+
+/**
+ * parseArgs configuration for the run command
+ */
+const PARSE_ARGS_CONFIG = {
+  string: [
+    "reporter",
+    "config",
+    "max-concurrency",
+    "max-failures",
+    "include",
+    "exclude",
+    "selector",
+    "timeout",
+    "env",
+  ],
+  boolean: [
+    "help",
+    "no-color",
+    "no-timeout",
+    "no-env",
+    "reload",
+    "quiet",
+    "verbose",
+    "debug",
+    "sequential",
+    "fail-fast",
+    "failed",
+  ],
+  collect: ["include", "exclude", "selector"],
+  alias: {
+    h: "help",
+    s: "selector",
+    S: "sequential",
+    f: "fail-fast",
+    F: "failed",
+    v: "verbose",
+    q: "quiet",
+    d: "debug",
+    r: "reload",
+  },
+  default: {
+    include: undefined,
+    exclude: undefined,
+    selector: undefined,
+  },
+} as const;
 
 /**
  * Execute the run command
@@ -55,48 +109,32 @@ export async function runCommand(
     // Extract deno options first (before parseArgs)
     const { denoArgs, remainingArgs } = extractDenoOptions(args);
 
+    // Setup unknown argument handler
+    const knownOptions = extractKnownOptions(PARSE_ARGS_CONFIG);
+    const { handler: unknownHandler, result: unknownResult } =
+      createUnknownArgHandler({
+        knownOptions,
+        commandName: "run",
+      });
+
     // Parse command-line arguments
     const parsed = parseArgs(remainingArgs, {
-      string: [
-        "reporter",
-        "config",
-        "max-concurrency",
-        "max-failures",
-        "include",
-        "exclude",
-        "selector",
-        "timeout",
-        "env",
-      ],
-      boolean: [
-        "help",
-        "no-color",
-        "no-timeout",
-        "no-env",
-        "reload",
-        "quiet",
-        "verbose",
-        "debug",
-        "sequential",
-        "fail-fast",
-      ],
-      collect: ["include", "exclude", "selector"],
-      alias: {
-        h: "help",
-        s: "selector",
-        S: "sequential",
-        f: "fail-fast",
-        v: "verbose",
-        q: "quiet",
-        d: "debug",
-        r: "reload",
-      },
-      default: {
-        include: undefined,
-        exclude: undefined,
-        selector: undefined,
-      },
+      ...PARSE_ARGS_CONFIG,
+      unknown: unknownHandler,
     });
+
+    // Check for unknown arguments before showing help
+    if (unknownResult.hasErrors) {
+      for (const unknown of unknownResult.unknownArgs) {
+        console.error(
+          formatUnknownArgError(unknown, {
+            knownOptions,
+            commandName: "run",
+          }),
+        );
+      }
+      return EXIT_CODE.USAGE_ERROR;
+    }
 
     // Show help if requested
     if (parsed.help) {
@@ -186,6 +224,29 @@ export async function runCommand(
     // Get selectors (will be applied in subprocess)
     const selectors = parsed.selector ?? config?.selectors ?? [];
 
+    // Handle --failed flag: load previous run state and build filter
+    let failedFilter: FailedScenarioFilter[] | undefined;
+    if (parsed.failed) {
+      const lastRunState = await loadLastRunState(cwd);
+      if (!lastRunState) {
+        console.warn(
+          "No previous run state found. Running all matching scenarios.",
+        );
+      } else if (lastRunState.failed.length === 0) {
+        console.log("No failed scenarios from previous run.");
+        return EXIT_CODE.SUCCESS;
+      } else {
+        failedFilter = lastRunState.failed.map((f) => ({
+          name: f.name,
+          file: f.file,
+        }));
+        logger.debug("Loaded failed filter from previous run", {
+          count: failedFilter.length,
+          scenarios: failedFilter,
+        });
+      }
+    }
+
     // Parse options
     const maxConcurrency = parsed.sequential
       ? 1
@@ -216,6 +277,7 @@ export async function runCommand(
     const runResult = await runWithSubprocess(scenarioFiles, {
       reporter,
       selectors,
+      failedFilter,
       maxConcurrency: maxConcurrency ?? 0,
       maxFailures: maxFailures ?? 0,
       timeout,
@@ -232,6 +294,9 @@ export async function runCommand(
       failed: runResult.failed,
       skipped: runResult.skipped,
     });
+
+    // Save run state for --failed flag support
+    await saveLastRunState(cwd, runResult);
 
     return runResult.failed > 0 ? EXIT_CODE.FAILURE : EXIT_CODE.SUCCESS;
   } catch (err: unknown) {
@@ -252,6 +317,7 @@ async function runWithSubprocess(
   options: {
     reporter: Reporter;
     selectors: readonly string[];
+    failedFilter?: readonly FailedScenarioFilter[];
     maxConcurrency: number;
     maxFailures: number;
     timeout: number;
@@ -265,6 +331,7 @@ async function runWithSubprocess(
   const {
     reporter,
     selectors,
+    failedFilter,
     maxConcurrency,
     maxFailures,
     timeout,
@@ -290,6 +357,7 @@ async function runWithSubprocess(
         type: "run",
         filePaths,
         selectors,
+        failedFilter,
         maxConcurrency,
         maxFailures,
         timeout,
