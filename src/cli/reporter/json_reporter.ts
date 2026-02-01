@@ -19,19 +19,38 @@ import { Writer, type WriterOptions } from "./writer.ts";
 export interface JSONReporterOptions extends WriterOptions {}
 
 /**
- * JSON replacer that properly serializes Error instances.
- * Converts Error objects to plain objects with name, message, stack, and cause fields.
+ * Create a JSON replacer that safely handles non-JSON-native types.
+ *
+ * Tracks the ancestor chain via JSON.stringify's `this` context (the holder
+ * object) to distinguish true circular references from shared references.
+ * Also converts Error and BigInt which JSON.stringify cannot handle natively.
  */
-function errorReplacer(_key: string, value: unknown): unknown {
-  if (value instanceof Error) {
-    return {
-      name: value.name,
-      message: value.message,
-      stack: value.stack,
-      cause: value.cause,
-    };
-  }
-  return value;
+function createReplacer() {
+  const ancestors: unknown[] = [];
+  const convertedErrors = new WeakSet<Error>();
+  return function (this: unknown, _key: string, value: unknown): unknown {
+    if (typeof value === "bigint") {
+      return value.toString();
+    }
+    if (value instanceof Error) {
+      if (convertedErrors.has(value)) return "[Circular]";
+      convertedErrors.add(value);
+      return {
+        name: value.name,
+        message: value.message,
+        stack: value.stack,
+        cause: value.cause,
+      };
+    }
+    if (typeof value === "object" && value !== null) {
+      while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+        ancestors.pop();
+      }
+      if (ancestors.includes(value)) return "[Circular]";
+      ancestors.push(value);
+    }
+    return value;
+  };
 }
 
 export class JSONReporter implements Reporter {
@@ -42,7 +61,7 @@ export class JSONReporter implements Reporter {
   }
 
   #put(obj: unknown): Promise<void> {
-    return this.#writer.write(`${JSON.stringify(obj, errorReplacer)}\n`);
+    return this.#writer.write(`${JSON.stringify(obj, createReplacer())}\n`);
   }
 
   async onRunStart(
