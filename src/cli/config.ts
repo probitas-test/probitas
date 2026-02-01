@@ -14,7 +14,7 @@ import type { ProbitasConfig } from "./types.ts";
 const logger = getLogger(["probitas", "cli", "config"]);
 
 const isStringArray = is.ArrayOf(is.String);
-const isReporter = is.LiteralOneOf(["dot", "list", "json", "tap"] as const);
+const isReporter = is.LiteralOneOf(["list", "json"] as const);
 
 const isRetryOptions = is.PartialOf(is.ObjectOf({
   maxAttempts: is.Number,

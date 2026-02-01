@@ -59,9 +59,10 @@ export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
   return { denoArgs, remainingArgs };
 }
 import { getLogger } from "@logtape/logtape";
-import { JSONReporter, ListReporter } from "@probitas/reporter";
 import type { Reporter } from "@probitas/runner";
-import type { ReporterOptions } from "@probitas/reporter";
+import { ListReporter } from "./reporter/list_reporter.ts";
+import { JSONReporter } from "./reporter/json_reporter.ts";
+import type { ReporterOptions } from "./reporter/types.ts";
 import { load } from "@std/dotenv";
 import { exists } from "@std/fs";
 import { resolve } from "@std/path";

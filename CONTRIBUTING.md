@@ -92,7 +92,6 @@ repository:
 
 - `@probitas/builder` - Type-safe scenario definition API
 - `@probitas/runner` - Scenario execution engine
-- `@probitas/reporter` - Output formatters
 - `@probitas/core` - Core types and scenario loading
 - `@probitas/discover` - File discovery with glob patterns
 - `@probitas/expect` - Expectation library

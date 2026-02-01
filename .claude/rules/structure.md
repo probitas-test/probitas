@@ -71,7 +71,6 @@ graph TD
     probitas --> client-sql[@probitas/client-sql]
     probitas --> other-clients[Other @probitas/client-* packages...]
     runner --> builder
-    runner --> reporter[@probitas/reporter]
     runner --> core[@probitas/core]
     core --> discover[@probitas/discover]
 ```

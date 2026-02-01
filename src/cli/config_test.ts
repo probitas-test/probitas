@@ -142,14 +142,14 @@ describe("config loader", () => {
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          reporter: "dot",
+          reporter: "json",
           includes: ["**/*.test.ts"],
         }),
       );
 
       const config = await loadConfig(configPath);
 
-      assertEquals(config.reporter, "dot");
+      assertEquals(config.reporter, "json");
       assertEquals(config.includes, ["**/*.test.ts"]);
     });
 
@@ -252,13 +252,13 @@ describe("config loader", () => {
       await Deno.writeTextFile(
         configPath,
         JSON.stringify({
-          reporter: "dot",
+          reporter: "json",
         }),
       );
 
       const config = await loadConfig(configPath);
 
-      assertEquals(config.reporter, "dot");
+      assertEquals(config.reporter, "json");
       assertEquals(config.includes, undefined);
       assertEquals(config.excludes, undefined);
     });

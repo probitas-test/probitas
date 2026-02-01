@@ -19,7 +19,8 @@ import {
   readAsset,
   resolveReporter,
 } from "./utils.ts";
-import { JSONReporter, ListReporter } from "@probitas/reporter";
+import { ListReporter } from "./reporter/list_reporter.ts";
+import { JSONReporter } from "./reporter/json_reporter.ts";
 
 describe("utils", () => {
   describe("extractDenoOptions", () => {

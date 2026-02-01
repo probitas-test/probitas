@@ -41,31 +41,44 @@ Key exports:
 
 ## Custom Reporter Implementation
 
-Custom reporters should implement the `Reporter` interface and compose a
-`Writer` for output. The interface uses `Metadata` types (serializable) instead
+Custom reporters should implement the `Reporter` interface from
+`@probitas/runner`. The interface uses `Metadata` types (serializable) instead
 of `Definition` types:
 
 ```ts
-import { Writer, type WriterOptions } from "@probitas/reporter";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
-import { defaultTheme, type Theme } from "@probitas/reporter";
+import { defaultTheme, type Theme } from "@probitas/core/theme";
 
-export interface CustomReporterOptions extends WriterOptions {
+export interface CustomReporterOptions {
+  output?: WritableStream;
   theme?: Theme;
 }
 
 export class CustomReporter implements Reporter {
-  #writer: Writer;
+  #output: WritableStream;
   #theme: Theme;
+  #encoder: TextEncoder = new TextEncoder();
 
   constructor(options: CustomReporterOptions = {}) {
-    this.#writer = new Writer(options);
+    this.#output = options.output ?? Deno.stderr.writable;
     this.#theme = options.theme ?? defaultTheme;
   }
 
+  async #write(text: string): Promise<void> {
+    // NOTE: This simple implementation acquires a new writer lock for each call.
+    // For concurrent scenarios, use a write queue pattern like src/cli/reporter/writer.ts
+    // to prevent "stream is already locked" errors.
+    const writer = this.#output.getWriter();
+    try {
+      await writer.write(this.#encoder.encode(text));
+    } finally {
+      writer.releaseLock();
+    }
+  }
+
   async onRunStart(scenarios: readonly ScenarioMetadata[]): Promise<void> {
-    await this.#writer.write(`Running ${scenarios.length} scenarios\n`);
+    await this.#write(`Running ${scenarios.length} scenarios\n`);
   }
 
   async onStepEnd(
@@ -75,11 +88,11 @@ export class CustomReporter implements Reporter {
   ): Promise<void> {
     // result is a discriminated union - access status-specific fields safely
     if (result.status === "passed") {
-      await this.#writer.write(`✓ ${step.name}\n`);
+      await this.#write(`✓ ${step.name}\n`);
     } else if (result.status === "failed") {
-      await this.#writer.write(`✗ ${step.name}: ${result.error}\n`);
+      await this.#write(`✗ ${step.name}: ${result.error}\n`);
     } else if (result.status === "skipped") {
-      await this.#writer.write(`⊘ ${step.name}: ${result.error}\n`);
+      await this.#write(`⊘ ${step.name}: ${result.error}\n`);
     }
   }
 
@@ -87,7 +100,7 @@ export class CustomReporter implements Reporter {
     scenarios: readonly ScenarioMetadata[],
     result: RunResult,
   ): Promise<void> {
-    await this.#writer.write(`\nCompleted: ${result.passed}/${result.total}\n`);
+    await this.#write(`\nCompleted: ${result.passed}/${result.total}\n`);
   }
 }
 ```
@@ -95,8 +108,7 @@ export class CustomReporter implements Reporter {
 ### Key Points
 
 1. **Implement `Reporter` interface** - All methods are optional
-2. **Compose `Writer`** - For serialized, buffered output
-3. **Use `Theme`** - For semantic coloring
-4. **Access discriminated unions safely** - Check `result.status` before
+2. **Use `Theme`** from `@probitas/core/theme` - For semantic coloring
+3. **Access discriminated unions safely** - Check `result.status` before
    accessing fields
-5. **Support options** - Allow users to customize output stream and theme
+4. **Support options** - Allow users to customize output stream and theme

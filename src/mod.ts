@@ -21,7 +21,6 @@
  * |---------|-------------|
  * | [@probitas/builder](https://jsr.io/@probitas/builder) | Fluent API for building scenario definitions |
  * | [@probitas/runner](https://jsr.io/@probitas/runner) | Test execution engine with retry and concurrency |
- * | [@probitas/reporter](https://jsr.io/@probitas/reporter) | Output formatters (list, dot, TAP, JSON) |
  * | [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions and utilities |
  * | [@probitas/discover](https://jsr.io/@probitas/discover) | Scenario file discovery |
  * | [@probitas/logger](https://jsr.io/@probitas/logger) | Unified logging interface |
