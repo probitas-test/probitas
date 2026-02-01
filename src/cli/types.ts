@@ -12,8 +12,8 @@ import type { StepOptions } from "@probitas/core";
  * Configuration is stored in the "probitas" section of deno.json.
  */
 export interface ProbitasConfig {
-  /** Default reporter (dot/list/json/tap) */
-  readonly reporter?: "dot" | "list" | "json" | "tap";
+  /** Default reporter (list/json) */
+  readonly reporter?: "list" | "json";
 
   /** File discovery patterns (glob) */
   readonly includes?: readonly string[];
