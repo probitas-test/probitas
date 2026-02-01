@@ -31,7 +31,7 @@ export interface ReporterOptions {
    *
    * @default Deno.stderr.writable
    */
-  readonly output?: WritableStream;
+  readonly output?: WritableStream<Uint8Array>;
 
   /**
    * Custom theme for styling output.

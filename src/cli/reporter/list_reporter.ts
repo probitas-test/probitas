@@ -24,30 +24,20 @@
 
 import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
 import type { Reporter, RunResult, StepResult } from "@probitas/runner";
-import { Writer, type WriterOptions } from "./writer.ts";
-import { defaultTheme, type Theme } from "@probitas/core/theme";
+import { Writer } from "./writer.ts";
+import { defaultTheme } from "@probitas/core/theme";
 import {
   type FormatContext,
   formatFailedTestsLines,
   formatStepEndLines,
   formatSummaryLines,
 } from "./_format.ts";
+import type { ReporterOptions } from "./types.ts";
 
 /**
  * Options for ListReporter initialization.
  */
-export interface ListReporterOptions extends WriterOptions {
-  /**
-   * Custom theme for styling output.
-   * If not provided, uses defaultTheme (or noColorTheme if Deno.noColor is set).
-   */
-  theme?: Theme;
-  /**
-   * Base directory for making paths relative in output.
-   * If not provided, absolute paths are displayed as-is.
-   */
-  cwd?: string;
-}
+export type ListReporterOptions = ReporterOptions;
 
 /**
  * Reporter that outputs test results in a flat list format.

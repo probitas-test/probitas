@@ -14,9 +14,13 @@ import type {
   ScenarioResult,
   StepResult,
 } from "@probitas/runner";
-import { Writer, type WriterOptions } from "./writer.ts";
+import { Writer } from "./writer.ts";
+import type { ReporterOptions } from "./types.ts";
 
-export interface JSONReporterOptions extends WriterOptions {}
+/**
+ * Options for JSONReporter initialization.
+ */
+export type JSONReporterOptions = ReporterOptions;
 
 /**
  * Create a JSON replacer that safely handles non-JSON-native types.

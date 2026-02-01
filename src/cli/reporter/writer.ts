@@ -8,7 +8,7 @@ export interface WriterOptions {
    *
    * @default Deno.stderr.writable
    */
-  readonly output?: WritableStream;
+  readonly output?: WritableStream<Uint8Array>;
 }
 
 /**
@@ -27,7 +27,7 @@ export interface WriterOptions {
  * ```
  */
 export class Writer {
-  #output: WritableStream;
+  #output: WritableStream<Uint8Array>;
   #writeQueue: Promise<void> = Promise.resolve();
   #encoder = new TextEncoder();
 
@@ -59,19 +59,20 @@ export class Writer {
    * ```
    */
   async write(text: string): Promise<void> {
+    const bytes = this.#encoder.encode(text);
     logger.trace("Queueing write operation", {
-      byteLength: text.length,
+      byteLength: bytes.length,
     });
 
     // Catch any errors from previous writes to prevent queue poisoning
     this.#writeQueue = this.#writeQueue.catch((err) => {
       logger.trace("Previous write failed, continuing queue", { error: err });
     }).then(async () => {
-      logger.trace("Writing to stream", { byteLength: text.length });
+      logger.trace("Writing to stream", { byteLength: bytes.length });
       const writer = this.#output.getWriter();
       try {
-        await writer.write(this.#encoder.encode(text));
-        logger.trace("Write completed", { byteLength: text.length });
+        await writer.write(bytes);
+        logger.trace("Write completed", { byteLength: bytes.length });
       } finally {
         writer.releaseLock();
       }

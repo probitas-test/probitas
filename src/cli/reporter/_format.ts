@@ -50,8 +50,6 @@ export function getKindChar(kind: "resource" | "setup" | "step"): string {
       return "s";
     case "step":
       return "T";
-    default:
-      return "T";
   }
 }
 
