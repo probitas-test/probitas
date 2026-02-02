@@ -46,6 +46,8 @@
     "jsr:@probitas/core@~0.3.2": "0.3.2",
     "jsr:@probitas/discover@0.4": "0.4.0",
     "jsr:@probitas/expect@~0.4.1": "0.4.1",
+    "jsr:@probitas/probitas@*": "0.20.0",
+    "jsr:@probitas/probitas@0": "0.20.0",
     "jsr:@probitas/runner@~0.5.6": "0.5.6",
     "jsr:@std/assert@0.217": "0.217.0",
     "jsr:@std/assert@^1.0.14": "1.0.16",
@@ -312,6 +314,32 @@
         "jsr:@probitas/core@0",
         "jsr:@std/expect",
         "npm:diff"
+      ]
+    },
+    "@probitas/probitas@0.20.0": {
+      "integrity": "7e8a02f1a35d18da239fee53fec6afa9ee5c6f7fb1fc5b8182c23f1cd43313cf",
+      "dependencies": [
+        "jsr:@core/errorutil@^1.2.1",
+        "jsr:@cspotcode/outdent",
+        "jsr:@probitas/builder",
+        "jsr:@probitas/client-connectrpc@0.7",
+        "jsr:@probitas/client-deno-kv@0.5",
+        "jsr:@probitas/client-graphql@0.6",
+        "jsr:@probitas/client-grpc@0.6",
+        "jsr:@probitas/client-http@~0.7.2",
+        "jsr:@probitas/client-mongodb@0.6",
+        "jsr:@probitas/client-rabbitmq@0.5",
+        "jsr:@probitas/client-redis@0.5",
+        "jsr:@probitas/client-sql-duckdb",
+        "jsr:@probitas/client-sql-mysql",
+        "jsr:@probitas/client-sql-postgres",
+        "jsr:@probitas/client-sql-sqlite",
+        "jsr:@probitas/client-sql@0.5",
+        "jsr:@probitas/client-sqs@0.5",
+        "jsr:@probitas/expect",
+        "jsr:@probitas/runner",
+        "jsr:@std/testing",
+        "npm:@faker-js/faker"
       ]
     },
     "@probitas/runner@0.5.6": {
