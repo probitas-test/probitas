@@ -118,17 +118,23 @@ services:
       timeout: 5s
       retries: 10
 
-  localstack:
-    # Pinned to the last community release. Newer images quit with
-    # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
-    image: localstack/localstack:4.14.0
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.7.1
     ports:
-      - "4566:4566"
-    environment:
-      SERVICES: sqs
-      DEBUG: 0
+      - "9324:9324"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      # The image is Alpine plus the server binary, so wget is the only HTTP
+      # client in it. A bare GET answers 400 because SQS wants an Action, so
+      # ask for one: ListQueues needs no credentials and answers 200.
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://localhost:9324/?Action=ListQueues",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

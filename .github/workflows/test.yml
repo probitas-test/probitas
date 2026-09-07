@@ -93,17 +93,15 @@ jobs:
           --health-interval 10s
           --health-timeout 10s
           --health-retries 10
-      localstack:
-        # Pinned to the last community release. Newer images quit with
-        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
-        image: localstack/localstack:4.14.0
+      elasticmq:
+        image: softwaremill/elasticmq-native:1.7.1
         ports:
-          - 4566:4566
-        env:
-          SERVICES: sqs
-          DEBUG: 0
+          - 9324:9324
+        # The image is Alpine plus the server binary, so wget is the only HTTP
+        # client in it. A bare GET answers 400 because SQS wants an Action, so
+        # ask for one: ListQueues needs no credentials and answers 200.
         options: >-
-          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-cmd "wget -q -O /dev/null 'http://localhost:9324/?Action=ListQueues' || exit 1"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -214,17 +212,15 @@ jobs:
           --health-interval 10s
           --health-timeout 10s
           --health-retries 10
-      localstack:
-        # Pinned to the last community release. Newer images quit with
-        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
-        image: localstack/localstack:4.14.0
+      elasticmq:
+        image: softwaremill/elasticmq-native:1.7.1
         ports:
-          - 4566:4566
-        env:
-          SERVICES: sqs
-          DEBUG: 0
+          - 9324:9324
+        # The image is Alpine plus the server binary, so wget is the only HTTP
+        # client in it. A bare GET answers 400 because SQS wants an Action, so
+        # ask for one: ListQueues needs no credentials and answers 200.
         options: >-
-          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-cmd "wget -q -O /dev/null 'http://localhost:9324/?Action=ListQueues' || exit 1"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -324,17 +320,15 @@ jobs:
           --health-interval 10s
           --health-timeout 10s
           --health-retries 10
-      localstack:
-        # Pinned to the last community release. Newer images quit with
-        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
-        image: localstack/localstack:4.14.0
+      elasticmq:
+        image: softwaremill/elasticmq-native:1.7.1
         ports:
-          - 4566:4566
-        env:
-          SERVICES: sqs
-          DEBUG: 0
+          - 9324:9324
+        # The image is Alpine plus the server binary, so wget is the only HTTP
+        # client in it. A bare GET answers 400 because SQS wants an Action, so
+        # ask for one: ListQueues needs no credentials and answers 200.
         options: >-
-          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-cmd "wget -q -O /dev/null 'http://localhost:9324/?Action=ListQueues' || exit 1"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10

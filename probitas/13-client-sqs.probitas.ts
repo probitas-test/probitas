@@ -1,24 +1,33 @@
 /**
  * SQS Client Scenario Example
  *
- * Target: localstack service on port 4566 (compose.yaml)
- * Uses LocalStack for AWS SQS emulation
+ * Target: elasticmq service on port 9324 (compose.yaml)
+ * Uses ElasticMQ for AWS SQS emulation
  */
 import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
 import type { SqsMessage } from "jsr:@probitas/client-sqs@^0";
 
-const BASE_URL = "http://localhost:4566";
+const BASE_URL = "http://localhost:9324";
 
 export default scenario("SQS Client Example", {
   tags: ["integration", "sqs", "aws"],
 })
-  .setup("Check LocalStack availability", async () => {
+  .setup("Check ElasticMQ availability", async () => {
+    let response: Response;
     try {
-      await fetch(`${BASE_URL}/_localstack/health`, {
+      // ListQueues rather than a bare GET: SQS answers 400 without an Action,
+      // so a plain request would look like a failure. It needs no credentials.
+      response = await fetch(`${BASE_URL}/?Action=ListQueues`, {
         signal: AbortSignal.timeout(1000),
       });
     } catch {
-      throw new Skip(`LocalStack not available at ${BASE_URL}`);
+      throw new Skip(`ElasticMQ not available at ${BASE_URL}`);
+    }
+    await response.body?.cancel();
+    if (!response.ok) {
+      throw new Skip(
+        `ElasticMQ at ${BASE_URL} answered ${response.status}`,
+      );
     }
   })
   .resource("sqs", () =>
