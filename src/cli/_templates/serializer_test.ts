@@ -23,14 +23,22 @@ async function roundTrip<T>(value: T): Promise<unknown> {
   // Pipe encoder output to decoder input
   const encodedStream = encoder.readable.pipeThrough(decoder);
 
+  // Start reading before writing: the encoder holds back writes until its
+  // readable side is being consumed, so a write-then-read order deadlocks.
+  const reader = encodedStream.getReader();
+  const resultPromise = reader.read();
+  // A failed write rejects this read too, and the write error is the one that
+  // propagates. Mark the read handled so the abandoned rejection cannot take
+  // down the whole test module as an uncaught error.
+  resultPromise.catch(() => {});
+
   // Write the input to the encoder
   const writer = encoder.writable.getWriter();
   await writer.write(cborInput);
   await writer.close();
 
   // Read the decoded output
-  const reader = encodedStream.getReader();
-  const result = await reader.read();
+  const result = await resultPromise;
   if (result.done) {
     throw new Error("No output from decoder");
   }

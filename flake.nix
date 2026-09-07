@@ -29,6 +29,10 @@
               prev.duckdb
             ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
+            # Load SQLite from nixpkgs instead of the prebuilt library @db/sqlite
+            # downloads, which segfaults on dlopen against this glibc.
+            export DENO_SQLITE_PATH="${prev.lib.getLib prev.sqlite}/lib/libsqlite3${prev.stdenv.hostPlatform.extensions.sharedLibrary}"
+
             # Copy lock file to writable location to avoid /nix/store read-only errors
             TEMP_LOCK=$(mktemp)
             cp ${self}/deno.lock "$TEMP_LOCK"
@@ -81,6 +85,11 @@
               pkgs.sqlite
               pkgs.duckdb
             ]}:$LD_LIBRARY_PATH"
+
+            # Load SQLite from nixpkgs instead of the prebuilt library @db/sqlite
+            # downloads, which segfaults on dlopen against this glibc.
+            export DENO_SQLITE_PATH="${pkgs.lib.getLib pkgs.sqlite}/lib/libsqlite3${pkgs.stdenv.hostPlatform.extensions.sharedLibrary}"
+
             echo "Entering Probitas development environment" >&2
           '';
         };

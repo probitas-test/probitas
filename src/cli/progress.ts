@@ -128,7 +128,7 @@ class LineWriter {
  */
 class Spinner {
   #frameIndex = 0;
-  #timerId: number | undefined;
+  #timerId: ReturnType<typeof setInterval> | undefined;
   #onTick: () => void;
 
   constructor(onTick: () => void) {
