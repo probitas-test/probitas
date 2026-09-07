@@ -36,6 +36,12 @@
       "src/**/*.ts"
     ]
   },
+  "minimumDependencyAge": {
+    "age": "P1D",
+    "exclude": [
+      "jsr:@probitas/*"
+    ]
+  },
   "lint": {
     "rules": {
       "exclude": [
@@ -85,7 +91,7 @@
     "@probitas/client-sql-duckdb": "jsr:@probitas/client-sql-duckdb@^0.5.0",
     "@probitas/client-sql-mysql": "jsr:@probitas/client-sql-mysql@^0.5.0",
     "@probitas/client-sql-postgres": "jsr:@probitas/client-sql-postgres@^0.5.0",
-    "@probitas/client-sql-sqlite": "jsr:@probitas/client-sql-sqlite@^0.5.0",
+    "@probitas/client-sql-sqlite": "jsr:@probitas/client-sql-sqlite@^0.5.1",
     "@probitas/client-sqs": "jsr:@probitas/client-sqs@^0.5.0",
     "@probitas/core": "jsr:@probitas/core@^0.3.2",
     "@probitas/discover": "jsr:@probitas/discover@^0.4.0",
