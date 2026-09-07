@@ -94,7 +94,9 @@ jobs:
           --health-timeout 10s
           --health-retries 10
       localstack:
-        image: localstack/localstack:latest
+        # Pinned to the last community release. Newer images quit with
+        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
+        image: localstack/localstack:4.14.0
         ports:
           - 4566:4566
         env:
@@ -213,7 +215,9 @@ jobs:
           --health-timeout 10s
           --health-retries 10
       localstack:
-        image: localstack/localstack:latest
+        # Pinned to the last community release. Newer images quit with
+        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
+        image: localstack/localstack:4.14.0
         ports:
           - 4566:4566
         env:
@@ -321,7 +325,9 @@ jobs:
           --health-timeout 10s
           --health-retries 10
       localstack:
-        image: localstack/localstack:latest
+        # Pinned to the last community release. Newer images quit with
+        # "License activation failed" unless LOCALSTACK_AUTH_TOKEN is set.
+        image: localstack/localstack:4.14.0
         ports:
           - 4566:4566
         env:
