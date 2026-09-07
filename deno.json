@@ -36,6 +36,12 @@
       "src/**/*.ts"
     ]
   },
+  "minimumDependencyAge": {
+    "age": "P1D",
+    "exclude": [
+      "jsr:@probitas/*"
+    ]
+  },
   "lint": {
     "rules": {
       "exclude": [
