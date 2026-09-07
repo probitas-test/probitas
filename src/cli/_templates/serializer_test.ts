@@ -27,6 +27,10 @@ async function roundTrip<T>(value: T): Promise<unknown> {
   // readable side is being consumed, so a write-then-read order deadlocks.
   const reader = encodedStream.getReader();
   const resultPromise = reader.read();
+  // A failed write rejects this read too, and the write error is the one that
+  // propagates. Mark the read handled so the abandoned rejection cannot take
+  // down the whole test module as an uncaught error.
+  resultPromise.catch(() => {});
 
   // Write the input to the encoder
   const writer = encoder.writable.getWriter();
