@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["bun"],
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@probitas-test/probitas": ["./src/mod.ts"],
+      "@probitas-test/probitas/*": ["./src/*.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "internal/**/*.ts",
+    "scripts/**/*.ts",
+    "probitas/**/*.ts"
+  ],
+  "exclude": ["**/node_modules/**", "**/dist/**"]
+}

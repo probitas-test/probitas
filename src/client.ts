@@ -17,12 +17,11 @@
  * | {@linkcode sql} | SQL database client | `client.sql.postgres({ ... })` |
  * | {@linkcode rabbitmq} | RabbitMQ client | `client.rabbitmq({ ... })` |
  * | {@linkcode sqs} | AWS SQS client | `client.sqs({ ... })` |
- * | {@linkcode deno_kv} | Deno KV client | `client.deno_kv()` |
  *
  * @example HTTP client usage
  * ```ts
- * import { scenario, client } from "@probitas/probitas";
- * import { expectHttpResponse } from "@probitas/expect";
+ * import { scenario, client } from "@probitas-test/probitas";
+ * import { expectHttpResponse } from "@probitas-test/expect";
  *
  * const api = client.http.createHttpClient({ url: "https://api.example.com" });
  *
@@ -37,7 +36,7 @@
  *
  * @example MongoDB client usage
  * ```ts
- * import { scenario, client } from "@probitas/probitas";
+ * import { scenario, client } from "@probitas-test/probitas";
  *
  * // Mock environment variable for this example
  * const mongoUrl = "mongodb://localhost:27017";
@@ -60,7 +59,6 @@
  */
 
 import * as connectrpc from "./client/connectrpc.ts";
-import * as deno_kv from "./client/deno_kv.ts";
 import * as graphql from "./client/graphql.ts";
 import * as grpc from "./client/grpc.ts";
 import * as http from "./client/http.ts";
@@ -73,8 +71,6 @@ import * as sqs from "./client/sqs.ts";
 export {
   /** Connect-RPC client for type-safe RPC communication */
   connectrpc,
-  /** Deno KV client for key-value storage */
-  deno_kv,
   /** GraphQL client for query/mutation operations */
   graphql,
   /** gRPC client for RPC communication */

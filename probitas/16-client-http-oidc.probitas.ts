@@ -12,9 +12,9 @@
  * Target: echo-http service on port 8080 (compose.yaml)
  * API Reference: https://github.com/probitas-test/echo-servers/blob/main/echo-http/docs/api.md#oidc-endpoints
  */
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
 
-const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
+const BASE_URL = process.env.ECHO_HTTP_URL ?? "http://localhost:8080";
 const TEST_USER = "testuser";
 const TEST_PASS = "testpass";
 const ISSUER = BASE_URL;

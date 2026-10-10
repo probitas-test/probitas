@@ -1,1 +1,1 @@
-export * from "@probitas/client-graphql";
+export * from "@probitas-test/client-graphql";

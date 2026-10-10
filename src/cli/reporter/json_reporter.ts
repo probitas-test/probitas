@@ -7,13 +7,13 @@
  * @module
  */
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
+import type { ScenarioMetadata, StepMetadata } from "@probitas-test/core";
 import type {
   Reporter,
   RunResult,
   ScenarioResult,
   StepResult,
-} from "@probitas/runner";
+} from "@probitas-test/runner";
 import { Writer } from "./writer.ts";
 import type { ReporterOptions } from "./types.ts";
 

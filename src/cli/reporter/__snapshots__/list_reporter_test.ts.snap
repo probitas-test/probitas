@@ -1,269 +1,269 @@
-export const snapshot = {};
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-snapshot[`after onRunStart 1`] = `""`;
+exports[`ListReporter: after onRunStart 1`] = `""`;
 
-snapshot[`after onScenarioStart - Simple passing scenario (1) 1`] = `""`;
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (1) 1`] = `""`;
 
-snapshot[`after onStepStart - Step that passes (1) 1`] = `""`;
+exports[`ListReporter: after onStepStart - Step that passes (1) 1`] = `""`;
 
-snapshot[`after onStepEnd - Step that passes (1) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (1) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (1) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (1) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepStart - Step that passes (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (3) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (3) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (3) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepStart - Step that passes (3) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (3) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (3) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (3) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (3) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onRunEnd 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onRunEnd 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 
-[1mSummary[0m
-  [32m✓[39m 3 scenarios passed
+\x1B[1mSummary\x1B[0m
+  \x1B[32m✓\x1B[39m 3 scenarios passed
 
-3 scenarios total [36m[45.000ms][39m
+3 scenarios total \x1B[36m[45.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onRunStart 2`] = `""`;
+exports[`ListReporter: after onRunStart 2`] = `""`;
 
-snapshot[`after onScenarioStart - Simple passing scenario (1) 2`] = `""`;
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (1) 2`] = `""`;
 
-snapshot[`after onStepStart - Step that passes (1) 2`] = `""`;
+exports[`ListReporter: after onStepStart - Step that passes (1) 2`] = `""`;
 
-snapshot[`after onStepEnd - Step that passes (1) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (1) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (1) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (1) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioStart - Scenario with failing step (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioStart - Scenario with failing step (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (2-1) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepStart - Step that passes (2-1) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (2-1) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (2-1) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepStart - Step that fails (2-2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepStart - Step that fails (2-2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onStepEnd - Step that fails (2-2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
+exports[`ListReporter: after onStepEnd - Step that fails (2-2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Scenario with failing step (2) 1`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
+exports[`ListReporter: after onScenarioEnd - Scenario with failing step (2) 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (3) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (3) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (3) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
+exports[`ListReporter: after onStepStart - Step that passes (3) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (3) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onStepEnd - Step that passes (3) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (3) 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (3) 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onRunEnd 2`] = `
-"[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [32m✓[39m Scenario with failing step [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: Assertion failed[39m
-[90mT┆[39m [32m✓[39m Simple passing scenario [90m>[39m Step that passes [90m(test.scenario.ts:15)[39m [36m[10.000ms][39m
+exports[`ListReporter: after onRunEnd 2`] = `
+"\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: Assertion failed\x1B[39m
+\x1B[90mT┆\x1B[39m \x1B[32m✓\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step that passes \x1B[90m(test.scenario.ts:15)\x1B[39m \x1B[36m[10.000ms]\x1B[39m
 
-[1mFailed Tests[0m
-[90mT┆[39m [31m✗[39m Scenario with failing step [90m>[39m Step that fails [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m
-[90m ┆[39m[31m   Error: Assertion failed[39m
-[90m ┆[39m
-[90m ┆[39m   [1mStack trace[0m
-[90m ┆[39m
-[90m ┆[39m     [90mat <file>:119:12[39m
+\x1B[1mFailed Tests\x1B[0m
+\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Scenario with failing step \x1B[90m>\x1B[39m Step that fails \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m
+\x1B[90m ┆\x1B[39m\x1B[31m   Error: Assertion failed\x1B[39m
+\x1B[90m ┆\x1B[39m
+\x1B[90m ┆\x1B[39m   \x1B[1mStack trace\x1B[0m
+\x1B[90m ┆\x1B[39m
+\x1B[90m ┆\x1B[39m     \x1B[90mat <file>:119:16\x1B[39m
 
-[1mSummary[0m
-  [32m✓[39m 2 scenarios passed
-  [31m✗[39m 1 scenarios failed
+\x1B[1mSummary\x1B[0m
+  \x1B[32m✓\x1B[39m 2 scenarios passed
+  \x1B[31m✗\x1B[39m 1 scenarios failed
 
-3 scenarios total [36m[35.000ms][39m
+3 scenarios total \x1B[36m[35.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onRunStart 3`] = `""`;
+exports[`ListReporter: after onRunStart 3`] = `""`;
 
-snapshot[`after onRunEnd 3`] = `
+exports[`ListReporter: after onRunEnd 3`] = `
 "
-[1mSummary[0m
-  [32m✓[39m 0 scenarios passed
+\x1B[1mSummary\x1B[0m
+  \x1B[32m✓\x1B[39m 0 scenarios passed
 
-0 scenarios total [36m[0.000ms][39m
+0 scenarios total \x1B[36m[0.000ms]\x1B[39m
 "
 `;
 
-snapshot[`after onRunStart 4`] = `""`;
+exports[`ListReporter: after onRunStart 4`] = `""`;
 
-snapshot[`after onScenarioStart - Simple passing scenario (1) 3`] = `""`;
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (1) 3`] = `""`;
 
-snapshot[`after onStepStart - Step that passes (1) 3`] = `""`;
+exports[`ListReporter: after onStepStart - Step that passes (1) 3`] = `""`;
 
-snapshot[`after onStepEnd - Step that passes (1) 3`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (1) 3`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (1) 3`] = `
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (1) 3`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (2) 2`] = `
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (2) 2`] = `
+exports[`ListReporter: after onStepStart - Step that passes (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (2) 2`] = `
-"T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
-T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
-"
-`;
-
-snapshot[`after onScenarioEnd - Simple passing scenario (2) 2`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (3) 3`] = `
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (3) 3`] = `
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (3) 3`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (3) 3`] = `
+exports[`ListReporter: after onStepStart - Step that passes (3) 3`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
-T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (3) 3`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (3) 3`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onRunEnd 4`] = `
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (3) 3`] = `
+"T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
+T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
+T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
+"
+`;
+
+exports[`ListReporter: after onRunEnd 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
@@ -275,53 +275,45 @@ Summary
 "
 `;
 
-snapshot[`after onRunStart 5`] = `""`;
+exports[`ListReporter: after onRunStart 5`] = `""`;
 
-snapshot[`after onScenarioStart - Simple passing scenario (1) 4`] = `""`;
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (1) 4`] = `""`;
 
-snapshot[`after onStepStart - Step that passes (1) 4`] = `""`;
+exports[`ListReporter: after onStepStart - Step that passes (1) 4`] = `""`;
 
-snapshot[`after onStepEnd - Step that passes (1) 4`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (1) 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (1) 4`] = `
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (1) 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioStart - Scenario with failing step (2) 2`] = `
+exports[`ListReporter: after onScenarioStart - Scenario with failing step (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (2-1) 2`] = `
+exports[`ListReporter: after onStepStart - Step that passes (2-1) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (2-1) 2`] = `
-"T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
-T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
-"
-`;
-
-snapshot[`after onStepStart - Step that fails (2-2) 2`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (2-1) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onStepEnd - Step that fails (2-2) 2`] = `
+exports[`ListReporter: after onStepStart - Step that fails (2-2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
-T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
- ┆ └ Error: Assertion failed
 "
 `;
 
-snapshot[`after onScenarioEnd - Scenario with failing step (2) 2`] = `
+exports[`ListReporter: after onStepEnd - Step that fails (2-2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
@@ -329,7 +321,7 @@ T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.0
 "
 `;
 
-snapshot[`after onScenarioStart - Simple passing scenario (3) 4`] = `
+exports[`ListReporter: after onScenarioEnd - Scenario with failing step (2) 2`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
@@ -337,7 +329,7 @@ T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.0
 "
 `;
 
-snapshot[`after onStepStart - Step that passes (3) 4`] = `
+exports[`ListReporter: after onScenarioStart - Simple passing scenario (3) 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
@@ -345,16 +337,15 @@ T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.0
 "
 `;
 
-snapshot[`after onStepEnd - Step that passes (3) 4`] = `
+exports[`ListReporter: after onStepStart - Step that passes (3) 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
  ┆ └ Error: Assertion failed
-T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 "
 `;
 
-snapshot[`after onScenarioEnd - Simple passing scenario (3) 4`] = `
+exports[`ListReporter: after onStepEnd - Step that passes (3) 4`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
@@ -363,7 +354,16 @@ T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.00
 "
 `;
 
-snapshot[`after onRunEnd 5`] = `
+exports[`ListReporter: after onScenarioEnd - Simple passing scenario (3) 4`] = `
+"T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
+T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
+T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
+ ┆ └ Error: Assertion failed
+T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
+"
+`;
+
+exports[`ListReporter: after onRunEnd 5`] = `
 "T┆ ✓ Simple passing scenario > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✓ Scenario with failing step > Step that passes (test.scenario.ts:15) [10.000ms]
 T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.000ms]
@@ -377,7 +377,7 @@ T┆ ✗ Scenario with failing step > Step that fails (test.scenario.ts:20) [5.0
  ┆
  ┆   Stack trace
  ┆
- ┆     at <file>:119:12
+ ┆     at <file>:119:16
 
 Summary
   ✓ 2 scenarios passed
@@ -387,9 +387,9 @@ Summary
 "
 `;
 
-snapshot[`after onRunStart 6`] = `""`;
+exports[`ListReporter: after onRunStart 6`] = `""`;
 
-snapshot[`after onRunEnd 6`] = `
+exports[`ListReporter: after onRunEnd 6`] = `
 "
 Summary
   ✓ 0 scenarios passed
@@ -398,25 +398,25 @@ Summary
 "
 `;
 
-snapshot[`ListReporter - multiline error messages with colors shows only first line of multiline error in onStepEnd 1`] = `
-"[90mT┆[39m [31m✗[39m Simple passing scenario [90m>[39m Step with multiline error [90m(test.scenario.ts:20)[39m [36m[5.000ms][39m
-[90m ┆[39m └ [31mError: First line of error[39m
+exports[`ListReporter - multiline error messages with colors shows only first line of multiline error in onStepEnd 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[31m✗\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step with multiline error \x1B[90m(test.scenario.ts:20)\x1B[39m \x1B[36m[5.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m └ \x1B[31mError: First line of error\x1B[39m
 "
 `;
 
-snapshot[`ListReporter - multiline error messages with colors shows only first line of multiline skip reason in onStepEnd 1`] = `
-"[90mT┆[39m [33m⊘[39m Simple passing scenario [90m>[39m Step skipped with multiline reason [90m(test.scenario.ts:25)[39m [36m[0.000ms][39m
-[90m ┆[39m[33m └ Skipped due to:[39m
+exports[`ListReporter - multiline error messages with colors shows only first line of multiline skip reason in onStepEnd 1`] = `
+"\x1B[90mT┆\x1B[39m \x1B[33m⊘\x1B[39m Simple passing scenario \x1B[90m>\x1B[39m Step skipped with multiline reason \x1B[90m(test.scenario.ts:25)\x1B[39m \x1B[36m[0.000ms]\x1B[39m
+\x1B[90m ┆\x1B[39m\x1B[33m └ Skipped due to:\x1B[39m
 "
 `;
 
-snapshot[`ListReporter - multiline error messages without colors shows only first line of multiline error in onStepEnd 1`] = `
+exports[`ListReporter - multiline error messages without colors shows only first line of multiline error in onStepEnd 1`] = `
 "T┆ ✗ Simple passing scenario > Step with multiline error (test.scenario.ts:20) [5.000ms]
  ┆ └ Error: First line of error
 "
 `;
 
-snapshot[`ListReporter - multiline error messages without colors shows only first line of multiline skip reason in onStepEnd 1`] = `
+exports[`ListReporter - multiline error messages without colors shows only first line of multiline skip reason in onStepEnd 1`] = `
 "T┆ ⊘ Simple passing scenario > Step skipped with multiline reason (test.scenario.ts:25) [0.000ms]
  ┆ └ Skipped due to:
 "

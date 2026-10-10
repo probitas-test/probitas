@@ -7,6 +7,9 @@
  * @module
  */
 
+import { writeSync } from "node:fs";
+import process from "node:process";
+
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
@@ -18,6 +21,11 @@ export interface OutputStream {
   writeSync(p: Uint8Array): number;
   isTerminal(): boolean;
 }
+
+const stderrSync: OutputStream = {
+  writeSync: (p) => writeSync(2, p),
+  isTerminal: () => process.stderr.isTTY ?? false,
+};
 
 /**
  * Progress information during file discovery.
@@ -37,7 +45,7 @@ export interface DiscoverProgress {
 export interface ProgressDisplayOptions {
   /**
    * Output stream to write progress to
-   * @default Deno.stderr
+   * @default process.stderr
    */
   output?: OutputStream;
 
@@ -212,7 +220,7 @@ function formatFileCount(count: number): string {
 export function createDiscoveryProgress(
   options: ProgressDisplayOptions = {},
 ): ProgressDisplay | null {
-  const output = options.output ?? Deno.stderr;
+  const output = options.output ?? stderrSync;
   const maxWidth = options.maxWidth ?? DEFAULT_MAX_WIDTH;
 
   if (!output.isTerminal()) {
@@ -259,12 +267,12 @@ export function createDiscoveryProgress(
  * Only outputs in TTY environments.
  *
  * @param message - Status message to display
- * @param output - Output stream (default: Deno.stderr)
+ * @param output - Output stream (default: process.stderr)
  * @returns Function to clear the status line, or null if suppressed
  */
 export function writeStatus(
   message: string,
-  output: OutputStream = Deno.stderr,
+  output: OutputStream = stderrSync,
 ): (() => void) | null {
   if (!output.isTerminal()) {
     return null;

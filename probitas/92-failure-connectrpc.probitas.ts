@@ -4,13 +4,13 @@
  * This file demonstrates failure messages for each ConnectRPC expectation method.
  * All scenarios are expected to fail - they use dummy responses to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   ConnectRpcError,
   type ConnectRpcResponse,
   type ConnectRpcResponseError,
   type ConnectRpcResponseSuccess,
-} from "jsr:@probitas/client-connectrpc@^0";
+} from "@probitas-test/client-connectrpc";
 
 // Helper to create mock ConnectRPC error response
 function createMockErrorResponse(): ConnectRpcResponse {
@@ -30,7 +30,7 @@ function createMockErrorResponse(): ConnectRpcResponse {
     trailers: new Headers(),
     data: null,
     duration: 150,
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     raw: error as any,
   };
   return response;
@@ -47,7 +47,7 @@ function createMockSuccessResponse(): ConnectRpcResponse {
     statusMessage: null,
     headers: new Headers(),
     trailers: new Headers(),
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     data: <T = any>(): T | null => ({ message: "ok" }) as T,
     duration: 50,
     raw: () => ({}),

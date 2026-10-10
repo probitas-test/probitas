@@ -7,7 +7,7 @@
 import { parseArgs } from "@std/cli";
 import { resolve } from "@std/path";
 import { getLogger, type LogLevel } from "@logtape/logtape";
-import { discoverScenarioFiles } from "@probitas/discover";
+import { discoverScenarioFiles } from "@probitas-test/discover";
 import { fromErrorObject, isErrorObject } from "@core/errorutil/error-object";
 import { unreachable } from "@core/errorutil/unreachable";
 import { EXIT_CODE } from "../constants.ts";
@@ -18,12 +18,7 @@ import {
   formatUnknownArgError,
 } from "../unknown_args.ts";
 import { createDiscoveryProgress, writeStatus } from "../progress.ts";
-import {
-  configureLogging,
-  extractDenoOptions,
-  loadEnvironment,
-  readAsset,
-} from "../utils.ts";
+import { configureLogging, loadEnvironment, readAsset } from "../utils.ts";
 import { runSubprocessToCompletion } from "../subprocess.ts";
 import {
   isListOutput,
@@ -43,7 +38,6 @@ const PARSE_ARGS_CONFIG = {
     "help",
     "json",
     "no-env",
-    "reload",
     "quiet",
     "verbose",
     "debug",
@@ -52,7 +46,6 @@ const PARSE_ARGS_CONFIG = {
   alias: {
     h: "help",
     s: "selector",
-    r: "reload",
     v: "verbose",
     q: "quiet",
     d: "debug",
@@ -78,9 +71,6 @@ export async function listCommand(
   cwd: string,
 ): Promise<number> {
   try {
-    // Extract deno options first (before parseArgs)
-    const { denoArgs, remainingArgs } = extractDenoOptions(args);
-
     // Setup unknown argument handler
     const knownOptions = extractKnownOptions(PARSE_ARGS_CONFIG);
     const { handler: unknownHandler, result: unknownResult } =
@@ -90,7 +80,7 @@ export async function listCommand(
       });
 
     // Parse command-line arguments
-    const parsed = parseArgs(remainingArgs, {
+    const parsed = parseArgs(args, {
       ...PARSE_ARGS_CONFIG,
       unknown: unknownHandler,
     });
@@ -139,15 +129,10 @@ export async function listCommand(
     } catch {
       // Silently ignore logging configuration errors (e.g., in test environments)
     }
-
-    // Add --reload to denoArgs if -r/--reload is specified
-    const finalDenoArgs = parsed.reload ? [...denoArgs, "--reload"] : denoArgs;
-
     logger.debug("List command started", {
       args,
       cwd,
       logLevel,
-      denoArgs: finalDenoArgs,
     });
 
     // Load environment variables before loading configuration
@@ -215,7 +200,6 @@ export async function listCommand(
     const { allScenarios, filteredScenarios } = await runListSubprocess(
       scenarioFiles,
       selectors,
-      finalDenoArgs,
       cwd,
     );
 
@@ -257,7 +241,6 @@ export async function listCommand(
 async function runListSubprocess(
   filePaths: readonly string[],
   selectors: readonly string[],
-  denoArgs: string[],
   cwd: string,
 ): Promise<{
   allScenarios: ScenarioMeta[];
@@ -269,10 +252,8 @@ async function runListSubprocess(
     { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] }
   >(
     {
-      templateUrl: new URL("../_templates/list.ts", import.meta.url),
       templateName: "list",
       input: { filePaths, selectors },
-      denoArgs,
       cwd,
     },
     isListOutput,
@@ -285,7 +266,9 @@ async function runListSubprocess(
  */
 function handleSubprocessOutput(
   output: ListOutput,
-): { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] } | void {
+):
+  | { allScenarios: ScenarioMeta[]; filteredScenarios: ScenarioMeta[] }
+  | undefined {
   switch (output.type) {
     case "result":
       // The subprocess has already applied any selector filtering, so

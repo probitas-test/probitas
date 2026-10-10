@@ -10,7 +10,8 @@ import {
   outdent,
   scenario,
   Skip,
-} from "jsr:@probitas/probitas@^0";
+} from "@probitas-test/probitas";
+import { createConnection } from "node:net";
 
 const HOST = "localhost";
 const PORT = 3306;
@@ -20,8 +21,13 @@ export default scenario("MySQL Client Example", {
 })
   .setup("Check MySQL server availability", async () => {
     try {
-      const conn = await Deno.connect({ hostname: HOST, port: PORT });
-      conn.close();
+      await new Promise<void>((resolve, reject) => {
+        const conn = createConnection({ host: HOST, port: PORT }, () => {
+          conn.end();
+          resolve();
+        });
+        conn.once("error", reject);
+      });
     } catch {
       throw new Skip(`MySQL server not available at ${HOST}:${PORT}`);
     }

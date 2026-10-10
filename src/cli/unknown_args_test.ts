@@ -13,6 +13,7 @@ import {
   formatUnknownArgError,
   generateHint,
 } from "./unknown_args.ts";
+import { test } from "@probitas-test/internal-testing";
 
 const baseOptions = {
   knownOptions: [
@@ -29,7 +30,7 @@ const baseOptions = {
   commandName: "run",
 };
 
-Deno.test("createUnknownArgHandler", async (t) => {
+test("createUnknownArgHandler", async (t) => {
   await t.step("detects unknown options", () => {
     const { handler, result } = createUnknownArgHandler(baseOptions);
 
@@ -85,7 +86,7 @@ Deno.test("createUnknownArgHandler", async (t) => {
   });
 });
 
-Deno.test("generateHint", async (t) => {
+test("generateHint", async (t) => {
   await t.step("suggests selector for --tag", () => {
     const hint = generateHint(
       { arg: "--tag", key: "tag", value: "smoke" },
@@ -203,7 +204,7 @@ Deno.test("generateHint", async (t) => {
   });
 });
 
-Deno.test("findSimilarOption", async (t) => {
+test("findSimilarOption", async (t) => {
   const knownOptions = ["help", "verbose", "quiet", "selector", "config"];
 
   await t.step("finds exact matches", () => {
@@ -237,7 +238,7 @@ Deno.test("findSimilarOption", async (t) => {
   });
 });
 
-Deno.test("formatUnknownArgError", async (t) => {
+test("formatUnknownArgError", async (t) => {
   await t.step("formats error with hint", () => {
     const error = formatUnknownArgError(
       { arg: "--tag", key: "tag", value: "smoke" },
@@ -257,7 +258,7 @@ Deno.test("formatUnknownArgError", async (t) => {
   });
 });
 
-Deno.test("extractKnownOptions", async (t) => {
+test("extractKnownOptions", async (t) => {
   await t.step("extracts string and boolean options", () => {
     const options = extractKnownOptions({
       string: ["config", "reporter"],

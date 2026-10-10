@@ -1,1 +1,1 @@
-export * from "@probitas/client-mongodb";
+export * from "@probitas-test/client-mongodb";

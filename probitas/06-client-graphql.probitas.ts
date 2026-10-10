@@ -10,7 +10,7 @@ import {
   outdent,
   scenario,
   Skip,
-} from "jsr:@probitas/probitas@^0";
+} from "@probitas-test/probitas";
 
 const BASE_URL = "http://localhost:8100";
 

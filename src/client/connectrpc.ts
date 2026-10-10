@@ -1,1 +1,1 @@
-export * from "@probitas/client-connectrpc";
+export * from "@probitas-test/client-connectrpc";

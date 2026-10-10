@@ -12,22 +12,25 @@ import {
   type HttpResponse,
 } from "./expect.ts";
 import type {
-  DenoKvGetResult,
-  DenoKvSetResult,
-} from "@probitas/client-deno-kv";
-import type {
   MongoFindResult,
   MongoInsertOneResult,
-} from "@probitas/client-mongodb";
+} from "@probitas-test/client-mongodb";
 import type {
   RabbitMqConsumeResult,
   RabbitMqPublishResult,
-} from "@probitas/client-rabbitmq";
-import type { RedisGetResult, RedisSetResult } from "@probitas/client-redis";
-import type { SqlQueryResult } from "@probitas/client-sql";
-import type { SqsReceiveResult, SqsSendResult } from "@probitas/client-sqs";
+} from "@probitas-test/client-rabbitmq";
+import type {
+  RedisGetResult,
+  RedisSetResult,
+} from "@probitas-test/client-redis";
+import type { SqlQueryResult } from "@probitas-test/client-sql";
+import type {
+  SqsReceiveResult,
+  SqsSendResult,
+} from "@probitas-test/client-sqs";
+import { test } from "@probitas-test/internal-testing";
 
-Deno.test("expect type dispatch dispatches HttpResponse to expectHttpResponse", () => {
+test("expect type dispatch dispatches HttpResponse to expectHttpResponse", () => {
   const httpResponse: HttpResponse = {
     kind: "http" as const,
     processed: true,
@@ -53,7 +56,7 @@ Deno.test("expect type dispatch dispatches HttpResponse to expectHttpResponse", 
   assertEquals(typeof result.toHaveJsonMatching, "function");
 });
 
-Deno.test("expect type dispatch dispatches ConnectRpcResponse to expectConnectRpcResponse", () => {
+test("expect type dispatch dispatches ConnectRpcResponse to expectConnectRpcResponse", () => {
   const connectRpcResponse: ConnectRpcResponse = {
     kind: "connectrpc" as const,
     processed: true,
@@ -73,7 +76,7 @@ Deno.test("expect type dispatch dispatches ConnectRpcResponse to expectConnectRp
   assertEquals(typeof result.toHaveStatusCode, "function");
 });
 
-Deno.test("expect type dispatch dispatches GraphqlResponse to expectGraphqlResponse", () => {
+test("expect type dispatch dispatches GraphqlResponse to expectGraphqlResponse", () => {
   const graphqlResponse: GraphqlResponse = {
     kind: "graphql" as const,
     processed: true,
@@ -93,7 +96,7 @@ Deno.test("expect type dispatch dispatches GraphqlResponse to expectGraphqlRespo
   assertEquals(typeof result.toHaveData, "function");
 });
 
-Deno.test("expect type dispatch dispatches SqlQueryResult to expectSqlQueryResult", () => {
+test("expect type dispatch dispatches SqlQueryResult to expectSqlQueryResult", () => {
   const sqlResult: SqlQueryResult = {
     kind: "sql" as const,
     processed: true,
@@ -113,38 +116,7 @@ Deno.test("expect type dispatch dispatches SqlQueryResult to expectSqlQueryResul
   assertEquals(typeof result.toHaveRowCount, "function");
 });
 
-Deno.test("expect type dispatch dispatches DenoKvResult (deno-kv:get) to expectDenoKvResult", () => {
-  const denoKvResult: DenoKvGetResult<unknown> = {
-    kind: "deno-kv:get" as const,
-    processed: true,
-    ok: true,
-    error: null,
-    key: ["test"],
-    value: null,
-    versionstamp: null,
-    duration: 100,
-  };
-
-  const result = expect(denoKvResult);
-  assertEquals(typeof result.toBeOk, "function");
-  assertEquals(typeof result.toHaveValue, "function");
-});
-
-Deno.test("expect type dispatch dispatches DenoKvResult (deno-kv:set) to expectDenoKvResult", () => {
-  const denoKvResult: DenoKvSetResult = {
-    kind: "deno-kv:set" as const,
-    processed: true,
-    ok: true,
-    error: null,
-    versionstamp: "00000000",
-    duration: 100,
-  };
-
-  const result = expect(denoKvResult);
-  assertEquals(typeof result.toBeOk, "function");
-});
-
-Deno.test("expect type dispatch dispatches RedisResult (redis:get) to expectRedisResult", () => {
+test("expect type dispatch dispatches RedisResult (redis:get) to expectRedisResult", () => {
   const redisResult: RedisGetResult = {
     kind: "redis:get" as const,
     processed: true,
@@ -158,7 +130,7 @@ Deno.test("expect type dispatch dispatches RedisResult (redis:get) to expectRedi
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches RedisResult (redis:set) to expectRedisResult", () => {
+test("expect type dispatch dispatches RedisResult (redis:set) to expectRedisResult", () => {
   const redisResult: RedisSetResult = {
     kind: "redis:set" as const,
     processed: true,
@@ -172,7 +144,7 @@ Deno.test("expect type dispatch dispatches RedisResult (redis:set) to expectRedi
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches MongoResult (mongo:find) to expectMongoResult", () => {
+test("expect type dispatch dispatches MongoResult (mongo:find) to expectMongoResult", () => {
   const base = {
     kind: "mongo:find",
     processed: true,
@@ -187,7 +159,7 @@ Deno.test("expect type dispatch dispatches MongoResult (mongo:find) to expectMon
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches MongoResult (mongo:insert-one) to expectMongoResult", () => {
+test("expect type dispatch dispatches MongoResult (mongo:insert-one) to expectMongoResult", () => {
   const mongoResult: MongoInsertOneResult = {
     kind: "mongo:insert-one" as const,
     processed: true,
@@ -201,7 +173,7 @@ Deno.test("expect type dispatch dispatches MongoResult (mongo:insert-one) to exp
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches RabbitMqResult (rabbitmq:publish) to expectRabbitMqResult", () => {
+test("expect type dispatch dispatches RabbitMqResult (rabbitmq:publish) to expectRabbitMqResult", () => {
   const rabbitmqResult: RabbitMqPublishResult = {
     kind: "rabbitmq:publish" as const,
     processed: true,
@@ -214,7 +186,7 @@ Deno.test("expect type dispatch dispatches RabbitMqResult (rabbitmq:publish) to 
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches RabbitMqResult (rabbitmq:consume) to expectRabbitMqResult", () => {
+test("expect type dispatch dispatches RabbitMqResult (rabbitmq:consume) to expectRabbitMqResult", () => {
   const rabbitmqResult: RabbitMqConsumeResult = {
     kind: "rabbitmq:consume" as const,
     processed: true,
@@ -228,7 +200,7 @@ Deno.test("expect type dispatch dispatches RabbitMqResult (rabbitmq:consume) to 
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches SqsResult (sqs:send) to expectSqsResult", () => {
+test("expect type dispatch dispatches SqsResult (sqs:send) to expectSqsResult", () => {
   const sqsResult: SqsSendResult = {
     kind: "sqs:send" as const,
     processed: true,
@@ -244,7 +216,7 @@ Deno.test("expect type dispatch dispatches SqsResult (sqs:send) to expectSqsResu
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect type dispatch dispatches SqsResult (sqs:receive) to expectSqsResult", () => {
+test("expect type dispatch dispatches SqsResult (sqs:receive) to expectSqsResult", () => {
   const sqsResult: SqsReceiveResult = {
     kind: "sqs:receive" as const,
     processed: true,
@@ -258,44 +230,44 @@ Deno.test("expect type dispatch dispatches SqsResult (sqs:receive) to expectSqsR
   assertEquals(typeof result.toBeOk, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for primitive values", () => {
+test("expect fallback to @std/expect falls back for primitive values", () => {
   const result = expect(42);
   assertEquals(typeof result.toBe, "function");
   assertEquals(typeof result.toEqual, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for objects without type property", () => {
+test("expect fallback to @std/expect falls back for objects without type property", () => {
   const result = expect({ name: "test" });
   assertEquals(typeof result.toEqual, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for objects with non-string type property", () => {
+test("expect fallback to @std/expect falls back for objects with non-string type property", () => {
   const result = expect({ type: 123 });
   assertEquals(typeof result.toEqual, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for objects with unknown type value", () => {
+test("expect fallback to @std/expect falls back for objects with unknown type value", () => {
   const result = expect({ type: "unknown-type" });
   assertEquals(typeof result.toEqual, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for null", () => {
+test("expect fallback to @std/expect falls back for null", () => {
   const result = expect(null);
   assertEquals(typeof result.toBe, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for undefined", () => {
+test("expect fallback to @std/expect falls back for undefined", () => {
   const result = expect(undefined);
   assertEquals(typeof result.toBe, "function");
 });
 
-Deno.test("expect fallback to @std/expect falls back for arrays", () => {
+test("expect fallback to @std/expect falls back for arrays", () => {
   const result = expect([1, 2, 3]);
   assertEquals(typeof result.toEqual, "function");
   assertEquals(typeof result.toContain, "function");
 });
 
-Deno.test("expect fallback to @std/expect works with @std/expect assertions", () => {
+test("expect fallback to @std/expect works with @std/expect assertions", () => {
   // These should not throw
   expect(42).toBe(42);
   expect("hello").toBe("hello");
@@ -305,7 +277,7 @@ Deno.test("expect fallback to @std/expect works with @std/expect assertions", ()
   expect(false).toBeFalsy();
 });
 
-Deno.test("expect type inference infers correct return type for HttpResponse", () => {
+test("expect type inference infers correct return type for HttpResponse", () => {
   const httpResponse: HttpResponse = {
     kind: "http" as const,
     processed: true,
@@ -331,7 +303,7 @@ Deno.test("expect type inference infers correct return type for HttpResponse", (
   assertEquals(typeof chained.toHaveStatus, "function");
 });
 
-Deno.test("expect type inference infers correct return type for primitive values", () => {
+test("expect type inference infers correct return type for primitive values", () => {
   // This should compile and have @std/expect methods
   const expectation = expect(42);
   assertEquals(typeof expectation.toBe, "function");

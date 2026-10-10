@@ -1,1 +1,1 @@
-export * from "@probitas/client-sql-mysql";
+export * from "@probitas-test/client-sql-mysql";

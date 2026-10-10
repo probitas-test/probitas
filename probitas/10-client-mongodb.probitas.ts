@@ -4,7 +4,8 @@
  * Target: mongodb service on port 27017 (compose.yaml)
  * Database: testdb (replica set mode for transactions)
  */
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
+import { createConnection } from "node:net";
 
 const HOST = "localhost";
 const PORT = 27017;
@@ -14,8 +15,13 @@ export default scenario("MongoDB Client Example", {
 })
   .setup("Check MongoDB server availability", async () => {
     try {
-      const conn = await Deno.connect({ hostname: HOST, port: PORT });
-      conn.close();
+      await new Promise<void>((resolve, reject) => {
+        const conn = createConnection({ host: HOST, port: PORT }, () => {
+          conn.end();
+          resolve();
+        });
+        conn.once("error", reject);
+      });
     } catch {
       throw new Skip(`MongoDB server not available at ${HOST}:${PORT}`);
     }

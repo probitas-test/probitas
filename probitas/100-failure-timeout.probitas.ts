@@ -16,8 +16,16 @@
  * ```
  * The `scenarioTimeoutTest` scenario takes ~3 seconds and will timeout with 2s limit.
  */
-import { delay } from "@std/async/delay";
-import { scenario } from "../src/mod.ts";
+import { scenario } from "@probitas-test/probitas";
+
+const delay = (ms: number, options?: { signal?: AbortSignal }) =>
+  new Promise<void>((resolve, reject) => {
+    const id = setTimeout(resolve, ms);
+    options?.signal?.addEventListener("abort", () => {
+      clearTimeout(id);
+      reject(options.signal?.reason);
+    });
+  });
 
 export const stepTimeout = scenario("Timeout - Step timeout", {
   tags: ["failure", "timeout"],

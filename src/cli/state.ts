@@ -8,7 +8,8 @@
 
 import { join } from "@std/path";
 import { relative } from "@std/path/relative";
-import type { RunResult } from "@probitas/runner";
+import type { RunResult } from "@probitas-test/runner";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 /**
  * A scenario that failed in a previous run
@@ -47,10 +48,10 @@ const CURRENT_VERSION = 1;
 export async function getStateDir(cwd: string): Promise<string> {
   const stateDir = join(cwd, STATE_DIR_NAME);
   try {
-    await Deno.mkdir(stateDir, { recursive: true });
+    await mkdir(stateDir, { recursive: true });
   } catch (error) {
     // Ignore if already exists
-    if (!(error instanceof Deno.errors.AlreadyExists)) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
       throw error;
     }
   }
@@ -102,7 +103,7 @@ export async function saveLastRunState(
     failed,
   };
 
-  await Deno.writeTextFile(statePath, JSON.stringify(state, null, 2) + "\n");
+  await writeFile(statePath, JSON.stringify(state, null, 2) + "\n");
 }
 
 /**
@@ -117,7 +118,7 @@ export async function loadLastRunState(
   const statePath = join(cwd, STATE_DIR_NAME, LAST_RUN_FILE);
 
   try {
-    const content = await Deno.readTextFile(statePath);
+    const content = await readFile(statePath, "utf8");
     const state = JSON.parse(content);
 
     // Validate version
@@ -136,7 +137,7 @@ export async function loadLastRunState(
     return state as LastRunState;
   } catch (error) {
     // File doesn't exist or can't be read
-    if (error instanceof Deno.errors.NotFound) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return undefined;
     }
     // Invalid JSON or other error - treat as missing state

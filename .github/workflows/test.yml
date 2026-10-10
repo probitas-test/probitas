@@ -13,131 +13,30 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c deno task check
-      - run: nix develop -c deno lint
-      - run: |
-          nix develop -c deno fmt
-          git diff --exit-code
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run fmt:check
+      - run: nix develop -c bun run lint
+      - run: nix develop -c bun run check
+      - run: nix develop -c bun scripts/sync_jsr.ts --check
+      - run: nix develop -c bun run build
 
   test:
     runs-on: ubuntu-latest
-    services:
-      echo-http:
-        image: ghcr.io/probitas-test/echo-http:latest
-        ports:
-          - 8080:80
-      echo-grpc:
-        image: ghcr.io/probitas-test/echo-grpc:latest
-        ports:
-          - 50051:50051
-      echo-connectrpc:
-        image: ghcr.io/probitas-test/echo-connectrpc:latest
-        ports:
-          - 8090:8080
-      echo-graphql:
-        image: ghcr.io/probitas-test/echo-graphql:latest
-        ports:
-          - 8100:8080
-      postgres:
-        image: postgres:16
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-        options: >-
-          --health-cmd "pg_isready -U testuser -d testdb"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
-        options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root -prootpassword"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      denokv:
-        image: ghcr.io/denoland/denokv
-        ports:
-          - 4512:4512
-        env:
-          DENO_KV_SQLITE_PATH: ":memory:"
-          DENO_KV_ACCESS_TOKEN: testtoken1234
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        options: >-
-          --health-cmd "rabbitmq-diagnostics check_port_connectivity"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-      elasticmq:
-        image: softwaremill/elasticmq-native:1.7.1
-        ports:
-          - 9324:9324
-        # The image is Alpine plus the server binary, so wget is the only HTTP
-        # client in it. A bare GET answers 400 because SQS wants an Action, so
-        # ask for one: ListQueues needs no credentials and answers 200.
-        options: >-
-          --health-cmd "wget -q -O /dev/null 'http://localhost:9324/?Action=ListQueues' || exit 1"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      DENO_KV_ACCESS_TOKEN: testtoken1234
     steps:
-      # MongoDB is started via action instead of services because:
-      # - GitHub Actions services don't support custom command options
-      # - Transactions require replica set mode (--replSet flag)
-      # - supercharge/mongodb-github-action handles replica set initialization
-      - uses: supercharge/mongodb-github-action@1.12.0
-        with:
-          mongodb-version: "7.0"
-          mongodb-replica-set: rs0
       - uses: actions/checkout@v6
       - uses: nixbuild/nix-quick-install-action@v34
+      - run: nix develop -c bun install --frozen-lockfile
 
-      # Workaround for native library download race condition in parallel tests.
-      # Multiple subprocesses may simultaneously download the same FFI library,
-      # causing "file too short" errors. Pre-loading prevents this conflict.
-      # See: https://github.com/probitas-test/probitas/issues/32
-      - name: Pre-load native libraries
-        run: |
-          nix develop -c deno eval "import { Database } from 'jsr:@db/sqlite@0.12'; const db = new Database(':memory:'); db.close();"
-
-      - run: nix develop -c deno task test:coverage
-        timeout-minutes: 5
-
-      - run: nix develop -c deno task coverage --lcov > coverage.lcov
+      - run: nix develop -c bun run test --coverage --coverage-reporter=lcov --coverage-dir=.coverage
         timeout-minutes: 5
 
       - uses: codecov/codecov-action@v5
         with:
-          files: ./coverage.lcov
-          slug: probitas-test/probitas-packages
+          files: ./.coverage/lcov.info
+          slug: probitas-test/probitas
 
+  # Runs the example scenarios with the compiled binary, from a directory
+  # without node_modules, the way users run it.
   scenario-test:
     runs-on: ubuntu-latest
     services:
@@ -184,13 +83,6 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-      denokv:
-        image: ghcr.io/denoland/denokv
-        ports:
-          - 4512:4512
-        env:
-          DENO_KV_SQLITE_PATH: ":memory:"
-          DENO_KV_ACCESS_TOKEN: testtoken1234
       redis:
         image: redis:7
         ports:
@@ -224,8 +116,6 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-    env:
-      DENO_KV_ACCESS_TOKEN: testtoken1234
     steps:
       # MongoDB is started via action instead of services because:
       # - GitHub Actions services don't support custom command options
@@ -238,121 +128,16 @@ jobs:
 
       - uses: actions/checkout@v6
       - uses: nixbuild/nix-quick-install-action@v34
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run compile --outfile "$RUNNER_TEMP/probitas"
 
-      - run: |
-          nix develop -c deno task probitas --version
+      - name: Copy scenarios outside the repository
+        run: |
+          mkdir "$RUNNER_TEMP/scenarios"
+          cp -R probitas probitas.jsonc "$RUNNER_TEMP/scenarios/"
 
-      - run: |
-          nix develop -c deno task probitas run
-        timeout-minutes: 5
+      - run: $RUNNER_TEMP/probitas --version
 
-  scenario-test-nix:
-    runs-on: ubuntu-latest
-    services:
-      echo-http:
-        image: ghcr.io/probitas-test/echo-http:latest
-        ports:
-          - 8080:80
-      echo-grpc:
-        image: ghcr.io/probitas-test/echo-grpc:latest
-        ports:
-          - 50051:50051
-      echo-connectrpc:
-        image: ghcr.io/probitas-test/echo-connectrpc:latest
-        ports:
-          - 8090:8080
-      echo-graphql:
-        image: ghcr.io/probitas-test/echo-graphql:latest
-        ports:
-          - 8100:8080
-      postgres:
-        image: postgres:16
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-        options: >-
-          --health-cmd "pg_isready -U testuser -d testdb"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
-        options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root -prootpassword"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      denokv:
-        image: ghcr.io/denoland/denokv
-        ports:
-          - 4512:4512
-        env:
-          DENO_KV_SQLITE_PATH: ":memory:"
-          DENO_KV_ACCESS_TOKEN: testtoken1234
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        options: >-
-          --health-cmd "rabbitmq-diagnostics check_port_connectivity"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-      elasticmq:
-        image: softwaremill/elasticmq-native:1.7.1
-        ports:
-          - 9324:9324
-        # The image is Alpine plus the server binary, so wget is the only HTTP
-        # client in it. A bare GET answers 400 because SQS wants an Action, so
-        # ask for one: ListQueues needs no credentials and answers 200.
-        options: >-
-          --health-cmd "wget -q -O /dev/null 'http://localhost:9324/?Action=ListQueues' || exit 1"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      DENO_KV_ACCESS_TOKEN: testtoken1234
-    steps:
-      # MongoDB is started via action instead of services because:
-      # - GitHub Actions services don't support custom command options
-      # - Transactions require replica set mode (--replSet flag)
-      # - supercharge/mongodb-github-action handles replica set initialization
-      - uses: supercharge/mongodb-github-action@1.12.0
-        with:
-          mongodb-version: "7.0"
-          mongodb-replica-set: rs0
-
-      - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-
-      - run: |
-          nix build
-
-      - run: |
-          ./result/bin/probitas --version
-
-      - run: |
-          ./result/bin/probitas run
+      - run: $RUNNER_TEMP/probitas run
+        working-directory: ${{ runner.temp }}/scenarios
         timeout-minutes: 5

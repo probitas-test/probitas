@@ -1,1 +1,1 @@
-export * from "@probitas/client-redis";
+export * from "@probitas-test/client-redis";

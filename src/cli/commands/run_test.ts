@@ -9,13 +9,14 @@
  * @module
  */
 
-import outdent from "@cspotcode/outdent";
+import { outdent } from "outdent";
 import { assertEquals } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
+import { describe, it } from "bun:test";
 import { stub } from "@std/testing/mock";
-import { sandbox } from "@lambdalisue/sandbox";
 import { EXIT_CODE } from "../constants.ts";
 import { runCommand } from "./run.ts";
+import { mkdir, writeFile } from "node:fs/promises";
+import { sandbox } from "@probitas-test/internal-testing";
 
 const createScenario = (name: string, file: string, failing = false) =>
   outdent`
@@ -43,7 +44,7 @@ describe("run command", () => {
       await using sbox = await sandbox();
 
       const scenarioPath = sbox.resolve("test.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         scenarioPath,
         createScenario("Passing Test", scenarioPath),
       );
@@ -57,7 +58,7 @@ describe("run command", () => {
       await using sbox = await sandbox();
 
       const scenarioPath = sbox.resolve("fail.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         scenarioPath,
         createScenario("Failing Test", scenarioPath, true),
       );
@@ -76,7 +77,7 @@ describe("run command", () => {
       await using sbox = await sandbox();
 
       const scenarioPath = sbox.resolve("test.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         scenarioPath,
         `export default scenario("Test").step("Test", () => {}).build();`,
       );
@@ -124,16 +125,16 @@ describe("run command", () => {
     it("uses --include pattern to filter files", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("api"), { recursive: true });
-      await Deno.mkdir(sbox.resolve("e2e"), { recursive: true });
+      await mkdir(sbox.resolve("api"), { recursive: true });
+      await mkdir(sbox.resolve("e2e"), { recursive: true });
 
       const apiScenario = sbox.resolve("api/test.probitas.ts");
       const e2eScenario = sbox.resolve("e2e/test.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         apiScenario,
         createScenario("API Test", apiScenario),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         e2eScenario,
         createScenario("E2E Test", e2eScenario),
       );
@@ -151,11 +152,11 @@ describe("run command", () => {
 
       const regularScenario = sbox.resolve("test.probitas.ts");
       const skipScenario = sbox.resolve("test.skip.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         regularScenario,
         createScenario("Regular Test", regularScenario),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         skipScenario,
         createScenario("Skip Test", skipScenario),
       );
@@ -171,21 +172,21 @@ describe("run command", () => {
     it("combines --include and --exclude patterns", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("api"), { recursive: true });
-      await Deno.mkdir(sbox.resolve("e2e"), { recursive: true });
+      await mkdir(sbox.resolve("api"), { recursive: true });
+      await mkdir(sbox.resolve("e2e"), { recursive: true });
 
       const apiScenario = sbox.resolve("api/test.probitas.ts");
       const apiSkipScenario = sbox.resolve("api/skip.probitas.ts");
       const e2eScenario = sbox.resolve("e2e/test.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         apiScenario,
         createScenario("API Test", apiScenario),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         apiSkipScenario,
         createScenario("API Skip", apiSkipScenario),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         e2eScenario,
         createScenario("E2E Test", e2eScenario),
       );
@@ -210,7 +211,7 @@ describe("run command", () => {
 
       // Create a scenario that runs for a long time
       const scenarioPath = sbox.resolve("long-running.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         scenarioPath,
         outdent`
           export default {

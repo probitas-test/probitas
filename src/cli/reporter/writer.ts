@@ -1,4 +1,6 @@
 import { getLogger } from "@logtape/logtape";
+import process from "node:process";
+import { Writable } from "node:stream";
 
 const logger = getLogger(["probitas", "reporter", "writer"]);
 
@@ -6,7 +8,7 @@ export interface WriterOptions {
   /**
    * Output stream for writing results.
    *
-   * @default Deno.stderr.writable
+   * @default `Writable.toWeb(process.stderr)`
    */
   readonly output?: WritableStream<Uint8Array>;
 }
@@ -20,9 +22,13 @@ export interface WriterOptions {
  *
  * @example
  * ```ts
+ * import process from "node:process";
+ * import { Writable } from "node:stream";
  * import { Writer } from "./writer.ts";
  *
- * const writer = new Writer({ output: Deno.stdout.writable });
+ * const writer = new Writer({
+ *   output: Writable.toWeb(process.stdout) as WritableStream<Uint8Array>,
+ * });
  * await writer.write("Test output\n");
  * ```
  */
@@ -37,7 +43,8 @@ export class Writer {
    * @param options - Configuration options (output stream)
    */
   constructor(options: WriterOptions = {}) {
-    this.#output = options.output ?? Deno.stderr.writable;
+    this.#output = options.output ??
+      (Writable.toWeb(process.stderr) as WritableStream<Uint8Array>);
   }
 
   /**
@@ -51,9 +58,13 @@ export class Writer {
    *
    * @example
    * ```ts
+   * import process from "node:process";
+   * import { Writable } from "node:stream";
    * import { Writer } from "./writer.ts";
    *
-   * const writer = new Writer({ output: Deno.stdout.writable });
+   * const writer = new Writer({
+   *   output: Writable.toWeb(process.stdout) as WritableStream<Uint8Array>,
+   * });
    * await writer.write("✓ Test passed\n");
    * await writer.write("PASSED\n");
    * ```

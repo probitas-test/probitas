@@ -1,7 +1,7 @@
 /**
  * Circular Reference Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Circular Reference Serialization")
   .step("Return circular reference", () => {

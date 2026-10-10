@@ -15,12 +15,11 @@ import {
   extractKnownOptions,
   formatUnknownArgError,
 } from "../unknown_args.ts";
-import { discoverScenarioFiles } from "@probitas/discover";
-import type { StepOptions } from "@probitas/core";
-import type { Reporter, RunResult } from "@probitas/runner";
+import { discoverScenarioFiles } from "@probitas-test/discover";
+import type { StepOptions } from "@probitas-test/core";
+import type { Reporter, RunResult } from "@probitas-test/runner";
 import {
   configureLogging,
-  extractDenoOptions,
   loadEnvironment,
   parsePositiveInteger,
   parseTimeout,
@@ -63,7 +62,6 @@ const PARSE_ARGS_CONFIG = {
     "no-color",
     "no-timeout",
     "no-env",
-    "reload",
     "quiet",
     "verbose",
     "debug",
@@ -81,7 +79,6 @@ const PARSE_ARGS_CONFIG = {
     v: "verbose",
     q: "quiet",
     d: "debug",
-    r: "reload",
   },
   default: {
     include: undefined,
@@ -106,9 +103,6 @@ export async function runCommand(
   signal?: AbortSignal,
 ): Promise<number> {
   try {
-    // Extract deno options first (before parseArgs)
-    const { denoArgs, remainingArgs } = extractDenoOptions(args);
-
     // Setup unknown argument handler
     const knownOptions = extractKnownOptions(PARSE_ARGS_CONFIG);
     const { handler: unknownHandler, result: unknownResult } =
@@ -118,7 +112,7 @@ export async function runCommand(
       });
 
     // Parse command-line arguments
-    const parsed = parseArgs(remainingArgs, {
+    const parsed = parseArgs(args, {
       ...PARSE_ARGS_CONFIG,
       unknown: unknownHandler,
     });
@@ -163,15 +157,10 @@ export async function runCommand(
 
     // Configure logging with determined log level
     await configureLogging(logLevel);
-
-    // Add --reload to denoArgs if -r/--reload is specified
-    const finalDenoArgs = parsed.reload ? [...denoArgs, "--reload"] : denoArgs;
-
     logger.debug("Run command started", {
       args,
       cwd,
       logLevel,
-      denoArgs: finalDenoArgs,
     });
 
     // Load environment variables before loading configuration
@@ -283,7 +272,6 @@ export async function runCommand(
       timeout,
       stepOptions,
       logLevel,
-      denoArgs: finalDenoArgs,
       cwd,
       signal,
     });
@@ -323,7 +311,6 @@ async function runWithSubprocess(
     timeout: number;
     stepOptions?: StepOptions;
     logLevel: LogLevel;
-    denoArgs: string[];
     cwd: string;
     signal?: AbortSignal;
   },
@@ -337,7 +324,6 @@ async function runWithSubprocess(
     timeout,
     stepOptions,
     logLevel,
-    denoArgs,
     cwd,
     signal,
   } = options;
@@ -351,7 +337,6 @@ async function runWithSubprocess(
     RunOutput
   >(
     {
-      templateUrl: new URL("../_templates/run.ts", import.meta.url),
       templateName: "run",
       input: {
         type: "run",
@@ -364,7 +349,6 @@ async function runWithSubprocess(
         stepOptions,
         logLevel,
       },
-      denoArgs,
       cwd,
       signal,
     },
@@ -404,7 +388,7 @@ async function runWithSubprocess(
 async function handleSubprocessOutput(
   reporter: Reporter,
   output: RunOutput,
-): Promise<RunResult | void> {
+): Promise<RunResult | undefined> {
   switch (output.type) {
     case "result":
       return deserializeRunResult(output.result);

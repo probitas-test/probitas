@@ -4,8 +4,8 @@
  * Target: elasticmq service on port 9324 (compose.yaml)
  * Uses ElasticMQ for AWS SQS emulation
  */
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
-import type { SqsMessage } from "jsr:@probitas/client-sqs@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
+import type { SqsMessage } from "@probitas-test/client-sqs";
 
 const BASE_URL = "http://localhost:9324";
 

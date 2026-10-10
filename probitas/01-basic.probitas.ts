@@ -7,7 +7,7 @@
  * - Passing data between steps via ctx.previous
  * - Validation using expect() assertions
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Basic Example")
   .step("Initialize data", () => {

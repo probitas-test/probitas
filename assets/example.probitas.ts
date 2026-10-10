@@ -11,7 +11,7 @@
  * - For humans: https://probitas-test.github.io/
  * - For AI: https://probitas-test.github.io/index.md
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Basic Example")
   .step("Initialize data", () => {

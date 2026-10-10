@@ -1,30 +1,25 @@
-probitas cache - Cache scenario dependencies
+probitas cache - Pre-fetch native dependencies
 
-Usage: probitas cache [options] [paths...]
+Usage: probitas cache <target>
 
-Arguments:
-  [paths...]  Scenario files or directories
-              Defaults to current directory
+Targets:
+  duckdb  DuckDB native binding used by client.sql.duckdb
 
 Options:
-  -h, --help             Show help message
-  -r, --reload           Force re-download of cached dependencies
-  --include <pattern>    Include pattern for file discovery
-  --exclude <pattern>    Exclude pattern for file discovery
-  --config <path>        Path to probitas config file
-  -v, --verbose          Verbose output
-  -q, --quiet            Suppress output
-  -d, --debug            Debug output
+  -h, --help  Show help message
 
 Note:
-  Runs `deno cache` on discovered scenario files to pre-download dependencies.
-  Uses includes/excludes from probitas config (same as run/list).
+  The binary downloads the DuckDB native binding the first time a scenario
+  uses DuckDB, verifies it against the checksum recorded at build time, and
+  caches it per version and platform. Run this ahead of time for CI images
+  or offline machines.
+
+Environment Variables:
+  PROBITAS_DUCKDB_DIR  Directory holding an extracted DuckDB native binding
+                       (duckdb.node and its shared library); skips the cache
+  XDG_CACHE_HOME       Cache root on Linux (default: ~/.cache)
 
 Examples:
-  probitas cache                    # Cache dependencies for all scenarios
-  probitas cache api/               # Cache dependencies in api directory
-  probitas cache -r                 # Force re-download all dependencies
-  probitas cache -r api/            # Force re-download for api directory
-  probitas cache --include "e2e/**/*.probitas.ts"
+  probitas cache duckdb
 
 Documentation: https://probitas-test.github.io/

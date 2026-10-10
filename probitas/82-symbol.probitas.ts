@@ -1,7 +1,7 @@
 /**
  * Symbol Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Symbol Serialization")
   .step("Return Symbol value", () => {

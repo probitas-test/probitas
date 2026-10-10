@@ -1,16 +1,17 @@
 ---
 paths: "**/*.ts"
 ---
+
 # Development Patterns
 
 Coding conventions and development practices for Probitas.
 
 ## User-Facing API
 
-The `@probitas/probitas` package is the primary user-facing API:
+The `@probitas-test/probitas` package is the primary user-facing API:
 
 ```typescript
-import { scenario, Skip } from "probitas";
+import { scenario, Skip } from "@probitas-test/probitas";
 
 export default scenario("My Test")
   .step("Step 1", () => ({ value: 42 }))
@@ -22,33 +23,35 @@ export default scenario("My Test")
 
 Key exports:
 
-- `scenario` - Scenario builder function (from `@probitas/builder`)
-- `Skip` - Skip class for conditional skipping (from `@probitas/runner`)
-- `StepContext` - Type for step context (from `@probitas/builder`)
+- `scenario` - Scenario builder function (from `@probitas-test/builder`)
+- `Skip` - Skip class for conditional skipping (from `@probitas-test/runner`)
+- `StepContext` - Type for step context (from `@probitas-test/builder`)
 
 ## Testing Strategy
 
 **Unit Tests (`*_test.ts`)**
 
 - Test in isolation without external dependencies
-- Run with `deno task test`
+- Run with `bun run test`
 
 **Example Scenarios (`probitas/`)**
 
 - Example scenarios for documentation and manual testing
 - Files named `*.probitas.ts`
-- Run with `deno task probitas run`
+- Run with `bun run probitas run` (from source) or the compiled binary
 
 ## Custom Reporter Implementation
 
 Custom reporters should implement the `Reporter` interface from
-`@probitas/runner`. The interface uses `Metadata` types (serializable) instead
-of `Definition` types:
+`@probitas-test/runner`. The interface uses `Metadata` types (serializable)
+instead of `Definition` types:
 
 ```ts
-import type { Reporter, RunResult, StepResult } from "@probitas/runner";
-import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
-import { defaultTheme, type Theme } from "@probitas/core/theme";
+import type { Reporter, RunResult, StepResult } from "@probitas-test/runner";
+import type { ScenarioMetadata, StepMetadata } from "@probitas-test/core";
+import { defaultTheme, type Theme } from "@probitas-test/core/theme";
+import process from "node:process";
+import { Writable } from "node:stream";
 
 export interface CustomReporterOptions {
   output?: WritableStream;
@@ -61,7 +64,8 @@ export class CustomReporter implements Reporter {
   #encoder: TextEncoder = new TextEncoder();
 
   constructor(options: CustomReporterOptions = {}) {
-    this.#output = options.output ?? Deno.stderr.writable;
+    this.#output = options.output ??
+      (Writable.toWeb(process.stderr) as WritableStream<Uint8Array>);
     this.#theme = options.theme ?? defaultTheme;
   }
 
@@ -108,7 +112,7 @@ export class CustomReporter implements Reporter {
 ### Key Points
 
 1. **Implement `Reporter` interface** - All methods are optional
-2. **Use `Theme`** from `@probitas/core/theme` - For semantic coloring
+2. **Use `Theme`** from `@probitas-test/core/theme` - For semantic coloring
 3. **Access discriminated unions safely** - Check `result.status` before
    accessing fields
 4. **Support options** - Allow users to customize output stream and theme

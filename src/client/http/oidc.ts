@@ -1,1 +1,1 @@
-export * from "@probitas/client-http/oidc";
+export * from "@probitas-test/client-http/oidc";

@@ -3,7 +3,8 @@
  *
  * Target: redis service on port 16379 (compose.yaml)
  */
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
+import { createConnection } from "node:net";
 
 const HOST = "localhost";
 const PORT = 6379;
@@ -13,8 +14,13 @@ export default scenario("Redis Client Example", {
 })
   .setup("Check Redis server availability", async () => {
     try {
-      const conn = await Deno.connect({ hostname: HOST, port: PORT });
-      conn.close();
+      await new Promise<void>((resolve, reject) => {
+        const conn = createConnection({ host: HOST, port: PORT }, () => {
+          conn.end();
+          resolve();
+        });
+        conn.once("error", reject);
+      });
     } catch {
       throw new Skip(`Redis server not available at ${HOST}:${PORT}`);
     }

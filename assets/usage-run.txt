@@ -23,17 +23,13 @@ Options:
   -f, --fail-fast           Stop on first failure (alias for --max-failures=1)
   -F, --failed              Run only scenarios that failed in the previous run
                             Reads from .probitas/last-run.json
-  --config <path>           Path to config file (deno.json/deno.jsonc)
+  --config <path>           Path to probitas config file
   --env <file>              Load environment variables from file (default: .env)
   --no-env                  Skip loading .env file
-  -r, --reload              Reload dependencies before running
   -q, --quiet               Quiet output (errors only)
   -v, --verbose             Verbose output
   -d, --debug               Debug output (maximum detail)
   --no-color                Disable colored output
-  --deno-<option>[=<value>] Pass options to deno subprocess
-                            With value: --deno-config=custom.json, --deno-reload=jsr:@std/http
-                            Without value: --deno-reload, --deno-no-lock, --deno-no-prompt
 
 Selector Format:
   [!][type:]value

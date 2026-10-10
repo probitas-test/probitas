@@ -4,7 +4,7 @@
  * This file demonstrates failure messages for each SQS expectation method.
  * All scenarios are expected to fail - they use dummy results to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import type {
   SqsBatchFailedEntry,
   SqsBatchSuccessEntry,
@@ -16,7 +16,7 @@ import type {
   SqsReceiveResult,
   SqsSendBatchResult,
   SqsSendResult,
-} from "jsr:@probitas/client-sqs@^0";
+} from "@probitas-test/client-sqs";
 
 // Local mock error class to work around package export issue
 // (SqsConnectionError is re-exported as type-only from types.ts)

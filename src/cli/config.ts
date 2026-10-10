@@ -6,10 +6,11 @@
 
 import { dirname, resolve } from "@std/path";
 import { parse as parseJsonc } from "@std/jsonc";
-import { exists } from "@std/fs";
+import { exists } from "./_fs.ts";
 import { ensure, is } from "@core/unknownutil";
 import { getLogger } from "@logtape/logtape";
 import type { ProbitasConfig } from "./types.ts";
+import { readFile } from "node:fs/promises";
 
 const logger = getLogger(["probitas", "cli", "config"]);
 
@@ -123,7 +124,7 @@ export async function loadConfig(
 ): Promise<ProbitasConfig> {
   logger.debug("Loading config file", { configPath });
 
-  const content = await Deno.readTextFile(configPath);
+  const content = await readFile(configPath, "utf8");
   const parsed = parseJsonc(content);
   const config = ensure(parsed, isProbitasConfig);
 

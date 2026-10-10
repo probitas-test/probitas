@@ -1,1 +1,1 @@
-export * from "@probitas/client-rabbitmq";
+export * from "@probitas-test/client-rabbitmq";
