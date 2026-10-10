@@ -58,6 +58,11 @@ jobs:
 
       - run: $RUNNER_TEMP/root/bin/probitas --version
 
+      # The Nix package patches the release executable for the Nix loader on
+      # Linux; its install check runs the patched binary.
+      - name: Build the Nix package from the archive
+        run: nix build --impure -L -f nix/from-archive.nix --arg archive "$RUNNER_TEMP/release/probitas-linux-x64.tar.gz"
+
       # Scenarios import third-party packages installed next to them, which
       # the executable must resolve from node_modules at runtime.
       - name: Run a scenario that imports from node_modules

@@ -7,7 +7,13 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    {
+      # `probitas`: the binary of the release recorded in nix/release.json.
+      overlays.default = final: _prev: {
+        probitas = final.callPackage ./nix/probitas.nix { };
+      };
+    }
+    // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
@@ -40,8 +46,14 @@
             inherit (bunSources.${system}) hash;
           };
         });
+        probitas = pkgs.callPackage ./nix/probitas.nix { };
       in
       {
+        packages = {
+          inherit probitas;
+          default = probitas;
+        };
+
         devShells.default = pkgs.mkShell {
           packages = [
             bun
