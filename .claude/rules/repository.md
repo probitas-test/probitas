@@ -17,10 +17,14 @@ When touching `package.json` exports or dependencies, also run
 
 A release is a GitHub Release whose tag is the version (`v2.0.0`). Publishing it
 runs `.github/workflows/publish.yml`, which sets that version, attaches the
-binaries and `SHA256SUMS`, publishes to npm and JSR, updates the Homebrew
-formula and opens a pull request pointing the Nix package (`nix/release.json`)
-at the new binaries. Never bump the version in `package.json` by hand. A
-pre-release Release publishes under npm's `next` dist-tag only.
+binaries and `SHA256SUMS`, publishes to npm and JSR, and updates the Homebrew
+formula. Never bump the version in `package.json` by hand. A pre-release Release
+publishes under npm's `next` dist-tag only.
+
+The flake's package builds the CLI from source (`nix/probitas.nix`), so a
+release does not touch it. When `bun.lock` changes, update the node_modules hash
+in `nix/probitas.nix`: the `nix-package` CI job fails with the expected value,
+or run `nix build .#probitas`.
 
 Choose the version from the changes since the previous release, following
 semantic versioning: breaking (`!`) is major, `feat` is minor, anything else is

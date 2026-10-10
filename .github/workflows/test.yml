@@ -35,6 +35,20 @@ jobs:
           files: ./.coverage/lcov.info
           slug: probitas-test/probitas
 
+  # The flake's package, built from source on every platform it supports. Its
+  # node_modules hash is shared by all of them; a changed bun.lock makes this
+  # fail with the hash to put in nix/probitas.nix.
+  nix-package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+      - run: nix build -L .#probitas
+
   # Packages the Linux release archive and installs it with install.sh from a
   # local mirror of the GitHub Releases layout, outside the Nix shell, the way
   # users and the Homebrew formula install it.
@@ -57,11 +71,6 @@ jobs:
           PROBITAS_INSTALL_DIR: ${{ runner.temp }}/root
 
       - run: $RUNNER_TEMP/root/bin/probitas --version
-
-      # The Nix package patches the release executable for the Nix loader on
-      # Linux; its install check runs the patched binary.
-      - name: Build the Nix package from the archive
-        run: nix build --impure -L -f nix/from-archive.nix --arg archive "$RUNNER_TEMP/release/probitas-linux-x64.tar.gz"
 
       # Scenarios import third-party packages installed next to them, which
       # the executable must resolve from node_modules at runtime.

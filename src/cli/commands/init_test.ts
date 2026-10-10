@@ -3,7 +3,24 @@ import { readFile } from "node:fs/promises";
 import { sandbox, test } from "@probitas-test/internal-testing";
 import packageJson from "../../../package.json" with { type: "json" };
 import { EXIT_CODE } from "../constants.ts";
-import { initCommand } from "./init.ts";
+import { _internal, initCommand } from "./init.ts";
+
+const { probitasSpecifier } = _internal;
+
+test("probitasSpecifier", async (t) => {
+  await t.step("pins a released version", () => {
+    assertEquals(probitasSpecifier("2.0.1"), "2.0.1");
+    assertEquals(probitasSpecifier("2.1.0-rc.1"), "2.1.0-rc.1");
+  });
+
+  await t.step("falls back to latest for builds that are not on npm", () => {
+    assertEquals(
+      probitasSpecifier("0.0.0-unstable.20261011.abc1234"),
+      "latest",
+    );
+    assertEquals(probitasSpecifier(undefined), "latest");
+  });
+});
 
 test("initCommand", async (t) => {
   await t.step("creates the scenario, config and editor setup", async () => {

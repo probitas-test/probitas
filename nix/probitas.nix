@@ -1,46 +1,66 @@
-# The probitas binary from the GitHub Release named in release.json.
+# The probitas CLI built from this revision's sources.
 #
-# The executable is the Bun runtime with the CLI appended to it, so it is
-# never stripped. On Linux the release targets glibc's standard loader path;
-# autoPatchelf points it at the Nix one.
+# The executable embeds the Nix-built Bun, so it runs with the Nix loader on
+# Linux and needs no patching. It is never stripped or patched afterwards,
+# since the CLI is appended to the Bun runtime.
 {
   lib,
   stdenv,
-  fetchurl,
-  autoPatchelfHook,
+  stdenvNoCC,
   makeWrapper,
-  # Written by scripts/nix_release.ts when a release is published.
-  release ?
-    if builtins.pathExists ./release.json then
-      lib.importJSON ./release.json
-    else
-      throw "probitas: nix/release.json does not name a release yet",
+  bun,
+  src,
+  version,
 }:
 
 let
-  platforms = {
-    aarch64-darwin = "darwin-arm64";
-    x86_64-darwin = "darwin-x64";
-    aarch64-linux = "linux-arm64";
-    x86_64-linux = "linux-x64";
+  # Every platform's optional dependencies are installed, so one hash covers
+  # all systems. Update it when bun.lock changes: the CI's Nix build prints
+  # the expected value on a mismatch.
+  nodeModules = stdenvNoCC.mkDerivation {
+    pname = "probitas-node-modules";
+    version = "0";
+    inherit src;
+    nativeBuildInputs = [ bun ];
+    dontConfigure = true;
+    buildPhase = ''
+      runHook preBuild
+      export HOME="$TMPDIR"
+      bun install --frozen-lockfile --ignore-scripts --no-progress --os='*' --cpu='*'
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      cp -R node_modules "$out"
+      runHook postInstall
+    '';
+    dontFixup = true;
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = "sha256-F+lvyqpROB3mj7fy1F7WA3PTy4acY7eGlt0mV2vSoYE=";
   };
-  system = stdenv.hostPlatform.system;
-  platform = platforms.${system} or (throw "probitas: no release binary for ${system}");
 in
 stdenv.mkDerivation {
   pname = "probitas";
-  inherit (release) version;
+  inherit version src;
 
-  src = fetchurl {
-    url = "https://github.com/probitas-test/probitas/releases/download/v${release.version}/probitas-${platform}.tar.gz";
-    sha256 = release.sha256.${platform};
-  };
-  sourceRoot = ".";
+  nativeBuildInputs = [ bun makeWrapper ];
 
-  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ stdenv.cc.cc.lib ];
+  configurePhase = ''
+    runHook preConfigure
+    cp -R ${nodeModules} node_modules
+    chmod -R u+w node_modules
+    runHook postConfigure
+  '';
 
-  dontStrip = true;
+  # `--version` and `probitas init` read the version from package.json.
+  buildPhase = ''
+    runHook preBuild
+    export HOME="$TMPDIR"
+    bun pm pkg set version=${version}
+    bun scripts/compile.ts --outfile probitas --executable-path ${bun}/bin/bun
+    runHook postBuild
+  '';
 
   # The DuckDB binding probitas downloads on first use links libstdc++, which
   # the Nix loader does not find on its own.
@@ -52,8 +72,11 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  # Patching the loader rewrites the executable; make sure the CLI appended
-  # to it still runs, including the worker it re-spawns for scenarios.
+  dontStrip = true;
+  dontPatchELF = true;
+
+  # Make sure the CLI appended to the runtime runs, including the worker it
+  # re-spawns for scenarios.
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
@@ -71,12 +94,18 @@ stdenv.mkDerivation {
     runHook postInstallCheck
   '';
 
+  passthru = { inherit nodeModules; };
+
   meta = {
     description = "Scenario-based testing and workflow execution framework";
     homepage = "https://github.com/probitas-test/probitas";
     license = lib.licenses.mit;
     mainProgram = "probitas";
-    platforms = builtins.attrNames platforms;
-    sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
+    platforms = [
+      "aarch64-darwin"
+      "x86_64-darwin"
+      "aarch64-linux"
+      "x86_64-linux"
+    ];
   };
 }

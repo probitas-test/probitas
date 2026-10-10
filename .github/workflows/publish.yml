@@ -8,11 +8,10 @@ name: Publish
 #   publishes the library to npm and JSR. Re-running skips what is already
 #   published.
 # - A pre-release Release publishes under npm's `next` dist-tag and leaves
-#   Homebrew and the Nix package on the latest release.
+#   Homebrew on the latest release.
 # - Running the workflow manually is a dry run for the given version.
 #
-# After a release, the Homebrew formula is updated and a pull request points
-# the Nix package (nix/release.json) at the new binaries.
+# After a release, the Homebrew formula is updated.
 
 on:
   release:
@@ -24,10 +23,8 @@ on:
         required: true
 
 permissions:
-  contents: write # attach the binaries, push the nix/release.json branch
+  contents: write # attach the binaries
   id-token: write # npm trusted publishing and JSR OIDC
-  pull-requests: write # open the nix/release.json pull request
-  actions: write # run the tests on that pull request's branch
 
 concurrency:
   group: publish
@@ -128,28 +125,6 @@ jobs:
             sleep 30
           done
           exit 1
-
-      - name: Point the Nix package at this release
-        if: github.event_name == 'release' && !github.event.release.prerelease
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          nix develop -c bun scripts/nix_release.ts --version "$VERSION" --checksums "$RUNNER_TEMP/release/SHA256SUMS"
-          branch="chore/nix-release-v$VERSION"
-          git switch -c "$branch"
-          git add nix/release.json
-          git -c user.name="github-actions[bot]" \
-            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -m "chore(*): point the Nix package at v$VERSION"
-          git push --force origin "$branch"
-          gh pr create --base main --head "$branch" \
-            --title "Point the Nix package at v$VERSION" \
-            --body "Updates nix/release.json to the binaries of [v$VERSION](https://github.com/${GITHUB_REPOSITORY}/releases/tag/v$VERSION), so the flake's \`probitas\` package and overlay install it." \
-            || echo "A pull request for $branch already exists"
-          # Events caused by GITHUB_TOKEN start no workflows, so the pull
-          # request would never get the checks main requires; a dispatch is
-          # the exception, and its checks land on the branch's head commit.
-          gh workflow run test.yml --ref "$branch"
 
   update-homebrew:
     needs: publish
