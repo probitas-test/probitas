@@ -72,7 +72,7 @@ equivalents, which Bun implements:
 
 ### Removed: Deno KV client
 
-`client.denoKv` (and `@probitas/client-deno-kv`) is gone, since Deno KV only
+`client.deno_kv` (and `@probitas/client-deno-kv`) is gone, since Deno KV only
 exists inside the Deno runtime.
 
 ## Editor support
