@@ -7,7 +7,8 @@
 //   --map: replace an import specifier verbatim instead of vendoring it,
 //          e.g. --map "jsr:@std/internal@^1.0.14/os=node:os-shim"
 //   --nocheck: vendored path (relative to dest) to prefix with @ts-nocheck,
-//          for modules that call Deno APIs in features this repo never uses
+//          for modules that rely on runtime-specific typings (Deno APIs,
+//          V8-only members) that not every type checker here provides
 import {
   existsSync,
   mkdirSync,
@@ -147,7 +148,7 @@ while (queue.length > 0) {
   const target = outPath(file);
   if (nocheck.has(relative(dest, target))) {
     out =
-      `// @ts-nocheck -- calls Deno APIs; unused by this repository\n${out}`;
+      `// @ts-nocheck -- relies on runtime-specific typings; checked upstream\n${out}`;
   }
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, out);

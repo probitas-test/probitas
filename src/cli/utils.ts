@@ -175,7 +175,7 @@ export function getVersion(): Promise<string | undefined> {
 
 /**
  * Versions of the bundled `@probitas-test/*` packages, injected by
- * `scripts/build.ts` as a JSON object. Undefined when running from source.
+ * `scripts/compile.ts` as a JSON object. Undefined when running from source.
  */
 declare const PROBITAS_PACKAGE_VERSIONS: Record<string, string> | undefined;
 
@@ -230,7 +230,7 @@ export async function getVersionInfo(): Promise<VersionInfo | undefined> {
  * ```ts
  * import { loadEnvironment } from "./utils.ts";
  *
- * const cwd = Deno.cwd();
+ * const cwd = process.cwd();
  *
  * // Load default .env file
  * await loadEnvironment(cwd);

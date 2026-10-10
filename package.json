@@ -1,30 +1,113 @@
 {
   "name": "@probitas-test/probitas",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probitas-test/probitas.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./src/mod.ts",
-    "./client": "./src/client.ts",
-    "./client/connectrpc": "./src/client/connectrpc.ts",
-    "./client/graphql": "./src/client/graphql.ts",
-    "./client/grpc": "./src/client/grpc.ts",
-    "./client/http": "./src/client/http.ts",
-    "./client/http/oidc": "./src/client/http/oidc.ts",
-    "./client/mongodb": "./src/client/mongodb.ts",
-    "./client/rabbitmq": "./src/client/rabbitmq.ts",
-    "./client/redis": "./src/client/redis.ts",
-    "./client/sql": "./src/client/sql.ts",
-    "./client/sql/duckdb": "./src/client/sql/duckdb.ts",
-    "./client/sql/mysql": "./src/client/sql/mysql.ts",
-    "./client/sql/postgres": "./src/client/sql/postgres.ts",
-    "./client/sql/sqlite": "./src/client/sql/sqlite.ts",
-    "./client/sqs": "./src/client/sqs.ts",
-    "./expect": "./src/expect.ts"
+    ".": {
+      "bun": "./src/mod.ts",
+      "types": "./dist/mod.d.ts",
+      "default": "./dist/mod.js"
+    },
+    "./client": {
+      "bun": "./src/client.ts",
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./client/connectrpc": {
+      "bun": "./src/client/connectrpc.ts",
+      "types": "./dist/client/connectrpc.d.ts",
+      "default": "./dist/client/connectrpc.js"
+    },
+    "./client/graphql": {
+      "bun": "./src/client/graphql.ts",
+      "types": "./dist/client/graphql.d.ts",
+      "default": "./dist/client/graphql.js"
+    },
+    "./client/grpc": {
+      "bun": "./src/client/grpc.ts",
+      "types": "./dist/client/grpc.d.ts",
+      "default": "./dist/client/grpc.js"
+    },
+    "./client/http": {
+      "bun": "./src/client/http.ts",
+      "types": "./dist/client/http.d.ts",
+      "default": "./dist/client/http.js"
+    },
+    "./client/http/oidc": {
+      "bun": "./src/client/http/oidc.ts",
+      "types": "./dist/client/http/oidc.d.ts",
+      "default": "./dist/client/http/oidc.js"
+    },
+    "./client/mongodb": {
+      "bun": "./src/client/mongodb.ts",
+      "types": "./dist/client/mongodb.d.ts",
+      "default": "./dist/client/mongodb.js"
+    },
+    "./client/rabbitmq": {
+      "bun": "./src/client/rabbitmq.ts",
+      "types": "./dist/client/rabbitmq.d.ts",
+      "default": "./dist/client/rabbitmq.js"
+    },
+    "./client/redis": {
+      "bun": "./src/client/redis.ts",
+      "types": "./dist/client/redis.d.ts",
+      "default": "./dist/client/redis.js"
+    },
+    "./client/sql": {
+      "bun": "./src/client/sql.ts",
+      "types": "./dist/client/sql.d.ts",
+      "default": "./dist/client/sql.js"
+    },
+    "./client/sql/duckdb": {
+      "bun": "./src/client/sql/duckdb.ts",
+      "types": "./dist/client/sql/duckdb.d.ts",
+      "default": "./dist/client/sql/duckdb.js"
+    },
+    "./client/sql/mysql": {
+      "bun": "./src/client/sql/mysql.ts",
+      "types": "./dist/client/sql/mysql.d.ts",
+      "default": "./dist/client/sql/mysql.js"
+    },
+    "./client/sql/postgres": {
+      "bun": "./src/client/sql/postgres.ts",
+      "types": "./dist/client/sql/postgres.d.ts",
+      "default": "./dist/client/sql/postgres.js"
+    },
+    "./client/sql/sqlite": {
+      "bun": "./src/client/sql/sqlite.ts",
+      "types": "./dist/client/sql/sqlite.d.ts",
+      "default": "./dist/client/sql/sqlite.js"
+    },
+    "./client/sqs": {
+      "bun": "./src/client/sqs.ts",
+      "types": "./dist/client/sqs.d.ts",
+      "default": "./dist/client/sqs.js"
+    },
+    "./expect": {
+      "bun": "./src/expect.ts",
+      "types": "./dist/expect.d.ts",
+      "default": "./dist/expect.js"
+    }
   },
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/cli.ts",
+    "!src/cli/**",
+    "!**/*_test.ts",
+    "src/_vendor/**/LICENSE",
+    "src/_vendor/**/README.md"
+  ],
   "scripts": {
     "probitas": "bun src/cli.ts",
     "build": "bun scripts/build.ts",
+    "compile": "bun scripts/compile.ts",
+    "jsr:sync": "bun scripts/sync_jsr.ts",
     "fmt": "dprint fmt",
     "fmt:check": "dprint check",
     "lint": "biome lint .",
@@ -73,5 +156,8 @@
     "@types/bun": "^1.4.2",
     "dprint": "0.61.1",
     "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

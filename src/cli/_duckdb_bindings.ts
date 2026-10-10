@@ -1,7 +1,7 @@
 /**
  * Stand-in for `@duckdb/node-bindings` inside the compiled binary
  *
- * `scripts/build.ts` resolves `@duckdb/node-bindings` here. The DuckDB client
+ * `scripts/compile.ts` resolves `@duckdb/node-bindings` here. The DuckDB client
  * imports `@duckdb/node-api` only when a client is created, so this runs only
  * for scenarios that use DuckDB. A cache miss runs `probitas cache duckdb`
  * synchronously because `@duckdb/node-api` loads the binding with a

@@ -3,4 +3,5 @@
 .probitas/
 result
 dist/
+out/
 node_modules/

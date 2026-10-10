@@ -30,7 +30,7 @@ export interface DuckdbManifest {
 }
 
 /**
- * Injected by `scripts/build.ts`. Undefined when running from source, where
+ * Injected by `scripts/compile.ts`. Undefined when running from source, where
  * the binding comes from node_modules instead.
  */
 declare const PROBITAS_DUCKDB_MANIFEST: DuckdbManifest | undefined;

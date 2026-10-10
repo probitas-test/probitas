@@ -17,13 +17,16 @@ registry configuration.
 | `std_internal`        | [`@std/internal`](https://jsr.io/@std/internal)                | 1.0.14  |
 
 Only the modules reachable from the entry points below are copied; import
-specifiers are rewritten to relative paths and nothing else is changed. Do not
-edit these files by hand. To update, bump the dev dependencies and run from the
-repository root:
+specifiers are rewritten to relative paths, and files that use V8-only typings
+(`Error.captureStackTrace`, absent from Deno's types) get `@ts-nocheck`; nothing
+else is changed. Do not edit these files by hand. To update, bump the dev
+dependencies and run from the repository root:
 
 ```sh
 rm -rf src/_vendor/*_*
-bun scripts/vendor_jsr.ts . src/_vendor @std/testing/mock @std/testing/time @core/errorutil
+bun scripts/vendor_jsr.ts . src/_vendor @std/testing/mock @std/testing/time @core/errorutil \
+  --nocheck core_errorutil/unimplemented.ts \
+  --nocheck core_errorutil/unreachable.ts
 ```
 
 then copy each package's `LICENSE` into its directory and update the table.

@@ -1,3 +1,4 @@
+// @ts-nocheck -- relies on runtime-specific typings; checked upstream
 /**
  * Error indicating that this part is unreachable.
  */
