@@ -433,7 +433,9 @@ probitas list [options]
 # Initialize a project (example scenario, config, editor setup)
 probitas init
 
-# Type check scenario files (runs the project's tsgo or tsc)
+# Format, lint and type check scenario files
+probitas fmt
+probitas lint
 probitas check
 
 # Pre-fetch the DuckDB native binding (otherwise downloaded on first use)

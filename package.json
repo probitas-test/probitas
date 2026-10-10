@@ -138,8 +138,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "@biomejs/js-api": "6.0.0",
+    "@biomejs/wasm-web": "2.5.15",
     "@core/errorutil": "npm:@jsr/core__errorutil@^1.2.1",
     "@core/unknownutil": "npm:@jsr/core__unknownutil@^4.3.0",
+    "@dprint/formatter": "0.5.1",
+    "@dprint/typescript": "0.96.1",
     "@logtape/logtape": "^1.3.11",
     "@logtape/pretty": "^1.3.11",
     "@probitas-test/core": "0.3.2-next.1",

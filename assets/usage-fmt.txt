@@ -1,0 +1,31 @@
+probitas fmt - Format scenario files
+
+Usage: probitas fmt [options] [paths...]
+
+Arguments:
+  [paths...]  Scenario files or directories
+              Defaults to current directory
+
+Options:
+  -h, --help             Show help message
+  --check                Report unformatted files without changing them
+  --include <pattern>    Include pattern for file discovery
+  --exclude <pattern>    Exclude pattern for file discovery
+  --config <path>        Path to probitas config file
+  -v, --verbose          Verbose output
+  -q, --quiet            Suppress output
+  -d, --debug            Debug output
+
+Note:
+  Formats the discovered scenario files exactly like deno fmt (dprint's
+  TypeScript plugin with its Deno preset, built into probitas), ignoring any
+  formatter configuration in the project. Uses includes/excludes from
+  probitas config (same as run/list).
+
+Examples:
+  probitas fmt                    # Format all scenario files
+  probitas fmt --check            # Fail if a scenario file is unformatted
+  probitas fmt api/               # Format scenarios in api directory
+  probitas fmt --include "e2e/**/*.probitas.ts"
+
+Documentation: https://probitas-test.github.io/

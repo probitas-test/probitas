@@ -6,7 +6,9 @@ Commands:
   init     Initialize a new probitas project
   run      Run scenarios
   list     List available scenarios
-  check    Type-check scenario files (runs tsgo or tsc)
+  fmt      Format scenario files
+  lint     Lint scenario files
+  check    Type-check scenario files
   cache    Pre-fetch native dependencies (DuckDB)
 
 Options:

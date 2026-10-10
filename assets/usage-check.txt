@@ -16,10 +16,11 @@ Options:
   -d, --debug            Debug output
 
 Note:
-  Runs the project's TypeScript compiler (tsgo, else tsc, from node_modules
-  or PATH). With a tsconfig.json in the current directory, checks the project
-  with it; otherwise checks the discovered scenario files, using
-  includes/excludes from probitas config (same as run/list).
+  Runs the TypeScript checker built into probitas (bun check); nothing else
+  needs to be installed. With a tsconfig.json in the current directory, checks
+  the project with it and ignores [paths...], --include and --exclude;
+  otherwise checks the discovered scenario files, using includes/excludes
+  from probitas config (same as run/list).
 
 Examples:
   probitas check                  # Check all scenario files
