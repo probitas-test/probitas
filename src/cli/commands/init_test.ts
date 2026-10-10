@@ -33,6 +33,25 @@ test("initCommand", async (t) => {
   });
 
   await t.step(
+    "declares the Node.js types scenarios use in place of Deno's",
+    async () => {
+      await using sbox = await sandbox();
+      await initCommand(["--quiet"], sbox.path);
+
+      const manifest = JSON.parse(
+        await readFile(sbox.resolve("probitas/package.json"), "utf8"),
+      );
+      assertEquals(typeof manifest.devDependencies["@types/node"], "string");
+
+      // `bun check` (TypeScript 7) only loads the @types packages listed here.
+      const tsconfig = JSON.parse(
+        await readFile(sbox.resolve("probitas/tsconfig.json"), "utf8"),
+      );
+      assertEquals(tsconfig.compilerOptions.types, ["node"]);
+    },
+  );
+
+  await t.step(
     "refuses to overwrite existing files without --force",
     async () => {
       await using sbox = await sandbox();

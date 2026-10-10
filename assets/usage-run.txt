@@ -89,7 +89,6 @@ Examples:
   probitas run --sequential                 Run scenarios sequentially
   probitas run --max-failures 1             Stop on first failure
   probitas run -f                           Stop on first failure (alias)
-  probitas run --reload                     Reload dependencies before running
 
   # Re-run failed scenarios
   probitas run --failed                     Run only scenarios that failed previously

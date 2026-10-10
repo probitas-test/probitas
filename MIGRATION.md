@@ -84,6 +84,12 @@ Install with your package manager (`npm install`, `bun install`, ...) and any
 TypeScript-aware editor provides completion, type checking and hover
 documentation.
 
+The Node.js APIs that replace `Deno.*` need their types: `@types/node` in
+`package.json` and `"types": ["node"]` in `tsconfig.json`, which `probitas init`
+writes since 2.0.1. `probitas check` loads only the `@types` packages listed
+there, so without them `process`, `Buffer` and `node:*` imports are reported as
+unknown.
+
 ## Commands
 
 | 1.x                         | 2.x                                                                     |

@@ -44,6 +44,9 @@ const INIT_FILES: ReadonlyArray<
           type: "module",
           devDependencies: {
             "@probitas-test/probitas": (await getVersion()) ?? "latest",
+            // Scenarios use Node.js APIs (process.env, node:fs, ...), which
+            // the embedded Bun implements at the level of Node.js 24.
+            "@types/node": "^24",
           },
         },
         null,

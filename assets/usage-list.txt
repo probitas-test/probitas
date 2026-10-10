@@ -65,7 +65,6 @@ Examples:
 
   # JSON output
   probitas list --json                          Output as JSON
-  probitas list --reload                        Reload dependencies before listing
 
   # Environment variables
   probitas list                                 Load .env file automatically
