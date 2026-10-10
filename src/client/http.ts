@@ -1,4 +1,4 @@
 import * as oidc from "./http/oidc.ts";
 
-export * from "@probitas/client-http";
+export * from "@probitas-test/client-http";
 export { oidc };

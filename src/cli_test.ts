@@ -8,7 +8,7 @@
  */
 
 import { assertEquals } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
+import { describe, it } from "bun:test";
 import { stub } from "@std/testing/mock";
 import { main } from "./cli.ts";
 

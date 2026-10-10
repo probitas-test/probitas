@@ -1,1 +1,1 @@
-export * from "@probitas/client-sql-sqlite";
+export * from "@probitas-test/client-sql-sqlite";

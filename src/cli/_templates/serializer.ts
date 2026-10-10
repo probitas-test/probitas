@@ -21,17 +21,7 @@
  * @internal
  */
 
-import {
-  CborArrayDecodedStream,
-  CborByteDecodedStream,
-  CborMapDecodedStream,
-  type CborPrimitiveType,
-  type CborStreamInput,
-  type CborStreamOutput,
-  CborTag,
-  CborTextDecodedStream,
-  type CborType,
-} from "@std/cbor";
+import { type CborPrimitiveType, CborTag, type CborType } from "@std/cbor";
 
 /**
  * Custom tag numbers for types not natively supported by CBOR
@@ -135,18 +125,18 @@ function isCborPrimitiveType(x: unknown): x is CborPrimitiveType {
 }
 
 /**
- * Convert a JavaScript value to CborStreamInput
+ * Convert a JavaScript value to CborType
  *
  * Handles JavaScript types that CBOR doesn't natively support by using
  * tagged values. Supports circular references via path tracking.
  *
  * @param value - Value to convert
- * @returns CborStreamInput representation for use with CborSequenceEncoderStream
+ * @returns CborType representation
  */
-export function toCborStreamInput(value: unknown): CborStreamInput {
+export function toCborType(value: unknown): CborType {
   const seen = new Map<object, string>();
 
-  function convert(val: unknown, path: string): CborStreamInput {
+  function convert(val: unknown, path: string): CborType {
     // Handle CBOR primitives first (null, undefined, boolean, number, bigint, string, Uint8Array, Date)
     if (isCborPrimitiveType(val)) {
       return val;
@@ -178,7 +168,7 @@ export function toCborStreamInput(value: unknown): CborStreamInput {
     }
 
     if (val instanceof Set) {
-      const values: CborStreamInput[] = [];
+      const values: CborType[] = [];
       let i = 0;
       for (const v of val) {
         values.push(convert(v, `${path}.values[${i}]`));
@@ -190,7 +180,7 @@ export function toCborStreamInput(value: unknown): CborStreamInput {
     if (val instanceof Map) {
       // Use tagged array of entries to preserve Map identity on round-trip
       // This supports any key type (unlike CBOR native maps which require string keys)
-      const entries: [CborStreamInput, CborStreamInput][] = [];
+      const entries: [CborType, CborType][] = [];
       let i = 0;
       for (const [k, v] of val) {
         entries.push([
@@ -257,7 +247,7 @@ export function toCborStreamInput(value: unknown): CborStreamInput {
     }
 
     // Handle plain objects (encoded as CBOR map with string keys)
-    const result: Record<string, CborStreamInput> = {};
+    const result: Record<string, CborType> = {};
     for (const key of Object.keys(val)) {
       result[key] = convert(
         (val as Record<string, unknown>)[key],
@@ -279,7 +269,7 @@ export function toCborStreamInput(value: unknown): CborStreamInput {
  * @returns Original value (or close approximation)
  * @internal
  */
-function fromCborType(cborType: CborType): unknown {
+export function fromCborType(cborType: CborType): unknown {
   const refs = new Map<string, unknown>();
 
   function convert(val: CborType, path: string): unknown {
@@ -304,7 +294,7 @@ function fromCborType(cborType: CborType): unknown {
           const safeName = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(rawName)
             ? rawName
             : "anonymous";
-          const fn = function () {};
+          const fn = () => {};
           Object.defineProperty(fn, "name", {
             value: safeName,
             configurable: true,
@@ -417,87 +407,4 @@ function fromCborType(cborType: CborType): unknown {
   }
 
   return convert(cborType, "$");
-}
-
-/**
- * Consume CborStreamOutput and convert to regular CborType
- *
- * CborSequenceDecoderStream returns streaming types for arrays and maps.
- * This function consumes those streams and returns regular values.
- */
-async function consumeStreamOutput(item: CborStreamOutput): Promise<CborType> {
-  // Handle CBOR primitives first (null, undefined, boolean, number, bigint, string, Uint8Array, Date)
-  if (isCborPrimitiveType(item)) {
-    return item;
-  }
-
-  if (item instanceof CborTag) {
-    const consumed = await consumeStreamOutput(
-      item.tagContent as CborStreamOutput,
-    );
-    return new CborTag(item.tagNumber, consumed);
-  }
-
-  if (item instanceof CborArrayDecodedStream) {
-    const arr: CborType[] = [];
-    for await (const elem of item) {
-      arr.push(await consumeStreamOutput(elem));
-    }
-    return arr;
-  }
-
-  if (item instanceof CborMapDecodedStream) {
-    // CBOR maps become plain objects (JS Maps use Tag.Map)
-    const obj: Record<string, CborType> = {};
-    for await (const [key, value] of item) {
-      obj[key] = await consumeStreamOutput(value);
-    }
-    return obj;
-  }
-
-  if (item instanceof CborByteDecodedStream) {
-    const chunks: Uint8Array[] = [];
-    for await (const chunk of item) {
-      chunks.push(chunk);
-    }
-    const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
-    const result = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const chunk of chunks) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-    return result;
-  }
-
-  if (item instanceof CborTextDecodedStream) {
-    const chunks: string[] = [];
-    for await (const chunk of item) {
-      chunks.push(chunk);
-    }
-    return chunks.join("");
-  }
-
-  // Plain object - should not happen with streaming decoder, but handle just in case
-  console.debug(
-    "[serializer] Unexpected plain object in consumeStreamOutput:",
-    item,
-  );
-  return item as CborType;
-}
-
-/**
- * Deserialize CborStreamOutput from CborSequenceDecoderStream
- *
- * Use this when decoding via CborSequenceDecoderStream for RFC 8742 compliance.
- * Consumes streaming types and restores custom types from tagged values.
- *
- * @param item - CborStreamOutput from CborSequenceDecoderStream
- * @returns Original value (or close approximation)
- */
-export async function fromCborStreamOutput(
-  item: CborStreamOutput,
-): Promise<unknown> {
-  const cborType = await consumeStreamOutput(item);
-  return fromCborType(cborType);
 }

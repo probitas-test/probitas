@@ -1,4 +1,4 @@
-import type { Theme } from "@probitas/core/theme";
+import type { Theme } from "@probitas-test/core/theme";
 
 /**
  * Configuration options for reporter initialization.

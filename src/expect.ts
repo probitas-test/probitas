@@ -8,12 +8,11 @@
  * @module
  */
 
-export { expect } from "@probitas/expect";
+export { expect } from "@probitas-test/expect";
 
 // Re-export types for backward compatibility
 export type {
   ConnectRpcResponse,
-  DenoKvResult,
   GraphqlResponse,
   HttpResponse,
   MongoResult,
@@ -21,4 +20,4 @@ export type {
   RedisResult,
   SqlQueryResult,
   SqsResult,
-} from "@probitas/expect";
+} from "@probitas-test/expect";

@@ -6,10 +6,11 @@
 
 import { parseArgs } from "@std/cli";
 import { join } from "@std/path";
-import { exists } from "@std/fs";
+import { exists } from "../_fs.ts";
 import { getLogger, type LogLevel } from "@logtape/logtape";
 import { EXIT_CODE } from "../constants.ts";
-import { configureLogging, readAsset } from "../utils.ts";
+import { configureLogging, getVersion, readAsset } from "../utils.ts";
+import { mkdir, writeFile } from "node:fs/promises";
 
 const logger = getLogger(["probitas", "cli", "init"]);
 
@@ -20,11 +21,36 @@ const DEFAULT_DIRECTORY = "probitas";
 
 /**
  * Files to create during initialization
+ *
+ * `package.json` pins `@probitas-test/probitas` to this CLI's version: scenarios
+ * run against the copy embedded in the binary, and the installed package only
+ * supplies editor types, which must match it.
  */
-const INIT_FILES = [
-  { asset: "example.probitas.ts", output: "example.probitas.ts" },
-  { asset: "probitas.jsonc", output: "probitas.jsonc" },
-] as const;
+const INIT_FILES: ReadonlyArray<
+  { output: string; content: () => Promise<string> }
+> = [
+  {
+    output: "example.probitas.ts",
+    content: () => readAsset("example.probitas.ts"),
+  },
+  { output: "probitas.jsonc", content: () => readAsset("probitas.jsonc") },
+  { output: "tsconfig.json", content: () => readAsset("tsconfig.json") },
+  {
+    output: "package.json",
+    content: async () =>
+      JSON.stringify(
+        {
+          private: true,
+          type: "module",
+          devDependencies: {
+            "@probitas-test/probitas": (await getVersion()) ?? "latest",
+          },
+        },
+        null,
+        2,
+      ) + "\n",
+  },
+];
 
 /**
  * Execute the init command
@@ -122,17 +148,17 @@ export async function initCommand(
       }
     } else {
       // Create directory
-      await Deno.mkdir(targetDir, { recursive: true });
+      await mkdir(targetDir, { recursive: true });
       logger.debug("Created directory", { targetDir });
     }
 
     // Create files
     const createdFiles: string[] = [];
     for (const file of INIT_FILES) {
-      const content = await readAsset(file.asset);
+      const content = await file.content();
       const filePath = join(targetDir, file.output);
 
-      await Deno.writeTextFile(filePath, content);
+      await writeFile(filePath, content);
       createdFiles.push(`${directory}/${file.output}`);
       logger.debug("Created file", { filePath });
     }

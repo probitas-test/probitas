@@ -16,8 +16,10 @@ Options:
   -d, --debug            Debug output
 
 Note:
-  Runs `deno check --no-config` on discovered scenario files.
-  Uses includes/excludes from probitas config (same as run/list).
+  Runs the project's TypeScript compiler (tsgo, else tsc, from node_modules
+  or PATH). With a tsconfig.json in the current directory, checks the project
+  with it; otherwise checks the discovered scenario files, using
+  includes/excludes from probitas config (same as run/list).
 
 Examples:
   probitas check                  # Check all scenario files

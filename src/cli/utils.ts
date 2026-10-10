@@ -4,86 +4,18 @@
  * @module
  */
 
-import { as, ensure, is, type Predicate } from "@core/unknownutil";
-
-/**
- * Result of extracting deno options from arguments
- */
-export interface ExtractDenoOptionsResult {
-  /** Deno arguments with --deno- prefix removed (e.g., --config, --lock) */
-  denoArgs: string[];
-  /** Remaining arguments after extracting deno options */
-  remainingArgs: string[];
-}
-
-/**
- * Extract --deno-* options and convert to deno command args
- *
- * Options starting with --deno- are extracted and converted to
- * the corresponding deno option (e.g., --deno-config becomes --config).
- *
- * Options with `=` are passed as value options (e.g., `--deno-config=path` → `--config=path`).
- * Options without `=` are passed as boolean flags (e.g., `--deno-reload` → `--reload`).
- *
- * @param args - Command-line arguments
- * @returns Extracted deno args and remaining args
- *
- * @example
- * ```ts
- * const { denoArgs, remainingArgs } = extractDenoOptions([
- *   "--deno-config=custom/deno.json",
- *   "--selector", "foo",
- *   "--deno-lock=custom/deno.lock",
- *   "--deno-no-prompt",
- *   "--deno-reload",
- * ]);
- * // denoArgs: ["--config=custom/deno.json", "--lock=custom/deno.lock", "--no-prompt", "--reload"]
- * // remainingArgs: ["--selector", "foo"]
- * ```
- */
-export function extractDenoOptions(args: string[]): ExtractDenoOptionsResult {
-  const denoArgs: string[] = [];
-  const remainingArgs: string[] = [];
-
-  for (const arg of args) {
-    if (arg.startsWith("--deno-")) {
-      // Convert --deno-xxx to --xxx (preserving =value if present)
-      const optionBody = arg.slice(7); // e.g., "config=path" or "reload"
-      const denoArg = "--" + optionBody;
-      denoArgs.push(denoArg);
-    } else {
-      remainingArgs.push(arg);
-    }
-  }
-
-  return { denoArgs, remainingArgs };
-}
 import { getLogger } from "@logtape/logtape";
-import type { Reporter } from "@probitas/runner";
+import type { Reporter } from "@probitas-test/runner";
 import { ListReporter } from "./reporter/list_reporter.ts";
 import { JSONReporter } from "./reporter/json_reporter.ts";
 import type { ReporterOptions } from "./reporter/types.ts";
-import { load } from "@std/dotenv";
-import { exists } from "@std/fs";
+import { readFile } from "node:fs/promises";
+import { exists, loadEnvFile } from "./_fs.ts";
+import { assets } from "./_assets.ts";
+import packageJson from "../../package.json" with { type: "json" };
 import { resolve } from "@std/path";
 
 const logger = getLogger(["probitas", "cli", "utils"]);
-
-type DenoJson = {
-  version?: string;
-};
-
-const isDenoJson = is.ObjectOf({
-  version: as.Optional(is.String),
-}) satisfies Predicate<DenoJson>;
-
-type DenoLock = {
-  specifiers?: Record<string, string>;
-};
-
-const isDenoLock = is.ObjectOf({
-  specifiers: as.Optional(is.RecordOf(is.String, is.String)),
-}) satisfies Predicate<DenoLock>;
 
 /**
  * Version information including CLI and dependency versions
@@ -218,95 +150,69 @@ export function parseTimeout(
 }
 
 /**
- * Read asset file from assets directory
+ * Read a CLI asset (help texts, `probitas init` templates)
  *
- * Uses import.meta.dirname for compatibility with deno compile.
- * The --include flag must be used when compiling to embed assets.
+ * Assets are imported as text at build time, so the compiled binary needs no
+ * files beside it.
  *
- * @param path - Asset path relative to assets/ (e.g., "usage.txt", "templates/deno.json")
+ * @param path - Asset path relative to assets/ (e.g., "usage.txt")
  * @returns Asset content
  */
-export async function readAsset(path: string): Promise<string> {
-  const url = new URL(`../../assets/${path}`, import.meta.url);
-  const resp = await fetch(url);
-  return await resp.text();
-}
-
-/**
- * Get version from deno.json
- *
- * Uses import.meta.dirname for compatibility with deno compile.
- * The --include flag must be used when compiling to embed deno.json.
- *
- * @returns Version string, or undefined if not available
- */
-export async function getVersion(): Promise<string | undefined> {
-  try {
-    const url = new URL("../../deno.json", import.meta.url);
-    const resp = await fetch(url);
-    const content = await resp.text();
-    const denoJson = ensure(JSON.parse(content), isDenoJson);
-    return denoJson.version;
-  } catch (err: unknown) {
-    logger.debug("Failed to read version from deno.json", {
-      err,
-    });
-    return undefined;
+export function readAsset(path: string): Promise<string> {
+  const content = assets[path];
+  if (content === undefined) {
+    return Promise.reject(new Error(`Unknown asset: ${path}`));
   }
+  return Promise.resolve(content);
 }
 
 /**
- * Get version information including CLI and @probitas package versions
- *
- * Reads CLI version from deno.json and package versions from deno.lock.
- * Package versions are extracted from the specifiers section of deno.lock.
+ * Get the CLI version from package.json
+ */
+export function getVersion(): Promise<string | undefined> {
+  return Promise.resolve(packageJson.version);
+}
+
+/**
+ * Versions of the bundled `@probitas-test/*` packages, injected by
+ * `scripts/build.ts` as a JSON object. Undefined when running from source.
+ */
+declare const PROBITAS_PACKAGE_VERSIONS: Record<string, string> | undefined;
+
+async function readInstalledPackageVersions(): Promise<Record<string, string>> {
+  const names = Object.keys({
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+  }).filter((name) => name.startsWith("@probitas-test/"));
+  const nodeModules = resolve(import.meta.dir, "../../node_modules");
+  const versions: Record<string, string> = {};
+  for (const name of names) {
+    try {
+      const manifest = JSON.parse(
+        await readFile(resolve(nodeModules, name, "package.json"), "utf8"),
+      );
+      versions[name] = manifest.version;
+    } catch (err: unknown) {
+      logger.debug("Failed to read package version", { name, err });
+    }
+  }
+  return versions;
+}
+
+/**
+ * Get version information including CLI and bundled package versions
  *
  * @returns Version information including CLI and package versions
  */
 export async function getVersionInfo(): Promise<VersionInfo | undefined> {
   try {
-    // Get CLI version from deno.json
-    const denoJsonUrl = new URL("../../deno.json", import.meta.url);
-    const denoJsonResp = await fetch(denoJsonUrl);
-    const denoJsonContent = await denoJsonResp.text();
-    const denoJson = ensure(JSON.parse(denoJsonContent), isDenoJson);
-
-    const version = denoJson.version ?? "unknown";
-
-    // Get package versions from deno.lock
-    const denoLockUrl = new URL("../../deno.lock", import.meta.url);
-    const denoLockResp = await fetch(denoLockUrl);
-    const denoLockContent = await denoLockResp.text();
-    const denoLock = ensure(JSON.parse(denoLockContent), isDenoLock);
-
-    // Extract @probitas package versions from specifiers
-    // Format: "jsr:@probitas/core@^0.2.0": "0.2.0"
-    const packages: { name: string; version: string }[] = [];
-    const seen = new Set<string>();
-
-    if (denoLock.specifiers) {
-      for (
-        const [specifier, resolvedVersion] of Object.entries(
-          denoLock.specifiers,
-        )
-      ) {
-        // Match jsr:@probitas/package-name@version pattern
-        const match = specifier.match(/^jsr:(@probitas\/[^@]+)@/);
-        if (match && typeof resolvedVersion === "string") {
-          const name = match[1];
-          // Skip duplicates (same package with different version specifiers)
-          if (!seen.has(name)) {
-            seen.add(name);
-            packages.push({ name, version: resolvedVersion });
-          }
-        }
-      }
-    }
-
-    // Sort packages by name for consistent output
-    packages.sort((a, b) => a.name.localeCompare(b.name));
-
-    return { version, packages };
+    const versions = typeof PROBITAS_PACKAGE_VERSIONS === "undefined"
+      ? await readInstalledPackageVersions()
+      : PROBITAS_PACKAGE_VERSIONS;
+    const packages = Object.entries(versions)
+      .map(([name, version]) => ({ name, version }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { version: packageJson.version, packages };
   } catch (err: unknown) {
     logger.debug("Failed to read version info", { err });
     return undefined;
@@ -365,7 +271,7 @@ export async function loadEnvironment(
 
   // Load environment variables
   try {
-    const env = await load({ envPath: targetPath, export: true });
+    const env = await loadEnvFile(targetPath);
     logger.debug("Environment loaded", {
       path: targetPath,
       keys: Object.keys(env),

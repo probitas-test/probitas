@@ -7,11 +7,11 @@
  * @module
  */
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
-import { formatOrigin, type Origin } from "@probitas/core/origin";
-import type { RunResult, StepResult } from "@probitas/runner";
-import { isExpectationError } from "@probitas/expect";
-import type { Theme, ThemeFunction } from "@probitas/core/theme";
+import type { ScenarioMetadata, StepMetadata } from "@probitas-test/core";
+import { formatOrigin, type Origin } from "@probitas-test/core/origin";
+import type { RunResult, StepResult } from "@probitas-test/runner";
+import { isExpectationError } from "@probitas-test/expect";
+import type { Theme, ThemeFunction } from "@probitas-test/core/theme";
 
 /**
  * Context for formatting operations

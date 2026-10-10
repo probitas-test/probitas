@@ -1,4 +1,6 @@
 import { getLogger } from "@logtape/logtape";
+import process from "node:process";
+import { Writable } from "node:stream";
 
 const logger = getLogger(["probitas", "reporter", "writer"]);
 
@@ -37,7 +39,8 @@ export class Writer {
    * @param options - Configuration options (output stream)
    */
   constructor(options: WriterOptions = {}) {
-    this.#output = options.output ?? Deno.stderr.writable;
+    this.#output = options.output ??
+      (Writable.toWeb(process.stderr) as WritableStream<Uint8Array>);
   }
 
   /**

@@ -26,17 +26,13 @@
  */
 
 import {
-  CborSequenceDecoderStream,
-  CborSequenceEncoderStream,
-  type CborStreamInput,
-  type CborStreamOutput,
-} from "@std/cbor";
-import {
   type ErrorObject,
   fromErrorObject,
   toErrorObject,
 } from "@core/errorutil/error-object";
-import { fromCborStreamOutput, toCborStreamInput } from "./serializer.ts";
+import { createConnection } from "node:net";
+import process from "node:process";
+import { decodeFrames, encodeFrame } from "./frame.ts";
 
 export { configureLogging } from "./logging.ts";
 export type { ErrorObject } from "@core/errorutil/error-object";
@@ -69,24 +65,19 @@ export function deserializeError(serialized: ErrorObject): Error {
 
 /**
  * IPC connection to parent process
- *
- * Provides pre-acquired reader/writer for CBOR-encoded communication.
- * Both reader and writer are typed consistently for symmetric API.
  */
 export interface IpcConnection {
-  /** CBOR-decoded reader (emits CborStreamOutput) */
-  readonly reader: ReadableStreamDefaultReader<CborStreamOutput>;
-  /** CBOR-encoded writer (accepts CborStreamInput) */
-  readonly writer: WritableStreamDefaultWriter<CborStreamInput>;
-  /** Close the underlying TCP connection (async to properly flush writes) */
+  /** Decoded frames from the parent */
+  readonly frames: AsyncIterator<unknown>;
+  /** Write one encoded frame, honoring socket backpressure */
+  readonly write: (frame: Uint8Array) => Promise<void>;
+  /** Flush pending writes and close the connection */
   readonly close: () => Promise<void>;
 }
 
 /**
  * Parse --ipc-port from command line arguments
  *
- * @param args - Command line arguments (typically Deno.args)
- * @returns IPC port number
  * @throws If --ipc-port is not provided or invalid
  */
 export function parseIpcPort(args: string[]): number {
@@ -96,7 +87,7 @@ export function parseIpcPort(args: string[]): number {
   }
 
   const port = parseInt(args[portIndex + 1], 10);
-  if (isNaN(port) || port <= 0 || port > 65535) {
+  if (Number.isNaN(port) || port <= 0 || port > 65535) {
     throw new Error(`Invalid --ipc-port value: ${args[portIndex + 1]}`);
   }
 
@@ -105,97 +96,53 @@ export function parseIpcPort(args: string[]): number {
 
 /**
  * Connect to parent process IPC server
- *
- * Sets up bidirectional CBOR-encoded communication:
- * - Reading: TCP bytes → CborSequenceDecoderStream → CborStreamOutput
- * - Writing: CborStreamInput → CborSequenceEncoderStream → TCP bytes
- *
- * @param port - TCP port to connect to
- * @returns IPC connection with pre-acquired reader/writer
  */
 export async function connectIpc(port: number): Promise<IpcConnection> {
-  const conn = await Deno.connect({ port, hostname: "127.0.0.1" });
-
-  // Set up reading: TCP bytes → CBOR decoder → CborStreamOutput
-  const cborReadable = conn.readable.pipeThrough(
-    new CborSequenceDecoderStream(),
-  );
-  const reader = cborReadable.getReader();
-
-  // Set up writing: CborStreamInput → CBOR encoder → TCP bytes
-  // We need to track the pipe completion to properly close the connection
-  const encoder = new CborSequenceEncoderStream();
-  const pipePromise = encoder.readable.pipeTo(conn.writable);
-  const writer = encoder.writable.getWriter();
+  const sock = createConnection({ port, host: "127.0.0.1" });
+  await new Promise<void>((resolve, reject) => {
+    sock.once("connect", () => resolve());
+    sock.once("error", reject);
+  });
+  const frames = decodeFrames(sock as AsyncIterable<Uint8Array>)[
+    Symbol.asyncIterator
+  ]();
 
   return {
-    reader,
-    writer,
-    close: async () => {
-      // Close writer first (signals no more data to encoder)
-      try {
-        await writer.close();
-      } catch {
-        // Already closed or errored
-      }
-      // Wait for pipe to complete (flushes all encoded data to TCP)
-      try {
-        await pipePromise;
-      } catch {
-        // Pipe may error if connection was closed by peer
-      }
-      // Release reader lock
-      try {
-        reader.releaseLock();
-      } catch {
-        // Already released
-      }
-      // Close underlying connection
-      try {
-        conn.close();
-      } catch {
-        // Already closed
-      }
-    },
+    frames,
+    write: (frame) =>
+      new Promise<void>((resolve, reject) => {
+        sock.write(frame, (err) => err ? reject(err) : resolve());
+      }),
+    close: () =>
+      new Promise<void>((resolve) => {
+        sock.end(() => resolve());
+      }),
   };
 }
 
 /**
  * Read input from parent process via IPC
- *
- * @param ipc - IPC connection
- * @returns Decoded input object
  */
 export async function readInput(ipc: IpcConnection): Promise<unknown> {
-  const result = await ipc.reader.read();
+  const result = await ipc.frames.next();
   if (result.done) {
     throw new Error("IPC connection closed before receiving input");
   }
-  // Convert CborStreamOutput to regular value with custom type restoration
-  return await fromCborStreamOutput(result.value);
+  return result.value;
 }
 
 /**
  * Write output to parent process via IPC
- *
- * @param ipc - IPC connection
- * @param output - Object to serialize and write
  */
 export async function writeOutput(
   ipc: IpcConnection,
   output: unknown,
 ): Promise<void> {
-  // Convert to CborStreamInput (handles custom types via tagged values)
-  const cborInput = toCborStreamInput(output);
-
-  // Single atomic write (encoder transforms to CBOR bytes)
-  await ipc.writer.write(cborInput);
+  await ipc.write(encodeFrame(output));
 }
 
 /**
  * Close IPC connection
- *
- * @param ipc - IPC connection to close
  */
 export async function closeIpc(ipc: IpcConnection): Promise<void> {
   await ipc.close();
@@ -272,7 +219,7 @@ export type SubprocessHandler<I> = (
 export function runSubprocess<I>(handler: SubprocessHandler<I>): void {
   const main = async (): Promise<void> => {
     // Parse IPC port from command line arguments
-    const port = parseIpcPort(Deno.args);
+    const port = parseIpcPort(process.argv);
 
     // Connect to parent process IPC server
     const ipc = await connectIpc(port);
@@ -303,6 +250,6 @@ export function runSubprocess<I>(handler: SubprocessHandler<I>): void {
   // Run main and exit explicitly to avoid async operations keeping process alive
   main().finally(() => {
     // Ensure process exits after output is flushed
-    setTimeout(() => Deno.exit(0), 0);
+    setTimeout(() => process.exit(0), 0);
   });
 }

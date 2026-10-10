@@ -46,7 +46,7 @@
  *
  * @example Basic scenario with steps
  * ```ts
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import { client, expect, scenario } from "@probitas-test/probitas";
  *
  * export default scenario("User API Test")
  *   .resource("http", () =>
@@ -68,9 +68,9 @@
  *
  * @example Using Skip for conditional execution
  * ```ts
- * import { scenario, Skip } from "@probitas/probitas";
+ * import { scenario, Skip } from "@probitas-test/probitas";
  *
- * // Mock Deno.env for this example
+ * // Mock process.env for this example
  * const getEnv = (key: string): string | undefined =>
  *   key === "FEATURE_FLAG" ? undefined : "value";
  *
@@ -88,7 +88,7 @@
  *
  * @example Using HTTP client with resource
  * ```ts
- * import { client, expect, scenario } from "@probitas/probitas";
+ * import { client, expect, scenario } from "@probitas-test/probitas";
  *
  * export default scenario("API test")
  *   .resource("http", () =>
@@ -104,9 +104,9 @@
  * @module
  */
 
-export { scenario } from "@probitas/builder";
-export { Skip } from "@probitas/runner";
-export type { BuilderStepContext as StepContext } from "@probitas/builder";
+export { scenario } from "@probitas-test/builder";
+export { Skip } from "@probitas-test/runner";
+export type { BuilderStepContext as StepContext } from "@probitas-test/builder";
 
 export * as client from "./client.ts";
 export * from "./expect.ts";
@@ -125,22 +125,22 @@ export { faker } from "@faker-js/faker";
  *
  * Re-exported from {@link https://jsr.io/@std/testing | @std/testing/time}.
  */
-export * from "@std/testing/time";
+export * from "./_vendor/std_testing/time.ts";
 /**
  * Mock and spy utilities.
  *
  * Re-exported from {@link https://jsr.io/@std/testing | @std/testing/mock}.
  */
-export * from "@std/testing/mock";
+export * from "./_vendor/std_testing/mock.ts";
 /**
  * Error handling utilities.
  *
  * Re-exported from {@link https://jsr.io/@core/errorutil | @core/errorutil}.
  */
-export * from "@core/errorutil";
+export * from "./_vendor/core_errorutil/mod.ts";
 /**
  * Template literal tag for removing indentation.
  *
- * Re-exported from {@link https://jsr.io/@cspotcode/outdent | @cspotcode/outdent}.
+ * Re-exported from {@link https://www.npmjs.com/package/outdent | outdent}.
  */
-export * from "@cspotcode/outdent";
+export { outdent } from "outdent";

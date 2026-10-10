@@ -18,3 +18,5 @@ Examples:
 Created Files:
   example.probitas.ts   Example scenario file
   probitas.jsonc        Configuration file
+  package.json          Pins @probitas-test/probitas (editor types) to this CLI version
+  tsconfig.json         TypeScript settings matching how scenarios are run

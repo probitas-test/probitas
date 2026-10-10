@@ -7,16 +7,17 @@
  */
 
 import { assertEquals, assertRejects } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
-import { sandbox } from "@lambdalisue/sandbox";
+import { describe, it } from "bun:test";
 import { findProbitasConfigFile, loadConfig } from "./config.ts";
+import { mkdir, writeFile } from "node:fs/promises";
+import { sandbox } from "@probitas-test/internal-testing";
 
 describe("config loader", () => {
   describe("findProbitasConfigFile", () => {
     it("finds probitas.json in current directory", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await writeFile(sbox.resolve("probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -26,7 +27,7 @@ describe("config loader", () => {
     it("finds probitas.jsonc in current directory", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve("probitas.jsonc"), "{}");
+      await writeFile(sbox.resolve("probitas.jsonc"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -36,7 +37,7 @@ describe("config loader", () => {
     it("finds .probitas.json in current directory", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve(".probitas.json"), "{}");
+      await writeFile(sbox.resolve(".probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -46,7 +47,7 @@ describe("config loader", () => {
     it("finds .probitas.jsonc in current directory", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve(".probitas.jsonc"), "{}");
+      await writeFile(sbox.resolve(".probitas.jsonc"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -56,8 +57,8 @@ describe("config loader", () => {
     it("prefers probitas.json over probitas.jsonc", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
-      await Deno.writeTextFile(sbox.resolve("probitas.jsonc"), "{}");
+      await writeFile(sbox.resolve("probitas.json"), "{}");
+      await writeFile(sbox.resolve("probitas.jsonc"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -67,8 +68,8 @@ describe("config loader", () => {
     it("prefers probitas.json over .probitas.json", async () => {
       await using sbox = await sandbox();
 
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
-      await Deno.writeTextFile(sbox.resolve(".probitas.json"), "{}");
+      await writeFile(sbox.resolve("probitas.json"), "{}");
+      await writeFile(sbox.resolve(".probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.path);
 
@@ -86,8 +87,8 @@ describe("config loader", () => {
     it("finds config in parent directory with parentLookup", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await mkdir(sbox.resolve("subdir"), { recursive: true });
+      await writeFile(sbox.resolve("probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.resolve("subdir"), {
         parentLookup: true,
@@ -99,8 +100,8 @@ describe("config loader", () => {
     it("finds config in deeply nested parent directory", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("a/b/c"), { recursive: true });
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await mkdir(sbox.resolve("a/b/c"), { recursive: true });
+      await writeFile(sbox.resolve("probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.resolve("a/b/c"), {
         parentLookup: true,
@@ -112,8 +113,8 @@ describe("config loader", () => {
     it("does not search parent directories without parentLookup", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
-      await Deno.writeTextFile(sbox.resolve("probitas.json"), "{}");
+      await mkdir(sbox.resolve("subdir"), { recursive: true });
+      await writeFile(sbox.resolve("probitas.json"), "{}");
 
       const result = await findProbitasConfigFile(sbox.resolve("subdir"));
 
@@ -123,7 +124,7 @@ describe("config loader", () => {
     it("stops at filesystem root with parentLookup", async () => {
       await using sbox = await sandbox();
 
-      await Deno.mkdir(sbox.resolve("subdir"), { recursive: true });
+      await mkdir(sbox.resolve("subdir"), { recursive: true });
       // No config file in any parent
 
       const result = await findProbitasConfigFile(sbox.resolve("subdir"), {
@@ -139,7 +140,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           reporter: "json",
@@ -157,7 +158,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.jsonc");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         `{
           // Reporter type
@@ -176,7 +177,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(configPath, "{}");
+      await writeFile(configPath, "{}");
 
       const config = await loadConfig(configPath);
 
@@ -187,7 +188,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           reporter: "list",
@@ -215,7 +216,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           reporter: "invalid-reporter",
@@ -232,7 +233,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           includes: "not-an-array",
@@ -249,7 +250,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           reporter: "json",
@@ -267,7 +268,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         "{ invalid json",
       );
@@ -289,7 +290,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           timeout: "10m",
@@ -305,7 +306,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           timeout: 123,
@@ -322,7 +323,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {
@@ -350,7 +351,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {
@@ -370,7 +371,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {
@@ -394,7 +395,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {
@@ -413,7 +414,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {
@@ -434,7 +435,7 @@ describe("config loader", () => {
       await using sbox = await sandbox();
 
       const configPath = sbox.resolve("probitas.json");
-      await Deno.writeTextFile(
+      await writeFile(
         configPath,
         JSON.stringify({
           stepOptions: {

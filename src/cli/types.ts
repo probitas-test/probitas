@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { StepOptions } from "@probitas/core";
+import type { StepOptions } from "@probitas-test/core";
 
 /**
  * ProbitasConfig - Configuration loaded from deno.json/deno.jsonc

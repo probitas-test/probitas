@@ -9,12 +9,12 @@ import type {
   RunResult,
   ScenarioResult,
   StepResult,
-} from "@probitas/runner";
+} from "@probitas-test/runner";
 import type {
   ScenarioMetadata,
   StepMetadata,
   StepOptions,
-} from "@probitas/core";
+} from "@probitas-test/core";
 import type { LogLevel } from "@logtape/logtape";
 import { isErrorObject } from "@core/errorutil/error-object";
 import {

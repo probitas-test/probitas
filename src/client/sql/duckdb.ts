@@ -1,1 +1,1 @@
-export * from "@probitas/client-sql-duckdb";
+export * from "@probitas-test/client-sql-duckdb";

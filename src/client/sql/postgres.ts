@@ -1,1 +1,1 @@
-export * from "@probitas/client-sql-postgres";
+export * from "@probitas-test/client-sql-postgres";

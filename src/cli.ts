@@ -7,14 +7,12 @@
 import { parseArgs } from "@std/cli";
 import { getLogger } from "@logtape/logtape";
 import { EXIT_CODE } from "./cli/constants.ts";
-import { cacheCommand } from "./cli/commands/cache.ts";
 import { checkCommand } from "./cli/commands/check.ts";
-import { fmtCommand } from "./cli/commands/fmt.ts";
 import { initCommand } from "./cli/commands/init.ts";
-import { lintCommand } from "./cli/commands/lint.ts";
 import { listCommand } from "./cli/commands/list.ts";
 import { runCommand } from "./cli/commands/run.ts";
 import { getVersionInfo, readAsset } from "./cli/utils.ts";
+import process from "node:process";
 
 const logger = getLogger(["probitas", "cli"]);
 
@@ -29,7 +27,7 @@ const logger = getLogger(["probitas", "cli"]);
  * @requires --allow-read For loading config and scenario files
  */
 export async function main(args: string[]): Promise<number> {
-  const cwd = Deno.cwd();
+  const cwd = process.cwd();
 
   // Parse global flags
   const parsed = parseArgs(args, {
@@ -82,15 +80,6 @@ export async function main(args: string[]): Promise<number> {
     case "list":
       return await listCommand(commandArgs, cwd);
 
-    case "cache":
-      return await cacheCommand(commandArgs, cwd);
-
-    case "fmt":
-      return await fmtCommand(commandArgs, cwd);
-
-    case "lint":
-      return await lintCommand(commandArgs, cwd);
-
     case "check":
       return await checkCommand(commandArgs, cwd);
 
@@ -103,6 +92,10 @@ export async function main(args: string[]): Promise<number> {
 
 // CLI entry point when run directly
 if (import.meta.main) {
-  const exitCode = await main(Deno.args);
-  Deno.exit(exitCode);
+  if (process.argv.includes("__worker")) {
+    await import("./cli/_worker.ts");
+  } else {
+    const exitCode = await main(process.argv.slice(2));
+    process.exit(exitCode);
+  }
 }

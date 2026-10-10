@@ -7,23 +7,23 @@
  * @module
  */
 
-import { assertSnapshot } from "@std/testing/snapshot";
 import { Buffer } from "@std/streams/buffer";
 import type {
   ScenarioDefinition,
   ScenarioOptions,
   StepDefinition,
   StepOptions,
-} from "@probitas/core";
-import type { Origin } from "@probitas/core/origin";
+} from "@probitas-test/core";
+import type { Origin } from "@probitas-test/core/origin";
 import type {
   Reporter,
   RunResult,
   ScenarioResult,
   StepResult,
-} from "@probitas/runner";
+} from "@probitas-test/runner";
 import type { ReporterOptions } from "./types.ts";
-import { colorTheme, noColorTheme } from "@probitas/core/theme";
+import { colorTheme, noColorTheme } from "@probitas-test/core/theme";
+import { assertSnapshot, test } from "@probitas-test/internal-testing";
 
 // Origin locations for testing
 export const originLocations = {
@@ -345,15 +345,13 @@ export const runSummaries = {
 /**
  * Normalize file paths in stack traces for snapshot testing
  *
- * Replaces absolute file:// URLs with a placeholder to ensure snapshots
- * are portable across different machines and CI environments.
+ * Replaces absolute module locations with a placeholder to ensure snapshots
+ * are portable across different machines and CI environments. Bun prints
+ * plain absolute paths in stack frames where Deno printed `file://` URLs.
  */
 function normalizeStackPaths(output: string): string {
-  // Replace file:// URLs with <file> placeholder
-  // Matches patterns like: file:///Users/name/project/src/file.ts:123:45
-  // Also matches patterns like: file:///home/runner/work/project/src/file.ts:123:45
   return output.replace(
-    /file:\/\/\/[^\s:)]+/g,
+    /(?:file:\/\/)?\/[^\s:)"\\]+\.(?:ts|js)(?=:\d)/g,
     "<file>",
   );
 }
@@ -363,7 +361,7 @@ function normalizeStackPaths(output: string): string {
  */
 function getBufferOutputNoColor(buffer: Buffer): string {
   const output = new TextDecoder().decode(buffer.bytes());
-  // deno-lint-ignore no-control-regex
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: strips ANSI escape sequences
   const noColor = output.replace(/\x1b\[[0-9;]*m/g, "");
   return normalizeStackPaths(noColor);
 }
@@ -407,7 +405,7 @@ export function testReporter(
   reporterName?: string,
 ): void {
   const name = reporterName ?? ReporterClass.name;
-  Deno.test(name, async (t) => {
+  test(name, async (t) => {
     await t.step("with colors", async (t) => {
       await t.step("complete run with all scenarios passed", async (t) => {
         const buffer = new Buffer();

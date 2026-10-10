@@ -8,8 +8,8 @@
  * @internal
  */
 
-import { loadScenarios } from "@probitas/core/loader";
-import { applySelectors } from "@probitas/core/selector";
+import { loadScenarios } from "@probitas-test/core/loader";
+import { applySelectors } from "@probitas-test/core/selector";
 import type { ListInput, ListOutput, ScenarioMeta } from "./list_protocol.ts";
 import { runSubprocess, writeOutput } from "./utils.ts";
 

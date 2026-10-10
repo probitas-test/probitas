@@ -1,53 +1,18 @@
 /**
- * Tests for CBOR-based serializer (streaming API)
+ * Tests for the CBOR-based serializer
  */
 import { assertEquals, assertInstanceOf } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
-import {
-  CborSequenceDecoderStream,
-  CborSequenceEncoderStream,
-} from "@std/cbor";
-import { fromCborStreamOutput, toCborStreamInput } from "./serializer.ts";
+import { describe, it } from "bun:test";
+import { decodeCbor, encodeCbor } from "@std/cbor";
+import { fromCborType, toCborType } from "./serializer.ts";
 
-/**
- * Helper to round-trip a value through streaming encode/decode
- */
-async function roundTrip<T>(value: T): Promise<unknown> {
-  // Convert to CborStreamInput
-  const cborInput = toCborStreamInput(value);
-
-  // Create encoder and decoder streams
-  const encoder = new CborSequenceEncoderStream();
-  const decoder = new CborSequenceDecoderStream();
-
-  // Pipe encoder output to decoder input
-  const encodedStream = encoder.readable.pipeThrough(decoder);
-
-  // Start reading before writing: the encoder holds back writes until its
-  // readable side is being consumed, so a write-then-read order deadlocks.
-  const reader = encodedStream.getReader();
-  const resultPromise = reader.read();
-  // A failed write rejects this read too, and the write error is the one that
-  // propagates. Mark the read handled so the abandoned rejection cannot take
-  // down the whole test module as an uncaught error.
-  resultPromise.catch(() => {});
-
-  // Write the input to the encoder
-  const writer = encoder.writable.getWriter();
-  await writer.write(cborInput);
-  await writer.close();
-
-  // Read the decoded output
-  const result = await resultPromise;
-  if (result.done) {
-    throw new Error("No output from decoder");
-  }
-
-  // Convert CborStreamOutput back to JavaScript value
-  return await fromCborStreamOutput(result.value);
+function roundTrip<T>(value: T): Promise<unknown> {
+  return Promise.resolve(
+    fromCborType(decodeCbor(encodeCbor(toCborType(value)))),
+  );
 }
 
-describe("serializer (CBOR streaming)", () => {
+describe("serializer (CBOR)", () => {
   describe("primitives", () => {
     it("handles null", async () => {
       assertEquals(await roundTrip(null), null);
@@ -415,19 +380,19 @@ describe("serializer (CBOR streaming)", () => {
     });
   });
 
-  describe("toCborStreamInput output type", () => {
-    it("returns CborStreamInput for objects", () => {
-      const result = toCborStreamInput({ foo: "bar" });
-      // Should be a plain object (Record<string, CborStreamInput>)
+  describe("toCborType output type", () => {
+    it("returns CborType for objects", () => {
+      const result = toCborType({ foo: "bar" });
+      // Should be a plain object (Record<string, CborType>)
       assertEquals(typeof result, "object");
       assertEquals(result !== null, true);
     });
 
     it("returns primitives directly", () => {
-      assertEquals(toCborStreamInput(42), 42);
-      assertEquals(toCborStreamInput("hello"), "hello");
-      assertEquals(toCborStreamInput(null), null);
-      assertEquals(toCborStreamInput(undefined), undefined);
+      assertEquals(toCborType(42), 42);
+      assertEquals(toCborType("hello"), "hello");
+      assertEquals(toCborType(null), null);
+      assertEquals(toCborType(undefined), undefined);
     });
   });
 });

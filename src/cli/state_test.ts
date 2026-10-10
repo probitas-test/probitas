@@ -7,17 +7,18 @@
  */
 
 import { assertEquals, assertExists } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
-import { sandbox } from "@lambdalisue/sandbox";
+import { describe, it } from "bun:test";
 import { join } from "@std/path";
-import type { RunResult, ScenarioResult } from "@probitas/runner";
-import type { ScenarioMetadata } from "@probitas/core";
+import type { RunResult, ScenarioResult } from "@probitas-test/runner";
+import type { ScenarioMetadata } from "@probitas-test/core";
 import {
   getStateDir,
   type LastRunState,
   loadLastRunState,
   saveLastRunState,
 } from "./state.ts";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { sandbox } from "@probitas-test/internal-testing";
 
 /**
  * Helper to create ScenarioMetadata for tests
@@ -85,13 +86,13 @@ describe("state persistence", () => {
       const stateDir = await getStateDir(sbox.path);
 
       assertEquals(stateDir, join(sbox.path, ".probitas"));
-      const stat = await Deno.stat(stateDir);
-      assertEquals(stat.isDirectory, true);
+      const info = await stat(stateDir);
+      assertEquals(info.isDirectory(), true);
     });
 
     it("returns existing .probitas directory", async () => {
       await using sbox = await sandbox();
-      await Deno.mkdir(join(sbox.path, ".probitas"));
+      await mkdir(join(sbox.path, ".probitas"));
 
       const stateDir = await getStateDir(sbox.path);
 
@@ -128,7 +129,7 @@ describe("state persistence", () => {
       await saveLastRunState(sbox.path, result);
 
       const statePath = join(sbox.path, ".probitas", "last-run.json");
-      const content = await Deno.readTextFile(statePath);
+      const content = await readFile(statePath, "utf8");
       const state = JSON.parse(content) as LastRunState;
 
       assertEquals(state.version, 1);
@@ -198,7 +199,7 @@ describe("state persistence", () => {
 
     it("loads valid state from disk", async () => {
       await using sbox = await sandbox();
-      await Deno.mkdir(join(sbox.path, ".probitas"));
+      await mkdir(join(sbox.path, ".probitas"));
 
       const savedState: LastRunState = {
         version: 1,
@@ -212,7 +213,7 @@ describe("state persistence", () => {
           },
         ],
       };
-      await Deno.writeTextFile(
+      await writeFile(
         join(sbox.path, ".probitas", "last-run.json"),
         JSON.stringify(savedState),
       );
@@ -229,14 +230,14 @@ describe("state persistence", () => {
 
     it("returns undefined for invalid version", async () => {
       await using sbox = await sandbox();
-      await Deno.mkdir(join(sbox.path, ".probitas"));
+      await mkdir(join(sbox.path, ".probitas"));
 
       const invalidState = {
         version: 999,
         timestamp: "2024-01-15T10:30:00.000Z",
         failed: [],
       };
-      await Deno.writeTextFile(
+      await writeFile(
         join(sbox.path, ".probitas", "last-run.json"),
         JSON.stringify(invalidState),
       );
@@ -248,9 +249,9 @@ describe("state persistence", () => {
 
     it("returns undefined for malformed JSON", async () => {
       await using sbox = await sandbox();
-      await Deno.mkdir(join(sbox.path, ".probitas"));
+      await mkdir(join(sbox.path, ".probitas"));
 
-      await Deno.writeTextFile(
+      await writeFile(
         join(sbox.path, ".probitas", "last-run.json"),
         "{ invalid json",
       );
@@ -262,13 +263,13 @@ describe("state persistence", () => {
 
     it("returns undefined for missing required fields", async () => {
       await using sbox = await sandbox();
-      await Deno.mkdir(join(sbox.path, ".probitas"));
+      await mkdir(join(sbox.path, ".probitas"));
 
       const invalidState = {
         version: 1,
         // missing timestamp and failed
       };
-      await Deno.writeTextFile(
+      await writeFile(
         join(sbox.path, ".probitas", "last-run.json"),
         JSON.stringify(invalidState),
       );

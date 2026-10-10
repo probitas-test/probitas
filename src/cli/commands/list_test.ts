@@ -9,12 +9,13 @@
  * @module
  */
 
-import outdent from "@cspotcode/outdent";
+import { outdent } from "outdent";
 import { assertEquals } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
+import { describe, it } from "bun:test";
 import { stub } from "@std/testing/mock";
-import { sandbox } from "@lambdalisue/sandbox";
 import { listCommand } from "./list.ts";
+import { writeFile } from "node:fs/promises";
+import { sandbox } from "@probitas-test/internal-testing";
 
 const createScenario = (name: string, tags: string[] = []) =>
   outdent`
@@ -27,14 +28,14 @@ const createScenario = (name: string, tags: string[] = []) =>
       .build();
   `;
 
-describe("list command", { sanitizeResources: false }, () => {
+describe("list command", () => {
   it("displays scenarios in text format", async () => {
     await using sbox = await sandbox();
 
     const scenario1 = sbox.resolve("test1.probitas.ts");
     const scenario2 = sbox.resolve("test2.probitas.ts");
-    await Deno.writeTextFile(scenario1, createScenario("Test 1"));
-    await Deno.writeTextFile(scenario2, createScenario("Test 2"));
+    await writeFile(scenario1, createScenario("Test 1"));
+    await writeFile(scenario2, createScenario("Test 2"));
 
     const output: string[] = [];
     using _logStub = stub(console, "log", (...args: unknown[]) => {
@@ -53,7 +54,7 @@ describe("list command", { sanitizeResources: false }, () => {
     await using sbox = await sandbox();
 
     const scenarioPath = sbox.resolve("test.probitas.ts");
-    await Deno.writeTextFile(
+    await writeFile(
       scenarioPath,
       createScenario("JSON Test", ["api"]),
     );
@@ -114,11 +115,11 @@ describe("list command", { sanitizeResources: false }, () => {
 
       const apiScenario = sbox.resolve("api.probitas.ts");
       const e2eScenario = sbox.resolve("e2e.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         apiScenario,
         createScenario("API Test", ["api"]),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         e2eScenario,
         createScenario("E2E Test", ["e2e"]),
       );
@@ -144,11 +145,11 @@ describe("list command", { sanitizeResources: false }, () => {
 
       const smokeScenario = sbox.resolve("smoke.probitas.ts");
       const slowScenario = sbox.resolve("slow.probitas.ts");
-      await Deno.writeTextFile(
+      await writeFile(
         smokeScenario,
         createScenario("Smoke Test", ["smoke"]),
       );
-      await Deno.writeTextFile(
+      await writeFile(
         slowScenario,
         createScenario("Slow Test", ["slow"]),
       );

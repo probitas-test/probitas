@@ -5,7 +5,7 @@
  */
 
 import { assertEquals, assertInstanceOf } from "@std/assert";
-import { describe, it } from "@std/testing/bdd";
+import { describe, it } from "bun:test";
 import { deserializeError, serializeError } from "./run_protocol.ts";
 
 describe("protocol", () => {

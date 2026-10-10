@@ -8,10 +8,10 @@
  * @internal
  */
 
-import { applySelectors } from "@probitas/core/selector";
-import { loadScenarios } from "@probitas/core/loader";
+import { applySelectors } from "@probitas-test/core/selector";
+import { loadScenarios } from "@probitas-test/core/loader";
 import { getLogger } from "@logtape/logtape";
-import { Runner } from "@probitas/runner";
+import { Runner } from "@probitas-test/runner";
 import {
   createReporter,
   type RunCommandInput,

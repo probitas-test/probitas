@@ -13,7 +13,7 @@
  * @example
  * ```ts
  * import { ListReporter } from "./list_reporter.ts";
- * import { colorTheme } from "@probitas/core/theme";
+ * import { colorTheme } from "@probitas-test/core/theme";
  *
  * const reporter = new ListReporter({
  *   theme: colorTheme,  // Optional: customize colors
@@ -22,10 +22,10 @@
  * ```
  */
 
-import type { ScenarioMetadata, StepMetadata } from "@probitas/core";
-import type { Reporter, RunResult, StepResult } from "@probitas/runner";
+import type { ScenarioMetadata, StepMetadata } from "@probitas-test/core";
+import type { Reporter, RunResult, StepResult } from "@probitas-test/runner";
 import { Writer } from "./writer.ts";
-import { defaultTheme } from "@probitas/core/theme";
+import { defaultTheme } from "@probitas-test/core/theme";
 import {
   type FormatContext,
   formatFailedTestsLines,
