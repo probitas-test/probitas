@@ -94,7 +94,14 @@ const [duckdb, versions, executablePath] = await Promise.all([
 const duckdbBindings = join(root, "src/cli/_duckdb_bindings.ts");
 const result = await Bun.build({
   entrypoints: [join(root, "src/cli.ts")],
-  compile: { outfile, target, executablePath },
+  compile: {
+    outfile,
+    target,
+    executablePath,
+    // Without it the executable resolves no package from node_modules for
+    // the scenario files it imports at runtime ("Cannot find package").
+    autoloadPackageJson: true,
+  },
   define: {
     PROBITAS_DUCKDB_MANIFEST: JSON.stringify(duckdb),
     PROBITAS_PACKAGE_VERSIONS: JSON.stringify(versions),

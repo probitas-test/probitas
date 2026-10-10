@@ -6,22 +6,22 @@
       "name": "@probitas-test/probitas",
       "dependencies": {
         "@faker-js/faker": "^10.2.0",
-        "@probitas-test/builder": "0.5.2-next.1",
-        "@probitas-test/client-connectrpc": "0.7.0-next.1",
-        "@probitas-test/client-graphql": "0.6.0-next.1",
-        "@probitas-test/client-grpc": "0.6.0-next.1",
-        "@probitas-test/client-http": "0.7.2-next.1",
-        "@probitas-test/client-mongodb": "0.6.0-next.1",
-        "@probitas-test/client-rabbitmq": "0.5.0-next.1",
-        "@probitas-test/client-redis": "0.5.0-next.1",
-        "@probitas-test/client-sql": "0.5.0-next.1",
-        "@probitas-test/client-sql-duckdb": "0.5.0-next.1",
-        "@probitas-test/client-sql-mysql": "0.5.0-next.1",
-        "@probitas-test/client-sql-postgres": "0.5.0-next.1",
-        "@probitas-test/client-sql-sqlite": "0.5.1-next.1",
-        "@probitas-test/client-sqs": "0.5.0-next.1",
-        "@probitas-test/expect": "0.4.1-next.1",
-        "@probitas-test/runner": "0.5.6-next.1",
+        "@probitas-test/builder": "0.5.3",
+        "@probitas-test/client-connectrpc": "0.7.1",
+        "@probitas-test/client-graphql": "0.7.0",
+        "@probitas-test/client-grpc": "0.6.1",
+        "@probitas-test/client-http": "0.8.0",
+        "@probitas-test/client-mongodb": "0.6.1",
+        "@probitas-test/client-rabbitmq": "0.5.1",
+        "@probitas-test/client-redis": "0.5.1",
+        "@probitas-test/client-sql": "0.5.1",
+        "@probitas-test/client-sql-duckdb": "0.5.1",
+        "@probitas-test/client-sql-mysql": "0.5.1",
+        "@probitas-test/client-sql-postgres": "0.5.1",
+        "@probitas-test/client-sql-sqlite": "0.6.0",
+        "@probitas-test/client-sqs": "0.6.0",
+        "@probitas-test/expect": "0.5.0",
+        "@probitas-test/runner": "0.5.7",
         "outdent": "^0.8.0",
       },
       "devDependencies": {
@@ -34,8 +34,8 @@
         "@dprint/typescript": "0.96.1",
         "@logtape/logtape": "^1.3.11",
         "@logtape/pretty": "^1.3.11",
-        "@probitas-test/core": "0.3.2-next.1",
-        "@probitas-test/discover": "0.4.0-next.1",
+        "@probitas-test/core": "0.3.3",
+        "@probitas-test/discover": "0.4.1",
         "@probitas-test/internal-testing": "file:./internal/testing",
         "@std/assert": "npm:@jsr/std__assert@^1.0.16",
         "@std/cbor": "npm:@jsr/std__cbor@^0.1.9",
@@ -203,45 +203,45 @@
 
     "@mongodb-js/saslprep": ["@mongodb-js/saslprep@1.6.0", "", { "dependencies": { "sparse-bitfield": "^3.0.3" } }, "sha512-19jGXfpctLDJUELLUZGJ5BllcLT7rHdF+gTTaN2jzqu0bGkUhpdcYtgK2Vux+g3zuBAa0TM/W666QMIjYhYujw=="],
 
-    "@probitas-test/builder": ["@probitas-test/builder@0.5.2-next.1", "", { "dependencies": { "@probitas-test/core": "0.3.2-next.1" } }, "sha512-khBHp/QUlsBihu9Nn1PxJY1oavJ41eL6ZvwF3NqjhBNR4P/0gTDlzy3njVrUDTIGBEpCV9APx6Rqpuimhkmgtw=="],
+    "@probitas-test/builder": ["@probitas-test/builder@0.5.3", "", { "dependencies": { "@probitas-test/core": "0.3.3" } }, "sha512-FytjoFCpxQIHXmuHTY0t3TOHHe5wJzq7TTeWdJtEBorFHj+gxEVOYMVh0foeK5AROj2xnOl3Fg8oGBzSlaf+Zg=="],
 
-    "@probitas-test/client": ["@probitas-test/client@0.5.0-next.1", "", {}, "sha512-gNHy3Pg2iA3teUX6sSQJd1S6jaf3ErmYlk4d0sBgaCfqQj8otymFQ8rUfvbckbB12ft/4KnTJhnfEGRTIkI0Pw=="],
+    "@probitas-test/client": ["@probitas-test/client@0.6.0", "", {}, "sha512-Z5kzugko7VgZsXhzswUPVZSQw6f9eAWzyrCObeigU7snH+px8MAUI73uIr1/Q6Nam48bYuobF/l0rpCn3tQ6bA=="],
 
-    "@probitas-test/client-connectrpc": ["@probitas-test/client-connectrpc@0.7.0-next.1", "", { "dependencies": { "@bufbuild/protobuf": "^2.7.0", "@connectrpc/connect": "^2.1.1", "@connectrpc/connect-node": "^2.1.1", "@lambdalisue/connectrpc-grpcreflect": "^0.5.0", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1" } }, "sha512-XljKCwIHiVCXcfa/pfltcVaTMpLwOUvoCipaUrpmxSQNmMFWqhEcmAS63BnGKFDqyK+NP2BoWXoD30yuRhjHhw=="],
+    "@probitas-test/client-connectrpc": ["@probitas-test/client-connectrpc@0.7.1", "", { "dependencies": { "@bufbuild/protobuf": "^2.7.0", "@connectrpc/connect": "^2.1.1", "@connectrpc/connect-node": "^2.1.1", "@lambdalisue/connectrpc-grpcreflect": "^0.5.0", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0" } }, "sha512-BEI68DQHy/Uoxq51Dd5j805ygp4mOWYl2j/2NY+d3zIqepj4tg92+io7nBiZI22oSky+I3PmQ9VaadKR8ehjeQ=="],
 
-    "@probitas-test/client-graphql": ["@probitas-test/client-graphql@0.6.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "outdent": "^0.8.0" } }, "sha512-DqaIwvoeJzEESEOCYYmi6SRY8su1zxmWs+fw0svKAOCesMe2HALltvGq0m2GsFRrVgNN7wh0E2666zgN5vhqKQ=="],
+    "@probitas-test/client-graphql": ["@probitas-test/client-graphql@0.7.0", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "outdent": "^0.8.0" } }, "sha512-miCyRQNX47gZCSavj1ZjpTF3LaQDq8RT0nsUnwCIcrGDz1HgpuM5XNe1RK637KCXi2zhAfuQT62xwlkO8kbr6Q=="],
 
-    "@probitas-test/client-grpc": ["@probitas-test/client-grpc@0.6.0-next.1", "", { "dependencies": { "@probitas-test/client-connectrpc": "0.7.0-next.1" } }, "sha512-2bBlHJ+L+TqZ0DDtqIMxo5MnlU3cZ78Q4cApo1Nl7krtnQlzuY1p5Mkvyq4uQS0WJEgKVPv3qzFXuA2BiYT4CQ=="],
+    "@probitas-test/client-grpc": ["@probitas-test/client-grpc@0.6.1", "", { "dependencies": { "@probitas-test/client-connectrpc": "0.7.1" } }, "sha512-iFrJepJOQvnsKtFiLGuLLONDhG1cVc7X4n/UdKuZh4h0WHaBPQlTEB9zfsvDpxb+5hHwMyriCr/nE942aXv1cg=="],
 
-    "@probitas-test/client-http": ["@probitas-test/client-http@0.7.2-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1" } }, "sha512-mMYGllAw/lvnTW3PfhWdxqdBEQj3wG14uMC1nF5756bTShAyX8yXVToYH3cnam0Wx5s6OvIvn9TlZlKZYNfmaw=="],
+    "@probitas-test/client-http": ["@probitas-test/client-http@0.8.0", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0" } }, "sha512-NUvtCfJg7uR9mtFGt75Su7QAs5wldInPeKK/b+xitxSWlqK32ly0Me7vqgaIB+ewa4iIQ2YLpFWJik3M074ccA=="],
 
-    "@probitas-test/client-mongodb": ["@probitas-test/client-mongodb@0.6.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "mongodb": "^6.12.0" } }, "sha512-3d0uY8bwnhujBZ/RgLWrzGisWMtjn68yWeCTCdkj5BqvfycGScaQjVn+jA9zg/X7+oY5jw6Y7YBxxfA+0RF1hQ=="],
+    "@probitas-test/client-mongodb": ["@probitas-test/client-mongodb@0.6.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "mongodb": "^6.12.0" } }, "sha512-dyVwi389cQbrGQIrdr9Cdzq9SIUdBoTYsvPQR9Oc/3ReOW8iUePIlTUsd6+Uf2Zdcp7EXcEkU1LKlbjKYeGgcQ=="],
 
-    "@probitas-test/client-rabbitmq": ["@probitas-test/client-rabbitmq@0.5.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "amqplib": "^0.10.5" } }, "sha512-hP76I1Ui6zhFq6OW6cMvk508IlJgodnnt4bbGlyD53pgtc5dUyyfG6IUT0wH84Dc+fdOIRpxCTMGL3dvE4MNnQ=="],
+    "@probitas-test/client-rabbitmq": ["@probitas-test/client-rabbitmq@0.5.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "amqplib": "^0.10.5" } }, "sha512-Pt3kHzW5Qv6R76CH7fPitim0/r+OVcgHqCf5cZwKtTjsJenovxSXhtmYk1psASe3RB9wxQhf9BxGyJpTa2Bt0g=="],
 
-    "@probitas-test/client-redis": ["@probitas-test/client-redis@0.5.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "ioredis": "^5.4.1" } }, "sha512-9KljxCeDRgg7dV3aL/yE26Oz1gwoznaU5P87HZVi/nv2yyTtbaME8pvkv5HKpNDpd+mtprpiHq9ree8/8G2QWw=="],
+    "@probitas-test/client-redis": ["@probitas-test/client-redis@0.5.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "ioredis": "^5.4.1" } }, "sha512-GK4bWmfOGEE+vkfx7zs8bizb90RAqS9jldYWw5B6O9kuxSGUsUVfDQrGhpfVaPSpalmhZ14xDug55CFyED5gTw=="],
 
-    "@probitas-test/client-sql": ["@probitas-test/client-sql@0.5.0-next.1", "", { "dependencies": { "@probitas-test/client": "0.5.0-next.1" } }, "sha512-iV2B5Ks8qDefNH+2nNhJpmXFEqLsas2WiOFvEnj15F/erLVjIpey91L/5AWiPO3rhkUiXyoFwlyyJGn6gLliag=="],
+    "@probitas-test/client-sql": ["@probitas-test/client-sql@0.5.1", "", { "dependencies": { "@probitas-test/client": "0.6.0" } }, "sha512-mk6+feTFakF5UFXx2dRBr+4fqJXzzlTJS45KHYhoh1Toaerb9mrEVCqituHDEAY5HE7QHiV3wq6fMSBw827kyQ=="],
 
-    "@probitas-test/client-sql-duckdb": ["@probitas-test/client-sql-duckdb@0.5.0-next.1", "", { "dependencies": { "@duckdb/node-api": "1.4.2-r.1", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "@probitas-test/client-sql": "0.5.0-next.1" } }, "sha512-HXRdValJ669ByjNvIAw+viL4Ks6S5WVAxTi5jW8GDwkFu25ZOEHcwmozmlmV0jkPvCT4B7qKr7qemiCr8gZWRA=="],
+    "@probitas-test/client-sql-duckdb": ["@probitas-test/client-sql-duckdb@0.5.1", "", { "dependencies": { "@duckdb/node-api": "1.4.2-r.1", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "@probitas-test/client-sql": "0.5.1" } }, "sha512-yntN5D5Ip30KQsxsKapGrETej6jvegVkhWYncJ5NnPFCPSzrhziBOSGvCGUsaPobY4kMOIIXhcpJQzLtjKLEFA=="],
 
-    "@probitas-test/client-sql-mysql": ["@probitas-test/client-sql-mysql@0.5.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "@probitas-test/client-sql": "0.5.0-next.1", "mysql2": "^3.11.0" } }, "sha512-u6mEPjm7GmMvkeQXy8lBqUsiR/XrMvyYhaNm4m7bKEncS/YIEylmGmeKv9NEMuWoVJqckH69Ipf9iA9ngBuV3w=="],
+    "@probitas-test/client-sql-mysql": ["@probitas-test/client-sql-mysql@0.5.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "@probitas-test/client-sql": "0.5.1", "mysql2": "^3.11.0" } }, "sha512-iE7j6R7dqJOAOwH9KwiexxB3u5QhVVooHcOhfgHFUtlptQDnm0Qi9a9b7H+9F16oe+tcKAcUd9vvl6Yk6DaCGw=="],
 
-    "@probitas-test/client-sql-postgres": ["@probitas-test/client-sql-postgres@0.5.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "@probitas-test/client-sql": "0.5.0-next.1", "postgres": "^3" } }, "sha512-iNFn71xTC0gP7V9va0FP0eezNHU22Atqhc1PRNaqw0i1d5heWehIOCS1eIpf5jRH5B5PLQbMC0hcAbaMKfLx4Q=="],
+    "@probitas-test/client-sql-postgres": ["@probitas-test/client-sql-postgres@0.5.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "@probitas-test/client-sql": "0.5.1", "postgres": "^3" } }, "sha512-MYFQpYvP8gHpmJKrbtKKPM0Kyd7xwm1gMP8kKxld2EWixpi0MvahBAaRo58mgIZF3cPTCrpzgH750cnismLadA=="],
 
-    "@probitas-test/client-sql-sqlite": ["@probitas-test/client-sql-sqlite@0.5.1-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1", "@probitas-test/client-sql": "0.5.0-next.1" } }, "sha512-wiNQuq4iZJd38+OobFck+4oollviDRKg2939UTwo6WpuRRLfDT7X8J16uMHyDCqZScFeIPfa1e/6kf6ggMWZLA=="],
+    "@probitas-test/client-sql-sqlite": ["@probitas-test/client-sql-sqlite@0.6.0", "", { "dependencies": { "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0", "@probitas-test/client-sql": "0.5.1" } }, "sha512-XDk1Xa/AmBdu6yv8IKSwjXa18lkNMNadArToDDOf9s35VkJBx+xyjkwCr7GotyL26C1npf2bPlv8lO4kI/Anbg=="],
 
-    "@probitas-test/client-sqs": ["@probitas-test/client-sqs@0.5.0-next.1", "", { "dependencies": { "@aws-sdk/client-sqs": "^3.700.0", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.5.0-next.1" } }, "sha512-1BW/xyuBQLAhr1YJrWZnfbPto4gyi2dqePKeiuwpwl9gAwr0+3sb1WTTV0N8/rQvgd+hklNSc+yuIhmsMeJRMA=="],
+    "@probitas-test/client-sqs": ["@probitas-test/client-sqs@0.6.0", "", { "dependencies": { "@aws-sdk/client-sqs": "^3.700.0", "@logtape/logtape": "^1.3.11", "@probitas-test/client": "0.6.0" } }, "sha512-FtOXqe/rhW1YQ2xZ97fdI3MmatrjJWic1GzUDkdWFJGhJFntjz3RYeapXGBJWqInsTY022dPCiRH1jnaMsjCpQ=="],
 
-    "@probitas-test/core": ["@probitas-test/core@0.3.2-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11" } }, "sha512-AHwg4SC4qIrRSSD8eGacWyCbZwyR+xgcR8Of7ep/nbdCqasBsEugkIYgtsWLVRpY0Q5SOCsxk77nbyPF2iz3Hw=="],
+    "@probitas-test/core": ["@probitas-test/core@0.3.3", "", { "dependencies": { "@logtape/logtape": "^1.3.11" } }, "sha512-JBmcqJyGCTAS9gAPUONy00FAKiOcYGgah21Et7T6UknzO+ldDH+bW79dTqLfGBgooOWPBovqv7n9T5hRLKk2+w=="],
 
-    "@probitas-test/discover": ["@probitas-test/discover@0.4.0-next.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11" } }, "sha512-YVjFUsi9p9R5TmhywH7DrAwjszvYoxJHGwAbGQV50KjHC1A/Sw3mFfb63VLRd6TFNKZke4Gi8rJ6R8OtMctqWQ=="],
+    "@probitas-test/discover": ["@probitas-test/discover@0.4.1", "", { "dependencies": { "@logtape/logtape": "^1.3.11" } }, "sha512-pMyc3eDHbKAy7jZ0FLW8q2XskW+5R6QZJ4tJ7TYsb/N0b42hAcoYgd+KdqIHy/RKWNeOJj7ehKS5dB3TfcjnoA=="],
 
-    "@probitas-test/expect": ["@probitas-test/expect@0.4.1-next.1", "", { "dependencies": { "@probitas-test/client-connectrpc": "0.7.0-next.1", "@probitas-test/client-graphql": "0.6.0-next.1", "@probitas-test/client-grpc": "0.6.0-next.1", "@probitas-test/client-http": "0.7.2-next.1", "@probitas-test/client-mongodb": "0.6.0-next.1", "@probitas-test/client-rabbitmq": "0.5.0-next.1", "@probitas-test/client-redis": "0.5.0-next.1", "@probitas-test/client-sql": "0.5.0-next.1", "@probitas-test/client-sqs": "0.5.0-next.1", "@probitas-test/core": "0.3.2-next.1", "diff": "^7" } }, "sha512-TT7BaGUn1D2Zuml5X7WS+XStLsrgTOHh0KA5hN+MzRTsNs4pnyVlW+woCBBb3Utznfpcb0ZiLiKYanIPyWwG2w=="],
+    "@probitas-test/expect": ["@probitas-test/expect@0.5.0", "", { "dependencies": { "@probitas-test/client-connectrpc": "0.7.1", "@probitas-test/client-graphql": "0.7.0", "@probitas-test/client-grpc": "0.6.1", "@probitas-test/client-http": "0.8.0", "@probitas-test/client-mongodb": "0.6.1", "@probitas-test/client-rabbitmq": "0.5.1", "@probitas-test/client-redis": "0.5.1", "@probitas-test/client-sql": "0.5.1", "@probitas-test/client-sqs": "0.6.0", "@probitas-test/core": "0.3.3", "diff": "^7" } }, "sha512-uWFvQSHAjEFWdEaO8OZE1WdjroDYA9lwR2QjEo82wXibCnxDc621wRGS6em1M/tDMg1bQnZ5FQGFpz56cNn08Q=="],
 
     "@probitas-test/internal-testing": ["@probitas-test/internal-testing@file:internal/testing", {}],
 
-    "@probitas-test/runner": ["@probitas-test/runner@0.5.6-next.1", "", { "dependencies": { "@probitas-test/core": "0.3.2-next.1" } }, "sha512-YFHx9sjdHys+IYnyqrvol9ohCvGskszj0038uixkRBgSMcXphKFVq/hJuOcFyHPs1wABklHqcjLzY4Ff+JpTgg=="],
+    "@probitas-test/runner": ["@probitas-test/runner@0.5.7", "", { "dependencies": { "@probitas-test/core": "0.3.3" } }, "sha512-VAWdq1ENNMzHGal6HQDyMcbV5p16WLuFwB08I4GH4DBPwmHAmD4n7VUeucZyn9MiDLsSn8rdIiZmvuOjUPdVDA=="],
 
     "@smithy/core": ["@smithy/core@3.35.2", "", { "dependencies": { "@smithy/types": "^4.19.0", "tslib": "^2.6.2" } }, "sha512-ejTukBuP/Pg3t9N8Ux+0zKsXeHWm7p6W3HbXFOyltKasSxZwCFmvTut7kBdZSCF3m9y1bXXyVu6p2xuMFcsTyQ=="],
 
