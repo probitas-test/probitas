@@ -1,0 +1,25 @@
+probitas cache - Pre-fetch native dependencies
+
+Usage: probitas cache <target>
+
+Targets:
+  duckdb  DuckDB native binding used by client.sql.duckdb
+
+Options:
+  -h, --help  Show help message
+
+Note:
+  The binary downloads the DuckDB native binding the first time a scenario
+  uses DuckDB, verifies it against the checksum recorded at build time, and
+  caches it per version and platform. Run this ahead of time for CI images
+  or offline machines.
+
+Environment Variables:
+  PROBITAS_DUCKDB_DIR  Directory holding an extracted DuckDB native binding
+                       (duckdb.node and its shared library); skips the cache
+  XDG_CACHE_HOME       Cache root on Linux (default: ~/.cache)
+
+Examples:
+  probitas cache duckdb
+
+Documentation: https://probitas-test.github.io/

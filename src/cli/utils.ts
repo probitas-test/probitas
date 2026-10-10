@@ -191,7 +191,7 @@ async function readInstalledPackageVersions(): Promise<Record<string, string>> {
       const manifest = JSON.parse(
         await readFile(resolve(nodeModules, name, "package.json"), "utf8"),
       );
-      versions[name] = manifest.version;
+      if (!manifest.private) versions[name] = manifest.version;
     } catch (err: unknown) {
       logger.debug("Failed to read package version", { name, err });
     }

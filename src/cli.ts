@@ -7,6 +7,7 @@
 import { parseArgs } from "@std/cli";
 import { getLogger } from "@logtape/logtape";
 import { EXIT_CODE } from "./cli/constants.ts";
+import { cacheCommand } from "./cli/commands/cache.ts";
 import { checkCommand } from "./cli/commands/check.ts";
 import { initCommand } from "./cli/commands/init.ts";
 import { listCommand } from "./cli/commands/list.ts";
@@ -82,6 +83,9 @@ export async function main(args: string[]): Promise<number> {
 
     case "check":
       return await checkCommand(commandArgs, cwd);
+
+    case "cache":
+      return await cacheCommand(commandArgs, cwd);
 
     default:
       console.warn(`Unknown command: ${command}`);

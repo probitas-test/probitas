@@ -24,6 +24,7 @@
   },
   "scripts": {
     "probitas": "bun src/cli.ts",
+    "build": "bun scripts/build.ts",
     "fmt": "dprint fmt",
     "fmt:check": "dprint check",
     "lint": "biome lint .",

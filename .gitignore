@@ -3,5 +3,4 @@
 .probitas/
 result
 dist/
-src/cli/_embedded_templates.ts
 node_modules/
