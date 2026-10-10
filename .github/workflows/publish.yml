@@ -1,0 +1,153 @@
+name: Publish
+
+# Publishes a release of probitas. The GitHub Release tag is the version
+# (v2.0.0 publishes 2.0.0); package.json keeps a placeholder version.
+#
+# - A published Release builds the binaries and attaches them with
+#   SHA256SUMS (install.sh, Homebrew and setup-probitas download them), then
+#   publishes the library to npm and JSR. Re-running skips what is already
+#   published.
+# - A pre-release Release publishes under npm's `next` dist-tag and leaves
+#   Homebrew and the Nix package on the latest release.
+# - Running the workflow manually is a dry run for the given version.
+#
+# After a release, the Homebrew formula is updated and a pull request points
+# the Nix package (nix/release.json) at the new binaries.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to dry-run the publish with (e.g. 2.0.0)
+        required: true
+
+permissions:
+  contents: write # attach the binaries, push the nix/release.json branch
+  id-token: write # npm trusted publishing and JSR OIDC
+  pull-requests: write # open the nix/release.json pull request
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      - name: Decide the version
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$EVENT" = "release" ]; then
+            version=${TAG#v}
+            dist_tag=$([ "$PRERELEASE" = "true" ] && echo next || echo latest)
+            dry_run=false
+          else
+            version=$INPUT_VERSION
+            dist_tag=next
+            dry_run=true
+          fi
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Release tags look like v2.0.0, got ${TAG:-$INPUT_VERSION}"
+            exit 1
+          fi
+          {
+            echo "version=$version"
+            echo "dist-tag=$dist_tag"
+            echo "dry-run=$dry_run"
+          } >> "$GITHUB_OUTPUT"
+
+      - run: nix develop -c bun install --frozen-lockfile
+
+      # `--version` and the JSR manifest read the version from package.json.
+      - name: Set the version
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          nix develop -c bun pm pkg set version="$VERSION"
+          nix develop -c bun run jsr:sync
+
+      - run: nix develop -c bun run build
+      - run: nix develop -c bun run package --out "$RUNNER_TEMP/release"
+      - run: nix develop -c bun pm pack --destination "$RUNNER_TEMP/npm"
+
+      - name: Attach the binaries to the release
+        if: steps.version.outputs.dry-run != 'true'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" "$RUNNER_TEMP"/release/* --clobber
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # npm trusted publishing (GitHub OIDC) needs npm 11.5.1 or later;
+      # @probitas-test/probitas lists this workflow as its trusted publisher.
+      - run: npm install -g npm@^11.5.1
+
+      - name: Publish to npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DIST_TAG: ${{ steps.version.outputs.dist-tag }}
+          DRY_RUN: ${{ steps.version.outputs.dry-run }}
+        run: |
+          tarball=$(ls "$RUNNER_TEMP"/npm/*.tgz)
+          if [ "$DRY_RUN" = "true" ]; then
+            npm publish "$tarball" --tag "$DIST_TAG" --access public --dry-run
+          elif npm view "@probitas-test/probitas@$VERSION" version > /dev/null 2>&1; then
+            echo "@probitas-test/probitas@$VERSION is already on npm"
+          else
+            npm publish "$tarball" --tag "$DIST_TAG" --access public
+          fi
+
+      # `jsr publish` skips a version it already published, so retrying it
+      # after a transient registry error is safe.
+      - name: Publish to JSR
+        env:
+          DRY_RUN: ${{ steps.version.outputs.dry-run }}
+        run: |
+          flags=$([ "$DRY_RUN" = "true" ] && echo --dry-run || true)
+          for attempt in 1 2 3; do
+            # shellcheck disable=SC2086
+            npx --yes jsr publish --allow-dirty $flags && exit 0
+            echo "jsr publish failed (attempt $attempt)"
+            sleep 30
+          done
+          exit 1
+
+      - name: Point the Nix package at this release
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          nix develop -c bun scripts/nix_release.ts --version "$VERSION" --checksums "$RUNNER_TEMP/release/SHA256SUMS"
+          branch="chore/nix-release-v$VERSION"
+          git switch -c "$branch"
+          git add nix/release.json
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "chore(*): point the Nix package at v$VERSION"
+          git push --force origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Point the Nix package at v$VERSION" \
+            --body "Updates nix/release.json to the binaries of [v$VERSION](https://github.com/${GITHUB_REPOSITORY}/releases/tag/v$VERSION), so the flake's \`probitas\` package and overlay install it." \
+            || echo "A pull request for $branch already exists"
+
+  update-homebrew:
+    needs: publish
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    uses: ./.github/workflows/update-homebrew.yml
+    secrets: inherit
