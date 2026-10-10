@@ -35,6 +35,29 @@ jobs:
           files: ./.coverage/lcov.info
           slug: probitas-test/probitas
 
+  # Packages the Linux release archive and installs it with install.sh from a
+  # local mirror of the GitHub Releases layout, outside the Nix shell, the way
+  # users and the Homebrew formula install it.
+  install-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: nixbuild/nix-quick-install-action@v34
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run package --target bun-linux-x64 --out "$RUNNER_TEMP/release"
+
+      - name: Serve the release mirror
+        run: |
+          nix develop -c bun scripts/serve_release_mirror.ts "$RUNNER_TEMP/release" 2.0.0-ci 18765 &
+          timeout 30 sh -c 'until curl -fsS http://127.0.0.1:18765/tag/v2.0.0-ci >/dev/null; do sleep 1; done'
+
+      - run: sh install.sh
+        env:
+          PROBITAS_RELEASE_BASE_URL: http://127.0.0.1:18765
+          PROBITAS_INSTALL_DIR: ${{ runner.temp }}/root
+
+      - run: $RUNNER_TEMP/root/bin/probitas --version
+
   # Runs the example scenarios with the compiled binary, from a directory
   # without node_modules, the way users run it.
   scenario-test:
