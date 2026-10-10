@@ -112,8 +112,8 @@
     "fmt:check": "dprint check",
     "lint": "biome lint .",
     "check": "tsc -p .",
-    "test": "bun test --timeout 60000 ./internal ./src",
-    "verify": "dprint check && biome lint . && tsc -p . && bun test --timeout 60000 ./internal ./src"
+    "test": "bun test --timeout 60000 ./internal ./src ./scripts",
+    "verify": "dprint check && biome lint . && tsc -p . && bun test --timeout 60000 ./internal ./src ./scripts"
   },
   "dependencies": {
     "@faker-js/faker": "^10.2.0",

@@ -45,6 +45,8 @@
         devShells.default = pkgs.mkShell {
           packages = [
             bun
+            # scripts/compile.ts extracts the official Bun runtime it embeds.
+            pkgs.unzip
           ];
 
           # Prebuilt native addons (DuckDB's duckdb.node) link libstdc++, which

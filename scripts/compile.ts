@@ -7,8 +7,10 @@
  *              defaults to the host platform
  *   --outfile  Defaults to `out/probitas` (`.exe` appended on Windows)
  *
- * Besides compiling, the build records two facts the binary cannot discover
- * at run time: the versions of the embedded @probitas-test packages (for
+ * The binary always embeds the official Bun release matching the running
+ * Bun's version (see `_bun_runtime.ts`), never the running executable. Besides
+ * compiling, the build records two facts the binary cannot discover at run
+ * time: the versions of the embedded @probitas-test packages (for
  * `--version`), and where to fetch DuckDB's native binding from together with
  * its checksum (the binding is downloaded on first use, not embedded).
  *
@@ -22,6 +24,7 @@ import { join } from "node:path";
 import process from "node:process";
 import type { DuckdbManifest } from "../src/cli/duckdb.ts";
 import { getVersionInfo } from "../src/cli/utils.ts";
+import { defaultCompileTarget, fetchBunRuntime } from "./_bun_runtime.ts";
 
 /** Platforms `@duckdb/node-bindings` publishes a native binding for. */
 const DUCKDB_TARGETS = [
@@ -77,22 +80,21 @@ async function readPackageVersions(): Promise<Record<string, string>> {
 const args = parseArgs(process.argv.slice(2), {
   string: ["target", "outfile"],
 });
-const target = args.target as Bun.Build.CompileTarget | undefined;
-const windows = target
-  ? target.includes("windows")
-  : process.platform === "win32";
+const target =
+  (args.target ?? defaultCompileTarget()) as Bun.Build.CompileTarget;
 const outfile = args.outfile ??
-  (windows ? "out/probitas.exe" : "out/probitas");
+  (target.includes("windows") ? "out/probitas.exe" : "out/probitas");
 
-const [duckdb, versions] = await Promise.all([
+const [duckdb, versions, executablePath] = await Promise.all([
   buildDuckdbManifest(),
   readPackageVersions(),
+  fetchBunRuntime(Bun.version, target, join(root, "out", ".bun-runtime")),
 ]);
 
 const duckdbBindings = join(root, "src/cli/_duckdb_bindings.ts");
 const result = await Bun.build({
   entrypoints: [join(root, "src/cli.ts")],
-  compile: { outfile, ...(target ? { target } : {}) },
+  compile: { outfile, target, executablePath },
   define: {
     PROBITAS_DUCKDB_MANIFEST: JSON.stringify(duckdb),
     PROBITAS_PACKAGE_VERSIONS: JSON.stringify(versions),
@@ -109,4 +111,6 @@ const result = await Bun.build({
 
 for (const log of result.logs) console.error(String(log));
 if (!result.success) process.exit(1);
-console.log(`built ${outfile} (${target ?? "host"}, DuckDB ${duckdb.version})`);
+console.log(
+  `built ${outfile} (${target}, Bun ${Bun.version}, DuckDB ${duckdb.version})`,
+);
