@@ -26,9 +26,11 @@ const logger = getLogger(["probitas", "cli", "run", "subprocess"]);
 // Global AbortController for manual cancellation (Ctrl-C, --fail-fast, etc.)
 let globalAbortController: AbortController | null = null;
 
-// Handle unhandled promise rejections from Deno's node:http2 compatibility layer.
-// The "Bad resource ID" error occurs during HTTP/2 stream cleanup and doesn't
-// affect test correctness, but causes the subprocess to crash without this handler.
+// Keep the worker alive on unhandled rejections: a stray rejection from client
+// cleanup (notably HTTP/2 stream teardown) does not affect results, but would
+// otherwise crash the worker mid-run. "Bad resource ID" is how Deno's node:http2
+// layer reported it; it is kept while scenarios may still hit similar teardown
+// noise.
 globalThis.addEventListener(
   "unhandledrejection",
   (event: PromiseRejectionEvent) => {

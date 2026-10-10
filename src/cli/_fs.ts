@@ -1,6 +1,6 @@
 /**
  * Filesystem helpers replacing `@std/fs` and `@std/dotenv/load`, which call
- * `Deno.*` directly.
+ * Deno APIs directly.
  *
  * @module
  * @internal

@@ -1,6 +1,7 @@
 ---
 paths: "**/*.ts"
 ---
+
 # any vs unknown
 
 This library is primarily used in tests, so we prioritize user ergonomics in

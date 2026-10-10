@@ -1,13 +1,14 @@
 ---
 paths: "**/*.ts"
 ---
+
 # Logging Rules
 
 Logging conventions for Probitas packages.
 
 ## Library
 
-Use `@probitas/logger` (internally powered by `@logtape/logtape`).
+Use `@logtape/logtape` directly.
 
 ## Error Handling and Logging
 
@@ -92,7 +93,7 @@ diagnostics.
 ## Examples
 
 ```ts
-import { getLogger } from "@probitas/logger";
+import { getLogger } from "@logtape/logtape";
 
 const logger = getLogger(["probitas", "runner"]);
 

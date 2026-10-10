@@ -5,10 +5,12 @@ import type { Theme } from "@probitas-test/core/theme";
  *
  * @example Basic usage
  * ```ts
+ * import process from "node:process";
+ * import { Writable } from "node:stream";
  * import { ListReporter } from "./list_reporter.ts";
  *
  * const reporter = new ListReporter({
- *   output: Deno.stdout.writable
+ *   output: Writable.toWeb(process.stdout) as WritableStream<Uint8Array>
  * });
  * void reporter;
  * ```
@@ -29,7 +31,7 @@ export interface ReporterOptions {
   /**
    * Output stream for writing results.
    *
-   * @default Deno.stderr.writable
+   * @default `Writable.toWeb(process.stderr)`
    */
   readonly output?: WritableStream<Uint8Array>;
 
@@ -37,7 +39,7 @@ export interface ReporterOptions {
    * Custom theme for styling output.
    *
    * If not provided, uses {@linkcode defaultTheme} (or {@linkcode noColorTheme}
-   * if `Deno.noColor` is true).
+   * if `NO_COLOR` is set).
    */
   readonly theme?: Theme;
 

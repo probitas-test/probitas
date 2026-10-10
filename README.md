@@ -5,6 +5,7 @@
 <h1 align="center">Probitas</h1>
 
 [![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
+[![npm](https://img.shields.io/npm/v/@probitas-test/probitas)](https://www.npmjs.com/package/@probitas-test/probitas)
 [![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
 [![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
 [![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io)
@@ -63,48 +64,6 @@ brew upgrade probitas
 See [probitas-test/homebrew-tap](https://github.com/probitas-test/homebrew-tap)
 for more details.
 
-#### Using Nix
-
-```bash
-# Run without installing
-nix run github:probitas-test/probitas
-
-# Install into your profile
-nix profile install github:probitas-test/probitas
-```
-
-Or add to your project's `flake.nix`:
-
-```nix
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    probitas-flake.url = "github:probitas-test/probitas";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
-
-  outputs = { nixpkgs, probitas-flake, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ probitas-flake.overlays.default ];
-        };
-      in {
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ probitas ];
-        };
-      });
-}
-```
-
-Then enter the development shell:
-
-```bash
-nix develop
-probitas run
-```
-
 ### GitHub Actions
 
 #### Using setup-probitas Action
@@ -124,27 +83,6 @@ See
 [probitas-test/setup-probitas](https://github.com/probitas-test/setup-probitas)
 for full documentation.
 
-#### Using Nix in GitHub Actions
-
-For projects using Nix flakes with
-[nixbuild/nix-quick-install-action](https://github.com/nixbuild/nix-quick-install-action):
-
-```yaml
-- uses: nixbuild/nix-quick-install-action@v34
-
-- name: Run scenarios
-  run: nix run github:probitas-test/probitas -- run
-```
-
-Or within a Nix development shell:
-
-```yaml
-- uses: nixbuild/nix-quick-install-action@v34
-
-- name: Run scenarios
-  run: nix develop -c probitas run
-```
-
 ## Quick Start
 
 ### 1. Create Your First Scenario
@@ -152,9 +90,9 @@ Or within a Nix development shell:
 Create `probitas/hello.probitas.ts`:
 
 ```typescript
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
 
-const apiUrl = Deno.env.get("API_URL");
+const apiUrl = process.env.API_URL;
 
 export default scenario("User API Test", { tags: ["api", "user"] })
   .step("Check API availability", () => {
@@ -178,18 +116,17 @@ export default scenario("User API Test", { tags: ["api", "user"] })
   .build();
 ```
 
+Scenarios run against the copy of Probitas embedded in the `probitas` binary, so
+nothing needs to be installed to run them. Scenarios written for the Deno
+version (`jsr:@probitas/probitas@^0` imports) keep running as well.
+
 > [!NOTE]
-> **Enable Deno LSP in your editor** for the best development experience. With
-> Deno LSP enabled, you'll get:
->
-> - Auto-completion for Probitas APIs (`scenario`, `expect`, `client`, etc.)
-> - Type checking and inline error detection
-> - Jump to definition for functions and types
-> - Hover documentation for all APIs
->
-> See
-> [Deno's editor setup guide](https://docs.deno.com/runtime/getting_started/setup_your_environment/)
-> for instructions on enabling Deno in VS Code, Vim, Neovim, and other editors.
+> **For editor support**, run `probitas init`: besides an example scenario and a
+> config file, it writes a `package.json` that pins `@probitas-test/probitas` to
+> the binary's version and a `tsconfig.json`. Install it with your package
+> manager (`npm install`, `bun install`, ...) to get auto-completion, type
+> checking and hover documentation in any TypeScript-aware editor, and
+> `probitas check` to type-check scenarios from the command line.
 
 ### 2. Run Your Scenarios
 
@@ -231,12 +168,12 @@ Resources are lifecycle-managed objects with automatic cleanup (Disposable
 pattern):
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Database Query Test", { tags: ["db"] })
   .resource("db", () =>
     client.sql.postgres.createPostgresClient({
-      url: Deno.env.get("DATABASE_URL")!,
+      url: process.env.DATABASE_URL!,
     }))
   .step("Insert test data", async (ctx) => {
     const result = await ctx.resources.db.query(
@@ -266,12 +203,12 @@ export default scenario("Database Query Test", { tags: ["db"] })
 For side effects that need cleanup without creating a reusable client:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
   .resource("redis", () =>
     client.redis.createRedisClient({
-      url: Deno.env.get("REDIS_URL")!,
+      url: process.env.REDIS_URL!,
     }))
   .setup(async (ctx) => {
     // Create test keys before scenario
@@ -297,12 +234,12 @@ export default scenario("Redis Cache Test", { tags: ["redis", "cache"] })
 Organize scenarios with tags for filtering:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("Login Flow", { tags: ["auth", "critical", "e2e"] })
   .resource(
     "http",
-    () => client.http.createHttpClient({ url: Deno.env.get("API_URL")! }),
+    () => client.http.createHttpClient({ url: process.env.API_URL! }),
   )
   .step("Login with valid credentials", async (ctx) => {
     const response = await ctx.resources.http.post("/auth/login", {
@@ -378,7 +315,6 @@ Probitas provides pre-configured clients for common services:
 - **SQL Databases** - PostgreSQL, MySQL, SQLite, DuckDB (`client.sql.*`)
 - **Redis** - Redis operations (`client.redis`)
 - **MongoDB** - MongoDB operations (`client.mongodb`)
-- **Deno KV** - Deno's key-value store (`client.denoKv`)
 - **RabbitMQ** - Message queue operations (`client.rabbitmq`)
 - **AWS SQS** - SQS queue operations (`client.sqs`)
 
@@ -391,16 +327,16 @@ The HTTP client supports OpenID Connect (OIDC) authentication for testing APIs
 that require OAuth 2.0/OIDC authentication:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("OIDC Authentication Test", { tags: ["auth", "oidc"] })
   .resource(
     "http",
     async () =>
       await client.http.oidc.createOidcHttpClient({
-        url: Deno.env.get("API_URL")!,
+        url: process.env.API_URL!,
         oidc: {
-          issuer: Deno.env.get("OIDC_ISSUER")!,
+          issuer: process.env.OIDC_ISSUER!,
           clientId: "my-client-id",
         },
       }),
@@ -434,16 +370,16 @@ The OIDC client supports:
 Probitas provides client-specific expectation functions:
 
 ```typescript
-import { client, expect, scenario } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario } from "@probitas-test/probitas";
 
 export default scenario("E-Commerce Order Flow", { tags: ["e2e", "order"] })
   .resource(
     "http",
-    () => client.http.createHttpClient({ url: Deno.env.get("API_URL")! }),
+    () => client.http.createHttpClient({ url: process.env.API_URL! }),
   )
   .resource("db", () =>
     client.sql.postgres.createPostgresClient({
-      url: Deno.env.get("DATABASE_URL")!,
+      url: process.env.DATABASE_URL!,
     }))
   .step("Create order via API", async (ctx) => {
     const response = await ctx.resources.http.post("/orders", {
@@ -487,20 +423,14 @@ probitas run [options]
 # List scenarios without running
 probitas list [options]
 
-# Initialize configuration file
+# Initialize a project (example scenario, config, editor setup)
 probitas init
 
-# Cache scenario dependencies
-probitas cache [options]
-
-# Format scenario files
-probitas fmt
-
-# Lint scenario files
-probitas lint
-
-# Type check scenario files
+# Type check scenario files (runs the project's tsgo or tsc)
 probitas check
+
+# Pre-fetch the DuckDB native binding (otherwise downloaded on first use)
+probitas cache duckdb
 
 # Show version
 probitas --version
@@ -575,26 +505,18 @@ in machine-readable format:
 
 #### API Documentation
 
-For detailed API reference, use `deno doc` to view type signatures and
-documentation directly from the package:
+For detailed API reference, read the generated documentation on JSR, or the type
+declarations shipped in the npm package:
 
-```bash
-# View expect API documentation
-deno doc jsr:@probitas/probitas/expect
-
-# View client API documentation
-deno doc jsr:@probitas/probitas/client
-
-# View main package documentation
-deno doc jsr:@probitas/probitas
-```
-
-This provides the most accurate and up-to-date type information directly from
-the source code.
+- [`@probitas/probitas`](https://jsr.io/@probitas/probitas/doc) (main package)
+- [`@probitas/probitas/expect`](https://jsr.io/@probitas/probitas/doc/expect)
+- [`@probitas/probitas/client`](https://jsr.io/@probitas/probitas/doc/client)
+- `node_modules/@probitas-test/probitas/dist/**/*.d.ts` after `probitas init`
+  and an install
 
 The combination of narrative documentation (index.md/llms.txt) and API reference
-(`deno doc`) enables AI assistants to provide accurate, comprehensive guidance
-when working with Probitas.
+enables AI assistants to provide accurate, comprehensive guidance when working
+with Probitas.
 
 ## Contributing
 

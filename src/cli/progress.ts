@@ -45,7 +45,7 @@ export interface DiscoverProgress {
 export interface ProgressDisplayOptions {
   /**
    * Output stream to write progress to
-   * @default Deno.stderr
+   * @default process.stderr
    */
   output?: OutputStream;
 
@@ -267,7 +267,7 @@ export function createDiscoveryProgress(
  * Only outputs in TTY environments.
  *
  * @param message - Status message to display
- * @param output - Output stream (default: Deno.stderr)
+ * @param output - Output stream (default: process.stderr)
  * @returns Function to clear the status line, or null if suppressed
  */
 export function writeStatus(

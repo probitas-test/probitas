@@ -7,54 +7,35 @@ Project-specific rules for the Probitas repository.
 BEFORE reporting task completion, run and ensure zero errors/warnings:
 
 ```bash
-deno task verify
+bun run verify
 ```
+
+When touching `package.json` exports or dependencies, also run
+`bun run jsr:sync` so `deno.json` stays in step (CI checks it).
 
 ## Commit Conventions
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/)
-with [@deno/bump-workspaces](https://jsr.io/@deno/bump-workspaces) for automatic
-version management.
+This project uses [Conventional Commits](https://www.conventionalcommits.org/).
+The release tooling that turns them into version bumps is being replaced (the
+previous one, `@deno/bump-workspaces`, required Deno); until then, keep writing
+messages as below.
 
 ### Version Bump Rules
 
-| Commit Type                                              | Version Bump  | Example                                             |
-| -------------------------------------------------------- | ------------- | --------------------------------------------------- |
-| `feat:`                                                  | minor (0.x.0) | `feat(@probitas/builder): add retry option`         |
-| `fix:`, `perf:`, `docs:`, `refactor:`, `test:`, `chore:` | patch (0.0.x) | `fix(@probitas/runner): handle timeout errors`      |
-| `BREAKING:` or `!` suffix                                | major (x.0.0) | `feat(@probitas/runner)!: change API signature`     |
-| Any type with `/unstable` scope                          | patch (0.0.x) | `feat(@probitas/runner/unstable): experimental API` |
+| Commit Type                                              | Version Bump  | Example                                               |
+| -------------------------------------------------------- | ------------- | ----------------------------------------------------- |
+| `feat:`                                                  | minor (0.x.0) | `feat(@probitas/probitas): add cache command`         |
+| `fix:`, `perf:`, `docs:`, `refactor:`, `test:`, `chore:` | patch (0.0.x) | `fix(@probitas/probitas): handle timeout errors`      |
+| `BREAKING:` or `!` suffix                                | major (x.0.0) | `feat(@probitas/probitas)!: change CLI options`       |
+| Any type with `/unstable` scope                          | patch (0.0.x) | `feat(@probitas/probitas/unstable): experimental API` |
 
 ### Scope Convention
 
-Use full package name with `@probitas/` prefix as scope (e.g.,
-`@probitas/expect`). **Scopes are required**.
+Use `@probitas/probitas` (the package's JSR name) as scope. **Scopes are
+required**. Use `(*)` for repository-wide changes such as tooling.
 
 ```bash
-# Single package
-feat(@probitas/builder): add retry option to step execution
-fix(@probitas/runner): handle timeout errors correctly
-
-# Multiple packages (comma-separated)
-fix(@probitas/runner,@probitas/core): fix shared type definitions
-
-# All packages (wildcard)
-docs(*): update copyright headers
-refactor(*): apply new linting rules
-
-# Unstable API (always patch, even for BREAKING)
-feat(@probitas/runner/unstable): experimental parallel execution
-BREAKING(@probitas/runner/unstable): change unstable API signature  # Still patch!
+feat(@probitas/probitas): add cache command
+fix(@probitas/probitas): handle timeout errors correctly
+chore(*): bump dev dependencies
 ```
-
-### Important Notes
-
-- **All conventional commit types trigger version bumps** (including `docs:`)
-- **Scopes determine affected packages** - bump-workspaces uses commit message
-  scopes, not file paths
-- Use `(*)` to affect all packages at once
-- Use `(scope/unstable)` for unstable API changes (always results in patch)
-- Run `deno run -A jsr:@deno/bump-workspaces/cli --dry-run` to preview version
-  bumps
-- The `bump.yml` workflow creates a PR with version updates when manually
-  triggered
