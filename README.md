@@ -4,8 +4,8 @@
 
 <h1 align="center">Probitas</h1>
 
-[![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![npm](https://img.shields.io/npm/v/@probitas-test/probitas)](https://www.npmjs.com/package/@probitas-test/probitas)
+[![JSR](https://jsr.io/badges/@probitas/probitas)](https://jsr.io/@probitas/probitas)
 [![Test](https://github.com/probitas-test/probitas/actions/workflows/test.yml/badge.svg)](https://github.com/probitas-test/probitas/actions/workflows/test.yml)
 [![codecov](https://codecov.io/github/probitas-test/probitas/graph/badge.svg?token=Yu0GPZAMv6)](https://codecov.io/github/probitas-test/probitas)
 [![Docs](https://img.shields.io/badge/docs-probitas--test.github.io-blue)](https://probitas-test.github.io)
@@ -514,14 +514,12 @@ in machine-readable format:
 
 #### API Documentation
 
-For detailed API reference, read the generated documentation on JSR, or the type
-declarations shipped in the npm package:
-
-- [`@probitas/probitas`](https://jsr.io/@probitas/probitas/doc) (main package)
-- [`@probitas/probitas/expect`](https://jsr.io/@probitas/probitas/doc/expect)
-- [`@probitas/probitas/client`](https://jsr.io/@probitas/probitas/doc/client)
-- `node_modules/@probitas-test/probitas/dist/**/*.d.ts` after `probitas init`
-  and an install
+For detailed API reference, read the
+[API documentation](https://probitas-test.github.io/api) or the type
+declarations shipped in the npm package
+(`node_modules/@probitas-test/probitas/dist/**/*.d.ts` after `probitas init` and
+an install). The package is also published to JSR as
+[`@probitas/probitas`](https://jsr.io/@probitas/probitas) for Deno projects.
 
 The combination of narrative documentation (index.md/llms.txt) and API reference
 enables AI assistants to provide accurate, comprehensive guidance when working
