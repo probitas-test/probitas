@@ -1,7 +1,7 @@
 /**
  * TypedArray Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("TypedArray Serialization")
   .step("Return TypedArray values", () => {

@@ -4,13 +4,13 @@
  * This file demonstrates failure messages for each GraphQL expectation method.
  * All scenarios are expected to fail - they use dummy responses to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   GraphqlExecutionError,
   type GraphqlResponse,
   type GraphqlResponseError,
   type GraphqlResponseSuccess,
-} from "jsr:@probitas/client-graphql@^0";
+} from "@probitas-test/client-graphql";
 
 // Helper to create mock GraphQL error response
 function createMockErrorResponse(): GraphqlResponseError {

@@ -4,13 +4,13 @@
  * This file demonstrates failure messages for each HTTP expectation method.
  * All scenarios are expected to fail - they use dummy responses to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   HttpError,
   type HttpResponse,
   type HttpResponseError,
   type HttpResponseSuccess,
-} from "jsr:@probitas/client-http@^0";
+} from "@probitas-test/client-http";
 
 // Helper to create mock HTTP error response
 function createMockErrorResponse(
@@ -42,7 +42,7 @@ function createMockErrorResponse(
     get text() {
       return '{"error":"something went wrong"}';
     },
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     get json(): any {
       return { error: "something went wrong" };
     },
@@ -87,7 +87,7 @@ function createMockSuccessResponse(
     get text() {
       return '{"status":"ok"}';
     },
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     get json(): any {
       return { status: "ok" };
     },

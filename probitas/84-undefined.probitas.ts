@@ -1,7 +1,7 @@
 /**
  * Undefined Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Undefined Serialization")
   .step("Return undefined values", () => {

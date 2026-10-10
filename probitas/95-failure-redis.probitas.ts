@@ -4,7 +4,7 @@
  * This file demonstrates failure messages for each Redis expectation method.
  * All scenarios are expected to fail - they use dummy results to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   type RedisArrayResult,
   RedisConnectionError,
@@ -12,7 +12,7 @@ import {
   type RedisGetResult,
   type RedisHashResult,
   type RedisSetResult,
-} from "jsr:@probitas/client-redis@^0";
+} from "@probitas-test/client-redis";
 
 // Helper functions - separate functions for ok:true and ok:false states
 // These test scenarios focus on assertion failures, not Redis errors.

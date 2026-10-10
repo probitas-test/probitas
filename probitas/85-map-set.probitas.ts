@@ -1,7 +1,7 @@
 /**
  * Map/Set Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Map/Set Serialization")
   .step("Return Map and Set values", () => {

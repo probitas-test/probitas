@@ -58,22 +58,6 @@ services:
       timeout: 5s
       retries: 10
 
-  denokv:
-    image: ghcr.io/denoland/denokv
-    ports:
-      - "4512:4512"
-    command:
-      - --sqlite-path
-      - ":memory:"
-      - serve
-      - --access-token
-      - testtoken1234
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "4512"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   redis:
     image: redis:latest
     ports:
@@ -106,7 +90,7 @@ services:
       retries: 10
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3-management
     ports:
       - "5672:5672"
     environment:

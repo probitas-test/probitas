@@ -10,7 +10,7 @@
  * - Async operations
  * - Skip for conditional execution
  */
-import { expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { expect, scenario, Skip } from "@probitas-test/probitas";
 
 // Simulated database for demonstration
 class MockDatabase {
@@ -95,7 +95,7 @@ export default scenario("Advanced Example", {
   .step("Optional analytics step", () => {
     // Skip if analytics endpoint is not configured
     // This demonstrates Skip usage for optional functionality
-    if (!Deno.env.get("ANALYTICS_ENDPOINT")) {
+    if (!process.env.ANALYTICS_ENDPOINT) {
       throw new Skip("Analytics endpoint not configured");
     }
     return { analyticsEnabled: true };

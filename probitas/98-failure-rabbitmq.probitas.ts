@@ -4,7 +4,7 @@
  * This file demonstrates failure messages for each RabbitMQ expectation method.
  * All scenarios are expected to fail - they use dummy results to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   type RabbitMqAckResult,
   RabbitMqConnectionError,
@@ -13,7 +13,7 @@ import {
   type RabbitMqMessage,
   type RabbitMqPublishResult,
   type RabbitMqQueueResult,
-} from "jsr:@probitas/client-rabbitmq@^0";
+} from "@probitas-test/client-rabbitmq";
 
 // Helper functions - separate functions for ok:true and ok:false states
 

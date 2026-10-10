@@ -1,7 +1,7 @@
 /**
  * Date Serialization Test Scenario
  */
-import { scenario } from "jsr:@probitas/probitas@^0";
+import { scenario } from "@probitas-test/probitas";
 
 export default scenario("Date Serialization")
   .step("Return Date values", () => {

@@ -14,9 +14,9 @@
  * Target: echo-http service on port 18080 (compose.yaml)
  * API Reference: https://github.com/probitas-test/echo-servers/blob/main/echo-http/docs/api.md
  */
-import { client, expect, scenario, Skip } from "jsr:@probitas/probitas@^0";
+import { client, expect, scenario, Skip } from "@probitas-test/probitas";
 
-const BASE_URL = Deno.env.get("ECHO_HTTP_URL") ?? "http://localhost:8080";
+const BASE_URL = process.env.ECHO_HTTP_URL ?? "http://localhost:8080";
 
 export default scenario("HTTP Client Example", {
   tags: ["integration", "http"],

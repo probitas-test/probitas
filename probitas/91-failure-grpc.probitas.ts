@@ -4,13 +4,13 @@
  * This file demonstrates failure messages for each gRPC expectation method.
  * All scenarios are expected to fail - they use dummy responses to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   ConnectRpcError,
   type ConnectRpcResponseError,
   type ConnectRpcResponseSuccess,
-} from "jsr:@probitas/client-connectrpc@^0";
-import type { GrpcResponse } from "jsr:@probitas/client-grpc@^0";
+} from "@probitas-test/client-connectrpc";
+import type { GrpcResponse } from "@probitas-test/client-grpc";
 
 // Helper to create mock gRPC error response
 function createMockErrorResponse(): GrpcResponse {
@@ -30,7 +30,7 @@ function createMockErrorResponse(): GrpcResponse {
     trailers: new Headers({ "grpc-message": "not found" }),
     data: null,
     duration: 250,
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     raw: error as any,
   };
   return response;
@@ -47,7 +47,7 @@ function createMockSuccessResponse(): GrpcResponse {
     statusMessage: null,
     headers: new Headers(),
     trailers: new Headers(),
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: mirrors the any-typed response field
     data: <T = any>(): T | null => ({ message: "ok" }) as T,
     duration: 100,
     raw: () => ({}),

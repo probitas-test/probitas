@@ -4,7 +4,7 @@
  * This file demonstrates failure messages for each MongoDB expectation method.
  * All scenarios are expected to fail - they use dummy results to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   MongoConnectionError,
   type MongoCountResult,
@@ -14,7 +14,7 @@ import {
   type MongoInsertManyResult,
   type MongoInsertOneResult,
   type MongoUpdateResult,
-} from "jsr:@probitas/client-mongodb@^0";
+} from "@probitas-test/client-mongodb";
 
 // Helper functions - separate functions for ok:true and ok:false states
 

@@ -4,13 +4,13 @@
  * This file demonstrates failure messages for each SQL expectation method.
  * All scenarios are expected to fail - they use dummy results to trigger failures.
  */
-import { expect, scenario } from "jsr:@probitas/probitas@^0";
+import { expect, scenario } from "@probitas-test/probitas";
 import {
   SqlError,
   type SqlQueryResult,
   type SqlQueryResultError,
   type SqlQueryResultSuccess,
-} from "jsr:@probitas/client-sql@^0";
+} from "@probitas-test/client-sql";
 
 // Helper to create mock SQL error result (error result has no rows)
 function createMockErrorResult(): SqlQueryResultError {
