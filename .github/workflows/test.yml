@@ -58,6 +58,23 @@ jobs:
 
       - run: $RUNNER_TEMP/root/bin/probitas --version
 
+      # Scenarios import third-party packages installed next to them, which
+      # the executable must resolve from node_modules at runtime.
+      - name: Run a scenario that imports from node_modules
+        run: |
+          dir="$RUNNER_TEMP/node-modules-scenario"
+          mkdir -p "$dir/node_modules/greeting"
+          echo '{"name":"greeting","type":"module","exports":"./index.js"}' > "$dir/node_modules/greeting/package.json"
+          echo 'export const greeting = "hello";' > "$dir/node_modules/greeting/index.js"
+          printf '%s\n' \
+            'import { greeting } from "greeting";' \
+            'import { expect, scenario } from "@probitas-test/probitas";' \
+            'export default scenario("node_modules import")' \
+            '  .step("resolves", () => expect(greeting).toBe("hello"))' \
+            '  .build();' > "$dir/a.probitas.ts"
+          cd "$dir"
+          "$RUNNER_TEMP/root/bin/probitas" run
+
   # Runs the example scenarios with the compiled binary, from a directory
   # without node_modules, the way users run it.
   scenario-test:
