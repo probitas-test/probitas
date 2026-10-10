@@ -9,7 +9,9 @@ import { getLogger } from "@logtape/logtape";
 import { EXIT_CODE } from "./cli/constants.ts";
 import { cacheCommand } from "./cli/commands/cache.ts";
 import { checkCommand } from "./cli/commands/check.ts";
+import { fmtCommand } from "./cli/commands/fmt.ts";
 import { initCommand } from "./cli/commands/init.ts";
+import { lintCommand } from "./cli/commands/lint.ts";
 import { listCommand } from "./cli/commands/list.ts";
 import { runCommand } from "./cli/commands/run.ts";
 import { getVersionInfo, readAsset } from "./cli/utils.ts";
@@ -80,6 +82,12 @@ export async function main(args: string[]): Promise<number> {
 
     case "list":
       return await listCommand(commandArgs, cwd);
+
+    case "fmt":
+      return await fmtCommand(commandArgs, cwd);
+
+    case "lint":
+      return await lintCommand(commandArgs, cwd);
 
     case "check":
       return await checkCommand(commandArgs, cwd);

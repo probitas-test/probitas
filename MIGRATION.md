@@ -82,16 +82,22 @@ documentation.
 
 ## Commands
 
-| 1.x                         | 2.x                                                                    |
-| --------------------------- | ---------------------------------------------------------------------- |
-| `probitas fmt`              | Removed. Use your formatter (dprint, Prettier, Biome, `deno fmt`, ...) |
-| `probitas lint`             | Removed. Use your linter                                               |
-| `probitas check`            | Runs the project's `tsgo` or `tsc` (falling back to one on `PATH`)     |
-| `probitas cache`            | Now `probitas cache duckdb`: pre-fetches the DuckDB native binding     |
-| `--deno-*`, `-r`/`--reload` | Removed                                                                |
+| 1.x                         | 2.x                                                                     |
+| --------------------------- | ----------------------------------------------------------------------- |
+| `probitas fmt`              | Unchanged output (the `deno fmt` formatter is built in); adds `--check` |
+| `probitas lint`             | Lints with Biome's recommended rules instead of `deno lint`'s           |
+| `probitas check`            | Type-checks with the checker built into the binary (`bun check`)        |
+| `probitas cache`            | Now `probitas cache duckdb`: pre-fetches the DuckDB native binding      |
+| `--deno-*`, `-r`/`--reload` | Removed                                                                 |
 
 `run`, `list` and `init` keep their options, and configuration files
 (`probitas.json`, `probitas.jsonc`) are unchanged.
+
+`lint` reports different rules than `deno lint`; silence a finding with
+`// biome-ignore lint/<group>/<rule>: <reason>`. `check` resolves
+`@probitas-test/probitas` from the project, so install the `package.json` that
+`probitas init` writes first. Scenarios still importing `jsr:@probitas/probitas`
+run, but do not type-check until they import `@probitas-test/probitas`.
 
 ## DuckDB
 

@@ -1,85 +1,39 @@
 import { assertEquals } from "@std/assert";
-import { join } from "node:path";
 import { test } from "@probitas-test/internal-testing";
 import { _internal } from "./check.ts";
 
-const { resolveTypeChecker, buildTypeCheckArgs } = _internal;
+const { buildCheckArgs } = _internal;
 
-test("resolveTypeChecker", async (t) => {
-  const cwd = "/project";
-
-  await t.step("prefers the project's tsgo, then its tsc", async () => {
-    const exists = (path: string) =>
-      Promise.resolve(path === join(cwd, "node_modules/.bin/tsc"));
+test("buildCheckArgs", async (t) => {
+  await t.step("checks the project's tsconfig when there is one", () => {
     assertEquals(
-      await resolveTypeChecker(cwd, { exists, which: () => null }),
-      join(cwd, "node_modules/.bin/tsc"),
-    );
-
-    const both = (path: string) =>
-      Promise.resolve(
-        path === join(cwd, "node_modules/.bin/tsc") ||
-          path === join(cwd, "node_modules/.bin/tsgo"),
-      );
-    assertEquals(
-      await resolveTypeChecker(cwd, { exists: both, which: () => null }),
-      join(cwd, "node_modules/.bin/tsgo"),
-    );
-  });
-
-  await t.step("falls back to tsgo, then tsc, on PATH", async () => {
-    const none = () => Promise.resolve(false);
-    assertEquals(
-      await resolveTypeChecker(cwd, {
-        exists: none,
-        which: (cmd) => cmd === "tsc" ? "/usr/bin/tsc" : null,
-      }),
-      "/usr/bin/tsc",
-    );
-    assertEquals(
-      await resolveTypeChecker(cwd, {
-        exists: none,
-        which: (cmd) => `/usr/bin/${cmd}`,
-      }),
-      "/usr/bin/tsgo",
-    );
-  });
-
-  await t.step("returns undefined when nothing is installed", async () => {
-    assertEquals(
-      await resolveTypeChecker(cwd, {
-        exists: () => Promise.resolve(false),
-        which: () => null,
-      }),
-      undefined,
-    );
-  });
-});
-
-test("buildTypeCheckArgs", async (t) => {
-  await t.step("uses the project's tsconfig when there is one", () => {
-    assertEquals(
-      buildTypeCheckArgs({
+      buildCheckArgs({
+        cwd: "/project",
         tsconfig: "/project/tsconfig.json",
-        files: ["a.ts"],
+        files: [],
       }),
-      ["-p", "/project/tsconfig.json", "--noEmit"],
+      ["check", "--cwd=/project", "-p", "/project/tsconfig.json"],
     );
   });
 
   await t.step(
-    "checks the scenario files with Bun-friendly options otherwise",
+    "checks the scenario files with the worker's options otherwise",
     () => {
-      const args = buildTypeCheckArgs({
+      const args = buildCheckArgs({
+        cwd: "/p",
         files: ["/p/a.probitas.ts", "/p/b.probitas.ts"],
       });
+      assertEquals(args.slice(0, 2), ["check", "--cwd=/p"]);
       assertEquals(args.slice(-2), ["/p/a.probitas.ts", "/p/b.probitas.ts"]);
       for (
-        const flag of ["--noEmit", "--strict", "--allowImportingTsExtensions"]
+        const flag of [
+          "--strict",
+          "--allowImportingTsExtensions",
+          "--moduleResolution=bundler",
+        ]
       ) {
         assertEquals(args.includes(flag), true, `missing ${flag}`);
       }
-      assertEquals(args[args.indexOf("--moduleResolution") + 1], "bundler");
     },
   );
 });

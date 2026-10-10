@@ -12,7 +12,9 @@ import tsconfigJson from "../../assets/tsconfig.json" with { type: "text" };
 import usage from "../../assets/usage.txt" with { type: "text" };
 import usageCache from "../../assets/usage-cache.txt" with { type: "text" };
 import usageCheck from "../../assets/usage-check.txt" with { type: "text" };
+import usageFmt from "../../assets/usage-fmt.txt" with { type: "text" };
 import usageInit from "../../assets/usage-init.txt" with { type: "text" };
+import usageLint from "../../assets/usage-lint.txt" with { type: "text" };
 import usageList from "../../assets/usage-list.txt" with { type: "text" };
 import usageRun from "../../assets/usage-run.txt" with { type: "text" };
 
@@ -35,7 +37,9 @@ export const assets: Readonly<Record<string, string>> = {
   "usage.txt": usage,
   "usage-cache.txt": usageCache,
   "usage-check.txt": usageCheck,
+  "usage-fmt.txt": usageFmt,
   "usage-init.txt": usageInit,
+  "usage-lint.txt": usageLint,
   "usage-list.txt": usageList,
   "usage-run.txt": usageRun,
 };

@@ -22,7 +22,7 @@ probitas/
 │   ├── _vendor/                  # Vendored JSR-only modules (see its README)
 │   ├── cli.ts                    # CLI entry point (not published as a library)
 │   └── cli/
-│       ├── commands/             # CLI commands (init, run, list, check, cache)
+│       ├── commands/             # CLI commands (init, run, list, fmt, lint, check, cache)
 │       ├── _worker.ts            # Worker that runs scenarios inside the binary
 │       ├── _templates/           # Worker-side run/list logic and IPC framing
 │       ├── duckdb.ts             # DuckDB native binding download and cache

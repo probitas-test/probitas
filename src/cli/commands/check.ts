@@ -1,77 +1,43 @@
 /**
  * Type-check command for Probitas CLI
  *
- * Delegates to the TypeScript compiler installed in the user's project (or on
- * PATH): `tsgo` when available, otherwise `tsc`. With a `tsconfig.json` in the
- * working directory the project's own settings win; without one, the
- * discovered scenario files are checked with options matching how the Bun
- * worker loads them.
+ * Runs `bun check`, the TypeScript checker built into the embedded Bun. With
+ * a `tsconfig.json` in the working directory the project's own settings win;
+ * without one, the discovered scenario files are checked with options
+ * matching how the worker loads them.
  *
  * @module
  */
 
-import { spawn } from "node:child_process";
-import { access } from "node:fs/promises";
-import { join, resolve } from "node:path";
-import { parseArgs } from "@std/cli";
-import { getLogger, type LogLevel } from "@logtape/logtape";
-import { discoverScenarioFiles } from "@probitas-test/discover";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { EXIT_CODE } from "../constants.ts";
-import { findProbitasConfigFile, loadConfig } from "../config.ts";
-import { createDiscoveryProgress } from "../progress.ts";
-import { configureLogging, readAsset } from "../utils.ts";
+import { exists } from "../_fs.ts";
+import { runToolCommand } from "./_tool.ts";
 
-const logger = getLogger(["probitas", "cli", "check"]);
-
-/** Lookups used to locate a type checker; injectable for tests. */
-interface ResolveOptions {
-  exists: (path: string) => Promise<boolean>;
-  which: (command: string) => string | null;
-}
-
-const defaultResolveOptions: ResolveOptions = {
-  exists: (path) => access(path).then(() => true, () => false),
-  which: (command) => Bun.which(command),
-};
-
-async function resolveTypeChecker(
-  cwd: string,
-  options: ResolveOptions = defaultResolveOptions,
-): Promise<string | undefined> {
-  for (const name of ["tsgo", "tsc"]) {
-    const local = join(cwd, "node_modules", ".bin", name);
-    if (await options.exists(local)) return local;
-  }
-  for (const name of ["tsgo", "tsc"]) {
-    const found = options.which(name);
-    if (found) return found;
-  }
-  return undefined;
-}
-
-function buildTypeCheckArgs(
-  options: { tsconfig?: string; files: readonly string[] },
+function buildCheckArgs(
+  options: { cwd: string; tsconfig?: string; files: readonly string[] },
 ): string[] {
+  // `--cwd` keeps error paths relative to the project while the process
+  // itself starts elsewhere (see checkCommand).
+  const base = ["check", `--cwd=${options.cwd}`];
   if (options.tsconfig) {
-    return ["-p", options.tsconfig, "--noEmit"];
+    return [...base, "-p", options.tsconfig];
   }
   return [
-    "--noEmit",
+    ...base,
     "--strict",
     "--skipLibCheck",
-    "--target",
-    "ESNext",
-    "--module",
-    "Preserve",
-    "--moduleResolution",
-    "bundler",
+    "--target=ESNext",
+    "--module=Preserve",
+    "--moduleResolution=bundler",
     "--allowImportingTsExtensions",
     ...options.files,
   ];
 }
 
 /** @internal */
-export const _internal = { resolveTypeChecker, buildTypeCheckArgs };
+export const _internal = { buildCheckArgs };
 
 /**
  * Run the check command
@@ -84,80 +50,21 @@ export async function checkCommand(
   args: string[],
   cwd: string,
 ): Promise<number> {
-  try {
-    const parsed = parseArgs(args, {
-      string: ["config", "include", "exclude"],
-      boolean: ["help", "quiet", "verbose", "debug"],
-      collect: ["include", "exclude"],
-      alias: { h: "help", v: "verbose", q: "quiet", d: "debug" },
-      default: { include: undefined, exclude: undefined },
-    });
-
-    if (parsed.help) {
-      console.log(await readAsset("usage-check.txt"));
-      return EXIT_CODE.SUCCESS;
-    }
-
-    const logLevel: LogLevel = parsed.debug
-      ? "debug"
-      : parsed.verbose
-      ? "info"
-      : parsed.quiet
-      ? "fatal"
-      : "warning";
-    try {
-      await configureLogging(logLevel);
-    } catch {
-      // Logging may already be configured
-    }
-
-    const checker = await resolveTypeChecker(cwd);
-    if (!checker) {
-      console.error(
-        "probitas check needs TypeScript. Install it in your project " +
-          "(e.g. `bun add -d typescript`) or put `tsc`/`tsgo` on PATH.",
-      );
-      return EXIT_CODE.FAILURE;
-    }
-
-    const tsconfig = join(cwd, "tsconfig.json");
-    let checkerArgs: string[];
-    if (await defaultResolveOptions.exists(tsconfig)) {
-      checkerArgs = buildTypeCheckArgs({ tsconfig, files: [] });
-    } else {
-      const configPath = parsed.config ??
-        await findProbitasConfigFile(cwd, { parentLookup: true });
-      const config = configPath ? await loadConfig(configPath) : {};
-      const paths = parsed._.map(String).map((p) => resolve(cwd, p));
-      const progress = parsed.quiet ? null : createDiscoveryProgress();
-      const files = await discoverScenarioFiles(
-        paths.length ? paths : [cwd],
-        {
-          includes: parsed.include ?? config?.includes,
-          excludes: parsed.exclude ?? config?.excludes,
-          onProgress: progress?.onProgress,
-        },
-      );
-      progress?.complete(files.length);
-      if (files.length === 0) {
-        console.warn("No scenario files found");
-        return EXIT_CODE.NOT_FOUND;
+  return await runToolCommand(args, cwd, {
+    name: "check",
+    async plan({ discover }) {
+      // `bun check` started next to a package.json with a "check" script
+      // runs that script instead, so start it from the temp directory.
+      const tsconfig = join(cwd, "tsconfig.json");
+      if (await exists(tsconfig)) {
+        return {
+          args: buildCheckArgs({ cwd, tsconfig, files: [] }),
+          cwd: tmpdir(),
+        };
       }
-      checkerArgs = buildTypeCheckArgs({ files });
-    }
-
-    logger.debug("Running type checker", { checker, args: checkerArgs });
-    return await new Promise<number>((resolvePromise) => {
-      const child = spawn(checker, checkerArgs, { cwd, stdio: "inherit" });
-      child.once("exit", (code) => resolvePromise(code ?? EXIT_CODE.FAILURE));
-      child.once("error", (err) => {
-        logger.debug("Failed to start type checker", { checker, err });
-        resolvePromise(EXIT_CODE.FAILURE);
-      });
-    });
-  } catch (err: unknown) {
-    const m = err instanceof Error ? err.message : String(err);
-    console.error(`Error: ${m}`);
-    return EXIT_CODE.FAILURE;
-  }
+      const files = await discover();
+      if (!files) return EXIT_CODE.NOT_FOUND;
+      return { args: buildCheckArgs({ cwd, files }), cwd: tmpdir() };
+    },
+  });
 }
