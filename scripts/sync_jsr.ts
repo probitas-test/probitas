@@ -38,7 +38,9 @@ const imports: Record<string, string> = {};
 for (const [name, range] of Object.entries(manifest.dependencies ?? {})) {
   if (name.startsWith("@probitas-test/")) {
     const dep = readManifest(join(root, "node_modules", name, "package.json"));
-    const target = `jsr:${jsrName(name)}@^${dep.version}`;
+    // npm prereleases (`-next.N`) are never published to JSR.
+    const version = dep.version.replace(/-.*$/, "");
+    const target = `jsr:${jsrName(name)}@^${version}`;
     // List every subpath explicitly so Deno never falls back to the npm
     // package's dist/ exports through a "pkg/" prefix entry.
     for (const key of Object.keys(dep.exports)) {

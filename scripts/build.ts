@@ -4,8 +4,7 @@
  * The CLI is distributed as a single binary, so only the library (what
  * scenarios import) is published. Bun consumers resolve the `bun` export
  * condition to the TypeScript sources; `types` / `default` point at `dist/`
- * for editors and other runtimes. The library is compiled against the
- * framework packages' emitted declarations, not their sources.
+ * for editors and other runtimes.
  *
  * Usage: bun scripts/build.ts
  *
@@ -29,8 +28,6 @@ writeFileSync(
       noEmit: false,
       declaration: true,
       rewriteRelativeImportExtensions: true,
-      // Resolve the framework packages through `types` (their dist/).
-      customConditions: [],
       rootDir: "src",
       outDir: "dist",
     },

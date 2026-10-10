@@ -13,7 +13,10 @@
     "strict": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
-    "customConditions": ["bun"]
+    "paths": {
+      "@probitas-test/probitas": ["./src/mod.ts"],
+      "@probitas-test/probitas/*": ["./src/*.ts"]
+    }
   },
   "include": [
     "src/**/*.ts",
