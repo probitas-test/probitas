@@ -1,5 +1,5 @@
 {
-  description = "Probitas CLI - Command-line interface for Probitas";
+  description = "Probitas development environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -7,89 +7,47 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    let
-      # Overlay that adds probitas to pkgs
-      overlay = final: prev: {
-        probitas = prev.writeShellApplication {
-          name = "probitas";
-          runtimeInputs = [
-            prev.deno
-            # Native library dependencies for database clients
-            prev.stdenv.cc.cc.lib
-            prev.sqlite
-            prev.duckdb
-          ];
-          text = ''
-            export DENO_NO_UPDATE_CHECK=1
-
-            # Add native library paths for database clients (FFI support)
-            export LD_LIBRARY_PATH="${prev.lib.makeLibraryPath [
-              prev.stdenv.cc.cc.lib
-              prev.sqlite
-              prev.duckdb
-            ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-
-            # Load SQLite from nixpkgs instead of the prebuilt library @db/sqlite
-            # downloads, which segfaults on dlopen against this glibc.
-            export DENO_SQLITE_PATH="${prev.lib.getLib prev.sqlite}/lib/libsqlite3${prev.stdenv.hostPlatform.extensions.sharedLibrary}"
-
-            # Copy lock file to writable location to avoid /nix/store read-only errors
-            TEMP_LOCK=$(mktemp)
-            cp ${self}/deno.lock "$TEMP_LOCK"
-            trap 'rm -f "$TEMP_LOCK"' EXIT
-
-            exec deno run -A \
-              --unstable-kv \
-              --config=${self}/deno.json \
-              --lock="$TEMP_LOCK" \
-              ${self}/src/cli.ts "$@"
-          '';
-        };
-      };
-    in
-    {
-      # Overlay for easy integration
-      overlays.default = overlay;
-    }
-    //
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ overlay ];
+        pkgs = nixpkgs.legacyPackages.${system};
+
+        # nixpkgs lags behind Bun releases, and gRPC server streaming over
+        # node:http2 needs Bun >= 1.4. Reuse the nixpkgs derivation (patching,
+        # completions) with the upstream release binary.
+        bunVersion = "1.4.3";
+        bunSources = {
+          x86_64-linux = {
+            asset = "bun-linux-x64.zip";
+            hash = "sha256-PnMFKNiXdfA/h/BcBnh8TfQJnQo38/JS57gpyyOBbhg=";
+          };
+          aarch64-linux = {
+            asset = "bun-linux-aarch64.zip";
+            hash = "sha256-76mBPaXtckI7+Ef5FujSxHwNd2rdlyNUAmp14Q2pqiE=";
+          };
+          x86_64-darwin = {
+            asset = "bun-darwin-x64.zip";
+            hash = "sha256-YmYOZDjrhyJ4h3rMp34RUtXQMTJN82jUqBtCghFInS0=";
+          };
+          aarch64-darwin = {
+            asset = "bun-darwin-aarch64.zip";
+            hash = "sha256-gK/UwGm0am+o8+xSC+vHUKeEPkqNW5WD0prUNsAKNAM=";
+          };
         };
+        bun = pkgs.bun.overrideAttrs (_: {
+          version = bunVersion;
+          src = pkgs.fetchurl {
+            url = "https://github.com/oven-sh/bun/releases/download/bun-v${bunVersion}/${bunSources.${system}.asset}";
+            inherit (bunSources.${system}) hash;
+          };
+        });
       in
       {
-        packages = {
-          inherit (pkgs) probitas;
-          default = pkgs.probitas;
-        };
-
-        apps.default = flake-utils.lib.mkApp {
-          drv = pkgs.probitas;
-        };
-
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            deno
-            # Native library dependencies for database clients
-            stdenv.cc.cc.lib  # C++ standard library (required by most native bindings)
-            sqlite            # SQLite library (for @db/sqlite via FFI)
-            duckdb            # DuckDB library (for @duckdb/node-api)
+          packages = [
+            bun
           ];
 
           shellHook = ''
-            # Add native library paths for database clients
-            export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [
-              pkgs.stdenv.cc.cc.lib
-              pkgs.sqlite
-              pkgs.duckdb
-            ]}:$LD_LIBRARY_PATH"
-
-            # Load SQLite from nixpkgs instead of the prebuilt library @db/sqlite
-            # downloads, which segfaults on dlopen against this glibc.
-            export DENO_SQLITE_PATH="${pkgs.lib.getLib pkgs.sqlite}/lib/libsqlite3${pkgs.stdenv.hostPlatform.extensions.sharedLibrary}"
-
             echo "Entering Probitas development environment" >&2
           '';
         };
