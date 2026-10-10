@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "internal/**/*.ts",
+      "scripts/**/*.ts",
+      "probitas/**/*.ts",
+      "!**/node_modules",
+      "!**/_vendor",
+      "!**/dist"
+    ]
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": "off",
+        "useTemplate": "off",
+        "useExponentiationOperator": "off"
+      },
+      "complexity": {
+        "useLiteralKeys": "off"
+      }
+    }
+  }
+}
