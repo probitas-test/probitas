@@ -47,6 +47,10 @@
             bun
           ];
 
+          # Prebuilt native addons (DuckDB's duckdb.node) link libstdc++, which
+          # Nix's dynamic loader does not find on its own.
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ];
+
           shellHook = ''
             echo "Entering Probitas development environment" >&2
           '';
