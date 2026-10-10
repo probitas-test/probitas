@@ -12,7 +12,7 @@ Options:
   --exclude <pattern>       Exclude pattern for file discovery (can be specified multiple times)
   -s, --selector <selector> Select scenarios by selector (can be specified multiple times)
                             Supports ! prefix for negation
-  --reporter <name>         Reporter to use (dot, list, json, tap)
+  --reporter <name>         Reporter to use (list, json)
                             Default: "list"
   --timeout <duration>      Timeout for scenario execution (e.g., "30s", "10m", "1h")
                             Default: "30s". Use "0" for no timeout.
