@@ -35,18 +35,25 @@ execution, providing:
 #### Using Install Script
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | sh
 ```
+
+The script downloads the single `probitas` binary for your platform from the
+GitHub Release, verifies its checksum and installs it to `~/.local/bin`. It
+supports macOS and glibc-based Linux; on Windows, download the `.zip` from the
+[releases](https://github.com/probitas-test/probitas/releases) instead.
 
 Options via environment variables:
 
 ```bash
 # Install specific version
-curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_VERSION=0.7.1 bash
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_VERSION=2.0.0 sh
 
-# Install to custom directory
-curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local/bin bash
+# Install under a custom root (the binary goes to <root>/bin)
+curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install.sh | PROBITAS_INSTALL_DIR=/usr/local sh
 ```
+
+Upgrading from Probitas 1.x (Deno)? See [MIGRATION.md](MIGRATION.md).
 
 #### Using Homebrew
 
@@ -71,9 +78,9 @@ for more details.
 The recommended way to use Probitas in GitHub Actions:
 
 ```yaml
-- uses: probitas-test/setup-probitas@v1
+- uses: probitas-test/setup-probitas@v2
   with:
-    version: latest # or specific version like '0.7.1'
+    probitas-version: latest # or a specific version like '2.0.0'
 
 - name: Run scenarios
   run: probitas run
