@@ -107,6 +107,7 @@
     "probitas": "bun src/cli.ts",
     "build": "bun scripts/build.ts",
     "compile": "bun scripts/compile.ts",
+    "package": "bun scripts/package_release.ts",
     "jsr:sync": "bun scripts/sync_jsr.ts",
     "fmt": "dprint fmt",
     "fmt:check": "dprint check",

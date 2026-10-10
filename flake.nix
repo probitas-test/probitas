@@ -47,6 +47,8 @@
             bun
             # scripts/compile.ts extracts the official Bun runtime it embeds.
             pkgs.unzip
+            # scripts/package_release.ts zips the Windows build.
+            pkgs.zip
           ];
 
           # Prebuilt native addons (DuckDB's duckdb.node) link libstdc++, which
