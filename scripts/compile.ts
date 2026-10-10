@@ -2,12 +2,15 @@
  * Build the single-binary CLI
  *
  * Usage: bun scripts/compile.ts [--target <bun-target>] [--outfile <path>]
+ *          [--executable-path <bun>]
  *
- *   --target   A `bun build --compile` target such as `bun-linux-x64`;
- *              defaults to the host platform
- *   --outfile  Defaults to `out/probitas` (`.exe` appended on Windows)
+ *   --target           A `bun build --compile` target such as
+ *                      `bun-linux-x64`; defaults to the host platform
+ *   --outfile          Defaults to `out/probitas` (`.exe` appended on Windows)
+ *   --executable-path  The Bun executable to embed instead of the official
+ *                      release (the Nix package embeds the Nix-built Bun)
  *
- * The binary always embeds the official Bun release matching the running
+ * By default the binary embeds the official Bun release matching the running
  * Bun's version (see `_bun_runtime.ts`), never the running executable. Besides
  * compiling, the build records two facts the binary cannot discover at run
  * time: the versions of the embedded @probitas-test packages (for
@@ -22,9 +25,12 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import process from "node:process";
-import type { DuckdbManifest } from "../src/cli/duckdb.ts";
 import { getVersionInfo } from "../src/cli/utils.ts";
 import { defaultCompileTarget, fetchBunRuntime } from "./_bun_runtime.ts";
+import {
+  duckdbManifestFromLock,
+  type LockfilePackages,
+} from "./_duckdb_manifest.ts";
 
 /** Platforms `@duckdb/node-bindings` publishes a native binding for. */
 const DUCKDB_TARGETS = [
@@ -53,24 +59,6 @@ async function readDuckdbBindingsVersion(): Promise<string> {
   return version;
 }
 
-async function buildDuckdbManifest(): Promise<DuckdbManifest> {
-  const version = await readDuckdbBindingsVersion();
-  const targets: Record<string, { tarball: string; integrity: string }> = {};
-  for (const target of DUCKDB_TARGETS) {
-    const url =
-      `https://registry.npmjs.org/@duckdb/node-bindings-${target}/${version}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.status}`);
-    }
-    const { dist } = await response.json() as {
-      dist: { tarball: string; integrity: string };
-    };
-    targets[target] = { tarball: dist.tarball, integrity: dist.integrity };
-  }
-  return { version, targets };
-}
-
 async function readPackageVersions(): Promise<Record<string, string>> {
   const info = await getVersionInfo();
   if (!info) throw new Error("Failed to read embedded package versions");
@@ -78,18 +66,24 @@ async function readPackageVersions(): Promise<Record<string, string>> {
 }
 
 const args = parseArgs(process.argv.slice(2), {
-  string: ["target", "outfile"],
+  string: ["target", "outfile", "executable-path"],
 });
 const target =
   (args.target ?? defaultCompileTarget()) as Bun.Build.CompileTarget;
 const outfile = args.outfile ??
   (target.includes("windows") ? "out/probitas.exe" : "out/probitas");
 
-const [duckdb, versions, executablePath] = await Promise.all([
-  buildDuckdbManifest(),
+// Bun parses its lockfile (JSONC) on import.
+const { default: lock } = await import(join(root, "bun.lock")) as {
+  default: LockfilePackages;
+};
+const [duckdbVersion, versions, executablePath] = await Promise.all([
+  readDuckdbBindingsVersion(),
   readPackageVersions(),
-  fetchBunRuntime(Bun.version, target, join(root, "out", ".bun-runtime")),
+  args["executable-path"] ??
+    fetchBunRuntime(Bun.version, target, join(root, "out", ".bun-runtime")),
 ]);
+const duckdb = duckdbManifestFromLock(lock, duckdbVersion, DUCKDB_TARGETS);
 
 const duckdbBindings = join(root, "src/cli/_duckdb_bindings.ts");
 const result = await Bun.build({

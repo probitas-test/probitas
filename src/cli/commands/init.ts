@@ -15,6 +15,19 @@ import { mkdir, writeFile } from "node:fs/promises";
 const logger = getLogger(["probitas", "cli", "init"]);
 
 /**
+ * The `@probitas-test/probitas` version to pin: this binary's, unless it is a
+ * build from an unreleased revision (the Nix package), which npm does not have.
+ */
+function probitasSpecifier(version: string | undefined): string {
+  return version === undefined || version.includes("-unstable")
+    ? "latest"
+    : version;
+}
+
+/** @internal */
+export const _internal = { probitasSpecifier };
+
+/**
  * Default directory name for probitas files
  */
 const DEFAULT_DIRECTORY = "probitas";
@@ -43,7 +56,7 @@ const INIT_FILES: ReadonlyArray<
           private: true,
           type: "module",
           devDependencies: {
-            "@probitas-test/probitas": (await getVersion()) ?? "latest",
+            "@probitas-test/probitas": probitasSpecifier(await getVersion()),
             // Scenarios use Node.js APIs (process.env, node:fs, ...), which
             // the embedded Bun implements at the level of Node.js 24.
             "@types/node": "^24",

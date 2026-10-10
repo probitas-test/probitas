@@ -25,8 +25,9 @@ curl -fsSL https://raw.githubusercontent.com/probitas-test/probitas/main/install
 - Homebrew (`brew install probitas-test/tap/probitas`) and
   `probitas-test/setup-probitas@v2` install the binary as well.
 - The flake's `overlays.default` and `packages.default` keep providing
-  `probitas`, now the release binary (1.x ran the sources with Deno). It follows
-  the latest release rather than the flake's revision; pin
+  `probitas`, built from the flake's revision as in 1.x (now a single binary
+  instead of the sources run with Deno). Pin a release tag such as
+  `github:probitas-test/probitas/v2.0.1` for a released version, or
   `github:probitas-test/probitas/v1.0.0` to stay on 1.x.
 
 ## Scenarios
