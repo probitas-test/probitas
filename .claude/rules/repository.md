@@ -18,9 +18,10 @@ so `deno.json` stays in step (`just ci` checks it).
 
 A release is a GitHub Release whose tag is the version (`v2.0.0`). Publishing it
 runs `.github/workflows/publish.yml`, which sets that version, attaches the
-binaries and `SHA256SUMS`, publishes to npm and JSR, and updates the Homebrew
-formula. Never bump the version in `package.json` by hand. A pre-release Release
-publishes under npm's `next` dist-tag only.
+binaries and `SHA256SUMS`, publishes to npm and JSR, updates the Homebrew
+formula, and asks the documentation site to regenerate its API reference (it
+opens a pull request there). Never bump the version in `package.json` by hand. A
+pre-release Release publishes under npm's `next` dist-tag only.
 
 The flake's package builds the CLI from source (`nix/probitas.nix`), so a
 release does not touch it. When `bun.lock` changes, update the node_modules hash
