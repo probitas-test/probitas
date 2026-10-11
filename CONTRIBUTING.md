@@ -15,25 +15,26 @@ later).
 nix develop
 
 # Optional: auto-activate with direnv
-echo "use flake" > .envrc
+cp .envrc.sample .envrc
 direnv allow
 ```
 
-Run project tasks from within the Nix shell:
+Run project tasks from within the Nix shell with [just](https://just.systems):
 
 ```bash
-bun install
-bun run verify    # Run format check, lint, type check, and tests
-bun run test      # Run tests only
-bun run probitas  # Run the CLI from source (e.g. `bun run probitas run`)
-bun run compile   # Build the single binary into out/
-bun run build     # Build the library for npm into dist/
-bun run jsr:sync  # Regenerate deno.json (the JSR manifest) from package.json
+just              # List the recipes
+just ci           # Everything CI checks: format, lint, type check, JSR manifest, build, tests
+just install      # Install the dependencies bun.lock pins
+just test         # Run tests only
+just probitas     # Run the CLI from source (e.g. `just probitas run`)
+just compile      # Build the single binary into out/
+just build        # Build the library for npm into dist/
+just jsr-sync     # Regenerate deno.json (the JSR manifest) from package.json
+just fmt          # Format the sources
 ```
 
 The example scenarios in `probitas/` double as the end-to-end suite. Start the
-services they talk to with `docker compose up -d`, then run
-`bun run probitas run`.
+services they talk to with `docker compose up -d`, then run `just probitas run`.
 
 ## Release Process
 
