@@ -5,3 +5,6 @@ result
 dist/
 out/
 node_modules/
+/.envrc
+.direnv/
+/.claude/worktrees/

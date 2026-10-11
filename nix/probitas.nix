@@ -44,7 +44,10 @@ stdenv.mkDerivation {
   pname = "probitas";
   inherit version src;
 
-  nativeBuildInputs = [ bun makeWrapper ];
+  nativeBuildInputs = [
+    bun
+    makeWrapper
+  ];
 
   configurePhase = ''
     runHook preConfigure
@@ -68,7 +71,9 @@ stdenv.mkDerivation {
     runHook preInstall
     install -Dm755 probitas $out/libexec/probitas
     makeWrapper $out/libexec/probitas $out/bin/probitas \
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}"}
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${
+        lib.makeLibraryPath [ stdenv.cc.cc.lib ]
+      }"}
     runHook postInstall
   '';
 

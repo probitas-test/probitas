@@ -4,14 +4,15 @@ Project-specific rules for the Probitas repository.
 
 ## Pre-Completion Verification
 
-BEFORE reporting task completion, run and ensure zero errors/warnings:
+BEFORE reporting task completion, run the quality gate inside the Nix dev shell
+and ensure zero errors/warnings:
 
 ```bash
-bun run verify
+just ci
 ```
 
-When touching `package.json` exports or dependencies, also run
-`bun run jsr:sync` so `deno.json` stays in step (CI checks it).
+When touching `package.json` exports or dependencies, also run `just jsr-sync`
+so `deno.json` stays in step (`just ci` checks it).
 
 ## Releases
 

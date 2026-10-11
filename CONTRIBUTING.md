@@ -15,31 +15,50 @@ later).
 nix develop
 
 # Optional: auto-activate with direnv
-echo "use flake" > .envrc
+cp .envrc.sample .envrc
 direnv allow
 ```
 
-Run project tasks from within the Nix shell:
+Run project tasks from within the Nix shell with [just](https://just.systems):
 
 ```bash
-bun install
-bun run verify    # Run format check, lint, type check, and tests
-bun run test      # Run tests only
-bun run probitas  # Run the CLI from source (e.g. `bun run probitas run`)
-bun run compile   # Build the single binary into out/
-bun run build     # Build the library for npm into dist/
-bun run jsr:sync  # Regenerate deno.json (the JSR manifest) from package.json
+just              # List the recipes
+just ci           # Everything CI checks: format, lint, type check, JSR manifest, build, tests
+just install      # Install the dependencies bun.lock pins
+just test         # Run tests only
+just probitas     # Run the CLI from source (e.g. `just probitas run`)
+just compile      # Build the single binary into out/
+just build        # Build the library for npm into dist/
+just jsr-sync     # Regenerate deno.json (the JSR manifest) from package.json
+just fmt          # Format the sources
 ```
 
 The example scenarios in `probitas/` double as the end-to-end suite. Start the
-services they talk to with `docker compose up -d`, then run
-`bun run probitas run`.
+services they talk to with `docker compose up -d`, then run `just probitas run`.
 
 ## Release Process
 
-The release tooling is being rebuilt after the move from Deno to Bun; the
-previous Deno-based Release and Publish workflows have been removed. This
-section will describe the new process once it lands.
+A release is a GitHub Release whose tag is the version (`v2.0.0`); the tag is
+the only record of it, so never bump the version in `package.json` by hand.
+Choose the version from the changes since the previous release, following
+semantic versioning: a breaking change (`!`) is major, `feat` is minor, anything
+else is patch.
+
+Publishing the Release runs `.github/workflows/publish.yml`, which:
+
+1. stamps the version into `package.json` and `deno.json`;
+2. builds the binaries and attaches them with `SHA256SUMS` to the Release;
+3. publishes to npm and JSR through OIDC trusted publishing (no tokens);
+4. asks the Homebrew tap to update its formula.
+
+A Release marked as a pre-release publishes under npm's `next` dist-tag only and
+leaves Homebrew alone. Running the workflow by hand is a dry run of the same
+steps.
+
+The Nix flake builds the CLI from source, so a release does not touch it. When
+`bun.lock` changes, update the node_modules hash in `nix/probitas.nix`: the
+`nix-package` CI job fails with the expected value, or run
+`nix build .#probitas`.
 
 ## Architecture
 

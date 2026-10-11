@@ -7,30 +7,33 @@ on:
   pull_request:
   workflow_dispatch:
 
+# A pull request only needs its latest commit checked. A run on main finishes
+# instead of being cancelled by the next one.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
 jobs:
-  check:
+  # The same gate as local development (justfile).
+  ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run fmt:check
-      - run: nix develop -c bun run lint
-      - run: nix develop -c bun run check
-      - run: nix develop -c bun scripts/sync_jsr.ts --check
-      - run: nix develop -c bun run build
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: nixbuild/nix-quick-install-action@v35
+      - uses: nicknovitski/nix-develop@v1
+      - run: just ci
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c bun install --frozen-lockfile
-
-      - run: nix develop -c bun run test --coverage --coverage-reporter=lcov --coverage-dir=.coverage
-        timeout-minutes: 5
-
-      - uses: codecov/codecov-action@v5
+      # The dev shell's LD_LIBRARY_PATH points at Nix's libstdc++, which
+      # programs built for the runner must not load.
+      - uses: codecov/codecov-action@v7
+        env:
+          LD_LIBRARY_PATH: ""
         with:
           files: ./.coverage/lcov.info
           slug: probitas-test/probitas
@@ -46,6 +49,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: nixbuild/nix-quick-install-action@v35
       - run: nix build -L .#probitas
 
@@ -55,26 +60,37 @@ jobs:
   install-script:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run package --target bun-linux-x64 --out "$RUNNER_TEMP/release"
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: nixbuild/nix-quick-install-action@v35
+      # The steps that act as a user restore this PATH and clear the dev
+      # shell's LD_LIBRARY_PATH, so they run outside the Nix shell.
+      - run: echo "RUNNER_PATH=$PATH" >> "$GITHUB_ENV"
+      - uses: nicknovitski/nix-develop@v1
+      - run: just install
+      - run: just package --target bun-linux-x64 --out "$RUNNER_TEMP/release"
 
       - name: Serve the release mirror
         run: |
-          nix develop -c bun scripts/serve_release_mirror.ts "$RUNNER_TEMP/release" 2.0.0-ci 18765 &
+          bun scripts/serve_release_mirror.ts "$RUNNER_TEMP/release" 2.0.0-ci 18765 &
           timeout 30 sh -c 'until curl -fsS http://127.0.0.1:18765/tag/v2.0.0-ci >/dev/null; do sleep 1; done'
 
-      - run: sh install.sh
+      - run: env PATH="$RUNNER_PATH" sh install.sh
         env:
+          LD_LIBRARY_PATH: ""
           PROBITAS_RELEASE_BASE_URL: http://127.0.0.1:18765
           PROBITAS_INSTALL_DIR: ${{ runner.temp }}/root
 
-      - run: $RUNNER_TEMP/root/bin/probitas --version
+      - run: env PATH="$RUNNER_PATH" "$RUNNER_TEMP/root/bin/probitas" --version
+        env:
+          LD_LIBRARY_PATH: ""
 
       # Scenarios import third-party packages installed next to them, which
       # the executable must resolve from node_modules at runtime.
       - name: Run a scenario that imports from node_modules
+        env:
+          LD_LIBRARY_PATH: ""
         run: |
           dir="$RUNNER_TEMP/node-modules-scenario"
           mkdir -p "$dir/node_modules/greeting"
@@ -87,7 +103,7 @@ jobs:
             '  .step("resolves", () => expect(greeting).toBe("hello"))' \
             '  .build();' > "$dir/a.probitas.ts"
           cd "$dir"
-          "$RUNNER_TEMP/root/bin/probitas" run
+          env PATH="$RUNNER_PATH" "$RUNNER_TEMP/root/bin/probitas" run
 
   # Runs the example scenarios with the compiled binary, from a directory
   # without node_modules, the way users run it.
@@ -175,23 +191,33 @@ jobs:
       # - GitHub Actions services don't support custom command options
       # - Transactions require replica set mode (--replSet flag)
       # - supercharge/mongodb-github-action handles replica set initialization
-      - uses: supercharge/mongodb-github-action@1.12.0
+      - uses: supercharge/mongodb-github-action@1.12.1
         with:
           mongodb-version: "7.0"
           mongodb-replica-set: rs0
 
-      - uses: actions/checkout@v6
-      - uses: nixbuild/nix-quick-install-action@v34
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run compile --outfile "$RUNNER_TEMP/probitas"
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: nixbuild/nix-quick-install-action@v35
+      # The steps that act as a user restore this PATH and clear the dev
+      # shell's LD_LIBRARY_PATH, so they run outside the Nix shell.
+      - run: echo "RUNNER_PATH=$PATH" >> "$GITHUB_ENV"
+      - uses: nicknovitski/nix-develop@v1
+      - run: just install
+      - run: just compile --outfile "$RUNNER_TEMP/probitas"
 
       - name: Copy scenarios outside the repository
         run: |
           mkdir "$RUNNER_TEMP/scenarios"
           cp -R probitas probitas.jsonc "$RUNNER_TEMP/scenarios/"
 
-      - run: $RUNNER_TEMP/probitas --version
+      - run: env PATH="$RUNNER_PATH" "$RUNNER_TEMP/probitas" --version
+        env:
+          LD_LIBRARY_PATH: ""
 
-      - run: $RUNNER_TEMP/probitas run
+      - run: env PATH="$RUNNER_PATH" "$RUNNER_TEMP/probitas" run
         working-directory: ${{ runner.temp }}/scenarios
         timeout-minutes: 5
+        env:
+          LD_LIBRARY_PATH: ""
