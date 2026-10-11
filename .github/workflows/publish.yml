@@ -23,8 +23,7 @@ on:
         required: true
 
 permissions:
-  contents: write # attach the binaries
-  id-token: write # npm trusted publishing and JSR OIDC
+  contents: read
 
 concurrency:
   group: publish
@@ -33,12 +32,31 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # attach the binaries
+      id-token: write # npm trusted publishing and JSR OIDC
     timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Node is set up before the dev shell is loaded: the dev shell's
+      # LD_LIBRARY_PATH points at Nix's libstdc++, which programs built for
+      # the runner must not load, so the npm steps below clear it.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # npm trusted publishing (GitHub OIDC) needs npm 11.5.1 or later;
+      # @probitas-test/probitas lists this workflow as its trusted publisher.
+      - run: npm install -g npm@^11.5.1
+
       - uses: nixbuild/nix-quick-install-action@v35
+      - uses: nicknovitski/nix-develop@v1
 
       - name: Decide the version
         id: version
@@ -67,19 +85,19 @@ jobs:
             echo "dry-run=$dry_run"
           } >> "$GITHUB_OUTPUT"
 
-      - run: nix develop -c bun install --frozen-lockfile
+      - run: just install
 
       # `--version` and the JSR manifest read the version from package.json.
       - name: Set the version
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          nix develop -c bun pm pkg set version="$VERSION"
-          nix develop -c bun run jsr:sync
+          bun pm pkg set version="$VERSION"
+          just jsr-sync
 
-      - run: nix develop -c bun run build
-      - run: nix develop -c bun run package --out "$RUNNER_TEMP/release"
-      - run: nix develop -c bun pm pack --destination "$RUNNER_TEMP/npm"
+      - run: just build
+      - run: just package --out "$RUNNER_TEMP/release"
+      - run: bun pm pack --destination "$RUNNER_TEMP/npm"
 
       - name: Attach the binaries to the release
         if: steps.version.outputs.dry-run != 'true'
@@ -87,17 +105,9 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
         run: gh release upload "$TAG" "$RUNNER_TEMP"/release/* --clobber
 
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-
-      # npm trusted publishing (GitHub OIDC) needs npm 11.5.1 or later;
-      # @probitas-test/probitas lists this workflow as its trusted publisher.
-      - run: npm install -g npm@^11.5.1
-
       - name: Publish to npm
         env:
+          LD_LIBRARY_PATH: ""
           VERSION: ${{ steps.version.outputs.version }}
           DIST_TAG: ${{ steps.version.outputs.dist-tag }}
           DRY_RUN: ${{ steps.version.outputs.dry-run }}
@@ -115,6 +125,7 @@ jobs:
       # after a transient registry error is safe.
       - name: Publish to JSR
         env:
+          LD_LIBRARY_PATH: ""
           DRY_RUN: ${{ steps.version.outputs.dry-run }}
         run: |
           flags=$([ "$DRY_RUN" = "true" ] && echo --dry-run || true)
