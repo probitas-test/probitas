@@ -1,0 +1,36 @@
+name: Update API Docs
+
+# Asks the documentation site to regenerate its API reference from npm. The
+# site waits for the given versions to become npm's latest, regenerates, and
+# opens a pull request with the result.
+
+on:
+  workflow_call:
+    inputs:
+      packages:
+        description: 'Published versions, as {"@probitas-test/<name>": "<version>"}'
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Published versions, as {"@probitas-test/<name>": "<version>"} ({} regenerates from the current latest)'
+        type: string
+        default: "{}"
+
+permissions:
+  contents: read
+
+jobs:
+  update-api-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger the API reference update
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.REPOSITORY_DISPATCH_TOKEN }}
+          repository: probitas-test/probitas-test.github.io
+          event-type: packages-published
+          client-payload: '{"packages": ${{ inputs.packages }}}'

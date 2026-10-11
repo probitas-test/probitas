@@ -38,6 +38,8 @@ jobs:
     timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -141,4 +143,12 @@ jobs:
     needs: publish
     if: github.event_name == 'release' && !github.event.release.prerelease
     uses: ./.github/workflows/update-homebrew.yml
+    secrets: inherit
+
+  update-api-docs:
+    needs: publish
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    uses: ./.github/workflows/update-api-docs.yml
+    with:
+      packages: '{"@probitas-test/probitas": "${{ needs.publish.outputs.version }}"}'
     secrets: inherit
