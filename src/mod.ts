@@ -13,18 +13,25 @@
  * ## Links
  *
  * - [GitHub Repository](https://github.com/probitas-test/probitas)
- * - [Documentation](./.claude/README.md)
+ * - [Documentation](https://probitas-test.github.io/)
+ *
+ * ## Installation
+ *
+ * Scenarios run on the `probitas` CLI, a single binary (see the
+ * documentation). Install this package for editor support and type checking:
+ *
+ * ```bash
+ * npm install --save-dev @probitas-test/probitas
+ * ```
  *
  * ## Related Packages
  *
  * | Package | Description |
  * |---------|-------------|
- * | [@probitas/builder](https://jsr.io/@probitas/builder) | Fluent API for building scenario definitions |
- * | [@probitas/runner](https://jsr.io/@probitas/runner) | Test execution engine with retry and concurrency |
- * | [@probitas/core](https://jsr.io/@probitas/core) | Core type definitions and utilities |
- * | [@probitas/discover](https://jsr.io/@probitas/discover) | Scenario file discovery |
- * | [@probitas/logger](https://jsr.io/@probitas/logger) | Unified logging interface |
- * | [@probitas/cli](https://jsr.io/@probitas/cli) | Command-line interface |
+ * | [@probitas-test/builder](https://www.npmjs.com/package/@probitas-test/builder) | Fluent API for building scenario definitions |
+ * | [@probitas-test/runner](https://www.npmjs.com/package/@probitas-test/runner) | Test execution engine with retry and concurrency |
+ * | [@probitas-test/core](https://www.npmjs.com/package/@probitas-test/core) | Core type definitions and utilities |
+ * | [@probitas-test/discover](https://www.npmjs.com/package/@probitas-test/discover) | Scenario file discovery |
  *
  * ## Core Exports
  *
