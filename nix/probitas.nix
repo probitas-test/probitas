@@ -7,7 +7,7 @@
   lib,
   stdenv,
   stdenvNoCC,
-  makeWrapper,
+  makeBinaryWrapper,
   bun,
   src,
   version,
@@ -46,7 +46,7 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [
     bun
-    makeWrapper
+    makeBinaryWrapper
   ];
 
   configurePhase = ''
