@@ -101,6 +101,8 @@ stdenv.mkDerivation {
 
   passthru = { inherit nodeModules; };
 
+  __darwinAllowLocalNetworking = true;
+
   meta = {
     description = "Scenario-based testing and workflow execution framework";
     homepage = "https://github.com/probitas-test/probitas";
