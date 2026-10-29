@@ -7,7 +7,7 @@
   lib,
   stdenv,
   stdenvNoCC,
-  makeWrapper,
+  makeBinaryWrapper,
   bun,
   src,
   version,
@@ -46,7 +46,7 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [
     bun
-    makeWrapper
+    makeBinaryWrapper
   ];
 
   configurePhase = ''
@@ -100,6 +100,8 @@ stdenv.mkDerivation {
   '';
 
   passthru = { inherit nodeModules; };
+
+  __darwinAllowLocalNetworking = true;
 
   meta = {
     description = "Scenario-based testing and workflow execution framework";
