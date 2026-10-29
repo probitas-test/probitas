@@ -36,6 +36,10 @@ jsr-sync:
 jsr-check:
     bun scripts/sync_jsr.ts --check
 
+# Pin flake.nix to Bun's latest release.
+update-bun:
+    bun scripts/update_bun.ts
+
 # Build the library for npm into dist/.
 build:
     bun run build

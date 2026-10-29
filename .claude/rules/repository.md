@@ -28,6 +28,13 @@ release does not touch it. When `bun.lock` changes, update the node_modules hash
 in `nix/probitas.nix`: the `nix-package` CI job fails with the expected value,
 or run `nix build .#probitas`.
 
+Updates arrive as pull requests. Dependabot bumps the npm dependencies and the
+GitHub Actions, and the Sync Dependabot workflow pushes the regenerated
+`deno.json` and node_modules hash onto its pull requests. The Update Nix
+workflow updates `flake.lock` and the Bun pin in `flake.nix` (`just update-bun`)
+daily. Both use only `GITHUB_TOKEN`, whose pushes and pull requests start no
+workflow, so they dispatch the Test workflow on the branch themselves.
+
 Choose the version from the changes since the previous release, following
 semantic versioning: breaking (`!`) is major, `feat` is minor, anything else is
 patch.
