@@ -23,13 +23,13 @@ Run project tasks from within the Nix shell with [just](https://just.systems):
 
 ```bash
 just              # List the recipes
-just ci           # Everything CI checks: format, lint, type check, JSR manifest, build, tests
+just ci           # Everything CI checks: format, lint, type check, build, tests
 just install      # Install the dependencies bun.lock pins
 just test         # Run tests only
 just probitas     # Run the CLI from source (e.g. `just probitas run`)
 just compile      # Build the single binary into out/
 just build        # Build the library for npm into dist/
-just jsr-sync     # Regenerate deno.json (the JSR manifest) from package.json
+just jsr-sync     # Generate deno.json (the JSR manifest, not committed) from package.json
 just fmt          # Format the sources
 ```
 
@@ -46,7 +46,7 @@ else is patch.
 
 Publishing the Release runs `.github/workflows/publish.yml`, which:
 
-1. stamps the version into `package.json` and `deno.json`;
+1. stamps the version into `package.json` and generates `deno.json` from it;
 2. builds the binaries and attaches them with `SHA256SUMS` to the Release;
 3. publishes to npm and JSR through OIDC trusted publishing (no tokens);
 4. asks the Homebrew tap to update its formula.

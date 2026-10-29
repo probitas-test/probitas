@@ -8,3 +8,4 @@ node_modules/
 /.envrc
 .direnv/
 /.claude/worktrees/
+/deno.json

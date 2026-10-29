@@ -28,13 +28,9 @@ lint:
 typecheck:
     bun run check
 
-# Regenerate deno.json (the JSR manifest) from package.json.
+# Generate deno.json (the JSR manifest, never committed) from package.json.
 jsr-sync:
     bun run jsr:sync
-
-# Check that deno.json is in step with package.json.
-jsr-check:
-    bun scripts/sync_jsr.ts --check
 
 # Pin flake.nix to Bun's latest release.
 update-bun:
@@ -69,4 +65,4 @@ probitas *args:
     bun run probitas "$@"
 
 # Everything CI checks.
-ci: install fmt-check lint typecheck jsr-check build coverage
+ci: install fmt-check lint typecheck build coverage

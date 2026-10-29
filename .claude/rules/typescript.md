@@ -138,8 +138,8 @@ Each export lists three conditions: `bun` resolves to the TypeScript source
 }
 ```
 
-`deno.json` is generated from `package.json` by `bun run jsr:sync`; never edit
-it by hand.
+`deno.json` is generated from `package.json` by `bun run jsr:sync` when
+publishing and is not committed.
 
 ## Documentation Comments
 
