@@ -42,9 +42,7 @@ Run `just ci` inside the Nix dev shell (`nix develop`, or direnv with
 `just` with no arguments lists the other recipes (`just probitas run` runs the
 CLI from source, `just compile` builds the binary into `out/`).
 
-When touching `package.json` exports or dependencies, run `just jsr-sync` so
-`deno.json` stays in step; when `bun.lock` changes, update the node_modules hash
-in `nix/probitas.nix` (see
+When `bun.lock` changes, update the node_modules hash in `nix/probitas.nix` (see
 [`.claude/rules/repository.md`](.claude/rules/repository.md)).
 
 ## Layout

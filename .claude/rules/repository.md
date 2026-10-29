@@ -11,8 +11,8 @@ and ensure zero errors/warnings:
 just ci
 ```
 
-When touching `package.json` exports or dependencies, also run `just jsr-sync`
-so `deno.json` stays in step (`just ci` checks it).
+`deno.json` (the JSR manifest) is generated from `package.json` when publishing
+and never committed; `just jsr-sync` writes it locally.
 
 ## Releases
 
