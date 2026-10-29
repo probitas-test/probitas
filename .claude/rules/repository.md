@@ -29,11 +29,13 @@ in `nix/probitas.nix`: the `nix-package` CI job fails with the expected value,
 or run `nix build .#probitas`.
 
 Updates arrive as pull requests. Dependabot bumps the npm dependencies and the
-GitHub Actions, and the Sync Dependabot workflow pushes the regenerated
-`deno.json` and node_modules hash onto its pull requests. The Update Nix
-workflow updates `flake.lock` and the Bun pin in `flake.nix` (`just update-bun`)
-daily. Both use only `GITHUB_TOKEN`, whose pushes and pull requests start no
-workflow, so they dispatch the Test workflow on the branch themselves.
+GitHub Actions, and the Sync Dependabot workflow pushes the new node_modules
+hash onto its pull requests. The Update Nix workflow updates `flake.lock` and
+the Bun pin in `flake.nix` (`just update-bun`) daily. Both push through the
+`UPDATE_TOKEN` secret, a fine-grained personal access token limited to this
+repository with read and write access to Contents and Pull requests, registered
+as both an Actions and a Dependabot secret. Pull requests and pushes made with
+`GITHUB_TOKEN` leave the Test workflow waiting for approval.
 
 Choose the version from the changes since the previous release, following
 semantic versioning: breaking (`!`) is major, `feat` is minor, anything else is
