@@ -1,0 +1,89 @@
+name: Sync Dependabot
+
+# Completes a Dependabot pull request that changes bun.lock with what
+# Dependabot cannot regenerate: deno.json and the node_modules hash in
+# nix/probitas.nix.
+#
+# The dependencies are installed and built in a job that can only read; the
+# job that can push applies nothing but those two files. A push made with
+# GITHUB_TOKEN starts no workflow, so it neither reruns this one nor the Test
+# workflow, which it dispatches instead.
+
+on:
+  pull_request:
+    paths:
+      - bun.lock
+
+permissions:
+  contents: read
+
+jobs:
+  regenerate:
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+      - uses: nixbuild/nix-quick-install-action@v35
+      - uses: nicknovitski/nix-develop@v1
+
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: just jsr-sync
+
+      - name: Update the node_modules hash
+        run: |
+          if nix build .#probitas --no-link 2> "$RUNNER_TEMP/build.log"; then
+            exit 0
+          fi
+          hash=$(perl -ne 'print $1 if /got:\s+(sha256-\S+)/' "$RUNNER_TEMP/build.log")
+          if [ -z "$hash" ]; then
+            cat "$RUNNER_TEMP/build.log" >&2
+            exit 1
+          fi
+          perl -pi -e "s#outputHash = \"sha256-[^\"]+\";#outputHash = \"$hash\";#" nix/probitas.nix
+
+      - id: diff
+        run: |
+          git diff -- deno.json nix/probitas.nix > "$RUNNER_TEMP/sync.patch"
+          if [ -s "$RUNNER_TEMP/sync.patch" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: sync-patch
+          path: ${{ runner.temp }}/sync.patch
+
+  push:
+    needs: regenerate
+    if: needs.regenerate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: sync-patch
+          path: ${{ runner.temp }}
+      - name: Push the regenerated files
+        run: |
+          git apply --include=deno.json --include=nix/probitas.nix "$RUNNER_TEMP/sync.patch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(*): regenerate deno.json and the node_modules hash" -- deno.json nix/probitas.nix
+          git push
+      - run: gh workflow run test.yml --ref "$GITHUB_HEAD_REF"
+        env:
+          GH_TOKEN: ${{ github.token }}

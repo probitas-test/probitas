@@ -1,0 +1,25 @@
+# flake.lock and the Bun pin in flake.nix are updated by the Update Nix
+# workflow, which Dependabot cannot do. A Dependabot pull request that changes
+# bun.lock is completed by the Sync Dependabot workflow.
+version: 2
+updates:
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(@probitas/probitas)"
+      prefix-development: "chore(*)"
+    groups:
+      dependencies:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci(*)"
+    groups:
+      actions:
+        update-types: [minor, patch]
