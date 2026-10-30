@@ -159,7 +159,7 @@
     "@std/text": "npm:@jsr/std__text@^1.0.17",
     "@types/bun": "^1.4.4",
     "dprint": "0.64.3",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "publishConfig": {
     "access": "public"
