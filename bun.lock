@@ -32,7 +32,7 @@
         "@core/unknownutil": "npm:@jsr/core__unknownutil@^4.3.0",
         "@dprint/formatter": "0.6.0",
         "@dprint/typescript": "0.96.1",
-        "@logtape/logtape": "^1.3.11",
+        "@logtape/logtape": "^2.4.2",
         "@logtape/pretty": "^1.3.11",
         "@probitas-test/core": "0.3.4",
         "@probitas-test/discover": "0.4.2",
@@ -209,7 +209,7 @@
 
     "@lambdalisue/connectrpc-grpcreflect": ["@lambdalisue/connectrpc-grpcreflect@0.5.0", "", { "dependencies": { "@bufbuild/protobuf": "^2.10.1", "@connectrpc/connect": "^2.1.1" } }, "sha512-OisIo84Kmv4sTIFSC8v6sFxlj7H22g8uvRScqFz8ZIWEhNdg7rJK60G05EdQo5juNSK0KzG+x31TieikgQotog=="],
 
-    "@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+    "@logtape/logtape": ["@logtape/logtape@2.4.2", "", {}, "sha512-YJyC1gEMgWmTqJTRtKkjgasEbi8/0gP7Dj8n6bL46gQIAhpTY8uXJ+1QYMOgF5asotlGMvy3G7ejXUe45Yd1MQ=="],
 
     "@logtape/pretty": ["@logtape/pretty@1.3.11", "", { "peerDependencies": { "@logtape/logtape": "^1.3.11" } }, "sha512-PzCGM8Uv0usfz/0J97TOTE0/Ymip6a1kY+bIR/ldq72vNrgjfbDGJLo2F8j5ECSZ6h8HKfNDmKjIaSBQgG9JOQ=="],
 
@@ -414,5 +414,31 @@
     "webidl-conversions": ["webidl-conversions@7.0.0", "", {}, "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="],
 
     "whatwg-url": ["whatwg-url@14.2.0", "", { "dependencies": { "tr46": "^5.1.0", "webidl-conversions": "^7.0.0" } }, "sha512-De72GdQZzNTUBBChsXueQUnPKDkg/5A5zp7pFDuQAj5UFoENpiACU0wlCvzpAGnTkj++ihpKwKyYewn/XNUbKw=="],
+
+    "@probitas-test/client-connectrpc/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-graphql/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-http/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-mongodb/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-rabbitmq/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-redis/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-sql-duckdb/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-sql-mysql/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-sql-postgres/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-sql-sqlite/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/client-sqs/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/core/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
+
+    "@probitas-test/discover/@logtape/logtape": ["@logtape/logtape@1.3.11", "", {}, "sha512-mxkQOyySbjNGweavPudypBf0qZJxLOTXl2NAXYnsZF/ds5dQpTLA7YMSJbc8uFWlTkG+YjAnVL8tQWivIVPOJg=="],
   }
 }
