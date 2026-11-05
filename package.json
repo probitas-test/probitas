@@ -136,9 +136,9 @@
     "outdent": "^0.8.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.3",
+    "@biomejs/biome": "2.6.4",
     "@biomejs/js-api": "6.1.0",
-    "@biomejs/wasm-web": "2.6.3",
+    "@biomejs/wasm-web": "2.6.4",
     "@core/errorutil": "npm:@jsr/core__errorutil@^1.2.1",
     "@core/unknownutil": "npm:@jsr/core__unknownutil@^4.3.0",
     "@dprint/formatter": "0.6.0",
