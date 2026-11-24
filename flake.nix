@@ -11,23 +11,23 @@
       # nixpkgs lags behind Bun releases, and gRPC server streaming over
       # node:http2 needs Bun >= 1.4. Reuse the nixpkgs derivation (patching,
       # completions) with the upstream release binary.
-      bunVersion = "1.4.4";
+      bunVersion = "1.4.5";
       bunSources = {
         x86_64-linux = {
           asset = "bun-linux-x64.zip";
-          hash = "sha256-v4zL+ysLgBWeD5ptFcVTF63YB3U028YTCj7bUvzLOVw=";
+          hash = "sha256-lFWbO1KJlaSUUvnyQEzsdPLv19BuCgAKjNIUsCw2Zus=";
         };
         aarch64-linux = {
           asset = "bun-linux-aarch64.zip";
-          hash = "sha256-uqa7NvUdblhWHgK76oJQOKnfRU9nPW13bou/hvjHhQ4=";
+          hash = "sha256-GGVqO/DqVkH1eWrkITt1JVV5pwoP3tLzN5M3hVaM34Q=";
         };
         x86_64-darwin = {
           asset = "bun-darwin-x64.zip";
-          hash = "sha256-UKNJH3Orwv6BZzFxqFdi07wswWgMzsrdmD3pmt93l34=";
+          hash = "sha256-pJcud4zOS2oZTX0onzJqphV21x2At6U+naLzc5Vm5f0=";
         };
         aarch64-darwin = {
           asset = "bun-darwin-aarch64.zip";
-          hash = "sha256-wkDX8My5DCY6hJ/NsJt+5iYw2SE0jtaq/ahrnVd7xRA=";
+          hash = "sha256-tda8LhPK8U5XyJZh6J79Bz/xYWW0G/5DiCYWQQYJzRA=";
         };
       };
 
