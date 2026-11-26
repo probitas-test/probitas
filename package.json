@@ -132,17 +132,17 @@
     "@probitas-test/client-sql-sqlite": "0.6.1",
     "@probitas-test/client-sqs": "0.6.1",
     "@probitas-test/expect": "0.5.1",
-    "@probitas-test/runner": "0.5.8",
+    "@probitas-test/runner": "0.5.9",
     "outdent": "^0.8.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.3",
+    "@biomejs/biome": "2.6.8",
     "@biomejs/js-api": "6.1.0",
-    "@biomejs/wasm-web": "2.6.3",
+    "@biomejs/wasm-web": "2.6.8",
     "@core/errorutil": "npm:@jsr/core__errorutil@^1.2.1",
     "@core/unknownutil": "npm:@jsr/core__unknownutil@^4.3.0",
     "@dprint/formatter": "0.6.0",
-    "@dprint/typescript": "0.96.1",
+    "@dprint/typescript": "0.101.0",
     "@logtape/logtape": "^2.4.2",
     "@logtape/pretty": "^2.4.2",
     "@probitas-test/core": "0.3.4",
@@ -157,8 +157,8 @@
     "@std/streams": "npm:@jsr/std__streams@^1.0.16",
     "@std/testing": "npm:@jsr/std__testing@^1.0.16",
     "@std/text": "npm:@jsr/std__text@^1.0.17",
-    "@types/bun": "^1.4.4",
-    "dprint": "0.64.3",
+    "@types/bun": "^1.4.5",
+    "dprint": "0.65.0",
     "typescript": "7.0.2"
   },
   "publishConfig": {
